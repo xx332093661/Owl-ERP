@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-extend="mail.widget.Thread.Message">
+        <t t-jquery="span.o_thread_icons" t-operation="replace">
+                <span t-attf-class="o_thread_icons">
+                    <i t-if="options.displayStars and !message.isSystemNotification() and !message.needsModeration()"
+                        t-att-class="'fa fa-lg o_thread_icon o_thread_message_star ' + (message.isStarred() ? 'fa-star' : 'fa-star-o')"
+                        t-att-data-message-id="message.getID()" title="Mark as Todo" role="img" aria-label="Mark as Todo"/>
+                    <!--修改此处-->
+                   <!--<i t-if="message.isLinkedToDocumentThread() and options.displayReplyIcons"-->
+                       <!--class="fa fa-reply o_thread_icon o_thread_message_reply"-->
+                       <!--t-att-data-message-id="message.getID()" title="Reply" role="img" aria-label="Reply"/>-->
+                   <i t-if="message.isLinkedToDocumentThread('hide_reply') and options.displayReplyIcons"
+                       class="fa fa-reply o_thread_icon o_thread_message_reply"
+                       t-att-data-message-id="message.getID()" title="Reply" role="img" aria-label="Reply"/>
+                    <i t-if="message.isNeedaction() and options.displayMarkAsRead"
+                       class="fa fa-check o_thread_icon o_thread_message_needaction"
+                       t-att-data-message-id="message.getID()" title="Mark as Read" role="img" aria-label="Mark as Read"/>
+
+                    <t t-if="message.needsModeration() and message.originatesFromChannel()">
+                        <t t-call="mail.MessageModeration"/>
+                    </t>
+                </span>
+
+        </t>
+    </t>
+</templates>

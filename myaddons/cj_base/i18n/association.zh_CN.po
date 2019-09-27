@@ -1,0 +1,84 @@
+# Chinese (Simplified) translation for openobject-addons
+# Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
+# This file is distributed under the same license as the openobject-addons package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: openobject-addons\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-18 09:49+0000\n"
+"PO-Revision-Date: 2019-03-12 11:03+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2013-01-18 06:35+0000\n"
+"X-Generator: Poedit 2.0.6\n"
+
+#. module: association
+#: model:ir.ui.menu,name:association.menu_event_config
+msgid "Configuration"
+msgstr "设置"
+
+#~ msgid "Wiki"
+#~ msgstr "维基 (Wiki)"
+
+#~ msgid "Event Management"
+#~ msgstr "事件管理"
+
+#~ msgid "Getting Things Done"
+#~ msgstr "GTD"
+
+#~ msgid "This module is to create Profile for Associates"
+#~ msgstr "此模块设置会员管理的功能"
+
+#~ msgid "Here are specific applications related to the Association Profile you selected."
+#~ msgstr "这里有与跟会员管理相关的功能"
+
+#~ msgid "title"
+#~ msgstr "标题"
+
+#~ msgid "Helps you to manage and organize your events."
+#~ msgstr "帮你管理和组织事件"
+
+#~ msgid "Image"
+#~ msgstr "图像"
+
+#~ msgid "Tracks and manages employee expenses, and can automatically re-invoice clients if the expenses are project-related."
+#~ msgstr "跟踪和管理员工费用，如果此费用和项目相关则可以自动向客户开发票"
+
+#~ msgid "GTD is a methodology to efficiently organise yourself and your tasks. This module fully integrates GTD principle with Odoo's project management."
+#~ msgstr "GTD是一种高效统筹个人的时间和任务的方法。这个模块把GTD方法和Odoo的项目管理结合在了一起"
+
+#~ msgid "Resources Management"
+#~ msgstr "资源管理"
+
+#~ msgid "Association profile"
+#~ msgstr "会员管理"
+
+#~ msgid "Expenses Tracking"
+#~ msgstr "费用跟踪"
+
+#~ msgid "Association Application Configuration"
+#~ msgstr "会员模块设置"
+
+#~ msgid "Lets you create wiki pages and page groups in order to keep track of business knowledge and share it with and  between your employees."
+#~ msgstr "让你能够创建维基(wiki)页面和页面组来跟踪业务知识并与你的员工们分享。"
+
+#~ msgid "Helps you manage your projects and tasks by tracking them, generating plannings, etc..."
+#~ msgstr "帮助你管理项目，跟踪任务，生成计划"
+
+#~ msgid "profile.association.config.install_modules_wizard"
+#~ msgstr "profile.association.config.install_modules_wizard"
+
+#~ msgid "Events"
+#~ msgstr "事件"
+
+#~ msgid "Project Management"
+#~ msgstr "项目管理"
+
+#~ msgid "Configure"
+#~ msgstr "配置"

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!--删除原报废菜单-->
+    <data>
+        <record id="stock.menu_stock_scrap" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+
+    </data>
+    <data>
+        <record id="view_stock_scrap_master_tree" model="ir.ui.view">
+            <field name="name">stock.scrap.master.tree</field>
+            <field name="model">stock.scrap.master</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="location_id"/>
+                    <field name="scrap_location_id"/>
+                    <field name="date_expected"/>
+                    <field name="company_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_stock_scrap_master_form" model="ir.ui.view">
+            <field name="name">stock.scrap.master.form</field>
+            <field name="model">stock.scrap.master</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="%(action_import_scrap_line_wizard)d" string="导入报废明细" type="action"
+                                states="draft"
+                                class="oe_highlight" groups="stock.group_stock_user"/>
+
+                        <button name="action_confirm" string="确认" type="object"
+                                states="draft"
+                                class="oe_highlight" groups="stock.group_stock_user"/>
+
+                        <button name="action_draft" type="object"
+                                states="confirm" string="设为草稿" groups="stock.group_stock_user"/>
+
+                        <button name="action_manager_confirm" string="仓库经理审核" type="object"
+                                states="confirm"
+                                class="oe_highlight" groups="stock.group_stock_manager"/>
+
+                        <button name="action_finance_confirm" string="财务专员审核" type="object"
+                                states="manager_confirm"
+                                class="oe_highlight" groups="account.group_account_invoice"/>
+                        <button name="action_finance_manager_confirm" string="财务经理审核" type="object"
+                                states="finance_confirm"
+                                class="oe_highlight" groups="account.group_account_manager"/>
+
+                        <button name="action_done" string="完成" type="object"
+                                states="finance_manager_confirm"
+                                class="oe_highlight" groups="stock.group_stock_user"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,manager_confirm,finance_confirm,finance_manager_confirm,done" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name"/></h1>
+                        </div>
+
+                        <group>
+                            <group>
+                                <field name="location_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="date_expected"/>
+                            </group>
+                            <group>
+                                <field name="scrap_location_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="报废明细">
+                                <field name="line_ids" context="{'default_location_id':location_id, 'default_scrap_location_id':scrap_location_id, 'default_date_expected':date_expected, }">
+                                    <tree editable="top">
+                                        <field name="product_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                        <field name="lot_id" attrs="{'invisible': [('tracking', '=', 'none')], 'required': [('tracking', '!=', 'none')]}" options="{'no_create': 1, 'no_open': 1}"/>
+                                        <field name="tracking" invisible="1"/>
+                                        <field name="scrap_qty"/>
+                                        <field name="product_uom_id" invisible="1"/>
+                                        <field name="date_expected" invisible="1"/>
+                                        <field name="location_id" options="{'no_create': 1, 'no_open': 1}" invisible="1"/>
+                                        <field name="scrap_location_id" options="{'no_create': 1, 'no_open': 1}" invisible="1"/>
+                                        <field name="state" invisible="1"/>
+                                    </tree>
+                                    <form>
+                                        <group col="4">
+                                            <field name="product_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                            <field name="lot_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                            <field name="tracking" invisible="1"/>
+                                            <field name="scrap_qty"/>
+                                            <field name="product_uom_id" invisible="1"/>
+                                            <field name="location_id" options="{'no_create': 1, 'no_open': 1}" invisible="1"/>
+                                            <field name="scrap_location_id" options="{'no_create': 1, 'no_open': 1}" invisible="1"/>
+                                            <field name="state" invisible="1"/>
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="报废原因说明">
+                                <field name="communication" placeholder="报废原因说明..."/>
+                            </page>
+                            <page string="库存移动">
+                                <field name="move_ids">
+
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_stock_scrap_master_filter" model="ir.ui.view">
+            <field name="name">stock.scrap.master.filter</field>
+            <field name="model">stock.scrap.master</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <group expand="0" string="Group By">
+                        <filter string="状态" name="group_state" domain="[]" context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_stock_scrap_master" model="ir.actions.act_window">
+            <field name="name">报废</field>
+            <field name="res_model">stock.scrap.master</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <menuitem
+            id="menu_action_stock_scrap_master"
+            name="报废"
+            parent="stock.menu_stock_warehouse_mgmt"
+            groups="stock.group_stock_user"
+            action="action_stock_scrap_master"
+            sequence="99"/>
+
+    </data>
+
+</odoo>

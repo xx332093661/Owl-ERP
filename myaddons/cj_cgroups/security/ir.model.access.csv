@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_cj_cgroups_cj_cgroups,cj_cgroups_cj_cgroups,model_org_groups,base.group_user,1,1,1,0

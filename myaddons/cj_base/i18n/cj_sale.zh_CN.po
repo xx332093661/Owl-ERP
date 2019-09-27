@@ -1,0 +1,33 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+
+
+
+msgid ""
+msgstr ""
+
+
+#. module: cj_sale
+#: model_terms:ir.ui.view,arch_db:cj_sale.view_order_form_chuanjiu
+#, python-format
+msgid "Order Lines"
+msgstr "订单明细"
+
+#. module: cj_sale
+#: model_terms:ir.ui.view,arch_db:cj_sale.view_order_form_chuanjiu
+#, python-format
+msgid "Other Information"
+msgstr "其它信息"
+
+#. module: cj_sale
+#: model_terms:ir.ui.view,arch_db:cj_sale.view_order_form_chuanjiu
+#, python-format
+msgid "Sales Information"
+msgstr "销售员信息"
+
+#. module: cj_sale
+#: model_terms:ir.ui.view,arch_db:cj_sale.view_order_form_chuanjiu
+#, python-format
+msgid "Invoicing"
+msgstr "结算信息"
+

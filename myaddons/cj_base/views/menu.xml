@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--应用/官网应用商店菜单隐藏-->
+        <record id="base.module_mi" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+        <!--应用/更新菜单隐藏-->
+        <record id="base.menu_module_updates" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+    </data>
+</odoo>

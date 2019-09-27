@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.app setting</field>
+            <field name="model">res.config.settings</field>
+            <!--<field name="priority" eval="40"/>-->
+            <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <!--在商务文件节前添加系统设置-->
+                <xpath expr="//div[@id='business_documents']" position="before">
+                    <div id="app_system_setting">
+                        <h2>系统设置</h2>
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label for="app_show_support" class="col-lg-3 o_light_label"/>
+                                            <field name="app_show_support"/>
+                                        </div>
+                                        <div class="row">
+                                            <label for="app_show_account" class="col-lg-3 o_light_label"/>
+                                            <field name="app_show_account"/>
+                                        </div>
+                                        <div class="row">
+                                            <label for="app_test_environment" class="col-lg-3 o_light_label"/>
+                                            <field name="app_test_environment"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label for="app_show_documentation" class="col-lg-3 o_light_label"/>
+                                            <field name="app_show_documentation"/>
+                                        </div>
+                                        <div class="row">
+                                            <label for="app_show_settings" class="col-lg-3 o_light_label"/>
+                                            <field name="app_show_settings"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label string="应用名称" for="partner_account_receivable_id" class="col-lg-3 o_light_label"/>
+                                            <field name="app_system_name"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+
+                <!--隐藏商务文件节-->
+                <xpath expr="//div[@id='business_documents']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏多公司节-->
+                <xpath expr="//div[@id='multi_company']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏集成节-->
+                <xpath expr="//div[@name='integration']/preceding-sibling::*[1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@name='integration']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏用户节-->
+                <xpath expr="//div[@id='user_default_rights']/preceding-sibling::*[1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='user_default_rights']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

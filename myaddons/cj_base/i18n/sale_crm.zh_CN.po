@@ -1,0 +1,386 @@
+# Chinese (Simplified) translation for openobject-addons
+# Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
+# This file is distributed under the same license as the openobject-addons package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: openobject-addons\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-21 13:17+0000\n"
+"PO-Revision-Date: 2018-09-25 19:07+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2013-03-28 06:01+0000\n"
+"X-Generator: Poedit 2.0.6\n"
+
+#. module: sale_crm
+#: model_terms:ir.ui.view,arch_db:sale_crm.crm_case_form_view_oppor
+msgid "<span class=\"o_stat_text\"> Orders</span>"
+msgstr "<span class=\"o_stat_text\"> 订单</span>"
+
+#. module: sale_crm
+#: model_terms:ir.ui.view,arch_db:sale_crm.crm_case_form_view_oppor
+msgid "<span class=\"o_stat_text\"> Quotation(s) </span>"
+msgstr "<span class=\"o_stat_text\"> 报价单 </span>"
+
+#. module: sale_crm
+#: model:ir.model.fields,field_description:sale_crm.field_account_invoice__campaign_id
+#: model:ir.model.fields,field_description:sale_crm.field_sale_order__campaign_id
+msgid "Campaign"
+msgstr "活动"
+
+#. module: sale_crm
+#: model:ir.model,name:sale_crm.model_account_invoice
+msgid "Invoice"
+msgstr "结算单"
+
+#. module: sale_crm
+#: model:ir.model.fields,field_description:sale_crm.field_res_users__target_sales_invoiced
+msgid "Invoiced in Sales Orders Target"
+msgstr "销售订单目标中的开票金额"
+
+#. module: sale_crm
+#: model:ir.model,name:sale_crm.model_crm_lead
+msgid "Lead/Opportunity"
+msgstr "线索/商机"
+
+#. module: sale_crm
+#: model_terms:ir.ui.view,arch_db:sale_crm.sale_view_inherit123
+msgid "Log in the chatter from which opportunity the order originates"
+msgstr "登录到订单所属商机的会话"
+
+#. module: sale_crm
+#: model_terms:ir.ui.view,arch_db:sale_crm.sale_view_inherit123
+msgid "Marketing"
+msgstr "市场营销"
+
+#. module: sale_crm
+#: model:ir.model.fields,field_description:sale_crm.field_account_invoice__medium_id
+#: model:ir.model.fields,field_description:sale_crm.field_sale_order__medium_id
+msgid "Medium"
+msgstr "渠道"
+
+#. module: sale_crm
+#: model:ir.ui.menu,name:sale_crm.sale_order_menu_quotations_crm
+msgid "My Quotations"
+msgstr "我的报价单"
+
+#. module: sale_crm
+#: model_terms:ir.ui.view,arch_db:sale_crm.crm_case_form_view_oppor
+msgid "New Quotation"
+msgstr "新报价"
+
+#. module: sale_crm
+#: model:ir.model.fields,field_description:sale_crm.field_crm_lead__sale_number
+msgid "Number of Quotations"
+msgstr "报价单数量"
+
+#. module: sale_crm
+#: model:ir.model.fields,field_description:sale_crm.field_sale_order__opportunity_id
+msgid "Opportunity"
+msgstr "商机"
+
+#. module: sale_crm
+#: model:ir.model.fields,field_description:sale_crm.field_crm_lead__order_ids
+msgid "Orders"
+msgstr "订单"
+
+#. module: sale_crm
+#: code:addons/sale_crm/models/crm_team.py:12
+#, python-format
+msgid "Pipeline"
+msgstr "渠道"
+
+#. module: sale_crm
+#: model:ir.actions.act_window,name:sale_crm.sale_action_quotations_new
+msgid "Quotation"
+msgstr "报价单"
+
+#. module: sale_crm
+#: model:ir.actions.act_window,name:sale_crm.sale_action_quotations
+msgid "Quotations"
+msgstr "报价单"
+
+#. module: sale_crm
+#: model:ir.model,name:sale_crm.model_sale_order
+msgid "Sale Order"
+msgstr "销售订单"
+
+#. module: sale_crm
+#: model:ir.actions.act_window,name:sale_crm.sale_action_orders
+msgid "Sale orders"
+msgstr "销售订单"
+
+#. module: sale_crm
+#: model:ir.model,name:sale_crm.model_crm_team
+msgid "Sales Channels"
+msgstr "销售渠道"
+
+#. module: sale_crm
+#: model:ir.model.fields,field_description:sale_crm.field_account_invoice__source_id
+#: model:ir.model.fields,field_description:sale_crm.field_sale_order__source_id
+msgid "Source"
+msgstr "来源"
+
+#. module: sale_crm
+#: model:ir.model.fields,field_description:sale_crm.field_crm_lead__sale_amount_total
+msgid "Sum of Orders"
+msgstr "订单数量"
+
+#. module: sale_crm
+#: model:ir.model.fields,field_description:sale_crm.field_sale_order__tag_ids
+msgid "Tags"
+msgstr "分类"
+
+#. module: sale_crm
+#: model:ir.model.fields,help:sale_crm.field_account_invoice__campaign_id
+#: model:ir.model.fields,help:sale_crm.field_sale_order__campaign_id
+msgid ""
+"This is a name that helps you keep track of your different campaign efforts, "
+"e.g. Fall_Drive, Christmas_Special"
+msgstr ""
+"这个名字可以帮助你记录你不同的竞选活动。例如：Fall_Drive，Christmas_Special"
+
+#. module: sale_crm
+#: model:ir.model.fields,help:sale_crm.field_account_invoice__medium_id
+#: model:ir.model.fields,help:sale_crm.field_sale_order__medium_id
+msgid "This is the method of delivery, e.g. Postcard, Email, or Banner Ad"
+msgstr "这是交付的方式，例如： 明信片、 电子邮件、 或横幅广告"
+
+#. module: sale_crm
+#: model:ir.model.fields,help:sale_crm.field_account_invoice__source_id
+#: model:ir.model.fields,help:sale_crm.field_sale_order__source_id
+msgid ""
+"This is the source of the link, e.g. Search Engine, another domain, or name "
+"of email list"
+msgstr "这是链接的来源，例如：搜索引擎，其它领域，或者邮件列表的名称"
+
+#. module: sale_crm
+#: model:ir.model.fields,help:sale_crm.field_crm_lead__sale_amount_total
+msgid "Untaxed Total of Confirmed Orders"
+msgstr ""
+
+#. module: sale_crm
+#: model:ir.model,name:sale_crm.model_res_users
+msgid "Users"
+msgstr "用户"
+
+#~ msgid "Click here to see more options."
+#~ msgstr "点击这里来看到更多选项。"
+
+#~ msgid "Let's have a look at the quotations of this sales team."
+#~ msgstr "让我们看一下这个销售团队的报价单。"
+
+#~ msgid "False"
+#~ msgstr "假"
+
+#~ msgid "Quote"
+#~ msgstr "报价"
+
+#~ msgid "Quotes"
+#~ msgstr "报价"
+
+#~ msgid "sale.group_delivery_invoice_address"
+#~ msgstr "sale.group_delivery_invoice_address"
+
+#~ msgid "Cancel"
+#~ msgstr "取消"
+
+#~ msgid ""
+#~ "Check this to close the opportunity after having created the sales order."
+#~ msgstr "选中 此项，创建销售订单后，将关闭商机"
+
+#~ msgid "Convert to Quotation"
+#~ msgstr "转为报价单"
+
+#~ msgid "Create Quotation"
+#~ msgstr "创建询价单"
+
+#~ msgid "Created by"
+#~ msgstr "创建者"
+
+#~ msgid "Created on"
+#~ msgstr "创建时间"
+
+#~ msgid "Customer"
+#~ msgstr "客户"
+
+#~ msgid "ID"
+#~ msgstr "ID"
+
+#~ msgid "Insufficient Data!"
+#~ msgstr "数据不足！"
+
+#~ msgid "Last Updated by"
+#~ msgstr "最后更新者"
+
+#~ msgid "Last Updated on"
+#~ msgstr "最后更新时间"
+
+#~ msgid "Make Quotation"
+#~ msgstr "建立报价"
+
+#~ msgid "Make sales"
+#~ msgstr "生成销售订单"
+
+#~ msgid "Mark Won"
+#~ msgstr "标记为已赢得"
+
+#~ msgid "No address(es) defined for this customer."
+#~ msgstr "这个客户没有定义地址"
+
+#~ msgid "Opportunity has been <b>converted</b> to the quotation <em>%s</em>."
+#~ msgstr "商机 <b>被转换</b> 报价单 <em>%s</em>."
+
+#~ msgid "_Create"
+#~ msgstr "创建(_C)"
+
+#~ msgid "or"
+#~ msgstr "或"
+
+#~ msgid "Rate of created quotation per duration"
+#~ msgstr "每期创建的报价率"
+
+#~ msgid "Forecast"
+#~ msgstr "预测"
+
+#~ msgid "Click to see a detailed analysis of sales."
+#~ msgstr "单击查看详细的销售分析"
+
+#~ msgid ""
+#~ "Define an invoicing target in the sales team settings to see the period's "
+#~ "achievement and forecast at a glance."
+#~ msgstr "确定一个销售团队的发票目标，能一目了然看到期间的成绩和预测"
+
+#~ msgid "Click the acces to Sales Analysis"
+#~ msgstr "单击查看销售分析"
+
+#~ msgid "Invoices Statistics"
+#~ msgstr "发票统计"
+
+#~ msgid "Default Sales Team"
+#~ msgstr "默认销售团队"
+
+#~ msgid "My Sales Team(s)"
+#~ msgstr "我的销售团队"
+
+#~ msgid "Rate of sent invoices per duration"
+#~ msgstr "每期创建的报价率"
+
+#~ msgid "Revenue of created quotation per month."
+#~ msgstr "每月创建报价收益"
+
+#~ msgid "Revenue of sent invoices per month."
+#~ msgstr "每月发送发票的收入"
+
+#~ msgid ""
+#~ "<p class=\"oe_view_nocontent_create\">\n"
+#~ "                Click to create a quotation, the first step of a new "
+#~ "sale.\n"
+#~ "              </p><p>\n"
+#~ "                Odoo will help you handle efficiently the complete sale "
+#~ "flow:\n"
+#~ "                from the quotation to the sales order, the\n"
+#~ "                delivery, the invoicing and the payment collection.\n"
+#~ "              </p><p>\n"
+#~ "                The social feature helps you organize discussions on each "
+#~ "sales\n"
+#~ "                order, and allow your customers to keep track of the "
+#~ "evolution\n"
+#~ "                of the sales order.\n"
+#~ "              </p>\n"
+#~ "            "
+#~ msgstr ""
+#~ "<p class=\"oe_view_nocontent_create\">\n"
+#~ "               点击创建一个报价，新销售的第一步.\n"
+#~ "              </p><p>\n"
+#~ "                Odoo 将帮助你有效处理完整的销售流程:\n"
+#~ "                从报价到销售订单, the\n"
+#~ "                交付，开票和收款.\n"
+#~ "              </p><p>\n"
+#~ "                社会功能可以帮助你组织讨论每个销售\n"
+#~ "               订单，可以跟踪客户的进展\n"
+#~ "                销售订单.\n"
+#~ "              </p>\n"
+#~ "            "
+
+#~ msgid "Rate of validate sales orders per duration"
+#~ msgstr "确认销售订单持续时间"
+
+#~ msgid "Quotation Send"
+#~ msgstr "报价单已经发送"
+
+#~ msgid "Categories"
+#~ msgstr "分类"
+
+#~ msgid "Sales Teams"
+#~ msgstr "销售团队"
+
+#~ msgid ""
+#~ "<p class=\"oe_view_nocontent_create\">\n"
+#~ "                Click to create a quotation that can be converted into a "
+#~ "sales\n"
+#~ "                order.\n"
+#~ "              </p><p>\n"
+#~ "                Odoo will help you efficiently handle the complete sales "
+#~ "flow:\n"
+#~ "                quotation, sales order, delivery, invoicing and payment.\n"
+#~ "              </p>\n"
+#~ "            "
+#~ msgstr ""
+#~ "<p class=\"oe_view_nocontent_create\">\n"
+#~ "                点击创建一个报价，可以转换成销售\n"
+#~ "                订单.\n"
+#~ "              </p><p>\n"
+#~ "                Odoo 将帮助你有效处理完整的销售流程:\n"
+#~ "                报价单，销售订单，发货，发票和付款.\n"
+#~ "              </p>\n"
+#~ "            "
+
+#~ msgid ""
+#~ "Forecast of the invoice revenue for the current month. This is the amount "
+#~ "the sales \n"
+#~ "team should invoice this month. It is used to compute the progression "
+#~ "ratio \n"
+#~ " of the current and forecast revenue on the kanban view."
+#~ msgstr ""
+#~ "本月的发票收入的预测。这是销售数量 \n"
+#~ "团队本月应该发票。它是用来计算进展率 \n"
+#~ "看板上的当前和预期收入视图"
+
+#~ msgid ""
+#~ "Target of invoice revenue for the current month. This is the amount the "
+#~ "sales \n"
+#~ "team estimates to be able to invoice this month."
+#~ msgstr ""
+#~ "当月发票收入目标。这是销量 \n"
+#~ "估计团队能在本月开具的发票"
+
+#~ msgid "Invoice Forecast"
+#~ msgstr "发票统计"
+
+#~ msgid "Invoices"
+#~ msgstr "发票"
+
+#~ msgid "Sales Order Confirmed"
+#~ msgstr "销售订单已经确认"
+
+#~ msgid "Sales Team"
+#~ msgstr "销售团队"
+
+#~ msgid "Click to see a detailed analysis of invoices."
+#~ msgstr "单击查看发票的详细分析"
+
+#~ msgid "Revenue of confirmed sales orders per month."
+#~ msgstr "确认每月的销售订单收入"
+
+#~ msgid "Invoiced"
+#~ msgstr "已开票"
+
+#~ msgid "Shop"
+#~ msgstr "商店"

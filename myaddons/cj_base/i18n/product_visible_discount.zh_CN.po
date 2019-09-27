@@ -1,0 +1,62 @@
+# Chinese (Simplified) translation for openobject-addons
+# Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
+# This file is distributed under the same license as the openobject-addons package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: openobject-addons\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-10-31 21:47+0800\n"
+"PO-Revision-Date: 2015-10-31 21:48+0800\n"
+"Last-Translator: 保定-粉刷匠 <openerp@126.com>\n"
+"Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2013-03-28 05:55+0000\n"
+"X-Generator: Poedit 1.8.6\n"
+
+#. module: product_visible_discount
+#: model:ir.model.fields,field_description:product_visible_discount.field_product_pricelist_discount_policy
+msgid "Discount Policy"
+msgstr "折扣策略"
+
+#. module: product_visible_discount
+#: selection:product.pricelist,discount_policy:0
+msgid "Discount included in the price"
+msgstr "在价格中包含折扣"
+
+#. module: product_visible_discount
+#: model:ir.model,name:product_visible_discount.model_product_pricelist
+msgid "Pricelist"
+msgstr "价格表"
+
+#. module: product_visible_discount
+#: model:ir.model,name:product_visible_discount.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "销售订单明细"
+
+#. module: product_visible_discount
+#: selection:product.pricelist,discount_policy:0
+msgid "Show discount in the sale order"
+msgstr "在销售订单中显示折扣"
+
+#~ msgid "Visible Discount"
+#~ msgstr "折扣可见"
+
+#~ msgid "No Sale Pricelist Found!"
+#~ msgstr "没找到销售价格表"
+
+#~ msgid "No Purchase Pricelist Found!"
+#~ msgstr "没找到采购价格表"
+
+#~ msgid "Invoice Line"
+#~ msgstr "发票行"
+
+#~ msgid "You must first define a pricelist on the supplier form!"
+#~ msgstr "你必须先为供应商指定价格表"
+
+#~ msgid "You must first define a pricelist on the customer form!"
+#~ msgstr "你必须先为客户指定价格表"

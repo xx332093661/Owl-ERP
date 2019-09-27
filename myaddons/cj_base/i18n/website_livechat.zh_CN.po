@@ -1,0 +1,165 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* website_livechat
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0alpha1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-02 10:06+0000\n"
+"PO-Revision-Date: 2019-03-12 19:27+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Poedit 2.0.6\n"
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.res_config_settings_view_form
+msgid ""
+"<span class=\"o_form_label\">Live Chat</span>\n"
+"                        <span class=\"fa fa-lg fa-globe\" title=\"Values set "
+"here are website-specific.\" groups=\"website.group_multi_website\"/>"
+msgstr ""
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.channel_page
+msgid "<span>Livechat Channel</span>"
+msgstr "<span>在线频道</span>"
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.res_config_settings_view_form
+msgid "Channel"
+msgstr "频道"
+
+#. module: website_livechat
+#: model:ir.model,name:website_livechat.model_res_config_settings
+#, fuzzy
+#| msgid "website.config.settings"
+msgid "Config Settings"
+msgstr "website.config.settings"
+
+#. module: website_livechat
+#: model:ir.model.fields,help:website_livechat.field_im_livechat_channel__website_description
+msgid "Description of the channel displayed on the website page"
+msgstr "显示在网站页面上的频道描述"
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.channel_page
+msgid "Happy face"
+msgstr ""
+
+#. module: website_livechat
+#: model:website.menu,name:website_livechat.menu_livechat
+#, fuzzy
+#| msgid "Livechat Support"
+msgid "Live Support"
+msgstr "在线支持"
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.res_config_settings_view_form
+#, fuzzy
+#| msgid "Livechat Channel"
+msgid "Live chat channel of your website"
+msgstr "在线聊天频道"
+
+#. module: website_livechat
+#: model:ir.model,name:website_livechat.model_im_livechat_channel
+msgid "Livechat Channel"
+msgstr "在线聊天频道"
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.channel_list_page
+msgid "Livechat Support Channels"
+msgstr "在线聊天支持频道"
+
+#. module: website_livechat
+#. openerp-web
+#: code:addons/website_livechat/static/src/js/website_livechat.editor.js:30
+#, python-format
+msgid "Name"
+msgstr ""
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.channel_page
+msgid "Neutral face"
+msgstr ""
+
+#. module: website_livechat
+#. openerp-web
+#: code:addons/website_livechat/static/src/js/website_livechat.editor.js:29
+#, fuzzy, python-format
+#| msgid "Channel"
+msgid "New Channel"
+msgstr "频道"
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.channel_page
+msgid "Sad face"
+msgstr ""
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.channel_page
+msgid "Statistics"
+msgstr "统计"
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.channel_page
+msgid "The"
+msgstr "这个"
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.channel_page
+msgid "The Team"
+msgstr "团队"
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.channel_list_page
+msgid "There is no public livechat channel to show."
+msgstr "没有可以显示的公共频道。"
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.channel_page
+#, fuzzy
+#| msgid "This is no rating for this channel for now."
+msgid "There is no rating for this channel for now."
+msgstr "当前没有这个频道的评级。"
+
+#. module: website_livechat
+#: model:ir.model,name:website_livechat.model_website
+msgid "Website"
+msgstr "网站"
+
+#. module: website_livechat
+#: model:ir.model.fields,field_description:website_livechat.field_res_config_settings__channel_id
+#, fuzzy
+#| msgid "Website Live Chat Channel"
+msgid "Website Live Channel"
+msgstr "网站在线聊天频道"
+
+#. module: website_livechat
+#: model:ir.model.fields,field_description:website_livechat.field_website__channel_id
+msgid "Website Live Chat Channel"
+msgstr "网站在线聊天频道"
+
+#. module: website_livechat
+#: model:ir.model.fields,field_description:website_livechat.field_im_livechat_channel__website_description
+msgid "Website description"
+msgstr "网站描述"
+
+#. module: website_livechat
+#: model_terms:ir.ui.view,arch_db:website_livechat.channel_page
+msgid "last feedbacks"
+msgstr "最后反馈"
+
+#~ msgid "The full URL to access the document through the website."
+#~ msgstr "从网站访问此文档的完整URL地址。"
+
+#~ msgid "Visible in Website"
+#~ msgstr "在网站可见"
+
+#~ msgid "Website URL"
+#~ msgstr "网站 URL"

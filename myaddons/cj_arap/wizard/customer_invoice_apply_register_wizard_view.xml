@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_customer_invoice_apply_register_wizard" model="ir.ui.view">
+            <field name="name">customer.invoice.apply.register.wizard</field>
+            <field name="model">customer.invoice.apply.register.wizard</field>
+            <field name="arch" type="xml">
+                <form string="发票登记">
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="客户发票号..."/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" options="{'no_open': 1}" readonly="1"/>
+                            <field name="payment_id" options="{'no_create': 1}" domain="[('partner_id', '=', partner_id), ('payment_type','=','inbound'), ('invoice_register_id', '=', False)]"/>
+                        </group>
+                    </group>
+
+                    <footer>
+                        <button string='创建并确认' name="create_register" type="object" class="btn-primary" context="{'confirm': 1}"/>
+                        <button string="取消" class="btn-secondary" special="cancel"/>
+                    </footer>
+               </form>
+            </field>
+        </record>
+
+        <record id="action_customer_invoice_apply_register_wizard" model="ir.actions.act_window">
+            <field name="name">发票登记</field>
+            <field name="res_model">customer.invoice.apply.register.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

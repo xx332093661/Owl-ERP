@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_account_customer_invoice_apply_tree" model="ir.ui.view">
+            <field name="name">account.customer.invoice.apply.tree</field>
+            <field name="model">account.customer.invoice.apply</field>
+            <field name="arch" type="xml">
+                <tree string="客户发票申请">
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="apply_date"/>
+                    <field name="amount"/>
+                    <field name="sale_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_account_customer_invoice_apply_form" model="ir.ui.view">
+            <field name="name">account.customer.invoice.apply.form</field>
+            <field name="model">account.customer.invoice.apply</field>
+            <field name="arch" type="xml">
+                <form string="客户发票申请">
+                    <header>
+                        <button name="action_confirm" type="object" states="draft" string="确认" class="oe_highlight"
+                                groups="sales_team.group_sale_salesman"/>
+                        <button name="action_draft" type="object" states="confirm" string="设为草稿"
+                                groups="sales_team.group_sale_salesman"/>
+
+                        <button name="action_manager_confirm" type="object" states="confirm" string="销售经理审核" class="oe_highlight"
+                                groups="sales_team.group_sale_manager"/>
+                        <button name="action_draft" type="object" states="manager_confirm" string="设为草稿"
+                                groups="sales_team.group_sale_manager"/>
+
+                        <button name="action_finance_manager_confirm" type="object" states="manager_confirm" string="财务经理审核" class="oe_highlight"
+                                groups="account.group_account_manager"/>
+
+                        <button name="%(action_customer_invoice_apply_register_wizard)d" type="action" string="发票登记" class="oe_highlight"
+                                context="{'default_partner_id': partner_id}"
+                                attrs="{'invisible': ['|', ('invoice_register_ids', '!=', []), ('state', '!=', 'finance_manager_confirm')]}"
+                                groups="account.group_account_invoice"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,manager_confirm,finance_manager_confirm,done"/>
+                    </header>
+
+                   <sheet>
+                        <div class="oe_button_box" name="button_box">
+                        </div>
+                        <div class="oe_title">
+                            <h1><field name="name"/></h1>
+                        </div>
+                       <group>
+                           <group>
+                                <field name="partner_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="sale_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="amount" readonly="1"/>
+                               <field name="id" invisible="1"/>
+                           </group>
+                           <group>
+                               <field name="apply_date"/>
+                                <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
+                               <field name="invoice_register_ids" widget="many2many_tags" readonly="1"/>
+                           </group>
+                       </group>
+                       <notebook>
+                           <page string="账单分期">
+                               <field name="invoice_split_ids"
+                                      domain="[('sale_order_id', '=', sale_id), ('sale_order_id', '!=', False), ('customer_invoice_apply_id', '=', False)]"
+                                      context="{'form_view_ref': 'cj_arap.view_account_invoice_split_sale_form', 'tree_view_ref': 'cj_arap.view_account_invoice_split_sale_tree'}"
+                                      widget="many2many">
+                                    <tree string="账单分期" create="1" edit="0" delete="1"
+                                    decoration-success="state=='open'" decoration-muted="state=='paid'">
+                                        <field name="name"/>
+                                        <field name="invoice_id"/>
+                                        <field name="date_invoice"/>
+                                        <field name="date_due"/>
+                                        <field name="amount" sum="Total" string="总额"/>
+                                        <field name="paid_amount" sum="总额" string="已收款"/>
+                                        <field name="partner_id" string="客户"/>
+                                        <field name="company_id"/>
+                                        <field name="comment"/>
+                                        <!--<field name="type" string="收款类别"/>-->
+                                        <!--<field name="apply_id"/>-->
+                                        <field name="sale_order_id"/>
+                                        <field name="customer_invoice_apply_id"/>
+                                        <!--<field name="payment_id" string="收款单"/>-->
+                                        <field name="state"/>
+                                    </tree>
+                               </field>
+                           </page>
+                           <page string="收款记录">
+                               <field name="payment_ids"/>
+                           </page>
+                       </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_account_customer_invoice_apply_filter" model="ir.ui.view">
+            <field name="name">account.customer.invoice.apply.filter</field>
+            <field name="model">account.customer.invoice.apply</field>
+            <field name="arch" type="xml">
+                <search string="客户发票申请">
+                    <field name="name" string="单号"/>
+                    <field name="partner_id" string="客户"/>
+                    <field name="sale_id" string="订单号"/>
+                    <filter string="未完成" name="state_undone" domain="[('state','!=','done')]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="客户" name="group_partner" domain="[]" context="{'group_by':'partner_id'}"/>
+                        <filter string="状态" name="group_state" domain="[]" context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_account_customer_invoice_apply" model="ir.actions.act_window">
+            <field name="name">客户发票申请</field>
+            <field name="res_model">account.customer.invoice.apply</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem action="action_account_customer_invoice_apply"
+                  id="menu_action_account_customer_invoice_apply"
+                  parent="account.menu_finance_receivables"
+                  sequence="6"/>
+
+
+        <!--在销售/操作/售后服务单菜单后增加客户发票申请菜单-->
+        <menuitem action="action_account_customer_invoice_apply"
+                  id="menu_action_account_customer_invoice_apply_sale"
+                  groups="sales_team.group_sale_salesman"
+                  parent="cj_sale.menu_sale_operation"
+                  sequence="10"/>
+
+    </data>
+</odoo>

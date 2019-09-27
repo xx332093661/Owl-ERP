@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--
+        sale.order的订单明细增加warehouse_id和owner_id字段
+        传递exist_line上下文，以实现添加相同的商品时，默认销售单价
+        -->
+        <record id="view_order_form_inherit" model="ir.ui.view">
+            <field name="name">sale.order.form inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/tree/field[@name='qty_invoiced']" position="after">
+                    <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}"/>
+                    <field name="owner_id" placeholder="货主..." options="{'no_open': 1, 'no_create': 1}"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']" position="attributes">
+                    <attribute name="context">{'exist_line': order_line}</attribute>
+                </xpath>
+            </field>
+        </record>
+        <!--
+        sale.order(团购订单)的订单明细增加warehouse_id和owner_id字段
+        传递exist_line上下文，以实现添加相同的商品时，默认销售单价
+        -->
+        <record id="view_order_form_groupn_inherit" model="ir.ui.view">
+            <field name="name">sale.order.form.groupn inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="cj_sale.view_order_form_groupn"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/tree/field[@name='qty_invoiced']" position="after">
+                    <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}"/>
+                    <field name="owner_id" placeholder="货主..." options="{'no_open': 1, 'no_create': 1}"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']" position="attributes">
+                    <attribute name="context">{'exist_line': order_line}</attribute>
+                </xpath>
+            </field>
+        </record>
+        <!--
+        sale.order(全渠道订单)的订单明细增加warehouse_id和owner_id字段
+        传递exist_line上下文，以实现添加相同的商品时，默认销售单价
+        -->
+        <record id="view_order_form_chuanjiu_inherit" model="ir.ui.view">
+            <field name="name">sale.order.form.groupn inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="cj_sale.view_order_form_chuanjiu"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/tree/field[@name='qty_invoiced']" position="after">
+                    <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}"/>
+                    <field name="owner_id" placeholder="货主..." options="{'no_open': 1, 'no_create': 1}"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']" position="attributes">
+                    <attribute name="context">{'exist_line': order_line}</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

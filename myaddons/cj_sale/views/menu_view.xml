@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.menu" id="sale.sale_order_menu">
+            <field name="groups_id" eval="[(6,0, [ref('base.group_private_addresses')])]"/>
+        </record>
+
+        <record model="ir.ui.menu" id="sale.menu_sale_invoicing">
+            <field name="groups_id" eval="[(6,0, [ref('base.group_private_addresses')])]"/>
+        </record>
+
+        <record model="ir.ui.menu" id="sale.product_menu_catalog">
+            <field name="groups_id" eval="[(6,0, [ref('base.group_private_addresses')])]"/>
+        </record>
+
+        <!--<record model="ir.ui.menu" id="sale.menu_sale_report">-->
+            <!--<field name="groups_id" eval="[(6,0, [ref('base.group_private_addresses')])]"/>-->
+        <!--</record>-->
+
+        <record model="ir.ui.menu" id="sale.menu_report_product_all">
+            <field name="groups_id" eval="[(6,0, [ref('base.group_private_addresses')])]"/>
+        </record>
+
+
+        <menuitem id="menu_sale_operation" name="操作" parent="sale.sale_menu_root"
+                  groups="sales_team.group_sale_salesman" sequence="1"/>
+        <menuitem id="menu_sale_main_data" name="主数据" parent="sale.sale_menu_root"
+                  groups="sales_team.group_sale_salesman" sequence="2"/>
+        <menuitem id="menu_sale_diaodu" name="调度" parent="sale.sale_menu_root"
+                  groups="sales_team.group_sale_salesman" sequence="3"/>
+
+        <menuitem id="menu_sale_baobiao" name="报表" parent="sale.sale_menu_root"
+                  groups="sales_team.group_sale_salesman" sequence="4"/>
+
+
+        <menuitem name="团购单" id="menu_action_sale_bjd" action="cj_sale.action_orders_groupn"
+                  parent="menu_sale_operation" sequence="2" groups="sales_team.group_sale_salesman" />
+
+         <menuitem id="menu_sale_order"
+            name="全渠道订单"
+            action="action_orders_all"
+            parent="menu_sale_operation"
+            sequence="1" groups="sales_team.group_sale_salesman" />
+
+          <menuitem id="menu_aftersale_order"
+            name="售后服务单"
+            action="action_orders_aftersale"
+            parent="menu_sale_operation"
+            sequence="3" groups="sales_team.group_sale_salesman" />
+
+        <menuitem name="客户" id="menu_action_sale_kh" action="base.action_partner_form"
+                  parent="menu_sale_main_data" sequence="1"/>
+
+        <menuitem name="产品" id="menu_action_sale_cp" action="sale.product_template_action"
+                  parent="menu_sale_main_data" sequence="2"/>
+
+        <menuitem name="销售" id="menu_action_sale_report_xs" action="sale.action_order_report_all"
+                  parent="menu_sale_baobiao" sequence="1"/>
+
+        <menuitem id="menu_cj_order_report_month"
+            name="销售月报表"
+            action="action_cj_order_report_month"
+            parent="sale.menu_sale_report"
+            sequence="2"/>
+
+        <menuitem id="menu_cj_order_report_channel"
+            name="渠道销量表"
+            action="action_cj_order_report_channel"
+            parent="sale.menu_sale_report"
+            sequence="3"/>
+
+        <menuitem id="menu_cj_order_report_top"
+            name="月销量排行"
+            action="action_cj_order_report_top"
+            parent="sale.menu_sale_report"
+            sequence="4"/>
+
+        <menuitem id="menu_cj_order_report_gross"
+            name="月商品毛利"
+            action="action_cj_order_report_gross"
+            parent="sale.menu_sale_report"
+            sequence="5"/>
+
+
+        <record id="action_sale_purchase_apply" model="ir.actions.act_window">
+            <field name="name">采购申请确认</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.apply</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem name="采购申请" id="menu_action_sale_cgsq" action="action_sale_purchase_apply"
+                  parent="menu_sale_diaodu" sequence="1"/>
+
+
+    </data>
+
+</odoo>

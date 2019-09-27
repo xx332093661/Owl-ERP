@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_procurement_compute_wizard" model="ir.ui.view">
+        <field name="name">Run Schedulers Manually</field>
+        <field name="model">purchase.scheduler.compute</field>
+        <field name="arch" type="xml">
+            <form string="Parameters">
+                <p>
+                立即为库存小于安全库存的产品生成采购申请
+                </p>
+                <footer>
+                    <button name="procure_calculation" string="运行" type="object" class="btn-primary"/>
+                    <button string="取消" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_procurement_compute" model="ir.actions.act_window">
+        <field name="name">运行</field>
+        <field name="res_model">purchase.scheduler.compute</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+
+</odoo>

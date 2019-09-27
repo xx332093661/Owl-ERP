@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--
+        仓库动作控制台，仓库专员和仓库经理，只能访问仓管员或仓库经理字段为当前用户的仓库对应的操作
+        base.group_erp_manager用户可访问当前公司及所有子公司的仓库对应的操作
+        -->
+        <record id='stock.stock_picking_type_action' model='ir.actions.act_window'>
+            <field name='context'>{'only_myself': 1}</field>
+        </record>
+        <record id='stock.action_picking_type_list' model='ir.actions.act_window'>
+            <field name='context'>{'only_myself': 1}</field>
+        </record>
+
+    </data>
+</odoo>

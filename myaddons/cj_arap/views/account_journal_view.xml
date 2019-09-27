@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--应收应付仪表盘，只显示收藏的account.journal-->
+        <record id="account.open_account_journal_dashboard_kanban" model="ir.actions.act_window">
+            <field name="domain">[('belongs_to_company', '=', True), ('show_on_dashboard', '=', True)]</field>
+            <field name="context">{}</field>
+            <field name="name">应收应付概览</field>
+        </record>
+
+        <record id="account_journal_dashboard_kanban_view" model="ir.ui.view">
+            <field name="name">account.journal.dashboard.kanban</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>
+            <field name="arch" type="xml">
+                <!--删除供应商账单和客户结算单面板的新建按钮和导入按钮-->
+                <xpath expr="//t[@id='account.JournalBodySalePurchase']//div[hasclass('o_kanban_primary_left')]" position="replace">
+                    <div class="col-5 o_kanban_primary_left"/>
+
+                </xpath>
+            </field>
+        </record>
+
+        <!--
+        修改分录窗体视图
+        字段default_debit_account_id(默认借方科目)、default_credit_account_id(默认贷方科目)、account_control_ids(允许的科目)的domain增加('company_id', '=', company_id)
+        字段type_control_ids(允许的科目类型)增加options={'no_create': 1}属性
+        -->
+        <record id="account_view_account_journal_form" model="ir.ui.view">
+            <field name="name">account.journal.form</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="account.view_account_journal_form"/>
+            <field name="arch" type="xml">
+                <field name="default_debit_account_id" position="attributes">
+                    <attribute name="domain">[('deprecated', '=', False), ('company_id', '=', company_id)]</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </field>
+                <field name="default_credit_account_id" position="attributes">
+                    <attribute name="domain">[('deprecated', '=', False), ('company_id', '=', company_id)]</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </field>
+                <field name="type_control_ids" position="attributes">
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </field>
+                <field name="account_control_ids" position="attributes">
+                    <attribute name="domain">[('deprecated', '=', False), ('company_id', '=', company_id)]</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </field>
+            </field>
+        </record>
+
+
+    </data>
+
+
+
+</odoo>

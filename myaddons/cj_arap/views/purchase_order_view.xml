@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--
+        1、增加查看账单分期按钮、登记的发票按钮、预付款单按钮
+        2、删除创建账单按钮
+        -->
+        <record id="view_purchase_order_form" model="ir.ui.view">
+            <field name="name">view_purchase_order_form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="cj_purchase.view_purchase_order_form"/>
+            <field name="arch" type="xml">
+                <!--<xpath expr="//field[@name='payment_term_id']" position="replace">-->
+                        <!--<field name="payment_term_id"/>-->
+                <!--</xpath>-->
+
+                <!--1、增加查看账单分期按钮、登记的发票按钮、预付款单按钮-->
+                <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                    <button type="object" name="action_view_account_invoice_split" class="oe_stat_button" icon="fa-truck"  attrs="{'invisible':[('state','!=','purchase')]}">
+                        <field name="invoice_split_count" widget="statinfo" string="账单分期" help="账单分期"/>
+                    </button>
+                    <button type="object" name="action_view_account_invoice_register" class="oe_stat_button" icon="fa-truck" attrs="{'invisible':[('state','!=','purchase')]}">
+                        <field name="invoice_register_count" widget="statinfo" string="登记的发票"/>
+                    </button>
+                    <!--<button type="object" name="action_view_account_prepayment"-->
+                            <!--class="oe_stat_button" icon="fa-truck" attrs="{'invisible':[('state','!=','purchase')]}">-->
+                        <!--<field name="account_prepayment_count" widget="statinfo" string="预付款单"/>-->
+                    <!--</button>-->
+                </xpath>
+                <!--2、删除创建账单按钮-->
+                <xpath expr="//button[@name='action_view_invoice'][1]" position="replace"/>
+                <xpath expr="//button[@name='action_view_invoice'][1]" position="replace"/>
+                <xpath expr="//button[@name='action_view_invoice'][1]" position="replace"/>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

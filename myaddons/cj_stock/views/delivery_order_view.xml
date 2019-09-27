@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--窗体视图增加按钮，以导入包装材料、成本等-->
+        <record id="view_delivery_order_form" model="ir.ui.view">
+            <field name="name">delivery.order.form</field>
+            <field name="model">delivery.order</field>
+            <field name="inherit_id" ref="cj_sale.view_delivery_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                        <button name="%(action_import_delivery_order_package_wizard)d" string="导入物流单成本包装物" type="action"
+                                states="draft"
+                                class="oe_highlight" groups="stock.group_stock_user"/>
+
+                        <button name="action_confirm" string="确认" type="object"
+                                states="draft"
+                                class="oe_highlight" groups="stock.group_stock_user"/>
+
+                        <button name="action_draft" type="object"
+                                states="confirm" string="设为草稿" groups="stock.group_stock_user"/>
+
+                        <button name="action_done" string="审核" type="object"
+                                states="confirm"
+                                class="oe_highlight" groups="stock.group_stock_manager"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!--将运单视图放到仓库/主数据菜单前面-->
+        <menuitem id="menu_stock_inventory_control"
+                  action="cj_sale.action_delivery_order"
+                  groups="stock.group_stock_user"
+                  name="物流单" parent="stock.menu_stock_root" sequence="3"/>
+
+    </data>
+</odoo>

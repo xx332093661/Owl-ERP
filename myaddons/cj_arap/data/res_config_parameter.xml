@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!--盘盈贷方科目：营业外收入\其他-->
+        <function model="ir.config_parameter" name="create">
+            <value model="ir.config_parameter" eval="{
+                'value': obj().env['account.account'].search([('code', '=', '630199')], limit=1).id,
+                'key': 'account.surplus_credit_account_id',
+            }"/>
+        </function>
+
+        <!--盘亏借方科目：管理费用\存货损失-->
+        <function model="ir.config_parameter" name="create">
+            <value model="ir.config_parameter" eval="{
+                'value': obj().env['account.account'].search([('code', '=', '660240')], limit=1).id,
+                'key': 'account.deficit_debit_account_id',
+            }"/>
+        </function>
+
+        <!--报废借方科目：管理费用\存货损失-->
+        <function model="ir.config_parameter" name="create">
+            <value model="ir.config_parameter" eval="{
+                'value': obj().env['account.account'].search([('code', '=', '660240')], limit=1).id,
+                'key': 'account.scrap_debit_account_id',
+            }"/>
+        </function>
+
+        <!--易耗品消耗借方科目：主营业务成本\酒业销售\其他-->
+        <function model="ir.config_parameter" name="create">
+            <value model="ir.config_parameter" eval="{
+                'value': obj().env['account.account'].search([('code', '=', '64011099')], limit=1).id,
+                'key': 'account.consu_debit_account_id',
+            }"/>
+        </function>
+
+        <!--包装材料消耗借方科目：主营业务成本\酒业销售\其他-->
+        <function model="ir.config_parameter" name="create">
+            <value model="ir.config_parameter" eval="{
+                'value': obj().env['account.account'].search([('code', '=', '64011099')], limit=1).id,
+                'key': 'account.package_debit_account_id',
+            }"/>
+        </function>
+
+        <!--库存初始化贷方科目：利润分配\未分配利润-->
+        <function model="ir.config_parameter" name="create">
+            <value model="ir.config_parameter" eval="{
+                'value': obj().env['account.account'].search([('code', '=', '410498')], limit=1).id,
+                'key': 'account.init_stock_credit_account_id',
+            }"/>
+        </function>
+
+        <!--&lt;!&ndash;伙伴应收科目&ndash;&gt;-->
+        <!--<function model="ir.config_parameter" name="create">-->
+            <!--<value model="ir.config_parameter" eval="{-->
+                <!--'value': obj().env['account.account'].search([('code', '=', '112200')], limit=1).id,-->
+                <!--'key': 'account.partner_account_receivable_id',-->
+            <!--}"/>-->
+        <!--</function>-->
+        <!--&lt;!&ndash;伙伴应付科目&ndash;&gt;-->
+        <!--<function model="ir.config_parameter" name="create">-->
+            <!--<value model="ir.config_parameter" eval="{-->
+                <!--'value': obj().env['account.account'].search([('code', '=', '220200')], limit=1).id,-->
+                <!--'key': 'account.partner_account_payable_id',-->
+            <!--}"/>-->
+        <!--</function>-->
+
+        <!--&lt;!&ndash;商品收入科目&ndash;&gt;-->
+        <!--<function model="ir.config_parameter" name="create">-->
+            <!--<value model="ir.config_parameter" eval="{-->
+                <!--'value': obj().env['account.account'].search([('code', '=', '600100')], limit=1).id,-->
+                <!--'key': 'account.product_account_income_id',-->
+            <!--}"/>-->
+        <!--</function>-->
+
+        <!--&lt;!&ndash;商品费用科目&ndash;&gt;-->
+        <!--<function model="ir.config_parameter" name="create">-->
+            <!--<value model="ir.config_parameter" eval="{-->
+                <!--'value': obj().env['account.account'].search([('code', '=', '640100')], limit=1).id,-->
+                <!--'key': 'account.product_account_expense_id',-->
+            <!--}"/>-->
+        <!--</function>-->
+
+        <!--&lt;!&ndash;预收科目&ndash;&gt;-->
+        <!--<function model="ir.config_parameter" name="create">-->
+            <!--<value model="ir.config_parameter" eval="{-->
+                <!--'value': obj().env['account.account'].search([('code', '=', '220300')], limit=1).id,-->
+                <!--'key': 'account.prepaid_account_receivable_id',-->
+            <!--}"/>-->
+        <!--</function>-->
+
+        <!--&lt;!&ndash;预付科目&ndash;&gt;-->
+        <!--<function model="ir.config_parameter" name="create">-->
+            <!--<value model="ir.config_parameter" eval="{-->
+                <!--'value': obj().env['account.account'].search([('code', '=', '112300')], limit=1).id,-->
+                <!--'key': 'account.prepaid_account_payable_id',-->
+            <!--}"/>-->
+        <!--</function>-->
+
+
+
+    </data>
+</odoo>

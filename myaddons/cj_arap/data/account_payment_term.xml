@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--禁用支付条款记录访问规则-->
+    <data>
+        <function model="ir.rule" name="rule_disable">
+            <value>account.account_payment_term_comp_rule</value>
+        </function>
+    </data>
+</odoo>

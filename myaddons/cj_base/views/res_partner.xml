@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!--联系人-->
+    <record id="view_partner_form" model="ir.ui.view">
+        <field name="name">res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="中台对接字段">
+                    <group col="4">
+                        <field name="cj_id"/>
+                        <field name="member_level"/>
+                        <field name="code"/>
+                        <field name="credit_code"/>
+                        <field name="legal_entity"/>
+                        <field name="legal_entity_id_card"/>
+                        <field name="large_area"/>
+                        <field name="office"/>
+                        <field name="docking_company"/>
+                        <field name="docking_person"/>
+                        <field name="docking_person_phone"/>
+                    </group>
+                </page>
+            </xpath>
+
+            <!--parent_id字段不可创建-->
+            <xpath expr="//field[@name='parent_id']" position="attributes">
+                <attribute name="options">{'no_create': 1}</attribute>
+            </xpath>
+            <!--lang字段只有系统管理员可查看-->
+            <xpath expr="//field[@name='lang']" position="attributes">
+                <attribute name="groups">base.group_erp_manager</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

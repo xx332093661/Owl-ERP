@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_stock_inventory_valuation_tree" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.tree</field>
+            <field name="model">stock.inventory.valuation</field>
+            <field name="arch" type="xml">
+                <tree create="0" delete="0" edit="0">
+                    <field name="company_id"/>
+                    <field name="product_id"/>
+                    <field name="date"/>
+                    <field name="qty_available"/>
+                    <field name="stock_cost"/>
+                    <field name="stock_value" sum="合计"/>
+                    <button name="open_valuation_move" context="{'company_id': company_id, 'product_id': product_id, 'date': date}" string="查看明细" type="object" icon="fa-search"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_stock_inventory_valuation_form" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.form</field>
+            <field name="model">stock.inventory.valuation</field>
+            <field name="arch" type="xml">
+                <form create="0" delete="0" edit="0">
+                    <group>
+                        <group>
+                        </group>
+                        <group>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_stock_inventory_valuation_filter" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.filter</field>
+            <field name="model">stock.inventory.valuation</field>
+            <field name="arch" type="xml">
+                <search>
+                    <group expand="0" string="Group By">
+                        <filter string="公司" name="company" domain="[]" context="{'group_by':'company_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+
+
+    <data>
+        <record id="view_stock_inventory_valuation_move_tree" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.move.tree</field>
+            <field name="model">stock.inventory.valuation.move</field>
+            <field name="arch" type="xml">
+                <tree create="0" delete="0" edit="0">
+                    <field name="company_id" invisible="context.get('hide_company_id', False)"/>
+                    <!--<field name="warehouse_id"/>-->
+                    <field name="type"/>
+                    <field name="type_id"/>
+                    <field name="product_id"/>
+                    <field name="date"/>
+                    <field name="product_qty"/>
+                    <!--<field name="price_unit"/>-->
+                    <field name="unit_cost"/>
+                    <field name="qty_available"/>
+                    <field name="stock_cost"/>
+                    <field name="stock_value"/>
+                    <!--<field name="move_id"/>-->
+                </tree>
+            </field>
+        </record>
+        <record id="view_stock_inventory_valuation_move_filter" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.move.filter</field>
+            <field name="model">stock.inventory.valuation.move</field>
+            <field name="arch" type="xml">
+                <search>
+                    <group expand="0" string="Group By">
+                        <filter string="公司" name="company" domain="[]" context="{'group_by':'company_id'}"/>
+                        <filter string="产品" name="product" domain="[]" context="{'group_by':'product_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+
+
+</odoo>

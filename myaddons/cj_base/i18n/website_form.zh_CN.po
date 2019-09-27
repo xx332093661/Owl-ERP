@@ -1,0 +1,180 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* website_form
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 10.0alpha1c\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-01-09 10:32+0000\n"
+"PO-Revision-Date: 2019-03-25 22:06+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Poedit 2.0.6\n"
+
+#. module: website_form
+#. openerp-web
+#: code:addons/website_form/static/src/js/website_form.js:230
+#, python-format
+msgid "'%s' is not a correct date"
+msgstr "'%s' 不是一个正确的日期"
+
+#. module: website_form
+#. openerp-web
+#: code:addons/website_form/static/src/js/website_form.js:225
+#, python-format
+msgid "'%s' is not a correct datetime"
+msgstr "'%s' 不是一个正确的时间"
+
+#. module: website_form
+#: code:addons/website_form/controllers/main.py:229
+#, python-format
+msgid "<p>Attached files : </p>"
+msgstr "<p>添加附件 : </p>"
+
+#. module: website_form
+#: model_terms:ir.ui.view,arch_db:website_form.res_config_settings_view_form
+msgid ""
+"<span class=\"fa fa-lg fa-globe\" title=\"Values set here are website-"
+"specific.\" groups=\"website.group_multi_website\"/>"
+msgstr ""
+
+#. module: website_form
+#: model:ir.model.fields,field_description:website_form.field_ir_model__website_form_access
+msgid "Allowed to use in forms"
+msgstr "允许在表单上使用"
+
+#. module: website_form
+#. openerp-web
+#: code:addons/website_form/static/src/xml/website_form.xml:21
+#, python-format
+msgid "An error has occured, the form has not been sent."
+msgstr "产生一个错误，表单未发送。"
+
+#. module: website_form
+#: model:ir.model.fields,help:website_form.field_ir_model_fields__website_form_blacklisted
+msgid "Blacklist this field for web forms"
+msgstr "网页表单上的这个字段列入黑名单"
+
+#. module: website_form
+#: model:ir.model.fields,field_description:website_form.field_ir_model_fields__website_form_blacklisted
+msgid "Blacklisted in web forms"
+msgstr "在表单上列入黑名单"
+
+#. module: website_form
+#: model:ir.model,name:website_form.model_res_config_settings
+msgid "Config Settings"
+msgstr "配置设置"
+
+#. module: website_form
+#: code:addons/website_form/controllers/main.py:54
+#, python-format
+msgid "Custom infos"
+msgstr "自定义信息"
+
+#. module: website_form
+#: model:ir.model.fields,help:website_form.field_ir_model__website_form_access
+msgid "Enable the form builder feature for this model."
+msgstr "为此模型启用表单生成功能。"
+
+#. module: website_form
+#. openerp-web
+#: code:addons/website_form/static/src/xml/website_form.xml:14
+#: code:addons/website_form/static/src/xml/website_form.xml:21
+#, python-format
+msgid "Error"
+msgstr "错误"
+
+#. module: website_form
+#: model:ir.model.fields,field_description:website_form.field_ir_model__website_form_default_field_id
+msgid "Field for custom form data"
+msgstr "表单上的自定义数据字段"
+
+#. module: website_form
+#: model:ir.model,name:website_form.model_ir_model_fields
+msgid "Fields"
+msgstr "字段 "
+
+#. module: website_form
+#: model:ir.model.fields,help:website_form.field_ir_model__website_form_label
+msgid ""
+"Form action label. Ex: crm.lead could be 'Send an e-mail' and project.issue "
+"could be 'Create an Issue'."
+msgstr ""
+"表单动作标签，例：crm.lead的标签可以为\"发送电子邮件“，project.issue 的标签可"
+"以为“新建一个问题”。"
+
+#. module: website_form
+#: model:ir.model.fields,field_description:website_form.field_ir_model__website_form_label
+msgid "Label for form action"
+msgstr "表单动作便签"
+
+#. module: website_form
+#: code:addons/website_form/controllers/main.py:55
+#, python-format
+msgid "Metadata"
+msgstr "元数据"
+
+#. module: website_form
+#: model:ir.model,name:website_form.model_ir_model
+msgid "Models"
+msgstr "模型"
+
+#. module: website_form
+#. openerp-web
+#: code:addons/website_form/static/src/xml/website_form.xml:14
+#, python-format
+msgid "Please fill in the form correctly."
+msgstr "请正确填写表单"
+
+#. module: website_form
+#: model:ir.model.fields,help:website_form.field_ir_model__website_form_default_field_id
+msgid "Specify the field which will contain meta and custom form fields datas."
+msgstr "指定包含元数据和自定义表格字段数据的字段。"
+
+#. module: website_form
+#. openerp-web
+#: code:addons/website_form/static/src/xml/website_form.xml:7
+#, python-format
+msgid "Success"
+msgstr "成功"
+
+#. module: website_form
+#: model:ir.model.fields,field_description:website_form.field_res_config_settings__website_form_enable_metadata
+#: model:ir.model.fields,field_description:website_form.field_website__website_form_enable_metadata
+msgid "Technical data on contact form"
+msgstr "联系人窗体上的技术数据"
+
+#. module: website_form
+#. openerp-web
+#: code:addons/website_form/static/src/xml/website_form.xml:7
+#, python-format
+msgid "The form has been sent successfully."
+msgstr "表单已发送成功。"
+
+#. module: website_form
+#: model_terms:ir.ui.view,arch_db:website_form.res_config_settings_view_form
+msgid "Track metadata (IP, User Agent, ...) on your Website Forms"
+msgstr "在你的网站窗体中跟踪元数据（IP，用户代理，....）"
+
+#. module: website_form
+#: model:ir.model,name:website_form.model_website
+msgid "Website"
+msgstr "网站"
+
+#. module: website_form
+#: model:ir.model.fields,help:website_form.field_res_config_settings__website_form_enable_metadata
+#: model:ir.model.fields,help:website_form.field_website__website_form_enable_metadata
+msgid "You can choose to log technical data like IP, User Agent ,..."
+msgstr ""
+
+#~ msgid "Enable writing metadata on form submit."
+#~ msgstr "可以在提交的表单上填写元数据。"
+
+#~ msgid "Write metadata"
+#~ msgstr "写入元数据"

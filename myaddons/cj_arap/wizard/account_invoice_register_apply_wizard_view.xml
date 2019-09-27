@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_account_invoice_register_apply_wizard" model="ir.ui.view">
+            <field name="name">account.invoice.register.apply.wizard</field>
+            <field name="model">account.invoice.register.apply.wizard</field>
+            <field name="arch" type="xml">
+                <form string="付款申请向导">
+                    <group>
+                        <group>
+                            <field name="partner_id" options="{'no_open': True}"/>
+                            <field name="apply_date"/>
+                            <field name="amount"/>
+                        </group>
+                        <group>
+                            <field name="invoice_name"/>
+                            <field name="payment_date"/>
+                        </group>
+                    </group>
+
+                    <field name="invoice_split_ids"
+                           context="{'tree_view_ref': 'cj_arap.view_account_invoice_split_tree', 'form_view_ref': 'cj_arap.view_account_invoice_split_form'}"/>
+
+                    <footer>
+                        <button string='创建' name="create_apply" type="object" class="btn-secondary"/>
+                        <button string='创建并确认' name="create_apply" type="object" class="btn-primary" context="{'create_confirm': 1}"/>
+                        <button string='创建并提交OA审批' name="create_apply" type="object" class="btn-secondary" context="{'create_commit': 1}"/>
+                        <button string="取消" class="btn-secondary" special="cancel"/>
+                    </footer>
+               </form>
+            </field>
+        </record>
+
+        <record id="action_account_invoice_register_apply_wizard" model="ir.actions.act_window">
+            <field name="name">付款申请</field>
+            <field name="res_model">account.invoice.register.apply.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+
+    </data>
+</odoo>

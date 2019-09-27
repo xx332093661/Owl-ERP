@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+        <template id="assets_backend" name="app_odoo_customize assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <link rel="stylesheet" type="text/scss" href="/cj_web/static/src/scss/app.scss"/>
+                <script type="text/javascript" src="/cj_web/static/src/js/app_window_title.js"/>
+                <script type="text/javascript" src="/cj_web/static/src/js/user_menu.js"/>
+            </xpath>
+        </template>
+</odoo>

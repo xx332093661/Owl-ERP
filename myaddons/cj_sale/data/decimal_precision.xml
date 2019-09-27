@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <function model="decimal.precision" name="write">
+            <value eval="[ref('product.decimal_price')]"/>
+            <value eval="{'digits': 3}"/>
+        </function>
+    </data>
+</odoo>

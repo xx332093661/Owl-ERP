@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-extend="UserMenu.Actions">
+        <t t-jquery="a[data-menu='shortcuts']" t-operation="after">
+            <a role="menuitem" href="#" data-menu="clearData" class="dropdown-item">数据清理</a>
+        </t>
+    </t>
+</templates>

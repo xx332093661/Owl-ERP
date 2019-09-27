@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="sale_channels_across_move" model="sale.channels">
+            <field name="name">跨公司调拨</field>
+            <field name="description">跨公司调拨</field>
+            <field name="code">across_move</field>
+        </record>
+
+    </data>
+</odoo>

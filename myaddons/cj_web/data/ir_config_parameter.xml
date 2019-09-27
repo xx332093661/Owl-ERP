@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<openerp>
+    <data noupdate="1">
+        <record id="app_system_name" model="ir.config_parameter">
+            <field name="key">app_system_name</field>
+            <field name="value">川酒ERP</field>
+        </record>
+        <record id="app_show_support" model="ir.config_parameter">
+            <field name="key">app_show_support</field>
+            <field name="value">False</field>
+        </record>
+        <record id="app_show_documentation" model="ir.config_parameter">
+            <field name="key">app_show_documentation</field>
+            <field name="value">False</field>
+        </record>
+        <record id="app_show_account" model="ir.config_parameter">
+            <field name="key">app_show_account</field>
+            <field name="value">False</field>
+        </record>
+        <record id="app_show_settings" model="ir.config_parameter">
+            <field name="key">app_show_settings</field>
+            <field name="value">False</field>
+        </record>
+        <!--当前系统是否是非生产环境-->
+        <record id="app_test_environment" model="ir.config_parameter">
+            <field name="key">app_test_environment</field>
+            <field name="value">True</field>
+        </record>
+    </data>
+</openerp>

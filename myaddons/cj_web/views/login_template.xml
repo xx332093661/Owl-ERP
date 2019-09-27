@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="cj_web.login" name="Login">&lt;!DOCTYPE html&gt;
+        <html style="height: 100%;">
+            <head>
+                <title>川酒ERP管理系统</title>
+                <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+                <meta http-equiv="content-type" content="text/html, charset=utf-8"/>
+                <meta name="viewport" content=" width=1024, user-scalable=no"/>
+                <meta name="apple-mobile-web-app-capable" content="no"/>
+                <meta name="mobile-web-app-capable" content="no"/>
+
+                <link type="image/x-icon" rel="shortcut icon" href="/web/static/src/img/favicon.ico"/>
+                <link rel="stylesheet" href="/web/static/lib/bootstrap/css/bootstrap.css"/>
+                <link rel="stylesheet" type="text/css" href="/web/static/lib/fontawesome/css/font-awesome.css"/>
+                <link rel="stylesheet" type="text/css" href="/cj_web/static/lib/icon_font/icon-font.min.css"/>
+                <link rel="stylesheet" type="text/css" href="/cj_web/static/src/css/util.css"/>
+                <link rel="stylesheet" type="text/css" href="/cj_web/static/src/css/main.css"/>
+
+                <script type="text/javascript">
+                    var odoo = {csrf_token: "<t t-esc="request.csrf_token(None)"/>"};
+                </script>
+            </head>
+            <body>
+                <div class="limiter">
+                    <div class="container-login100" style="background-image: url('/cj_web/static/src/img/bg-01.jpg');">
+                        <div class="wrap-login100 p-t-30 p-b-50">
+                            <span class="login100-form-title p-b-41">
+                                川酒ERP管理系统
+                            </span>
+                            <form class="login100-form validate-form p-b-33 p-t-5" role="form" action="/web/login" method="post" onsubmit="this.action = this.action + location.hash">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="wrap-input100 validate-input" data-validate="请输入手机号码">
+                                    <input type="text" placeholder="请输入手机号码" name="login" t-att-value="login" id="login" class="input100" required="required" autofocus="autofocus" autocapitalize="new-password"/>
+                                    <span class="focus-input100" data-placeholder="&#xe82a;"/>
+                                </div>
+
+                                <div class="wrap-input100 validate-input" data-validate="请输入密码">
+                                    <input type="password" placeholder="请输入密码" name="password" id="password" class="input100" required="required" autocomplete="new-password" t-att-autofocus="'autofocus' if login else None" maxlength="4096"/>
+
+                                    <span class="focus-input100" data-placeholder="&#xe80f;"/>
+                                </div>
+
+                                <div class="container-login100-form-btn m-t-32">
+                                    <button class="login100-form-btn">
+                                        登录
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <script type="text/javascript" src="/web/static/lib/jquery/jquery.js"/>
+                <script src="/cj_web/static/src/js/main.js"/>
+            </body>
+        </html>
+    </template>
+
+</odoo>

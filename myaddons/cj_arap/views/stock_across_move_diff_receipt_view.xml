@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem id="menu_action_stock_across_move_diff_receipt"
+                  action="cj_stock.action_stock_across_move_diff_receipt"
+                  groups="account.group_account_invoice"
+                  name="跨公司调拨差异收款" parent="menu_account_stock" sequence="40"/>
+
+    </data>
+
+</odoo>

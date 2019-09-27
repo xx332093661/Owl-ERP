@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!--联系人-->
+    <record id="view_warehouse" model="ir.ui.view">
+        <field name="name">view_warehouse</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="cj_id"/>
+                <field name="warehouse_type"/>
+                <field name="contact"/>
+                <field name="contact_phone"/>
+                <field name="charge_person"/>
+                <field name="charge_phone"/>
+                <field name="status"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

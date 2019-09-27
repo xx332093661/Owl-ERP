@@ -1,0 +1,14 @@
+.o_base_settings {
+  .o_setting_container {
+    .settings_tab {
+      background: none;
+      border-right: solid 1px #ccc;
+      .tab {
+        color: #4c4c4c;
+        .icon{
+          display: none !important;
+        }
+      }
+    }
+  }
+}

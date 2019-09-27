@@ -1,0 +1,148 @@
+<odoo>
+    <!--贸易模式-->
+    <data>
+        <record id="view_commerce_model_tree" model="ir.ui.view">
+            <field name="name">commerce.model tree</field>
+            <field name="model">commerce.model</field>
+            <field name="arch" type="xml">
+                <tree editable="top">
+                    <field name="name"/>
+                    <field name="code"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_commerce_model_form" model="ir.ui.view">
+            <field name="name">commerce.model form</field>
+            <field name="model">commerce.model</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                            <group>
+                                <field name="code"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_commerce_model_search" model="ir.ui.view">
+            <field name="name">commerce.model search</field>
+            <field name="model">commerce.model</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+                </search>
+            </field>
+        </record>
+    </data>
+
+    <!--入库模式-->
+    <data>
+        <record id="view_stock_model_tree" model="ir.ui.view">
+            <field name="name">stock.model tree</field>
+            <field name="model">stock.model</field>
+            <field name="arch" type="xml">
+                <tree editable="top">
+                    <field name="name"/>
+                    <field name="code"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_stock_model_form" model="ir.ui.view">
+            <field name="name">stock.model form</field>
+            <field name="model">stock.model</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                            <group>
+                                <field name="code"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_stock_model_search" model="ir.ui.view">
+            <field name="name">stock.model search</field>
+            <field name="model">stock.model</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+                </search>
+            </field>
+        </record>
+    </data>
+
+
+    <!--商品供应商模式-->
+    <data>
+        <record id="view_product_supplier_model_tree" model="ir.ui.view">
+            <field name="name">product.supplier.model tree</field>
+            <field name="model">product.supplier.model</field>
+            <field name="arch" type="xml">
+                <tree editable="top">
+                    <field name="product_id" options="{'no_create': 1}"/>
+                    <field name="partner_id" options="{'no_create': 1}"/>
+                    <field name="payment_term_id"/>
+                    <field name="commerce_model_id"/>
+                    <field name="stock_model_id"/>
+                    <field name="time_price"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_product_supplier_model_form" model="ir.ui.view">
+            <field name="name">product.supplier.model form</field>
+            <field name="model">product.supplier.model</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group col="4">
+                            <field name="product_id" options="{'no_create': 1}"/>
+                            <field name="partner_id" options="{'no_create': 1}"/>
+                            <field name="payment_term_id"/>
+                            <field name="commerce_model_id"/>
+                            <field name="stock_model_id"/>
+                            <field name="time_price"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_product_supplier_model_search" model="ir.ui.view">
+            <field name="name">product.supplier.model search</field>
+            <field name="model">product.supplier.model</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="product_id"/>
+                    <field name="partner_id"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_product_supplier_model" model="ir.actions.act_window">
+            <field name="name">商品供应商模式</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.supplier.model</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem name="商品供应商模式" id="menu_action_product_supplier_model" action="action_product_supplier_model"
+                  parent="menu_purchase_main_data" sequence="10"/>
+
+    </data>
+</odoo>

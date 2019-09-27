@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--应收应付/配置/会计/替换规则菜单只能由系统管理员访问-->
+        <record id="account.menu_action_account_fiscal_position_form" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('base.group_erp_manager'))]"/>
+        </record>
+        <!--应收应付/配置/会计/银行帐户菜单只能由系统管理员访问-->
+        <record id="account.menu_action_account_bank_journal_form" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('base.group_erp_manager'))]"/>
+        </record>
+        <!--应收应付/配置/会计/贸易条款菜单只能由系统管理员访问-->
+        <record id="account.menu_action_incoterm_open" model="ir.ui.menu">
+            <field name="groups_id" eval="[(5, 0),(4, ref('base.group_erp_manager'))]"/>
+        </record>
+        <!--应收应付/配置/会计/对账模型菜单只能由系统管理员访问-->
+        <record id="account.action_account_reconcile_model_menu" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('base.group_erp_manager'))]"/>
+        </record>
+        <!--应收应付/配置/支付菜单只能由系统管理员访问-->
+        <record id="payment.root_payment_menu" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('base.group_erp_manager'))]"/>
+        </record>
+        <!--应收应付/配置/动作菜单只能由系统管理员访问-->
+        <record id="account.menu_finance_entries_actions" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('base.group_erp_manager'))]"/>
+        </record>
+        <!--应收应付\会计凭证菜单序号调整-->
+        <record id="account.menu_finance_entries" model="ir.ui.menu">
+            <field name="sequence" eval="10"/>
+        </record>
+        <!--应收应付/应付/付款记录序号调整-->
+        <record id="account.menu_action_account_payments_payable" model="ir.ui.menu">
+            <field name="sequence" eval="50"/>
+        </record>
+
+        <!--增加采购菜单-->
+        <menuitem id="menu_account_purchase" name="采购"
+            parent="account.menu_finance" sequence="4"/>
+        <menuitem name="采购申请"
+                  id="menu_action_purchase_apply"
+                  action="cj_purchase.action_purchase_apply"
+                  parent="menu_account_purchase"
+                  sequence="1"/>
+        <menuitem name="报价单"
+                  id="menu_purchase_price_list"
+                  action="cj_purchase.action_purchase_price_list"
+
+                  parent="menu_account_purchase"
+                  sequence="2"/>
+        <menuitem name="采购订单"
+                  id="menu_purchase_rfq"
+                  action="purchase.purchase_rfq"
+                  parent="menu_account_purchase"
+                  sequence="3"/>
+
+        <!--增加销售菜单-->
+        <menuitem id="menu_account_sale" name="销售"
+            parent="account.menu_finance" sequence="5"/>
+
+         <menuitem id="menu_sale_order"
+            name="全渠道订单"
+            action="cj_sale.action_orders_all"
+            parent="menu_account_sale"
+            sequence="1"/>
+
+        <menuitem name="团购单" id="menu_action_sale_bjd" action="cj_sale.action_orders_groupn"
+                  parent="menu_account_sale" sequence="2"/>
+
+        <!--应收应付\概览菜单隐藏-->
+        <record id="account.menu_board_journal_1" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+        <!--应收应付\客户\产品菜单隐藏-->
+        <record id="account.product_product_menu_sellable" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+        <!--应收应付\客户\客户菜单隐藏-->
+        <record id="account.menu_account_customer" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+        <!--应收应付\供应商\产品菜单隐藏-->
+        <record id="account.product_product_menu_purchasable" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+        <!--应收应付\供应商\供应商菜单隐藏-->
+        <record id="account.menu_account_supplier" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+
+        <!--创建主数据菜单，包括商品、客户、供应商等子菜单-->
+        <menuitem id="menu_account_main" name="主数据"
+                  parent="account.menu_finance" sequence="1"
+                  groups="account.group_account_user"/>
+        <menuitem id="menu_account_main_product" name="商品"
+                  action="account.product_product_action_sellable"
+                  parent="menu_account_main" sequence="10"/>
+        <menuitem id="menu_account_main_customer" name="客户"
+                  action="base.action_partner_customer_form"
+                  parent="menu_account_main" sequence="20"/>
+        <menuitem id="menu_account_main_supplier" name="供应商"
+                  action="base.action_partner_supplier_form"
+                  parent="menu_account_main" sequence="30"/>
+
+        <!--增加仓库菜单-->
+        <menuitem id="menu_account_stock" name="仓库"
+            parent="account.menu_finance" sequence="6"/>
+
+    </data>
+</odoo>

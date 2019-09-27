@@ -1,0 +1,1115 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sales_team
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0alpha1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-01-09 10:32+0000\n"
+"PO-Revision-Date: 2019-04-27 07:08+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 2.0.7\n"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_salesteams_view_kanban
+msgid ""
+"<i class=\"fa fa-ellipsis-v\" role=\"img\" aria-label=\"Manage\" title="
+"\"Manage\"/>"
+msgstr ""
+"<i class=\"fa fa-ellipsis-v\" role=\"img\" aria-label=\"管理\" title=\"管理"
+"\"/>"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_salesteams_view_kanban
+msgid "<span>New</span>"
+msgstr "<span>新建</span>"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_salesteams_view_kanban
+msgid "<span>Reporting</span>"
+msgstr "<span>报表</span>"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_salesteams_view_kanban
+msgid "<span>View</span>"
+msgstr "<span>视图</span>"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_needaction
+msgid "Action Needed"
+msgstr "需要行动"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__active
+msgid "Active"
+msgstr "有效"
+
+#. module: sales_team
+#: model:ir.actions.act_window,name:sales_team.mail_activity_type_action_config_sales
+msgid "Activity Types"
+msgstr "活动类型"
+
+#. module: sales_team
+#: model:crm.team,name:sales_team.crm_team_1
+msgid "America"
+msgstr "美洲"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_salesteams_search
+msgid "Archived"
+msgstr "已存档"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_attachment_count
+msgid "Attachment Count"
+msgstr "附件数量"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_view_form
+msgid "Avatar"
+msgstr "阿凡达"
+
+#. module: sales_team
+#: selection:crm.team,dashboard_graph_type:0
+msgid "Bar"
+msgstr "栏"
+
+#. module: sales_team
+#: code:addons/sales_team/models/crm_team.py:274
+#, python-format
+msgid "Big Pretty Button :)"
+msgstr "仪表盘按钮"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__member_ids
+msgid "Channel Members"
+msgstr "团队成员"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__color
+msgid "Color Index"
+msgstr "颜色序号"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__company_id
+msgid "Company"
+msgstr "公司"
+
+#. module: sales_team
+#: model:ir.ui.menu,name:sales_team.menu_sale_config
+msgid "Configuration"
+msgstr "配置"
+
+#. module: sales_team
+#: model:ir.model,name:sales_team.model_res_partner
+msgid "Contact"
+msgstr "联系人"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__dashboard_graph_model
+msgid "Content"
+msgstr "内容"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__create_uid
+msgid "Created by"
+msgstr "创建者"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__create_date
+msgid "Created on"
+msgstr "创建时间"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__currency_id
+msgid "Currency"
+msgstr "币种"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_view_form
+msgid "Dashboard"
+msgstr "仪表板"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__dashboard_button_name
+msgid "Dashboard Button"
+msgstr "仪表盘按钮"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__dashboard_graph_data
+msgid "Dashboard Graph Data"
+msgstr "仪表盘数据图表"
+
+#. module: sales_team
+#: selection:crm.team,dashboard_graph_group:0
+msgid "Day"
+msgstr "天"
+
+#. module: sales_team
+#: model_terms:ir.actions.act_window,help:sales_team.crm_team_salesteams_act
+#: model_terms:ir.actions.act_window,help:sales_team.sales_team_config_action
+msgid "Define a new Sales Team"
+msgstr "定义一个新的销售团队"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: sales_team
+#: model:crm.team,name:sales_team.team_sales_department
+msgid "Europe"
+msgstr "欧洲"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__favorite_user_ids
+msgid "Favorite Members"
+msgstr "团队成员"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__is_favorite
+msgid "Favorite teams to display them in the dashboard and access them easily."
+msgstr "添加关注销售团队并在仪表板中显示，方便快速访问。"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_view_form
+msgid ""
+"Follow this salesteam to automatically track the events associated to users "
+"of this team."
+msgstr "按照此销售团队自动跟踪关联到这个团队的用户的事件。"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_follower_ids
+msgid "Followers"
+msgstr "跟踪"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_channel_ids
+msgid "Followers (Channels)"
+msgstr "关注者（频道）"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "关注者（业务伙伴）"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_view_form
+msgid "Graph"
+msgstr "图表"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_salesteams_search
+msgid "Group By..."
+msgstr "分组按..."
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__dashboard_graph_group
+msgid "Group by"
+msgstr "通过组"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__dashboard_graph_group
+msgid "How this channel's dashboard graph will group the results."
+msgstr "该渠道的仪表板图将如何对结果进行分组。"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__message_unread
+msgid "If checked new messages require your attention."
+msgstr "如果勾选新的消息需要你attention.ws。"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "如果勾选，你需要注意查看新消息。"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr "如果勾选，一些消息将有发送错误。"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_res_partner__team_id
+msgid ""
+"If set, this Sales Team will be used for sales and assignations related to "
+"this partner"
+msgstr "如何设置，这个销售团队将用于销售和这个合作伙伴相关的指定"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__active
+msgid ""
+"If the active field is set to false, it will allow you to hide the Sales "
+"Team without removing it."
+msgstr ""
+"如果有效字段被设置为假，则允许你使用隐藏这个销售团队来代替删除这个团队。"
+
+#. module: sales_team
+#: selection:crm.team,dashboard_graph_model:0
+msgid "Invoices"
+msgstr "发票列表"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_is_follower
+msgid "Is Follower"
+msgstr "是关注者"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team____last_update
+msgid "Last Modified on"
+msgstr "最近修改日期"
+
+#. module: sales_team
+#: selection:crm.team,dashboard_graph_period:0
+msgid "Last Month"
+msgstr "上月"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__write_uid
+msgid "Last Updated by"
+msgstr "最后更新者"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__write_date
+msgid "Last Updated on"
+msgstr "最后更新时间"
+
+#. module: sales_team
+#: selection:crm.team,dashboard_graph_period:0
+msgid "Last Week"
+msgstr "上周"
+
+#. module: sales_team
+#: selection:crm.team,dashboard_graph_period:0
+msgid "Last Year"
+msgstr "去年"
+
+#. module: sales_team
+#: selection:crm.team,dashboard_graph_type:0
+msgid "Line"
+msgstr "行"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_main_attachment_id
+msgid "Main Attachment"
+msgstr "主附件"
+
+#. module: sales_team
+#: model:res.groups,name:sales_team.group_sale_manager
+msgid "Manager"
+msgstr "经理"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_has_error
+msgid "Message Delivery error"
+msgstr "消息发送错误"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_ids
+msgid "Messages"
+msgstr "信息"
+
+#. module: sales_team
+#: selection:crm.team,dashboard_graph_group:0
+msgid "Month"
+msgstr "月"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_salesteams_search
+msgid "My Favorites"
+msgstr "我的收藏"
+
+#. module: sales_team
+#: code:addons/sales_team/models/crm_team.py:260
+#, python-format
+msgid "Not Defined"
+msgstr "没有定义"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_needaction_counter
+msgid "Number of Actions"
+msgstr "行动数量"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_has_error_counter
+msgid "Number of error"
+msgstr "错误数量"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__message_needaction_counter
+msgid "Number of messages which requires an action"
+msgstr "需要行动的消息数"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "带有发送错误的消息数量"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__message_unread_counter
+msgid "Number of unread messages"
+msgstr "未读信息数量"
+
+#. module: sales_team
+#: selection:crm.team,dashboard_graph_model:0
+msgid "Pipeline"
+msgstr "渠道"
+
+#. module: sales_team
+#: selection:crm.team,team_type:0
+msgid "Point of Sale"
+msgstr "POS"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__reply_to
+msgid "Reply-To"
+msgstr "回复"
+
+#. module: sales_team
+#: selection:crm.team,dashboard_graph_model:0 selection:crm.team,team_type:0
+msgid "Sales"
+msgstr "销售"
+
+#. module: sales_team
+#: model:ir.model,name:sales_team.model_crm_team
+msgid "Sales Channels"
+msgstr "多个销售渠道"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__name
+#: model:ir.model.fields,field_description:sales_team.field_res_partner__team_id
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_view_form
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_view_tree
+msgid "Sales Team"
+msgstr "销售团队"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_res_users__sale_team_id
+msgid ""
+"Sales Team the user is member of. Used to compute the members of a Sales "
+"Team through the inverse one2many"
+msgstr "用户所属的销售团队，用来通过一对多的反向来计算销售团队成员"
+
+#. module: sales_team
+#: model:ir.actions.act_window,name:sales_team.sales_team_config_action
+msgid "Sales Teams"
+msgstr "销售团队"
+
+#. module: sales_team
+#: selection:crm.team,dashboard_graph_group:0
+msgid "Salesperson"
+msgstr "业务员"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_view_form
+msgid "Salesteam name..."
+msgstr "销售团队名称..."
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_salesteams_search
+msgid "Salesteams Search"
+msgstr "销售团队查询"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__dashboard_graph_period
+msgid "Scale"
+msgstr "电子秤"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_salesteams_view_kanban
+msgid "Settings"
+msgstr "设置"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__is_favorite
+msgid "Show on dashboard"
+msgstr "在仪表盘显示"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__user_id
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_salesteams_search
+msgid "Team Leader"
+msgstr "团队领导"
+
+#. module: sales_team
+#: model_terms:ir.ui.view,arch_db:sales_team.crm_team_view_form
+msgid "Team Members"
+msgstr "团队成员"
+
+#. module: sales_team
+#: model:ir.actions.act_window,name:sales_team.crm_team_salesteams_act
+msgid "Team Pipelines"
+msgstr "团队渠道"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__team_type
+msgid "Team Type"
+msgstr "团队类型"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__color
+msgid "The color of the channel"
+msgstr "定义渠道颜色"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__reply_to
+msgid ""
+"The email address put in the 'Reply-To' of all emails sent by Odoo about "
+"cases in this Sales Team"
+msgstr "在销售团队中，Odoo用来发送邮件时的“回复到”字段的邮箱地址"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__dashboard_graph_model
+msgid "The graph this channel will display in the Dashboard.\n"
+msgstr "这个渠道将显示在仪表板中。\n"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__dashboard_graph_period
+msgid "The time period this channel's dashboard graph will consider."
+msgstr "这个渠道的指示板图将会考虑。"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__dashboard_graph_type
+msgid "The type of graph this channel will display in the dashboard."
+msgstr "这个渠道的图形类型将在仪表板中显示。"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__team_type
+msgid ""
+"The type of this channel, it will define the resources this channel uses."
+msgstr "这个渠道的类型，它将定义这个渠道使用的资源。"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__dashboard_graph_type
+msgid "Type"
+msgstr "分类"
+
+#. module: sales_team
+#: code:addons/sales_team/models/crm_team.py:151
+#: code:addons/sales_team/models/crm_team.py:178
+#, python-format
+msgid "Undefined graph model for Sales Team: %s"
+msgstr "未定义的销售图形模型：%s"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_unread
+msgid "Unread Messages"
+msgstr "未读信息"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__message_unread_counter
+msgid "Unread Messages Counter"
+msgstr "未读消息计数"
+
+#. module: sales_team
+#: model_terms:ir.actions.act_window,help:sales_team.crm_team_salesteams_act
+#: model_terms:ir.actions.act_window,help:sales_team.sales_team_config_action
+msgid ""
+"Use Sales Teams to organize your sales departments.\n"
+"                    Each channel will work with a separate pipeline."
+msgstr ""
+"使用销售团队来组织你的销售部。\n"
+"                    每一个渠道将和一个独立的销售漏斗相关。"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_res_users__sale_team_id
+msgid "User's Sales Team"
+msgstr "用户的销售团队"
+
+#. module: sales_team
+#: model:res.groups,name:sales_team.group_sale_salesman_all_leads
+msgid "User: All Documents"
+msgstr "用户：所有文档"
+
+#. module: sales_team
+#: model:res.groups,name:sales_team.group_sale_salesman
+msgid "User: Own Documents Only"
+msgstr "用户：仅自己的文档"
+
+#. module: sales_team
+#: model:ir.model,name:sales_team.model_res_users
+msgid "Users"
+msgstr "用户"
+
+#. module: sales_team
+#: model:crm.team,name:sales_team.salesteam_website_sales
+#: selection:crm.team,team_type:0
+msgid "Website"
+msgstr "网站"
+
+#. module: sales_team
+#: model:ir.model.fields,field_description:sales_team.field_crm_team__website_message_ids
+msgid "Website Messages"
+msgstr "网站信息"
+
+#. module: sales_team
+#: model:ir.model.fields,help:sales_team.field_crm_team__website_message_ids
+msgid "Website communication history"
+msgstr "网站沟通历史"
+
+#. module: sales_team
+#: selection:crm.team,dashboard_graph_group:0
+msgid "Week"
+msgstr "周"
+
+#. module: sales_team
+#: model:res.groups,comment:sales_team.group_sale_salesman_all_leads
+msgid ""
+"the user will have access to all records of everyone in the sales "
+"application."
+msgstr "用户可访问销售系统中每个人的所有记录。"
+
+#. module: sales_team
+#: model:res.groups,comment:sales_team.group_sale_salesman
+msgid "the user will have access to his own data in the sales application."
+msgstr "在销售应用，用户只能访问自己的数据。"
+
+#. module: sales_team
+#: model:res.groups,comment:sales_team.group_sale_manager
+msgid ""
+"the user will have an access to the sales configuration as well as statistic "
+"reports."
+msgstr "用户将有权限访问销售设置及统计报表。"
+
+#~ msgid "Sales Dashboard"
+#~ msgstr "销售仪表板"
+
+#~ msgid ""
+#~ "User: Own Documents Only: the user will have access to his own data in "
+#~ "the sales application.\n"
+#~ "User: All Documents: the user will have access to all records of everyone "
+#~ "in the sales application.\n"
+#~ "Manager: the user will have an access to the sales configuration as well "
+#~ "as statistic reports."
+#~ msgstr ""
+#~ "用户: 仅自己的文档: 在销售应用中，用户仅能访问他自己的数据。\n"
+#~ "用户: 所有文档: 用户能访问销售应用中每个人的记录。\n"
+#~ "经理: 除了统计报表，用户还可以访问销售设置。"
+
+#~ msgid "Channel Leader"
+#~ msgstr "渠道管理"
+
+#~ msgid "Channel Type"
+#~ msgstr "渠道类型"
+
+#~ msgid "Define a new sales channel"
+#~ msgstr "定义一个新的销售渠道"
+
+#~ msgid ""
+#~ "If set, this sales channel will be used for sales and assignations "
+#~ "related to this partner"
+#~ msgstr "如果设置，这个销售渠道将用于合作伙伴相关的销售和分配"
+
+#~ msgid ""
+#~ "If the active field is set to false, it will allow you to hide the sales "
+#~ "channel without removing it."
+#~ msgstr "如果活动字段被设置为false，它将允许你隐藏销售渠道而不删除它。"
+
+#~ msgid "Sales Channel"
+#~ msgstr "销售渠道"
+
+#~ msgid "Sales Channel Dashboard"
+#~ msgstr "销售渠道仪表版"
+
+#~ msgid ""
+#~ "Sales Channel the user is member of. Used to compute the members of a "
+#~ "sales channel through the inverse one2many"
+#~ msgstr "销售渠道用户是会员。用于计算销售通道的成员，通过逆向one2many"
+
+#~ msgid ""
+#~ "The email address put in the 'Reply-To' of all emails sent by Odoo about "
+#~ "cases in this sales channel"
+#~ msgstr "电子邮件地址在Odoo发送的所有电子邮件中都有“回复”的电子邮件地址"
+
+#~ msgid "Undefined graph model for Sales Channel: %s"
+#~ msgstr "销售渠道的图形模型: %s还没有定义"
+
+#~ msgid ""
+#~ "Use sales channels to organize your sales departments. \n"
+#~ "                    Each channel will work with a separate pipeline."
+#~ msgstr ""
+#~ "使用销售渠道来组织你的销售部门。\n"
+#~ "                     每个渠道将与一个单独的管道工作。"
+
+#~ msgid "Click here to define a new sales channel."
+#~ msgstr "点击这里设置新的销售渠道。"
+
+#~ msgid "3 exp. closing"
+#~ msgstr "3 预计结束时间"
+
+#~ msgid "35,029.39€"
+#~ msgstr "35,029.39€"
+
+#~ msgid "78,140.03€"
+#~ msgstr "78,140.03€"
+
+#~ msgid "80.000€"
+#~ msgstr "80.000€"
+
+#~ msgid "<span>Reports</span>"
+#~ msgstr "<span>报表</span>"
+
+#~ msgid "Activities Done"
+#~ msgstr "活动结束"
+
+#~ msgid "Apply"
+#~ msgstr "应用"
+
+#~ msgid "Bank Accounts"
+#~ msgstr "银行账户"
+
+#~ msgid "Banks"
+#~ msgstr "银行"
+
+#~ msgid "Cancel"
+#~ msgstr "取消"
+
+#~ msgid "Click here to define a new sales team."
+#~ msgstr "点击定义新的销售团队"
+
+#~ msgid "Click to set"
+#~ msgstr "点击设置"
+
+#~ msgid "Configure Sales"
+#~ msgstr "销售配置"
+
+#~ msgid "Contact Tags"
+#~ msgstr "联系人分类"
+
+#~ msgid "Contact Titles"
+#~ msgstr "联系人称谓"
+
+#~ msgid "Contacts"
+#~ msgstr "联系人"
+
+#~ msgid "Countries"
+#~ msgstr "国家和地区"
+
+#~ msgid "Country Group"
+#~ msgstr "国家组"
+
+#~ msgid "Create a few opportunities in it."
+#~ msgstr "在仪表板中创建新的销售机会"
+
+#~ msgid "Currencies"
+#~ msgstr "货币"
+
+#~ msgid "Customers"
+#~ msgstr "客户"
+
+#~ msgid "Direct Sales"
+#~ msgstr "直销"
+
+#~ msgid "Fed. States"
+#~ msgstr "省份"
+
+#~ msgid "Great sales journeys start with a clean pipeline."
+#~ msgstr "在新的销售渠道中开启伟大的历程"
+
+#~ msgid "Hi there!"
+#~ msgstr "你好"
+
+#~ msgid ""
+#~ "If set, sale team used notably for sales and assignations related to this "
+#~ "partner"
+#~ msgstr "如果设置，销售团队用于关联销售和业务伙伴"
+
+#~ msgid ""
+#~ "If the active field is set to false, it will allow you to hide the sales "
+#~ "team without removing it."
+#~ msgstr "如果“有效”字段设置为false，则会允许你隐藏销售团队，而不会被删除它。"
+
+#~ msgid "Invoiced"
+#~ msgstr "已开票"
+
+#~ msgid "Localization"
+#~ msgstr "本地化"
+
+#~ msgid "Meetings"
+#~ msgstr "会议"
+
+#~ msgid "More <i class=\"fa fa-caret-down\"/>"
+#~ msgstr "更多 <i class=\"fa fa-caret-down\"/>"
+
+#~ msgid "More Info"
+#~ msgstr "更多信息"
+
+#~ msgid "My Pipeline"
+#~ msgstr "你的销售渠道"
+
+#~ msgid "My Salesteams"
+#~ msgstr "我的销售团队"
+
+#~ msgid "Next 7 days"
+#~ msgstr "倒计时7天"
+
+#~ msgid "Next Actions"
+#~ msgstr "下一操作"
+
+#~ msgid "Only Integer Value should be valid."
+#~ msgstr "仅整数值才是有效的。"
+
+#~ msgid "Partner"
+#~ msgstr "伙伴"
+
+#~ msgid "Performance"
+#~ msgstr "绩效"
+
+#~ msgid "Reports"
+#~ msgstr "报表"
+
+#~ msgid ""
+#~ "Sales Team the user is member of. Used to compute the members of a sales "
+#~ "team through the inverse one2many"
+#~ msgstr "用户所在销售团队。用于通过one2many字段反向计算销售团队成员。"
+
+#~ msgid "Sales team"
+#~ msgstr "销售团队"
+
+#~ msgid "Target"
+#~ msgstr "目标"
+
+#~ msgid "The color of the team"
+#~ msgstr "团队颜色"
+
+#~ msgid ""
+#~ "The email address put in the 'Reply-To' of all emails sent by Odoo about "
+#~ "cases in this sales team"
+#~ msgstr "有关本销售团队的案例的邮件，其被Odoo放在“回复”一栏的电子邮件地址"
+
+#~ msgid "This Month"
+#~ msgstr "本月"
+
+#~ msgid "To Activities"
+#~ msgstr "活动"
+
+#~ msgid "To Activity Report"
+#~ msgstr "活动报告"
+
+#~ msgid "To Calendar"
+#~ msgstr "日历"
+
+#~ msgid "To Invoice Report"
+#~ msgstr "相关单据生成此发票报表"
+
+#~ msgid "To Opportunities"
+#~ msgstr "商机"
+
+#~ msgid "To Opportunity Report"
+#~ msgstr "机会报告"
+
+#~ msgid "To do"
+#~ msgstr "待办"
+
+#~ msgid "Today"
+#~ msgstr "今天"
+
+#~ msgid ""
+#~ "Use sales team to organize your different salespersons or\n"
+#~ "                    departments into separate teams. Each team will work "
+#~ "in\n"
+#~ "                    its own list of opportunities."
+#~ msgstr ""
+#~ "<p class=\"oe_view_nocontent_create\">\n"
+#~ "                     点击这里定义一个新的销售团队。\n"
+#~ "                 </p><p>\n"
+#~ "                  使用销售团队来组织你不同的销售人员或部门到独立的团队。\n"
+#~ "\n"
+#~ "                  每个团队将它自己的机会列表。\n"
+#~ "                 </p>"
+
+#~ msgid "Website Sales"
+#~ msgstr "网站销售"
+
+#~ msgid "Won in Opportunities"
+#~ msgstr "商机赢得"
+
+#~ msgid "Wrong value entered!"
+#~ msgstr "输入值错误！"
+
+#~ msgid "exp. closing"
+#~ msgstr "预计结束时间"
+
+#~ msgid "overdue"
+#~ msgstr "逾期付款信息"
+
+#~ msgid "sale.config.settings"
+#~ msgstr "sale.config.settings"
+
+#~ msgid "Sale Pricelist"
+#~ msgstr "销售价格表"
+
+#~ msgid ""
+#~ "This pricelist will be used, instead of the default one, for sales to the "
+#~ "current partner"
+#~ msgstr "当前价格表将会被使用,取代默认值,用之出售给当前伙伴."
+
+#~ msgid "ir.ui.view"
+#~ msgstr "ir.ui.view"
+
+#~ msgid "# Vendor Bills"
+#~ msgstr "# 供应商发票"
+
+#~ msgid "# of Purchase Order"
+#~ msgstr "# 采购单"
+
+#~ msgid "Account Payable"
+#~ msgstr "应付科目"
+
+#~ msgid "Account Receivable"
+#~ msgstr "应收科目"
+
+#~ msgid "Companies that refers to partner"
+#~ msgstr "公司业务伙伴"
+
+#~ msgid "Contracts"
+#~ msgstr "合同"
+
+#~ msgid "Count Payment Token"
+#~ msgstr "支付令牌数量"
+
+#~ msgid "Customer Location"
+#~ msgstr "客户库位"
+
+#~ msgid "Customer Payment Term"
+#~ msgstr "客户支付条款"
+
+#~ msgid "Degree of trust you have in this debtor"
+#~ msgstr "你对借方的信任程度"
+
+#~ msgid "Fiscal Position"
+#~ msgstr "替换规则"
+
+#~ msgid "Has unreconciled entries"
+#~ msgstr "未核销的凭证"
+
+#~ msgid "Invoice"
+#~ msgstr "发票"
+
+#~ msgid "Journal Items"
+#~ msgstr "会计凭证明细"
+
+#~ msgid ""
+#~ "Last time the invoices & payments matching was performed for this "
+#~ "partner. It is set either if there's not at least an unreconciled debit "
+#~ "and an unreconciled credit or if you click the \"Done\" button."
+#~ msgstr ""
+#~ "该业务伙伴的发票和付款匹配的最后时间。当不存在至少一个未对帐的借方记录和一"
+#~ "个未对账的贷方记录时，或者点击了\"完成\"按钮时设置该时间。"
+
+#~ msgid "Latest Invoices & Payments Matching Date"
+#~ msgstr "发票和付款最后匹配日期"
+
+#~ msgid "Message for Invoice"
+#~ msgstr "发票信息"
+
+#~ msgid "Message for Purchase Order"
+#~ msgstr "采购单消息"
+
+#~ msgid "Message for Stock Picking"
+#~ msgstr "库存分拣消息"
+
+#~ msgid "Payable Limit"
+#~ msgstr "应付账款限额"
+
+#~ msgid "Payment Tokens"
+#~ msgstr "支付令牌"
+
+#~ msgid "Product Variants"
+#~ msgstr "使用产品多规格功能"
+
+#~ msgid "Products"
+#~ msgstr "产品"
+
+#~ msgid "Purchase Order"
+#~ msgstr "采购单"
+
+#~ msgid ""
+#~ "Selecting the \"Warning\" option will notify user with the message, "
+#~ "Selecting \"Blocking Message\" will throw an exception with the message "
+#~ "and block the flow. The Message has to be written in the next field."
+#~ msgstr ""
+#~ "选择“警告”项会提示用户消息，选择“阻止消息”会抛出异常消息,并阻止流程。消息"
+#~ "在下一个字段里写明。"
+
+#~ msgid "Stock Picking"
+#~ msgstr "库存分拣"
+
+#~ msgid "Supplier Currency"
+#~ msgstr "供应商货币"
+
+#~ msgid ""
+#~ "The fiscal position will determine taxes and accounts used for the "
+#~ "partner."
+#~ msgstr "替换规则确定业务伙伴的税替换和科目替换。"
+
+#~ msgid ""
+#~ "The partner has at least one unreconciled debit and credit since last "
+#~ "time the invoices & payments matching was performed."
+#~ msgstr "发票和付款后至少有一个借贷方不匹配．"
+
+#~ msgid ""
+#~ "This account will be used instead of the default one as the payable "
+#~ "account for the current partner"
+#~ msgstr "这科目将替换当前业务伙伴的默认支付科目"
+
+#~ msgid ""
+#~ "This account will be used instead of the default one as the receivable "
+#~ "account for the current partner"
+#~ msgstr "这科目将用于替换当前业务伙伴的默认应收账款科目"
+
+#~ msgid ""
+#~ "This currency will be used, instead of the default one, for purchases "
+#~ "from the current partner"
+#~ msgstr "对于从这个业务伙伴的采购，这个货币将被使用，替代默认货币。"
+
+#~ msgid ""
+#~ "This payment term will be used instead of the default one for purchase "
+#~ "orders and vendor bills"
+#~ msgstr "此条款将用以取代默认的采购单或供应商账单。"
+
+#~ msgid ""
+#~ "This payment term will be used instead of the default one for sale orders "
+#~ "and customer invoices"
+#~ msgstr "在销售订单和客户发票上，该付款方式将替换默认的付款方式。"
+
+#~ msgid ""
+#~ "This stock location will be used, instead of the default one, as the "
+#~ "destination location for goods you send to this partner"
+#~ msgstr "这库位替代默认值作为你出库到这个业务伙伴的目的库位。"
+
+#~ msgid ""
+#~ "This stock location will be used, instead of the default one, as the "
+#~ "source location for goods you receive from the current partner"
+#~ msgstr "默认作为你接收当前业务伙伴产品的源库位，以替代默认的源库位。"
+
+#~ msgid "Total Invoiced"
+#~ msgstr "已开票总额"
+
+#~ msgid "Total Payable"
+#~ msgstr "应付账款合计"
+
+#~ msgid "Total Receivable"
+#~ msgstr "应收账款合计"
+
+#~ msgid "Total amount this customer owes you."
+#~ msgstr "客户欠款金额合计"
+
+#~ msgid "Total amount you have to pay to this vendor."
+#~ msgstr "应付供应商总金额"
+
+#~ msgid "Utility field to express amount currency"
+#~ msgstr "用来衡量货币面值的大小的字段"
+
+#~ msgid "Vendor Location"
+#~ msgstr "供应商库位"
+
+#~ msgid "Vendor Payment Term"
+#~ msgstr "供应商支付条款"
+
+#~ msgid "# Tasks"
+#~ msgstr "# 任务"
+
+#~ msgid "Code"
+#~ msgstr "编码"
+
+#~ msgid "Date of the last message posted on the record."
+#~ msgstr "最后一条日期贴在记录信息中。"
+
+#~ msgid "Last Message Date"
+#~ msgstr "最后信息日期"
+
+#~ msgid "Tasks"
+#~ msgstr "任务"
+
+#~ msgid "The code of the sales team must be unique !"
+#~ msgstr "销售团队的代码必须是唯一的！"
+
+#~ msgid "Working Hours"
+#~ msgstr "工作时间"
+
+#~ msgid "Messages and communication history"
+#~ msgstr "信息和通讯记录"
+
+#~ msgid "Need Action Counter"
+#~ msgstr "需要行动计数"
+
+#~ msgid "Child Teams"
+#~ msgstr "初级队"
+
+#~ msgid "Error ! You cannot create recursive Sales team."
+#~ msgstr "错误！你不能创建递归的销售团队。"
+
+#~ msgid "Full Name"
+#~ msgstr "全称"
+
+#~ msgid "Parent Sales Teams"
+#~ msgstr "母公司销售团队"
+
+#~ msgid ""
+#~ "Allows you to use Sales Teams to manage your leads and opportunities."
+#~ msgstr "允许你使用销售团队来管理你的线索和机会。"
+
+#~ msgid "Manage Sales Teams"
+#~ msgstr "销售团队管理"
+
+#~ msgid "Organize Sales activities into multiple Sales Teams"
+#~ msgstr "为多个销售团队组织销售活动"
+
+#~ msgid "false"
+#~ msgstr "false"
+
+#~ msgid "Delete"
+#~ msgstr "删除"
+
+#~ msgid "Description"
+#~ msgstr "描述"
+
+#~ msgid "Edit Sales Team"
+#~ msgstr "编辑销售团队"
+
+#~ msgid ""
+#~ "Holds the Chatter summary (number of messages, ...). This summary is "
+#~ "directly in html format in order to be inserted in kanban views."
+#~ msgstr ""
+#~ "保存聊天总结（消息数，...）。本摘要是直接使用HTML格式，以便在看板插入意"
+#~ "见。"
+
+#~ msgid "Notes"
+#~ msgstr "日记"
+
+#~ msgid "Reassign Escalated"
+#~ msgstr "团队领导同上级团队"
+
+#~ msgid "Summary"
+#~ msgstr "总结"
+
+#~ msgid ""
+#~ "When escalating to this team override the salesman with the team leader."
+#~ msgstr "当被分配到这个团队时，将销售员自动变成销售团队领导。"
+
+#~ msgid "Default Sales Team"
+#~ msgstr "默认销售团队"
+
+#~ msgid "Sales Teams Settings"
+#~ msgstr "销售团队设置"
+
+#~ msgid "unknown"
+#~ msgstr "不知道"
+
+#~ msgid "Marketing"
+#~ msgstr "市场"
+
+#~ msgid "í"
+#~ msgstr "í"

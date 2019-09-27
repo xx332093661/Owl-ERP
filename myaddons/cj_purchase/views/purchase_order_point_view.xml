@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_purchase_order_point_tree" model="ir.ui.view">
+            <field name="name">purchase.order.point tree</field>
+            <field name="model">purchase.order.point</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="warehouse_id"/>
+                    <field name="location_id"/>
+                    <field name="product_id"/>
+                    <field name="product_min_qty"/>
+                    <field name="purchase_min_qty"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_purchase_order_point_form" model="ir.ui.view">
+            <field name="name">purchase.order.point form</field>
+            <field name="model">purchase.order.point</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <div class="alert alert-info" role="alert">
+                                <a style="cursor: pointer" class="alert-link o_form_uri" type="action" name="%(cj_purchase.action_procurement_compute)d">运行订货规则</a> 现在手动触发订货规则。
+                            </div>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="product_id" options="{'no_create': 1}"/>
+                            </group>
+                            <group>
+                                <field name="warehouse_id" widget="selection" groups="stock.group_stock_multi_locations"/>
+                                <field name="location_id" groups="stock.group_stock_multi_locations" options="{'no_create': True}"/>
+                                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="规则">
+                                <field name="product_min_qty"/>
+                                <field name="purchase_min_qty"/>
+                            </group>
+                            <group>
+
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_purchase_order_point" model="ir.actions.act_window">
+            <field name="name">采购订货规则</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.order.point</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+    </data>
+</odoo>

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--应收应付部分部分-->
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.account</field>
+            <field name="model">res.config.settings</field>
+            <!--<field name="priority" eval="40"/>-->
+            <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <!--隐藏设置节-->
+                <xpath expr="//div[@id='setup']/parent::t" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <!--隐藏税额节-->
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏币种-->
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[3]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[4]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏会计期间-->
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[5]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏客户付款-->
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[6]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[7]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏供应商付款-->
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[8]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[9]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏银行和现金-->
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[10]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏分析-->
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[11]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[12]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏默认发送选项-->
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[13]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[14]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏结算单-->
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[15]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[16]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏自动分录-->
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[17]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[18]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏自动完成供应商账单-->
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[19]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='setup']/parent::t/following-sibling::*[20]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <!--在财务本地化后加入默认会计科目、内部结算-->
+                <xpath expr="//field[@name='has_accounting_entries']/following-sibling::h2[1]/following-sibling::div[1]" position="after">
+                    <t groups="account.group_account_user">
+                        <h2>默认会计科目</h2>
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">盘点科目</span>
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label string="盘盈贷方" for="surplus_credit_account_id" class="col-lg-3 o_light_label"/>
+                                            <field name="surplus_credit_account_id" options="{'no_create': 1}" context="{'only_myself': 1}" required="1"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="盘亏借方" for="deficit_debit_account_id" class="col-lg-3 o_light_label"/>
+                                            <field name="deficit_debit_account_id" options="{'no_create': 1}" context="{'only_myself': 1}" required="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">库存初始化</span>
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label string="贷方科目" for="init_stock_credit_account_id" class="col-lg-3 o_light_label"/>
+                                            <field name="init_stock_credit_account_id" options="{'no_create': 1}" context="{'only_myself': 1}" required="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">耗材消耗科目</span>
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label string="借方科目" for="consu_debit_account_id" class="col-lg-3 o_light_label"/>
+                                            <field name="consu_debit_account_id" options="{'no_create': 1}" context="{'only_myself': 1}" required="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">包装材料消耗</span>
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label string="借方科目" for="package_debit_account_id" class="col-lg-3 o_light_label"/>
+                                            <field name="package_debit_account_id" options="{'no_create': 1}" context="{'only_myself': 1}" required="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">报废科目</span>
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label string="报废借方" for="scrap_debit_account_id" class="col-lg-3 o_light_label"/>
+                                            <field name="scrap_debit_account_id" options="{'no_create': 1}" context="{'only_myself': 1}" required="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--<div class="col-12 col-lg-6 o_setting_box">-->
+                                <!--<div class="o_setting_left_pane"/>-->
+                                <!--<div class="o_setting_right_pane">-->
+                                    <!--<span class="o_form_label">伙伴科目</span>-->
+                                    <!--<div class="content-group">-->
+                                        <!--<div class="row mt16">-->
+                                            <!--<label string="应收科目" for="partner_account_receivable_id" class="col-lg-3 o_light_label"/>-->
+                                            <!--<field name="partner_account_receivable_id" options="{'no_create': 1}" required="0"/>-->
+                                        <!--</div>-->
+                                        <!--<div class="row">-->
+                                            <!--<label string="应付科目" for="partner_account_payable_id" class="col-lg-3 o_light_label"/>-->
+                                            <!--<field name="partner_account_payable_id" options="{'no_create': 1}" required="0"/>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+
+                            <!--<div class="col-12 col-lg-6 o_setting_box">-->
+                                <!--<div class="o_setting_left_pane"/>-->
+                                <!--<div class="o_setting_right_pane">-->
+                                    <!--<span class="o_form_label">商品科目</span>-->
+                                    <!--<div class="content-group">-->
+                                        <!--<div class="row mt16">-->
+                                            <!--<label string="收入科目" for="product_account_income_id" class="col-lg-3 o_light_label"/>-->
+                                            <!--<field name="product_account_income_id" options="{'no_create': 1}" required="0"/>-->
+                                        <!--</div>-->
+                                        <!--<div class="row">-->
+                                            <!--<label string="费用科目" for="product_account_expense_id" class="col-lg-3 o_light_label"/>-->
+                                            <!--<field name="product_account_expense_id" options="{'no_create': 1}" required="0"/>-->
+                                        <!--</div>-->
+                                    <!--</div>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        </div>
+                    </t>
+
+                    <t groups="account.group_account_user">
+                        <h2>内部结算</h2>
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-xs-12 col-md-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">结算比例</span>
+                                    <div class="text-muted">
+                                        公司间内部结算，按采购单价的
+                                    </div>
+                                    <field name="internal_settlement_scale"/>
+                                    <div class="text-muted">
+                                        倍结算给货主公司，默认1.0000，4位有效位数。
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">支付条款</span>
+                                    <field name="internal_settlement_term_id"/>
+                                    <div class="text-muted">
+                                        默认销售出库后立即全部结算。
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
+                </xpath>
+            </field>
+        </record>
+
+        <!--常规设置部分-->
+        <record id="mail_res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.app setting</field>
+            <field name="model">res.config.settings</field>
+            <!--<field name="priority" eval="40"/>-->
+            <field name="inherit_id" ref="mail.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <!--隐藏讨论节-->
+                <xpath expr="//div[@id='emails']/preceding-sibling::*[1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='emails']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+        <record id="product_res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.app setting</field>
+            <field name="model">res.config.settings</field>
+            <!--<field name="priority" eval="40"/>-->
+            <field name="inherit_id" ref="product.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <!--隐藏产品节-->
+                <xpath expr="//div[@id='product_general_settings']/preceding-sibling::*[1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//div[@id='product_general_settings']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+        <record id="snailmail_res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.app setting</field>
+            <field name="model">res.config.settings</field>
+            <!--<field name="priority" eval="40"/>-->
+            <field name="inherit_id" ref="snailmail.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <!--隐藏邮寄打印节 TODO 未能实现隐藏-->
+                <xpath expr="//field[@name='snailmail_duplex']/parent::*/parent::*/parent::*" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='snailmail_duplex']/parent::*/parent::*/parent::*/preceding-sibling::*[1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

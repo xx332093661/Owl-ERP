@@ -1,0 +1,1132 @@
+# Chinese (Simplified) translation for openobject-addons
+# Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
+# This file is distributed under the same license as the openobject-addons package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: openobject-addons\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-21 13:17+0000\n"
+"PO-Revision-Date: 2018-10-29 20:39+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2013-03-28 05:43+0000\n"
+"X-Generator: Poedit 2.0.7\n"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.view_project_kanban_inherited
+msgid "<span class=\"o_label\">Timesheets</span>"
+msgstr "<span class=\"o_label\">计工单</span>"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_employee_view_form_inherit_timesheet
+msgid "<span class=\"o_stat_text\">Timesheets</span>"
+msgstr "<span class=\"o_stat_text\">计工单</span>"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.view_task_form2_inherited
+msgid "<span> planned hours</span>"
+msgstr "<span> 计划时数</span>"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.report_timesheet
+msgid "<span>Date</span>"
+msgstr "<span>日期</span>"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.report_timesheet
+msgid "<span>Description</span>"
+msgstr "<span> 说明 </span>"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.report_timesheet
+msgid "<span>Responsible</span>"
+msgstr "<span>责任</span>"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.report_timesheet
+msgid "<span>Time</span>"
+msgstr "<span>时间</span>"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.report_timesheet
+msgid "<span>Timesheet Entries</span>"
+msgstr "<span>计工单条目</span>"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.view_kanban_account_analytic_line
+msgid "<strong>Duration: </strong>"
+msgstr "<strong>到：</strong>"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.report_timesheet
+msgid "<strong>Total</strong>"
+msgstr "<strong>总计</strong>"
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line_by_project
+msgid "Activities"
+msgstr "活动"
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.timesheet_action_all
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_activity_all
+msgid "All Timesheets"
+msgstr "全部计工单"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_project_project__allow_timesheets
+#: model:ir.model.fields,field_description:hr_timesheet.field_project_task__allow_timesheets
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.project_invoice_form
+msgid "Allow timesheets"
+msgstr "使用计工单"
+
+#. module: hr_timesheet
+#: model:ir.model,name:hr_timesheet.model_account_analytic_account
+#: model:ir.model.fields,field_description:hr_timesheet.field_project_project__analytic_account_id
+#: model:ir.model.fields,field_description:hr_timesheet.field_project_task__analytic_account_active
+msgid "Analytic Account"
+msgstr "辅助核算项"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_form
+msgid "Analytic Entry"
+msgstr "辅助核算凭证"
+
+#. module: hr_timesheet
+#: model:ir.model,name:hr_timesheet.model_account_analytic_line
+msgid "Analytic Line"
+msgstr "辅助核算明细"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.res_config_settings_view_form
+msgid "Apple App Store"
+msgstr "苹果应用商店"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_res_config_settings__module_project_timesheet_synchro
+msgid "Awesome Timesheet"
+msgstr "令人惊叹的计工单"
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_report
+#: model:ir.ui.menu,name:hr_timesheet.menu_hr_activity_analysis
+msgid "By Employee"
+msgstr "按员工"
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.timesheet_action_report_by_project
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_report_timesheet_by_project
+msgid "By Project"
+msgstr "按项目"
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.timesheet_action_report_by_task
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_report_timesheet_by_task
+msgid "By Task"
+msgstr "按任务"
+
+#. module: hr_timesheet
+#: model:ir.model,name:hr_timesheet.model_res_company
+msgid "Companies"
+msgstr "公司"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_account_analytic_account__company_uom_id
+msgid "Company UOM"
+msgstr "公司统一运作"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,help:hr_timesheet.field_project_task__total_hours_spent
+msgid "Computed as: Time Spent + Sub-tasks Hours."
+msgstr "计算：已花费的时间 + 子任务的时间。"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,help:hr_timesheet.field_project_task__effective_hours
+msgid "Computed using the sum of the task work done."
+msgstr "计算已经完成任务的总和。"
+
+#. module: hr_timesheet
+#: model:ir.model,name:hr_timesheet.model_res_config_settings
+msgid "Config Settings"
+msgstr "设置配置"
+
+#. module: hr_timesheet
+#: model:ir.ui.menu,name:hr_timesheet.hr_timesheet_menu_configuration
+msgid "Configuration"
+msgstr "配置"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_hr_employee__currency_id
+msgid "Currency"
+msgstr "币别"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.portal_my_task
+msgid "Date"
+msgstr "日期"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_account_analytic_line__department_id
+msgid "Department"
+msgstr "部门"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.portal_my_task
+msgid "Description"
+msgstr "描述"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,help:hr_timesheet.field_project_task__progress
+msgid "Display progress of current task."
+msgstr "显示当前任务的进度。"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.portal_my_task
+msgid "Duration"
+msgstr "期间"
+
+#. module: hr_timesheet
+#: code:addons/hr_timesheet/models/hr_timesheet.py:95
+#, python-format
+msgid "Duration (%s)"
+msgstr "持续时间 (%s)"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_report_project_task_user__hours_effective
+msgid "Effective Hours"
+msgstr "有效时间"
+
+#. module: hr_timesheet
+#: model:ir.model,name:hr_timesheet.model_hr_employee
+#: model:ir.model.fields,field_description:hr_timesheet.field_account_analytic_line__employee_id
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+msgid "Employee"
+msgstr "员工"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_res_config_settings__timesheet_encode_uom_id
+msgid "Encoding Unit"
+msgstr "编码单位"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.res_config_settings_view_form
+msgid "Google Chrome Store"
+msgstr "谷歌商店"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.res_config_settings_view_form
+msgid "Google Play Store"
+msgstr "谷歌播放商店"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+msgid "Group By"
+msgstr "分组"
+
+#. module: hr_timesheet
+#: model:ir.model,name:hr_timesheet.model_ir_http
+msgid "HTTP Routing"
+msgstr "HTTP 路由"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_project_task__effective_hours
+msgid "Hours Spent"
+msgstr "花费小时数"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,help:hr_timesheet.field_project_task__analytic_account_active
+msgid ""
+"If the active field is set to False, it will allow you to hide the account "
+"without removing it."
+msgstr "如果有效字段被设置为假，则允许你不删除此科目而只是隐藏它。"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.view_task_tree2_inherited
+msgid "Initially Planned Hours"
+msgstr "最初计划时间"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_res_config_settings__module_project_timesheet_holidays
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.res_config_settings_view_form
+msgid "Leaves"
+msgstr "假期"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,help:hr_timesheet.field_project_project__analytic_account_id
+msgid ""
+"Link this project to an analytic account if you need financial management on "
+"projects. It enables you to connect projects with budgets, planning, cost "
+"and revenue analysis, timesheets on projects, etc."
+msgstr ""
+"如果你需要对项目进行财务管理，把这个项目链接到一个分析帐户。它使你能够将项目"
+"与预算、计划、成本和收益分析、项目时间表等相连接。"
+
+#. module: hr_timesheet
+#: model:res.groups,name:hr_timesheet.group_timesheet_manager
+msgid "Manager"
+msgstr "经理"
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.act_hr_timesheet_line
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_activity_mine
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+msgid "My Timesheets"
+msgstr "我的计工单"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_report_project_task_user__hours_planned
+msgid "Planned Hours"
+msgstr "计划的工时"
+
+#. module: hr_timesheet
+#: code:addons/hr_timesheet/models/analytic_account.py:28
+#, python-format
+msgid ""
+"Please remove existing tasks in the project linked to the accounts you want "
+"to delete."
+msgstr "在删除账户前请移除项目中与之关联的的现有任务。"
+
+#. module: hr_timesheet
+#: model:ir.model,name:hr_timesheet.model_uom_uom
+msgid "Product Unit of Measure"
+msgstr "产品计量单位"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_project_task__progress
+#: model:ir.model.fields,field_description:hr_timesheet.field_report_project_task_user__progress
+msgid "Progress"
+msgstr "进度"
+
+#. module: hr_timesheet
+#: model:ir.model,name:hr_timesheet.model_project_project
+#: model:ir.model.fields,field_description:hr_timesheet.field_account_analytic_line__project_id
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+msgid "Project"
+msgstr "项目"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.report_timesheet
+msgid "Project -"
+msgstr "项目 -"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_account_analytic_account__project_count
+msgid "Project Count"
+msgstr "项目计数"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_res_company__project_time_mode_id
+#: model:ir.model.fields,field_description:hr_timesheet.field_res_config_settings__project_time_mode_id
+msgid "Project Time Unit"
+msgstr "项目时间单位"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_account_analytic_account__project_ids
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.account_analytic_account_view_form_inherit
+msgid "Projects"
+msgstr "项目"
+
+#. module: hr_timesheet
+#: model_terms:ir.actions.act_window,help:hr_timesheet.act_hr_timesheet_line
+#: model_terms:ir.actions.act_window,help:hr_timesheet.act_hr_timesheet_line_by_project
+#: model_terms:ir.actions.act_window,help:hr_timesheet.act_hr_timesheet_report
+#: model_terms:ir.actions.act_window,help:hr_timesheet.timesheet_action_report_by_project
+#: model_terms:ir.actions.act_window,help:hr_timesheet.timesheet_action_report_by_task
+msgid "Record a new activity"
+msgstr "记录一个新的活动"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_project_task__remaining_hours
+#: model:ir.model.fields,field_description:hr_timesheet.field_report_project_task_user__remaining_hours
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.view_task_tree2_inherited
+msgid "Remaining Hours"
+msgstr "剩余小时数"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.view_task_kanban_inherited_progress
+msgid "Remaining hours"
+msgstr "剩余小时数"
+
+#. module: hr_timesheet
+#: model:ir.ui.menu,name:hr_timesheet.menu_timesheets_reports
+msgid "Reporting"
+msgstr "报表"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.portal_my_task
+msgid "Responsible"
+msgstr "负责人"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.res_config_settings_view_form
+msgid "Set time unit used to record your timesheets"
+msgstr "设置时间单位用以记录计工单"
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.hr_timesheet_config_settings_action
+#: model:ir.ui.menu,name:hr_timesheet.hr_timesheet_config_settings_menu_action
+msgid "Settings"
+msgstr "设置"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.view_task_tree2_inherited
+msgid "Spent Hours"
+msgstr "花费时间"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_project_task__subtask_effective_hours
+msgid "Sub-tasks Hours Spent"
+msgstr "子任务消耗工时"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,help:hr_timesheet.field_project_task__subtask_effective_hours
+msgid "Sum of actually spent hours on the subtask(s)"
+msgstr "根据子任务合计实际消耗工时"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.res_config_settings_view_form
+msgid "Synchronize time spent with web/mobile app"
+msgstr "用 网页/移动 应用工具同步时间使用工具同步时间消耗"
+
+#. module: hr_timesheet
+#: model:ir.model,name:hr_timesheet.model_project_task
+#: model:ir.model.fields,field_description:hr_timesheet.field_account_analytic_line__task_id
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.report_timesheet
+msgid "Task"
+msgstr "任务"
+
+#. module: hr_timesheet
+#: model:ir.model,name:hr_timesheet.model_report_project_task_user
+msgid "Tasks Analysis"
+msgstr "任务分析"
+
+#. module: hr_timesheet
+#: code:addons/hr_timesheet/models/hr_timesheet.py:113
+#, python-format
+msgid ""
+"The project you are timesheeting on is not linked to an active analytic "
+"account. Set one on the project configuration."
+msgstr "你计时的项目未链接到活动的分析帐户。 请在项目配置上设置一个。"
+
+#. module: hr_timesheet
+#: code:addons/hr_timesheet/models/project.py:147
+#, python-format
+msgid ""
+"This task must be part of a project because they some timesheets are linked "
+"to it."
+msgstr "此任务必须是项目的一部分，因为它们与某些时间表相关联。"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,help:hr_timesheet.field_account_analytic_account__company_uom_id
+#: model:ir.model.fields,help:hr_timesheet.field_res_company__project_time_mode_id
+#: model:ir.model.fields,help:hr_timesheet.field_res_config_settings__project_time_mode_id
+msgid ""
+"This will set the unit of measure used in projects and tasks.\n"
+"If you use the timesheet linked to projects, don't forget to setup the right "
+"unit of measure in your employees."
+msgstr ""
+"这将设置项目和任务中使用的计量单位。\n"
+"如果你使用链接到项目的时间表，请不要忘记对员工设置正确的计量单位。"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,help:hr_timesheet.field_res_company__timesheet_encode_uom_id
+#: model:ir.model.fields,help:hr_timesheet.field_res_config_settings__timesheet_encode_uom_id
+msgid ""
+"This will set the unit of measure used to encode timesheet. This will simply "
+"provide tools\n"
+"        and widgets to help the encoding. All reporting will still be "
+"expressed in hours (default value)."
+msgstr ""
+"这将设置用于编码时间表的度量单位。并将简单地提供帮助编码的工具和小部件。\n"
+"所有报告仍将以小时（默认值）表达。"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.res_config_settings_view_form
+msgid "Time Encoding"
+msgstr "时间编码"
+
+#. module: hr_timesheet
+#: model:ir.ui.menu,name:hr_timesheet.menu_hr_time_tracking
+#: model:ir.ui.menu,name:hr_timesheet.menu_timesheets_reports_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.view_hr_timesheet_line_pivot
+msgid "Timesheet"
+msgstr "计工单"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_tree
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.view_task_form2_inherited
+msgid "Timesheet Activities"
+msgstr "有效的计工单"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_hr_employee__timesheet_cost
+msgid "Timesheet Cost"
+msgstr "计工单成本"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+msgid "Timesheet Date"
+msgstr "计工单的日期"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_res_company__timesheet_encode_uom_id
+msgid "Timesheet Encoding Unit"
+msgstr "计工单的编码单位"
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.project_task_action_view_timesheet
+#: model:ir.actions.report,name:hr_timesheet.timesheet_report
+msgid "Timesheet Entries"
+msgstr "计工单明细"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_timesheet_line_search
+msgid "Timesheet by Date"
+msgstr "按日期查看地计工单"
+
+#. module: hr_timesheet
+#: model:ir.actions.act_window,name:hr_timesheet.timesheet_action_from_employee
+#: model:ir.model.fields,field_description:hr_timesheet.field_project_task__timesheet_ids
+#: model:ir.ui.menu,name:hr_timesheet.timesheet_menu_root
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_department_view_kanban
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_employee_view_form_inherit_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.portal_my_task
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.project_invoice_form
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.view_task_form2_inherited
+msgid "Timesheets"
+msgstr "计工单"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,help:hr_timesheet.field_project_task__allow_timesheets
+msgid "Timesheets can be logged on this task."
+msgstr "可以在这个任务上记录计工单。"
+
+#. module: hr_timesheet
+#: code:addons/hr_timesheet/models/project.py:32
+#, python-format
+msgid ""
+"To allow timesheet, your project %s should have an analytic account set."
+msgstr "你的项目 %s 应具有分析帐户集才能允许使用计工单。"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_project_task__total_hours_spent
+msgid "Total Hours"
+msgstr "总小时数"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,help:hr_timesheet.field_project_task__remaining_hours
+msgid ""
+"Total remaining time, can be re-estimated periodically by the assignee of "
+"the task."
+msgstr "总剩余时间可由任务的受让人定期重新估算。"
+
+#. module: hr_timesheet
+#: code:addons/hr_timesheet/models/project.py:51
+#, python-format
+msgid "Unknown Analytic Account"
+msgstr "未知的分析账户"
+
+#. module: hr_timesheet
+#: model:res.groups,name:hr_timesheet.group_hr_timesheet_user
+msgid "User"
+msgstr "用户"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.res_config_settings_view_form
+msgid "Validated leaves create timesheets automatically."
+msgstr "批准假期后自动创建计工单。"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,field_description:hr_timesheet.field_uom_uom__timesheet_widget
+msgid "Widget"
+msgstr "小工具"
+
+#. module: hr_timesheet
+#: model:ir.model.fields,help:hr_timesheet.field_uom_uom__timesheet_widget
+msgid ""
+"Widget used in the webclient when this unit is the one used to encode "
+"timesheets."
+msgstr "Web客户端中使用的小组件,当此单元用于编码计工单时。"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.view_task_form2_inherited
+msgid ""
+"You can not log timesheets on this project since is linked to an inactive "
+"analytic account. Please change it, or reactivate the current one to "
+"timesheet on the project."
+msgstr ""
+"你无法在此项目上记录计工单，因为它链接到非活动分析帐户。 请更改它，或重新激活"
+"一个当前项目到计工单。"
+
+#. module: hr_timesheet
+#: model_terms:ir.actions.act_window,help:hr_timesheet.act_hr_timesheet_line
+#: model_terms:ir.actions.act_window,help:hr_timesheet.act_hr_timesheet_line_by_project
+#: model_terms:ir.actions.act_window,help:hr_timesheet.act_hr_timesheet_report
+#: model_terms:ir.actions.act_window,help:hr_timesheet.timesheet_action_report_by_project
+#: model_terms:ir.actions.act_window,help:hr_timesheet.timesheet_action_report_by_task
+msgid ""
+"You can register and track your workings hours by project every\n"
+"                day. Every time spent on a project will become a cost and "
+"can be re-invoiced to\n"
+"                customers if required."
+msgstr ""
+"你可以每天按项目登记和跟踪你的工作时间。\n"
+"              所有消耗在项目上的时间都会成为成本，如果需要的话，\n"
+"              可以重新向客户开具发票记录到客户账务中。"
+
+#. module: hr_timesheet
+#: model_terms:ir.ui.view,arch_db:hr_timesheet.hr_employee_view_form_inherit_timesheet
+msgid "per hour"
+msgstr "每小时"
+
+#~ msgid "HTTP routing"
+#~ msgstr "HTTP 路由"
+
+#~ msgid "Tasks by user and project"
+#~ msgstr "对任务按用户和项目"
+
+#~ msgid "Users"
+#~ msgstr "用户"
+
+#~ msgid "res.config.settings"
+#~ msgstr "res.config.settings"
+
+#~ msgid "Billing"
+#~ msgstr "账单"
+
+#~ msgid ""
+#~ "Display progress of current task. In case if the total spent hours "
+#~ "exceeds planned hours then the progress bar may go above 100%"
+#~ msgstr ""
+#~ "显示当前任务进程。当总的实际花费时间大于计划时间时，进程条会显示100%"
+
+#~ msgid ""
+#~ "Sell services (e.g. project, maintenance), record time spent using "
+#~ "Timesheets app and invoice them based on a fixed price (ordered quantity) "
+#~ "or on the time spent (delivered quantity)"
+#~ msgstr ""
+#~ "销售服务类产品（如项目，维护），用工时管理APP(苹果、谷歌商店上搜 odoo "
+#~ "timesheet)记录时间，并且根据一个固定的价格（订单数量）或消耗的时间（发出数"
+#~ "量）开财务票据"
+
+#~ msgid "Sell services and invoice time spent"
+#~ msgstr "销售服务类产品与消耗工时单据"
+
+#~ msgid "This Month"
+#~ msgstr "本月"
+
+#~ msgid "This Week"
+#~ msgstr "本周"
+
+#~ msgid "This task must have a project since they are linked to timesheets."
+#~ msgstr "任务必须在一个项目内，因为他们与计工单关联。"
+
+#~ msgid "Time"
+#~ msgstr "时间"
+
+#~ msgid "Time (Hours)"
+#~ msgstr "时间（小时）"
+
+#~ msgid "Time Billing"
+#~ msgstr "时间账单"
+
+#~ msgid "Timesheet Apps"
+#~ msgstr "计工单APP"
+
+#~ msgid "Timesheet Month"
+#~ msgstr "月度计工单"
+
+#~ msgid "Timesheet by Month"
+#~ msgstr "按月份的时间表"
+
+#~ msgid "Total time"
+#~ msgstr "总时间"
+
+#~ msgid "Activity Analysis"
+#~ msgstr "活动（排程）分析"
+
+#~ msgid "Avg. Plan.-Eff."
+#~ msgstr "计划实际平均偏差"
+
+#~ msgid ""
+#~ "Choosing a sub-tasks project will both enable sub-tasks and set their "
+#~ "default project (possibly the project itself)"
+#~ msgstr ""
+#~ "选择一项子任务计划将开启子任务并设置该项目为默认（也可能是计划本身）"
+
+#~ msgid "Circular references are not permitted between tasks and sub-tasks"
+#~ msgstr "不允许对任务及其子任务进行循环引用。"
+
+#~ msgid "Click to record activities."
+#~ msgstr "点击记录的活动。"
+
+#~ msgid ""
+#~ "Computed as difference between planned hours by the project manager and "
+#~ "the total hours of the task."
+#~ msgstr "计算项目管理器估算的时间和实际花费的时间的差。"
+
+#~ msgid "Computed as: Time Spent + Remaining Time."
+#~ msgstr "计算:已花费的时间 + 剩余的时间"
+
+#~ msgid "Define your Analytic Structure"
+#~ msgstr "设置分析结构"
+
+#~ msgid "Delay Hours"
+#~ msgstr "延迟的小时数"
+
+#~ msgid "Detailed Activities"
+#~ msgstr "活动详情"
+
+#~ msgid "Officer"
+#~ msgstr "主管"
+
+#~ msgid "Parent Task"
+#~ msgstr "总任务"
+
+#~ msgid "Product"
+#~ msgstr "产品"
+
+#~ msgid "Reports"
+#~ msgstr "报表"
+
+#~ msgid "Sub-task Project"
+#~ msgstr "子任务项目"
+
+#~ msgid "Sub-task count"
+#~ msgstr "子任务数目"
+
+#~ msgid "Sub-tasks"
+#~ msgstr "子任务"
+
+#~ msgid "Sub-tasks Hours"
+#~ msgstr "子任务小时数"
+
+#~ msgid ""
+#~ "Sum of the planned hours of all sub-tasks (when a sub-task is closed or "
+#~ "its spent hours exceed its planned hours, spent hours are counted instead)"
+#~ msgstr "计算子任务的总的计划时数（当一个子任务结束或超过了多少计划时数）"
+
+#~ msgid "Total"
+#~ msgstr "合计"
+
+#~ msgid "Working Time Recorded"
+#~ msgstr "工作用时已被记录"
+
+#~ msgid ""
+#~ "You should create an analytic account structure depending on your needs "
+#~ "to analyse costs and revenues. In Odoo, analytic accounts are also used "
+#~ "to track customer contracts."
+#~ msgstr ""
+#~ "为了分析成本和利润，你应该根据自己的需求创建一个分析科目结构。在Odoo中,分"
+#~ "析科目也可以用来跟踪客户的合同。 "
+
+#~ msgid "My Timesheet"
+#~ msgstr "我的计工单"
+
+#~ msgid "Accounting"
+#~ msgstr "会计"
+
+#~ msgid "Analytic account"
+#~ msgstr "辅助核算项目"
+
+#~ msgid "Check this field if this project manages timesheets"
+#~ msgstr "如果此项目需要管理时间表的话请选中此字段"
+
+#~ msgid "Company"
+#~ msgstr "公司"
+
+#~ msgid "Cost"
+#~ msgstr "成本"
+
+#~ msgid "Display Name"
+#~ msgstr "显示名称"
+
+#~ msgid "Extended Filters..."
+#~ msgstr "扩展过滤..."
+
+#~ msgid "Group by month of date"
+#~ msgstr "用日期的月份分组"
+
+#~ msgid "ID"
+#~ msgstr "ID"
+
+#~ msgid "Information"
+#~ msgstr "信息"
+
+#~ msgid "Is a Timesheet"
+#~ msgstr "出勤记录"
+
+#~ msgid "Last Modified on"
+#~ msgstr "最后修改在"
+
+#~ msgid "Month"
+#~ msgstr "月"
+
+#~ msgid "Timesheet Accounts"
+#~ msgstr "计工单科目"
+
+#~ msgid "Timesheet Analysis"
+#~ msgstr "计工单分析"
+
+#~ msgid "month"
+#~ msgstr "月"
+
+#~ msgid ""
+#~ "<p>\n"
+#~ "                No activity yet on this contract.\n"
+#~ "              </p><p>\n"
+#~ "                In Odoo, contracts and projects are implemented using\n"
+#~ "                analytic account. So, you can track costs and revenues to "
+#~ "analyse\n"
+#~ "                your margins easily.\n"
+#~ "              </p><p>\n"
+#~ "                Costs will be created automatically when you register "
+#~ "supplier\n"
+#~ "                invoices, expenses or timesheets.\n"
+#~ "              </p><p>\n"
+#~ "                Revenues will be created automatically when you create "
+#~ "customer\n"
+#~ "                invoices. Customer invoices can be created based on sale "
+#~ "orders\n"
+#~ "                (fixed price invoices), on timesheets (based on the work "
+#~ "done) or\n"
+#~ "                on expenses (e.g. reinvoicing of travel costs).\n"
+#~ "              </p>"
+#~ msgstr ""
+#~ "<p>\n"
+#~ "                在这个合同上没有活动。\n"
+#~ "              </p><p>\n"
+#~ "                在Odoo中,合同和项目使用辅助核算项\n"
+#~ "               来实现，所以你可以跟踪成本和收益来分析\n"
+#~ "                你的利润。\n"
+#~ "              </p><p>\n"
+#~ "                在你登记供应商发票、费用或计工单的时候，\n"
+#~ "                成本会自动创建。\n"
+#~ "              </p><p>\n"
+#~ "                在你创建客户发票的时候，收益会自动创建。\n"
+#~ "                客户发票可以基于销售订单\n"
+#~ "                (固定价格发票)、 计工单 (基于完成的工作)或\n"
+#~ "                费用(例如：出差成本的开票。\n"
+#~ "              </p>\n"
+#~ "            "
+
+#~ msgid "Analytic Journal"
+#~ msgstr "辅助核算分录"
+
+#~ msgid ""
+#~ "Changing the date will let this entry appear in the timesheet of the new "
+#~ "date."
+#~ msgstr "改变日期将使这个条目在计工单上显示新日期。"
+
+#~ msgid "Cost/Revenue"
+#~ msgstr "成本/利润"
+
+#~ msgid "Costs & Revenues"
+#~ msgstr "收支情况"
+
+#~ msgid "Default Unit of Measure used for all stock operation."
+#~ msgstr "所有库存操作的默认计量单位"
+
+#~ msgid "General Account"
+#~ msgstr "总账科目"
+
+#~ msgid ""
+#~ "If you want to reinvoice working time of employees, link this employee to "
+#~ "a service to determinate the cost price of the job."
+#~ msgstr ""
+#~ "如果你要为员工的工作时间开票，把这个员工和一个服务关联起来，用以确定工作的"
+#~ "成本价格。"
+
+#~ msgid "Journal"
+#~ msgstr "分录"
+
+#~ msgid "Unit of Measure"
+#~ msgstr "计量单位"
+
+#~ msgid "false"
+#~ msgstr "false"
+
+#~ msgid "(Keep empty for current time)"
+#~ msgstr "(留空表示当前时间)"
+
+#~ msgid "(local time on the server side)"
+#~ msgstr "（服务器上的时间）"
+
+#~ msgid "Absent"
+#~ msgstr "缺勤"
+
+#~ msgid "Cancel"
+#~ msgstr "取消"
+
+#~ msgid "Change Work"
+#~ msgstr "修改工作"
+
+#~ msgid "Closing Date"
+#~ msgstr "结束日期"
+
+#~ msgid "Created by"
+#~ msgstr "创建者"
+
+#~ msgid "Created on"
+#~ msgstr "创建时间"
+
+#~ msgid "Current Date"
+#~ msgstr "当前日期"
+
+#~ msgid "Current Status"
+#~ msgstr "当前状态"
+
+#~ msgid "Employee ID"
+#~ msgstr "员工ID"
+
+#~ msgid ""
+#~ "Employee is not created for this user. Please create one from "
+#~ "configuration panel."
+#~ msgstr "这个用户不能创建员工。请从设置面板创建一个。"
+
+#~ msgid "Employee's Name"
+#~ msgstr "员工姓名"
+
+#~ msgid ""
+#~ "Employees can encode their time spent on the different projects they are "
+#~ "assigned on. A  project is an analytic account and the time spent on a "
+#~ "project generates costs on the analytic account. This feature allows to "
+#~ "record at the same time the attendance and the timesheet."
+#~ msgstr ""
+#~ "员工能记录在不同项目所花费的时间。\n"
+#~ "一个项目是一个辅助核算項，而且该项目所花费的时间为这辅助核算項的成本。\n"
+#~ "此功能允许记录其考勤和计工单。"
+
+#~ msgid ""
+#~ "Employees can encode their time spent on the different projects. A "
+#~ "project is an analytic account and the time spent on a project generate "
+#~ "costs on the analytic account. This feature allows to record at the same "
+#~ "time the attendance and the timesheet."
+#~ msgstr ""
+#~ "员工能记录在不同项目所花费的时间。一个项目是一个辅助核算項，而且该项目所花"
+#~ "费的时间为这辅助核算項的成本。此功能允许记录其考勤和计工单。"
+
+#~ msgid "General Information"
+#~ msgstr "一般信息"
+
+#~ msgid "Go to the configuration panel"
+#~ msgstr "转到设置面板"
+
+#~ msgid "Last Updated by"
+#~ msgstr "最后更新者"
+
+#~ msgid "Minimum Analytic Amount"
+#~ msgstr "最低辅助核算金额"
+
+#~ msgid ""
+#~ "No 'Analytic Journal' is defined for employee %s \n"
+#~ "Define an employee for the selected user and assign an 'Analytic Journal'!"
+#~ msgstr ""
+#~ "定义员工没有“分析日报”%s \n"
+#~ "定义为所选用户和员工分配“分析日报”!"
+
+#~ msgid ""
+#~ "No analytic account is defined on the project.\n"
+#~ "Please set one or we cannot automatically fill the timesheet."
+#~ msgstr ""
+#~ "没有解析的帐户上定义项目.\n"
+#~ "请设置一个或不能自动填充时间表。"
+
+#~ msgid ""
+#~ "No analytic journal defined for '%s'.\n"
+#~ "You should assign an analytic journal on the employee form."
+#~ msgstr ""
+#~ "没有分析定义系统  '%s'.\n"
+#~ "你应该对员工的形式分配分析。"
+
+#~ msgid "Partner"
+#~ msgstr "业务伙伴"
+
+#~ msgid "Please define cost unit for this employee."
+#~ msgstr "请定义此员工的成本单位"
+
+#~ msgid "Please define employee for your user."
+#~ msgstr "请为你的用户定义员工信息。"
+
+#~ msgid "Present"
+#~ msgstr "出勤"
+
+#~ msgid "Project / Analytic Account"
+#~ msgstr "项目 / 辅助核算项"
+
+#~ msgid "Sign In By Project"
+#~ msgstr "项目签入"
+
+#~ msgid "Sign In/Out by Project"
+#~ msgstr "项目签入/签出"
+
+#~ msgid "Sign in"
+#~ msgstr "签入"
+
+#~ msgid "Sign in / Sign out"
+#~ msgstr "签入/ 签出"
+
+#~ msgid "Sign in / Sign out by Project"
+#~ msgstr "项目用时记录"
+
+#~ msgid "Start Working"
+#~ msgstr "开始工作"
+
+#~ msgid "Starting Date"
+#~ msgstr "开始日期"
+
+#~ msgid "Stop Working"
+#~ msgstr "停止工作"
+
+#~ msgid "User Alert!"
+#~ msgstr "用户警告！"
+
+#~ msgid "Work Description"
+#~ msgstr "工作说明"
+
+#~ msgid "Work done in the last period"
+#~ msgstr "最近完成的工作"
+
+#~ msgid "or"
+#~ msgstr "或"
+
+#~ msgid "Warning!"
+#~ msgstr "警告！"
+
+#~ msgid "April"
+#~ msgstr "4月"
+
+#~ msgid "August"
+#~ msgstr "8月"
+
+#~ msgid "Day"
+#~ msgstr "天"
+
+#~ msgid "December"
+#~ msgstr "12月"
+
+#~ msgid "February"
+#~ msgstr "2月"
+
+#~ msgid "Group by day of date"
+#~ msgstr "用日期中的天分组"
+
+#~ msgid "Group by year of date"
+#~ msgstr "用日期中的年分组"
+
+#~ msgid "January"
+#~ msgstr "1月"
+
+#~ msgid "July"
+#~ msgstr "7月"
+
+#~ msgid "June"
+#~ msgstr "6月"
+
+#~ msgid "March"
+#~ msgstr "3月"
+
+#~ msgid "May"
+#~ msgstr "5月"
+
+#~ msgid "November"
+#~ msgstr "11月"
+
+#~ msgid "October"
+#~ msgstr "10月"
+
+#~ msgid "September"
+#~ msgstr "9月"
+
+#~ msgid "Timesheet Journal"
+#~ msgstr "计工单分录"
+
+#~ msgid "Year"
+#~ msgstr "年"
+
+#~ msgid ""
+#~ "Please create an employee for this user, using the menu: Human Resources "
+#~ "> Employees."
+#~ msgstr "请为此用户创建一个员工档案，使用菜单：”人力资源“ > ”员工“。"
+
+#~ msgid "Costs and Revenues"
+#~ msgstr "收支情况"
+
+#~ msgid "Employee timesheet"
+#~ msgstr "员工计工单"
+
+#~ msgid "Employees Timesheet"
+#~ msgstr "员工计工单"
+
+#~ msgid "Fri"
+#~ msgstr "周五"
+
+#~ msgid "Mon"
+#~ msgstr "周一"
+
+#~ msgid "Sat"
+#~ msgstr "周六"
+
+#~ msgid "Sum"
+#~ msgstr "总数"
+
+#~ msgid "Sun"
+#~ msgstr "周日"
+
+#~ msgid "Thu"
+#~ msgstr "周四"
+
+#~ msgid "Timesheet by Employee"
+#~ msgstr "员工计工单"
+
+#~ msgid "Tue"
+#~ msgstr "周二"
+
+#~ msgid "Wed"
+#~ msgstr "周三"
+
+#~ msgid "(Keep empty for current_time)"
+#~ msgstr "（留空表示当前时间）"
+
+#~ msgid "Employee Timesheet"
+#~ msgstr "员工计工单"
+
+#~ msgid "Please define employee for this user!"
+#~ msgstr "请为此用户定义员工信息。"
+
+#~ msgid "Monthly Employee Timesheet"
+#~ msgstr "员工月度计工单"
+
+#~ msgid "Print Employees Timesheet"
+#~ msgstr "打印员工计工单"
+
+#~ msgid "Print"
+#~ msgstr "打印"
+
+#~ msgid "Monthly Employees Timesheet"
+#~ msgstr "员工月度计工单"
+
+#~ msgid "Specifies employee's designation as a product with type 'service'."
+#~ msgstr "为员工指定的产品其类型必须是“服务”。"
+
+#~ msgid "employees"
+#~ msgstr "员工"
+
+#~ msgid "Print Employee Timesheet & Print My Timesheet"
+#~ msgstr "打印员工计工单 & 打印我的计工单"
+
+#~ msgid "Period"
+#~ msgstr "期间"
+
+#~ msgid "Employees"
+#~ msgstr "员工"

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--修改原有分类的显示名称-->
+    <data noupdate="0">
+        <function model="product.category" name="write">
+            <value eval="[ref('product.product_category_all', raise_if_not_found=False)]"/>
+            <value eval="{'name': '全部'}"/>
+        </function>
+        <function model="product.category" name="write">
+            <value eval="[ref('product.product_category_1', raise_if_not_found=False)]"/>
+            <value eval="{'name': '可销售'}"/>
+        </function>
+        <function model="product.category" name="write">
+            <value eval="[ref('product.cat_expense', raise_if_not_found=False)]"/>
+            <value eval="{'name': '费用'}"/>
+        </function>
+        <function model="product.category" name="write">
+            <value eval="[ref('delivery.product_category_deliveries', raise_if_not_found=False)]"/>
+            <value eval="{'name': '交货'}"/>
+        </function>
+    </data>
+
+    <!--在全部分类下增加包装、烟酒、原料、低值易耗品等子类-->
+    <data noupdate="1">
+        <record id="product_category_package" model="product.category">
+            <field name="parent_id" ref="product.product_category_all"/>
+            <field name="name">包装</field>
+        </record>
+
+        <record id="product_category_tobacco_alcohol" model="product.category">
+            <field name="parent_id" ref="product.product_category_all"/>
+            <field name="name">烟酒</field>
+        </record>
+
+        <record id="product_category_material" model="product.category">
+            <field name="parent_id" ref="product.product_category_all"/>
+            <field name="name">原料</field>
+        </record>
+
+        <record id="product_category_consu" model="product.category">
+            <field name="parent_id" ref="product.product_category_all"/>
+            <field name="name">低值易耗品</field>
+        </record>
+
+        <record id="product_category_product" model="product.category">
+            <field name="parent_id" ref="product.product_category_all"/>
+            <field name="name">成品/半成品</field>
+        </record>
+
+        <record id="product_category_other" model="product.category">
+            <field name="parent_id" ref="product.product_category_all"/>
+            <field name="name">其他</field>
+        </record>
+    </data>
+
+    <!--设置包装、烟酒、原料、低值易耗品的收入费用科目-->
+    <data noupdate="1">
+        <!--包装类
+        费用科目：包装物\包装物
+        收入科目：包装物\包装物
+        -->
+        <record id="category_package_property_account_expense_categ_id" model="ir.property">
+            <field name="name">property_account_expense_categ_id</field>
+            <field name="fields_id" search="[('model','=','product.category'),('name','=','property_account_expense_categ_id')]"/>
+            <field name="value" eval="'account.account,'+str(ref('l10n_cj.1_l10n_cj_141499'))"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="res_id" eval="'product.category,'+str(ref('cj_arap.product_category_package'))"/>
+        </record>
+        <record id="category_package_property_account_income_categ_id" model="ir.property">
+            <field name="name">property_account_income_categ_id</field>
+            <field name="fields_id" search="[('model','=','product.category'),('name','=','property_account_income_categ_id')]"/>
+            <field name="value" eval="'account.account,'+str(ref('l10n_cj.1_l10n_cj_141499'))" model="account.account"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="res_id" eval="'product.category,'+str(ref('cj_arap.product_category_package'))"/>
+        </record>
+
+        <!--烟酒类
+        费用科目：库存商品\库存商品
+        收入科目：库存商品\库存商品
+        -->
+        <record id="category_tobacco_alcohol_property_account_expense_categ_id" model="ir.property">
+            <field name="name">property_account_expense_categ_id</field>
+            <field name="fields_id" search="[('model','=','product.category'),('name','=','property_account_expense_categ_id')]"/>
+            <field name="value" eval="'account.account,'+str(ref('l10n_cj.1_l10n_cj_140599'))"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="res_id" eval="'product.category,'+str(ref('cj_arap.product_category_tobacco_alcohol'))"/>
+        </record>
+        <record id="category_tobacco_alcohol_property_account_income_categ_id" model="ir.property">
+            <field name="name">property_account_income_categ_id</field>
+            <field name="fields_id" search="[('model','=','product.category'),('name','=','property_account_income_categ_id')]"/>
+            <field name="value" eval="'account.account,'+str(ref('l10n_cj.1_l10n_cj_140599'))" model="account.account"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="res_id" eval="'product.category,'+str(ref('cj_arap.product_category_tobacco_alcohol'))"/>
+        </record>
+
+        <!--原料类
+        费用科目：库存商品\库存商品
+        收入科目：库存商品\库存商品
+        -->
+        <record id="category_material_property_account_expense_categ_id" model="ir.property">
+            <field name="name">property_account_expense_categ_id</field>
+            <field name="fields_id" search="[('model','=','product.category'),('name','=','property_account_expense_categ_id')]"/>
+            <field name="value" eval="'account.account,'+str(ref('l10n_cj.1_l10n_cj_140599'))"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="res_id" eval="'product.category,'+str(ref('cj_arap.product_category_material'))"/>
+        </record>
+        <record id="category_material_property_account_income_categ_id" model="ir.property">
+            <field name="name">property_account_income_categ_id</field>
+            <field name="fields_id" search="[('model','=','product.category'),('name','=','property_account_income_categ_id')]"/>
+            <field name="value" eval="'account.account,'+str(ref('l10n_cj.1_l10n_cj_140599'))" model="account.account"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="res_id" eval="'product.category,'+str(ref('cj_arap.product_category_material'))"/>
+        </record>
+
+        <!--低值易耗品类
+        费用科目：包装物\包装物
+        收入科目：包装物\包装物
+        -->
+        <record id="category_consu_property_account_expense_categ_id" model="ir.property">
+            <field name="name">property_account_expense_categ_id</field>
+            <field name="fields_id" search="[('model','=','product.category'),('name','=','property_account_expense_categ_id')]"/>
+            <field name="value" eval="'account.account,'+str(ref('l10n_cj.1_l10n_cj_141499'))"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="res_id" eval="'product.category,'+str(ref('cj_arap.product_category_consu'))"/>
+        </record>
+        <record id="category_consu_property_account_income_categ_id" model="ir.property">
+            <field name="name">property_account_income_categ_id</field>
+            <field name="fields_id" search="[('model','=','product.category'),('name','=','property_account_income_categ_id')]"/>
+            <field name="value" eval="'account.account,'+str(ref('l10n_cj.1_l10n_cj_141499'))" model="account.account"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="res_id" eval="'product.category,'+str(ref('cj_arap.product_category_consu'))"/>
+        </record>
+
+        <!--其他类
+        费用科目：库存商品\库存商品
+        收入科目：库存商品\库存商品
+        -->
+        <record id="category_other_property_account_expense_categ_id" model="ir.property">
+            <field name="name">property_account_expense_categ_id</field>
+            <field name="fields_id" search="[('model','=','product.category'),('name','=','property_account_expense_categ_id')]"/>
+            <field name="value" eval="'account.account,'+str(ref('l10n_cj.1_l10n_cj_140599'))"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="res_id" eval="'product.category,'+str(ref('cj_arap.product_category_other'))"/>
+        </record>
+        <record id="category_other_property_account_income_categ_id" model="ir.property">
+            <field name="name">property_account_income_categ_id</field>
+            <field name="fields_id" search="[('model','=','product.category'),('name','=','property_account_income_categ_id')]"/>
+            <field name="value" eval="'account.account,'+str(ref('l10n_cj.1_l10n_cj_140599'))" model="account.account"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="res_id" eval="'product.category,'+str(ref('cj_arap.product_category_other'))"/>
+        </record>
+
+    </data>
+</odoo>

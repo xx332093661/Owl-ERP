@@ -1,0 +1,118 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* website_payment
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0rc1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-18 09:49+0000\n"
+"PO-Revision-Date: 2019-04-28 06:56+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 2.0.7\n"
+
+#. module: website_payment
+#: model:ir.model,name:website_payment.model_payment_acquirer
+msgid "Payment Acquirer"
+msgstr "支付平台"
+
+#. module: website_payment
+#: model:ir.model.fields,field_description:website_payment.field_payment_acquirer__website_id
+msgid "Website"
+msgstr "网站"
+
+#~ msgid "<i class=\"fa fa-arrow-circle-right\"/> Back to My Account"
+#~ msgstr "<i class=\"fa fa-arrow-circle-right\"/> 返回我的帐户"
+
+#~ msgid "Acquirer"
+#~ msgstr "购方"
+
+#~ msgid "Add a new payment method:"
+#~ msgstr "添加一个新的支付方式："
+
+#~ msgid "Amount"
+#~ msgstr "合计"
+
+#~ msgid "Configure payment acquirers"
+#~ msgstr "设置付款方"
+
+#~ msgid "Default Acquirer"
+#~ msgstr "默认购方"
+
+#~ msgid "Default payment acquirer for website payments; your provider needs to be visible in the website."
+#~ msgstr "网站默认支付为购方支付；需要在网站中可以查阅到你的供应商。"
+
+#~ msgid "Delete <span class=\"fa fa-long-arrow-right\"/>"
+#~ msgstr "删除 <span class=\"fa fa-long-arrow-right\"/>"
+
+#~ msgid "Delete a payment method:"
+#~ msgstr "删除一个支付方式："
+
+#~ msgid "E-Commerce"
+#~ msgstr "电子商务"
+
+#~ msgid "From"
+#~ msgstr "从"
+
+#~ msgid "Manage your payment methods"
+#~ msgstr "管理现有的支付方式"
+
+#~ msgid "Pay Now"
+#~ msgstr "立即付款"
+
+#~ msgid "Payment"
+#~ msgstr "支付"
+
+#~ msgid "Payment Method"
+#~ msgstr "支付方式"
+
+#~ msgid "Payment Methods"
+#~ msgstr "支付方式"
+
+#~ msgid "Payment Transaction"
+#~ msgstr "支付业务"
+
+#~ msgid "Payment processed by"
+#~ msgstr "进行支付"
+
+#~ msgid "Reference"
+#~ msgstr "单据编号"
+
+#~ msgid "Sale Order"
+#~ msgstr "销售订单"
+
+#~ msgid "Sales Order"
+#~ msgstr "销售订单"
+
+#~ msgid "This transaction will be processed by"
+#~ msgstr "处理过的交易"
+
+#~ msgid "account.config.settings"
+#~ msgstr "account.config.settings"
+
+#~ msgid "payment_provider_logo"
+#~ msgstr "供应商支付标识"
+
+#~ msgid "Card code"
+#~ msgstr "信用卡VV码"
+
+#~ msgid "Card number"
+#~ msgstr "信用卡号"
+
+#~ msgid "Expires"
+#~ msgstr "有效期"
+
+#~ msgid "Holder Name"
+#~ msgstr "持卡人姓名"
+
+#~ msgid "MM / YY"
+#~ msgstr "MM / YY"
+
+#~ msgid "Paypal payment: server 2 server"
+#~ msgstr "Paypal 付款方式:服务器到服务器"

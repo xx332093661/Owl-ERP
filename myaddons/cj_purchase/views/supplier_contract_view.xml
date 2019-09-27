@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+<data>
+        <record id="view_supplier_contract_admin_tree" model="ir.ui.view">
+            <field name="name">supplier.contract tree</field>
+            <field name="model">supplier.contract</field>
+            <field name="arch" type="xml">
+                <tree string="供应商合同">
+                    <field name="partner_id"/>
+                    <field name="name"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+					<field name="create_uid" string="制单人"/>
+                    <field name="valid"/>
+					<field name="state"/>
+              </tree>
+            </field>
+        </record>
+
+        <record id="view_supplier_contract_admin_form" model="ir.ui.view">
+            <field name="name">supplier.contract form</field>
+            <field name="model">supplier.contract</field>
+            <field name="arch" type="xml">
+                <form string="供应商合同">
+					<header>
+						<button name="supplier_contract_done" states="draft" string="审核" type="object" class="oe_highlight"/>
+						<button name="supplier_contract_draft" states="done" string="反审核" type="object"/>
+                        <!--<button name="check_attachment" type="object" string="导入明细" states="draft"/>-->
+                        <!--<button name="export_template" type="object" string="模板下载" />-->
+						<field name="state" widget="statusbar" statusbar_visible="draft,done" statusbar_colors="{&quot;done&quot;:&quot;blue&quot;}" readonly="1"/>
+                    </header>
+
+                    <sheet>
+						<div class="oe_title">
+						    <label for="name" string="合同编号"/>
+							<h1>
+								<field name="name"/>
+							</h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="partner_id" context="{'form_view_ref': 'core.supplier_address_form'}" options="{'no_create': 1}"/>
+                                <field name="payment_term_id" options="{'no_create': 1}" required="1"/>
+                                <field name="returns_sate"/>
+                                <field name="date_from"/>
+                                <field name="need_invoice" required="1"/>
+                            </group>
+                            <group>
+                                <field name="currency_id" options="{'no_open': 1}"/>
+                                <field name="purchase_sate"/>
+                                <field name="settlement_sate"/>
+                                <field name="date_to"/>
+                                <field name="valid"/>
+                                <field name="id" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="纸质合同">
+                                <field name="paper" widget="pdf_viewer" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            </page>
+                        </notebook>
+
+
+                        <field name="note" placeholder="暂无备注信息"/>
+
+						<group>
+							<group>
+								<field name="create_uid" readonly="1" string="制单人" options="{'no_open': 1}"/>
+							</group>
+							<group>
+								<field name="create_date" readonly="1" string="录单时间"/>
+								<field name="write_date" readonly="1" string="最后修改时间"/>
+							</group>
+                        </group>
+                    </sheet>
+					<div class="oe_chatter">
+	                    <field name="message_follower_ids" widget="mail_followers"/>
+	                    <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_supplier_contract_admin_search" model="ir.ui.view">
+            <field name="name">supplier.contract search</field>
+            <field name="model">supplier.contract</field>
+            <field name="arch" type="xml">
+                <search string="供应商合同">
+                    <field name="partner_id"/>
+                    <field name="name"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <separator/>
+                    <separator/>
+
+                    <group expand="0" string="分组">
+                        <filter name="supplier_group" string="供应商" domain="[]" context="{'group_by':'partner_id'}"/>
+                    </group>
+
+
+                </search>
+            </field>
+        </record>
+
+        <record id="action_supplier_contract_admin" model="ir.actions.act_window">
+            <field name="name">供应商合同</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">supplier.contract</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_valid_true': 1}</field>
+        </record>
+
+
+
+    </data>
+</odoo>

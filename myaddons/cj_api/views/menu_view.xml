@@ -1,0 +1,21 @@
+<odoo>
+    <menuitem name="接口"
+            id="menu_cj_api"
+            groups="group_cj_api"
+            web_icon="mail,static/description/icon.png"
+            sequence="50"/>
+
+    <menuitem name="消息" id="menu_api_message" action="api_message_action"
+              parent="menu_cj_api" sequence="1"/>
+
+    <menuitem id="cj_oa_menu" name="OA审批" parent="menu_cj_api" sequence="3"/>
+
+    <menuitem id="cj_oa_api_menu" name="OA审批数据" parent="cj_oa_menu" sequence="1"
+                  action="cj_oa_api_action"/>
+
+    <menuitem id="oa_approval_callback_menu" name="OA审批回调" parent="cj_oa_menu" sequence="2"
+                  action="oa_approval_callback_action"/>
+
+    <menuitem id="cj_org_menu" name="组织机构" parent="menu_cj_api" sequence="5"
+                  action="cj_org_action"/>
+</odoo>

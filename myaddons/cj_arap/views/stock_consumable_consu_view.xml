@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="action_stock_consumable_consu" model="ir.actions.act_window">
+            <field name="name">易耗品消耗</field>
+            <field name="res_model">stock.consumable.consu</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="menu_action_stock_consumable_consu"
+                  action="action_stock_consumable_consu"
+                  groups="account.group_account_invoice"
+                  name="易耗品消耗" parent="menu_account_stock" sequence="2"/>
+
+    </data>
+
+</odoo>

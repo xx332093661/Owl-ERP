@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.zhongtai setting</field>
+            <field name="model">res.config.settings</field>
+            <!--<field name="priority" eval="40"/>-->
+            <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <!--在商务文件节前添加中台通讯设置-->
+                <xpath expr="//div[@id='business_documents']" position="before">
+                    <div id="zhongtai_setting">
+                        <h2>中台通讯设置</h2>
+                        <div class="row mt16 o_settings_container">
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">RabbitMQ</span>
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label string="服务器IP" for="cj_rabbit_mq_ip_id" class="col-lg-3 o_light_label"/>
+                                            <field name="cj_rabbit_mq_ip_id"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="服务器端口" for="cj_rabbit_mq_port_id" class="col-lg-3 o_light_label"/>
+                                            <field name="cj_rabbit_mq_port_id"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="用户名" for="cj_rabbit_mq_username_id" class="col-lg-3 o_light_label"/>
+                                            <field name="cj_rabbit_mq_username_id"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="密码" for="cj_rabbit_mq_password_id" class="col-lg-3 o_light_label"/>
+                                            <field name="cj_rabbit_mq_password_id"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="接收交换机" for="cj_rabbit_mq_receive_exchange_id" class="col-lg-3 o_light_label"/>
+                                            <field name="cj_rabbit_mq_receive_exchange_id"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="发送交换机" for="cj_rabbit_mq_send_exchange_id" class="col-lg-3 o_light_label"/>
+                                            <field name="cj_rabbit_mq_send_exchange_id"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">OA</span>
+                                    <div class="content-group">
+                                        <div class="row">
+                                            <label string="OA地址" for="icp_oa_url" class="col-lg-3 o_light_label"/>
+                                            <field name="icp_oa_url"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="OA用户名" for="icp_oa_sender_login_name" class="col-lg-3 o_light_label"/>
+                                            <field name="icp_oa_sender_login_name"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="获取token的用户名" for="icp_oa_token_username" class="col-lg-3 o_light_label"/>
+                                            <field name="icp_oa_token_username"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="获取token的密码" for="icp_oa_token_password" class="col-lg-3 o_light_label"/>
+                                            <field name="icp_oa_token_password"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">上传中台</span>
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label string="上传地址" for="cj_sync_url_id" class="col-lg-3 o_light_label"/>
+                                            <field name="cj_sync_url_id"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="上传用户名" for="cj_sync_username_id" class="col-lg-3 o_light_label"/>
+                                            <field name="cj_sync_username_id"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="上传密码" for="cj_sync_password_id" class="col-lg-3 o_light_label"/>
+                                            <field name="cj_sync_password_id"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

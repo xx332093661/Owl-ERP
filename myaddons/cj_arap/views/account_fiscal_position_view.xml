@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--
+        字段tax_ids(税替换)/tax_src_id(产品上的税)的domain增加('company_id', '=', parent.company_id)
+        字段tax_ids(税替换)/tax_src_id(采用的税)的domain增加('company_id', '=', parent.company_id)
+        字段account_ids(科目替换)/account_src_id(产品上的科目)的domain增加[('deprecated', '=', False), ('company_id', '=', parent.company_id)]
+        字段account_ids(科目替换)/account_dest_id(替换使用的科目)的domain增加[('deprecated', '=', False), ('company_id', '=', parent.company_id)]
+        -->
+        <record id="account_view_account_position_form" model="ir.ui.view">
+            <field name="name">account.fiscal.position form</field>
+            <field name="model">account.fiscal.position</field>
+            <field name="inherit_id" ref="account.view_account_position_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='tax_ids']/tree/field[@name='tax_src_id']" position="attributes">
+                    <attribute name="domain">[('type_tax_use', '!=', None), ('company_id', '=', parent.company_id)]</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='tax_ids']/tree/field[@name='tax_dest_id']" position="attributes">
+                    <attribute name="domain">[('type_tax_use', '!=', None), ('company_id', '=', parent.company_id)]</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='account_ids']/tree/field[@name='account_src_id']" position="attributes">
+                    <attribute name="domain">[('deprecated', '=', False), ('company_id', '=', parent.company_id)]</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='account_ids']/tree/field[@name='account_dest_id']" position="attributes">
+                    <attribute name="domain">[('deprecated', '=', False), ('company_id', '=', parent.company_id)]</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem id="menu_action_stock_scrap_master"
+                  action="cj_stock.action_stock_scrap_master"
+                  groups="account.group_account_invoice"
+                  name="报废" parent="menu_account_stock" sequence="30"/>
+
+    </data>
+
+</odoo>

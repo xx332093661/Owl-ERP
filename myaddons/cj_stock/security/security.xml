@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!--仓库主管不从account.group_account_invoice继承-->
+        <record id="stock.group_stock_manager" model="res.groups">
+            <field name="implied_ids" eval="[(5, 0), (4, ref('stock.group_stock_user'))]"/>
+        </record>
+    </data>
+</odoo>

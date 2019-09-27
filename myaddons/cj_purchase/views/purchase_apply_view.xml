@@ -1,0 +1,131 @@
+<odoo>
+    <data>
+        <record id="view_purchase_apply_tree" model="ir.ui.view">
+            <field name="name">purchase.apply tree</field>
+            <field name="model">purchase.apply</field>
+            <field name="arch" type="xml">
+                <tree decoration-info="state == 'draft'" decoration-muted="state == 'cancel'">
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="apply_uid"/>
+                    <field name="name"/>
+                    <field name="apply_date"/>
+                    <field name="apply_type"/>
+                    <field name="apply_reason"/>
+                    <field name="planned_date"/>
+                    <field name="consume_time"/>
+                    <field name="state"/>
+                    <field name="delay_days"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_purchase_apply_form" model="ir.ui.view">
+            <field name="name">purchase.apply form</field>
+            <field name="model">purchase.apply</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="state_confirm1" string="确认申请" states="draft" type="object"
+                                class="oe_highlight" groups="sales_team.group_sale_salesman"/>  <!--销售员确认-->
+                        <button name="state_confirm2" string="确认申请" states="confirm1" type="object"
+                                class="oe_highlight" groups="sales_team.group_sale_manager"/> <!--销售经理确认-->
+                        <button name="state_pricing" string="采购确认" states="confirm2" type="object"
+                                class="oe_highlight" groups="purchase.group_purchase_user"/> <!--采购确认-->
+                        <button name="state_confirm3" string="生成采购单" states="pricing" type="object"
+                                class="oe_highlight" groups="purchase.group_purchase_manager"/> <!--经理确认-采购单等待审批-->
+                        <button name="update_price1" string="按最优价选择供应商" states="pricing" type="object"
+                                class="oe_highlight" groups="purchase.group_purchase_manager"/>
+                        <!--<button name="state_confirm3" string="物流最优" states="confirm" type="object"-->
+                                <!--class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
+                        <!--<button name="new_purchase_order" string="新询价单" states="confirm" type="object"-->
+                                <!--class="oe_highlight"/>-->
+                         <button name="state_cancel" string="取消申请" states="draft,confirm1,confirm2" type="object"
+                                groups="sales_team.group_sale_salesman"/>
+                        <!--<button name="check_attachment" type="object" string="导入明细" states="draft"/>-->
+                        <!--<button name="export_template" type="object" string="模板下载" states="draft"/>-->
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm1,confirm2,pricing,tendering,confirm3,purchase,delivery,transport,done"
+                               statusbar_colors="{'done':'blue'}" readonly="1"/>
+                    </header>
+
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button type="object" name="action_view_purchase_order" class="oe_stat_button"
+                                    icon="fa-pencil-square-o"
+                                    attrs="{'invisible':['|', ('order_count', '=', 0), ('state', 'in', ('draft'))]}">
+                                <field name="order_count" widget="statinfo" string="采购订单"/>
+                                <field name="order_ids" invisible="1"/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <span class="o_form_label">采购申请</span>
+                            <h1>
+                                <field name="name" readonly="0"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="apply_date" readonly="1"/>
+                                <field name="apply_type"/>
+                                <field name="apply_reason"/>
+                                <field name="consume_time"/>
+                                <field name="delay_days"/>
+                            </group>
+                            <group>
+                                <field name="apply_uid" options="{'no_open': 1, 'no_create': 1}"/>
+                                <field name="planned_date"/>
+                                <field name="amount"/>
+                                <field name="company_id" groups="base.group_multi_company" options="{'no_open': 1, 'no_create': 1}"/>
+                                <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="申请明细">
+                                <field name="line_ids" context="{'disable_open': 1}">
+                                    <tree editable="bottom">
+                                        <field name="product_id" required="1" options="{'no_create': 1}"/>
+                                        <field name="product_uom" options="{'no_open': 1, 'no_create': 1}"
+                                               required="1"/>
+                                        <field name="supplierinfo_id" options="{'no_create': 1}" context="{'purchase_apply_line': 1}"/>
+                                        <field name="price" attrs="{'readonly': [('time_price', '=', False)]}"/>
+                                        <field name="product_qty" required="1" string="申请数量"/>
+                                        <field name="amount"/>
+                                        <field name="time_price" invisible="1"/>
+
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="原始单据">
+                                <field name="attached" widget="pdf_viewer" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_purchase_apply_search" model="ir.ui.view">
+            <field name="name">purchase.apply search</field>
+            <field name="model">purchase.apply</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="company_id" string="采购主体" groups="base.group_multi_company"/>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_purchase_apply" model="ir.actions.act_window">
+            <field name="name">采购申请</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.apply</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+    </data>
+</odoo>

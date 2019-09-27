@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--修改全渠道销售订单form视图的付款条款-->
+        <record id="view_order_form_chuanjiu" model="ir.ui.view">
+            <field name="name">sale.order.form.chuanjiu</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="cj_sale.view_order_form_chuanjiu"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='payment_term_id']" position="replace">
+                    <field name="payment_term_id"/>
+                </xpath>
+                <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                    <button type="object" name="action_view_internal_invoice" class="oe_stat_button" icon="fa-truck" attrs="{'invisible':[('invoice_ids','=',[])]}">
+                        <field name="invoice_count" widget="statinfo" string="内部结算单"/>
+                        <field name="invoice_ids" invisible="1"/>
+                    </button>
+                </xpath>
+                <xpath expr="//field[@name='payment_ids']" position="replace">
+                    <field name="payment_ids" context="{
+                    'default_payment_type': 'inbound',
+                    'default_partner_id': partner_id,
+                    'default_partner_type': 'customer',
+                    'payment_term_id': payment_term_id,
+                    'sale_order_id': id,
+                    'form_view_ref':'cj_arap.view_account_sale_payment_form',
+                    'tree_view_ref': 'account.view_account_payment_tree',
+                    'company_id': company_id,
+                    'create_from_sale_order': 1,
+                    'default_amount': amount_total}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!--修改团购销售订单form视图的付款条款-->
+        <record id="view_order_form_groupn" model="ir.ui.view">
+            <field name="name">sale.order.form.groupn</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="cj_sale.view_order_form_groupn"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='payment_term_id']" position="replace">
+                    <field name="payment_term_id"/>
+                </xpath>
+                <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                    <button type="object" name="action_view_internal_invoice" class="oe_stat_button" icon="fa-truck" attrs="{'invisible':[('invoice_ids','=',[])]}">
+                        <field name="invoice_count" widget="statinfo" string="内部结算单"/>
+                        <field name="invoice_ids" invisible="1"/>
+                    </button>
+                </xpath>
+                <xpath expr="//field[@name='payment_ids']" position="replace">
+                    <field name="payment_ids" context="{
+                    'default_payment_type': 'inbound',
+                    'default_partner_id': partner_id,
+                    'default_partner_type': 'customer',
+                    'payment_term_id': payment_term_id,
+                    'sale_order_id': id,
+                    'form_view_ref':'cj_arap.view_account_sale_payment_form',
+                    'tree_view_ref': 'account.view_account_payment_tree',
+                    'company_id': company_id,
+                    'create_from_sale_order': 1,
+                    'default_amount': amount_total}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

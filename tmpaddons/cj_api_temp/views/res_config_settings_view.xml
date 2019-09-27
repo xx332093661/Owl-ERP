@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.zhongtai setting</field>
+            <field name="model">res.config.settings</field>
+            <!--<field name="priority" eval="40"/>-->
+            <field name="inherit_id" ref="cj_api.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <!--是否使用OA通道-->
+                <xpath expr="//field[@name='icp_oa_token_password']/parent::*" position="after">
+                    <div class="row">
+                        <label for="icp_user_oa" class="col-lg-3 o_light_label"/>
+                        <field name="icp_user_oa"/>
+                    </div>
+                </xpath>
+
+            </field>
+
+        </record>
+    </data>
+</odoo>

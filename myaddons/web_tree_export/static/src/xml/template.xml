@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates id="template" xml:space="preserve">
+    <t t-name="ExportView.export_button">
+        <button type="button" class="btn btn-sm btn-default o_button_export" title="下载xls">
+            <i t-translation="off" class="fa fa-file-excel-o"/>
+        </button>
+    </t>
+    <t t-extend="ListView.buttons">
+        <t t-jquery=".o_list_button_save" t-operation="after">
+           <t t-call="ExportView.export_button"/>
+        </t>
+    </t>
+</templates>

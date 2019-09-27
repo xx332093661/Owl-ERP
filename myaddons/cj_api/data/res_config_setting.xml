@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+        <record id='cj_sync_url_id' model='ir.config_parameter'>
+		   <field name="key">cj_sync_url_id</field>
+		   <field name="value">0</field>
+		</record>
+
+        <record id='cj_sync_username_id' model='ir.config_parameter'>
+		   <field name="key">cj_sync_username_id</field>
+		   <field name="value">0</field>
+		</record>
+
+        <record id='cj_sync_password_id' model='ir.config_parameter'>
+		   <field name="key">cj_sync_password_id</field>
+		   <field name="value">0</field>
+		</record>
+
+        <record id='shop_api_upload_url_id' model='ir.config_parameter'>
+		   <field name="key">shop_api_upload_url_id</field>
+		   <field name="value">0</field>
+		</record>
+
+        <record id='shop_api_upload_aes_key_id' model='ir.config_parameter'>
+		   <field name="key">shop_api_upload_aes_key_id</field>
+		   <field name="value">0</field>
+		</record>
+
+        <record id='shop_api_upload_key_id' model='ir.config_parameter'>
+		   <field name="key">shop_api_upload_key_id</field>
+		   <field name="value">0</field>
+		</record>
+
+		<!--rabbit_mq-->
+		<record id='cj_rabbit_mq_username_id' model='ir.config_parameter'>
+		   <field name="key">cj_rabbit_mq_username_id</field>
+		   <field name="value">0</field>
+		</record>
+
+		<record id='cj_rabbit_mq_password_id' model='ir.config_parameter'>
+		   <field name="key">cj_rabbit_mq_password_id</field>
+		   <field name="value">0</field>
+		</record>
+
+		<record id='cj_rabbit_mq_ip_id' model='ir.config_parameter'>
+		   <field name="key">cj_rabbit_mq_ip_id</field>
+		   <field name="value">0</field>
+		</record>
+
+		<record id='cj_rabbit_mq_port_id' model='ir.config_parameter'>
+		   <field name="key">cj_rabbit_mq_port_id</field>
+		   <field name="value">0</field>
+		</record>
+
+		<record id='cj_rabbit_mq_send_exchange_id' model='ir.config_parameter'>
+		   <field name="key">cj_rabbit_mq_send_exchange_id</field>
+		   <field name="value">0</field>
+		</record>
+
+		<record id='cj_rabbit_mq_receive_exchange_id' model='ir.config_parameter'>
+		   <field name="key">cj_rabbit_mq_receive_exchange_id</field>
+		   <field name="value">0</field>
+		</record>
+    </data>
+
+    <data noupdate="1">
+        <record id="icp_oa_url" model="ir.config_parameter">
+            <field name="key">icp_oa_url</field>
+            <field name="value">0</field>
+        </record>
+
+        <record id="icp_oa_token_username" model="ir.config_parameter">
+            <field name="key">icp_oa_token_username</field>
+            <field name="value">0</field>
+        </record>
+
+        <record id="icp_oa_token_password" model="ir.config_parameter">
+            <field name="key">icp_oa_token_password</field>
+            <field name="value">0</field>
+        </record>
+
+        <record id="icp_oa_sender_login_name" model="ir.config_parameter">
+            <field name="key">icp_oa_sender_login_name</field>
+            <field name="value">0</field>
+        </record>
+
+    </data>
+</openerp>
+
