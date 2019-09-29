@@ -20,11 +20,15 @@
         'web_tree_export',
         'cj_web',
         'l10n_cj',
+        'cj_api',
     ],
     'data': [
         # 更改main company名称为川酒集团
         'data/company.xml',
+
         'security/ir.model.access.csv',
+
+
         'views/menu.xml',
         'views/grade_manage.xml',
         'views/res_partner.xml',
