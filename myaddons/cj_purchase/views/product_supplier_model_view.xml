@@ -97,7 +97,7 @@
                     <field name="partner_id" options="{'no_create': 1}"/>
                     <field name="payment_term_id"/>
                     <field name="commerce_model_id"/>
-                    <field name="stock_model_id"/>
+                    <field name="is_stock"/>
                     <field name="time_price"/>
                 </tree>
             </field>
@@ -114,7 +114,7 @@
                             <field name="partner_id" options="{'no_create': 1}"/>
                             <field name="payment_term_id"/>
                             <field name="commerce_model_id"/>
-                            <field name="stock_model_id"/>
+                            <field name="is_stock"/>
                             <field name="time_price"/>
                         </group>
                     </sheet>

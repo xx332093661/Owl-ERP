@@ -22,7 +22,7 @@ def generate_member_excel():
         os.remove(file_name)
 
     odoo = odoorpc.ODOO(host='localhost', port=8079)
-    odoo.login('odoocjl1', login='admin', password='admin')
+    odoo.login('odoocjl2', login='admin', password='admin')
 
     workbook = xlwt.Workbook()
     worksheet = workbook.add_sheet('Sheet 1')
@@ -76,5 +76,5 @@ def check_member():
     print('会员总数量：', len(member_ids))  # 12096
 
 
-# generate_member_excel()
-check_member()
+generate_member_excel()
+# check_member()

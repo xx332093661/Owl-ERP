@@ -39,6 +39,15 @@ class Company(models.Model):
         parent_ids.append(self.id)
         self.parent_ids = parent_ids
 
+    @api.model
+    def create(self, vals):
+        """创建公司时，让admin可访问该公司"""
+        company = super(Company, self).create(vals)
+
+        self.env.ref('base.user_admin').company_ids = [(4, company.id)]  # admin赋所有会计权限
+
+        return company
+
     # @api.depends('partner_id', 'partner_id.image')
     # def _compute_logo_web(self):
     #     """解决自动初始化时报odoo.exceptions.AccessError: ('No value found for res.partner(1,).image', None)错误bug"""

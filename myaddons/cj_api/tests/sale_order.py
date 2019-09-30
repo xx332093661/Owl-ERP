@@ -290,7 +290,7 @@ def get_org_code():
 
     return org_codes, org_names
 
-generate_sale_order_excel()
-# check_sale_order()
+# generate_sale_order_excel()
+check_sale_order()
 
 

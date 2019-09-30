@@ -997,8 +997,21 @@ class ApiMessage(models.Model):
                         'owner_id': company.id,
                     })
 
-        # 订单确认
-        # order.action_confirm()
+        # pos订单和售酒机业务，直接出库
+        if channel_code in ['pos', 'enomatic']:
+            # 订单确认
+            order.action_confirm()
+            order.picking_ids.filtered(lambda x: x.state == 'draft').action_confirm()  # 确认草稿状态的stock.picking
+            picking = order.picking_ids[0]
+            # 7、出库
+            # 检查可用状态
+            if picking.state != 'assigned':
+                picking.action_assign()
+
+            if picking.state != 'assigned':
+                raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
+            picking.action_done()  # 确认出库
 
     def deal_mustang_to_erp_order_status_push(self, content):  # mustang-to-erp-order-status-push
         """订单状态处理
@@ -1142,10 +1155,12 @@ class ApiMessage(models.Model):
 
         # 3、订单确认
         if order.state == 'draft':
-            order.warehouse_id = warehouse.id
-            order.order_line.write({
-                'warehouse_id': warehouse.id
-            })
+            # 同一家公司的不同仓库，更改订单的仓库
+            if order.warehouse_id.id != warehouse.id and order.company_id.id == warehouse.company_id.id:
+                order.warehouse_id = warehouse.id
+                order.order_line.write({
+                    'warehouse_id': warehouse.id
+                })
             order.action_confirm()
 
         order.picking_ids.filtered(lambda x: x.state == 'draft').action_confirm()  # 确认草稿状态的stock.picking

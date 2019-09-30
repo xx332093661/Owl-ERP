@@ -4,11 +4,11 @@ import odoorpc
 odoo_8079 = odoorpc.ODOO(host='localhost', port=8079)
 odoo_8079.login('odoocjl2', login='admin', password='admin')
 
-odoo_8069 = odoorpc.ODOO(host='localhost', port=8069)
-odoo_8069.login('odoocj31', login='admin', password='admin')
+# odoo_8069 = odoorpc.ODOO(host='localhost', port=8069)
+# odoo_8069.login('odoocj31', login='admin', password='admin')
 
-# odoo_8069 = odoorpc.ODOO(host='42.121.2.58', port=8069)
-# odoo_8069.login('odoocj2', login='admin', password='admin')
+odoo_8069 = odoorpc.ODOO(host='42.121.2.58', port=8069)
+odoo_8069.login('odoocj3', login='admin', password='admin')
 
 
 def create(message_name):
