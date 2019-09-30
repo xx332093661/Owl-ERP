@@ -2298,10 +2298,10 @@ progress,
 video {
   display: inline-block;
   /* 1 */
-  vertical-align: baseline;
+  /*vertical-align: baseline;*/
   /* 2 */
-}
-*/
+/*}*/
+/**!*/
 /**
  * Prevent modern browsers from displaying `audio` without controls.
  * Remove excess height in iOS 5 devices.
