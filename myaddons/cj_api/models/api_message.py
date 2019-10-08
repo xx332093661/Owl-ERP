@@ -1233,7 +1233,66 @@ class ApiMessage(models.Model):
         picking.action_done()  # 确认出库
 
     def deal_wms_erp_stock_queue(self, content):  # WMS-ERP-STOCK-QUEUE
-        """库存数据队列"""
+        """外部仓库库存数据队列"""
+        def get_prod_lot():
+            """计算商品批次号"""
+            if product.tracking != 'none':
+                lot_name = sequence_obj.next_by_code('stock.lot.serial')
+                lot = lot_obj.create({
+                    'name': lot_name,
+                    'product_id': product.id
+                })
+                return lot.id
+
+            return False
+
+        warehouse_obj = self.env['stock.warehouse']
+        inventory_obj = self.env['stock.inventory']
+        product_obj = self.env['product.product']
+        inventory_line_obj = self.env['stock.inventory.line']
+        lot_obj = self.env['stock.production.lot']
+        sequence_obj = self.env['ir.sequence']
+
+        body = json.loads(content)
+        if not isinstance(body, list):
+            body = [body]
+
+        for warehouse_no, store_stocks in groupby(sorted(body, key=lambda x: x['warehouseNo']), lambda x: x['warehouseNo']):  # storeCode：门店编码
+            warehouse = warehouse_obj.search([('code', '=', warehouse_no)])
+            if not warehouse:
+                raise MyValidationError('11', '仓库：%s 未找到！' % warehouse_no)
+
+            location_id = warehouse.lot_stock_id.id
+            company_id = warehouse.company_id.id
+            inventory = inventory_obj.create({
+                'name': '%s初始库存盘点' % warehouse.name,
+                'company_id': company_id,
+                'location_id': location_id,
+                'filter': 'partial',  # 手动选择商品
+            })
+            inventory.action_start()  # 开始盘点
+
+            inventory_id = inventory.id
+            store_stocks = list(store_stocks)
+            for store_stock in store_stocks:
+                product = product_obj.search([('default_code', '=', store_stock['goodsNo'])], limit=1)  # goodsNo：商品编码
+                if not product:
+                    continue  # TODO 此处应raise
+                    # raise MyValidationError('09', '商品编码：%s 对应的商品未找到！' % store_stock['goodsNo'])
+
+                inventory_line_obj.with_context(company_id=company_id).create({
+                    'company_id': company_id,
+                    'cost': random.randint(10, 100),  # TODO 单位成本
+                    'inventory_id': inventory_id,
+                    'is_init': 'yes',  # 是否是初始化盘点
+                    'location_id': location_id,
+                    'prod_lot_id': get_prod_lot(),  # 批次号
+                    'product_id': product.id,
+                    'product_uom_id': product.uom_id.id,
+                    'product_qty': store_stock['totalNum']
+                })
+
+            # inventory.action_validate()
 
     def deal_mustang_to_erp_store_stock_update_record_push(self, content):  # mustang-to-erp-store-stock-update-record-push
         """门店库存变更记录"""
