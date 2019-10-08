@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="base.open_module_tree" model="ir.actions.act_window">
+            <field name="domain">[('to_buy', '=', False)]</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,84 @@
+<odoo>
+    <data>
+        <record id='api_message_tree' model='ir.ui.view'>
+			<field name='name'>api_message_tree</field>
+			<field name='model'>api.message</field>
+			<field name='arch' type='xml'>
+				<tree decoration-info="state == 'draft'" decoration-danger="state == 'error'" decoration-success="state == 'done'">
+					<field name="create_date" string="消息时间"/>
+                    <field name="message_type"/>
+                    <field name="message_name"/>
+                    <field name="state"/>
+                    <field name="attempts"/>
+                    <field name="error_no"/>
+                    <field name="error_msg"/>
+				</tree>
+			</field>
+		</record>
+
+		<record id='api_message_form' model='ir.ui.view'>
+			<field name='name'>api_message_form</field>
+			<field name='model'>api.message</field>
+			<field name='arch' type='xml'>
+				<form>
+					<header>
+						<button name='do_proc_content' type='object' string='处理内容' class='oe_highlight' attrs="{'invisible': [('state', '=', 'done')]}"/>
+						<field name="state" widget="statusbar" statusbar_visible="draft,done" readonly="1"/>
+                    </header>
+					<sheet>
+                        <group>
+                            <group>
+                                <field name="message_type" readonly="1"/>
+                                <field name="create_date" string="消息时间" readonly="1"/>
+                                <field name="error_no" readonly="1"/>
+                                <field name="attempts"/>
+                            </group>
+                            <group>
+                                <field name="message_name" readonly="1"/>
+                                <field name="interface_param" readonly="1"/>
+                                <field name="error_msg" readonly="1"/>
+							</group>
+                        </group>
+
+                        <notebook>
+                            <page string="内容">
+                                <field name='content' nolabel="1" readonly="1"/>
+                            </page>
+                            <page string="错误提示">
+                                <field name='error' readonly="1"/>
+                            </page>
+                        </notebook>
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<record id="view_api_message_filter" model="ir.ui.view">
+            <field name="name">view_api_message_filter</field>
+            <field name="model">api.message</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="message_name"/>
+                    <field name="content"/>
+                    <filter string="未处理" name="draft" domain="[('state', '=', 'draft')]"/>
+                    <filter string="已处理" name="done" domain="[('state', '=', 'done')]"/>
+                    <filter string="处理失败" name="error" domain="[('state', '=', 'error')]"/>
+                </search>
+            </field>
+        </record>
+
+		<record id='api_message_action' model='ir.actions.act_window'>
+			<field name='name'>api消息</field>
+			<field name='res_model'>api.message</field>
+			<field name='view_mode'>tree,form</field>
+		</record>
+
+        <record id="action_do_proc_content" model="ir.actions.server">
+            <field name="name">处理mq消息内容</field>
+            <field name="model_id" ref="model_api_message"/>
+            <field name="binding_model_id" ref="model_api_message"/>
+            <field name="state">code</field>
+            <field name="code">action=records.do_proc_content()</field>
+        </record>
+    </data>
+</odoo>

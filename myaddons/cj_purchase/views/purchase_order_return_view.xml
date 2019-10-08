@@ -1,0 +1,87 @@
+<odoo>
+    <data>
+        <record id="view_purchase_order_return_tree" model="ir.ui.view">
+            <field name="name">purchase.order.return tree</field>
+            <field name="model">purchase.order.return</field>
+            <field name="arch" type="xml">
+                <tree decoration-info="state == 'draft'" decoration-muted="state == 'cancel'" create="0">
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="purchase_order_id"/>
+                    <field name="partner_id"/>
+                    <field name="create_date" string="退货单时间"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_purchase_order_return_form" model="ir.ui.view">
+            <field name="name">purchase.order.return form</field>
+            <field name="model">purchase.order.return</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="state_confirm" string="确认" states="draft" type="object"
+                                class="oe_highlight" groups="purchase.group_purchase_manager"/>
+                        <button name="state_cancel" string="取消" states="draft" type="object"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done"
+                               statusbar_colors="{'done':'blue'}" readonly="1"/>
+                    </header>
+
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button type="object" name="action_return_picking_view" class="oe_stat_button"
+                                    icon="fa-pencil-square-o"
+                                    attrs="{'invisible':[('return_picking_count', '=', 0)]}">
+                                <field name="return_picking_count" widget="statinfo" string="出库单"/>
+                                <field name="return_picking_ids" invisible="1"/>
+                            </button>
+                        </div>
+                        <group col="4">
+                            <field name="purchase_order_id"/>
+                            <field name="partner_id"/>
+                            <field name="company_id"/>
+                            <field name="create_date" string="退货单时间"/>
+                        </group>
+                        <notebook>
+                            <page string="退货单明细">
+                                <field name="line_ids">
+                                    <tree editable="bottom">
+                                        <field name="product_id" required="1" options="{'no_create': 1}"/>
+                                        <field name="product_qty"/>
+                                        <field name="return_qty"/>
+
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_purchase_order_return_search" model="ir.ui.view">
+            <field name="name">purchase.order.return search</field>
+            <field name="model">purchase.order.return</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="purchase_order_id"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_purchase_order_return" model="ir.actions.act_window">
+            <field name="name">采购退货单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.order.return</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+    </data>
+</odoo>

@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<odoo>
+    <data noupdate="1">
+        <record forcecreate="True" id="purchase_receipt" model="stock.inventory.valuation.move.type">
+            <field name="name">采购入库</field>
+            <field name="code">purchase_receipt</field>
+        </record>
+        <record forcecreate="True" id="purchase_receipt_return" model="stock.inventory.valuation.move.type">
+            <field name="name">采购退货</field>
+            <field name="code">purchase_receipt_return</field>
+        </record>
+
+        <record forcecreate="True" id="in_inventory" model="stock.inventory.valuation.move.type">
+            <field name="name">盘盈</field>
+            <field name="code">in_inventory</field>
+        </record>
+        <record forcecreate="True" id="out_inventory" model="stock.inventory.valuation.move.type">
+            <field name="name">盘亏</field>
+            <field name="code">out_inventory</field>
+        </record>
+
+        <record forcecreate="True" id="sale_delivery" model="stock.inventory.valuation.move.type">
+            <field name="name">销售出库</field>
+            <field name="code">sale_delivery</field>
+        </record>
+        <record forcecreate="True" id="sale_delivery_return" model="stock.inventory.valuation.move.type">
+            <field name="name">销售退货</field>
+            <field name="code">sale_delivery_return</field>
+        </record>
+
+        <record forcecreate="True" id="stock_scrap" model="stock.inventory.valuation.move.type">
+            <field name="name">报废</field>
+            <field name="code">stock_scrap</field>
+        </record>
+
+        <record forcecreate="True" id="across_in" model="stock.inventory.valuation.move.type">
+            <field name="name">跨公司调入</field>
+            <field name="code">across_in</field>
+        </record>
+        <record forcecreate="True" id="across_out" model="stock.inventory.valuation.move.type">
+            <field name="name">跨公司调出</field>
+            <field name="code">across_out</field>
+        </record>
+
+        <record forcecreate="True" id="consu_in" model="stock.inventory.valuation.move.type">
+            <field name="name">易耗品入库</field>
+            <field name="code">consu_in</field>
+        </record>
+        <record forcecreate="True" id="consu_out" model="stock.inventory.valuation.move.type">
+            <field name="name">易耗品消耗</field>
+            <field name="code">consu_out</field>
+        </record>
+
+        <record forcecreate="True" id="delivery_out" model="stock.inventory.valuation.move.type">
+            <field name="name">物流单</field>
+            <field name="code">delivery_out</field>
+        </record>
+
+        <record forcecreate="True" id="requisition_out" model="stock.inventory.valuation.move.type">
+            <field name="name">领料出库</field>
+            <field name="code">requisition_out</field>
+        </record>
+
+        <record forcecreate="True" id="requisition_in" model="stock.inventory.valuation.move.type">
+            <field name="name">领料退库</field>
+            <field name="code">requisition_in</field>
+        </record>
+    </data>
+</odoo>

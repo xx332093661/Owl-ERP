@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <data>
+        <!--禁用访问规则：stock.stock_picking_type_rule(分拣类型)-->
+        <function model="ir.rule" name="rule_disable">
+            <value>stock.stock_picking_type_rule</value>
+        </function>
+        <!--禁用访问规则：stock.stock_warehouse_orderpoint_rule(最小库存规则)-->
+        <function model="ir.rule" name="rule_disable">
+            <value>stock.stock_warehouse_orderpoint_rule</value>
+        </function>
+        <!--禁用访问规则：stock.stock_location_comp_rule(库存库位)-->
+        <function model="ir.rule" name="rule_disable">
+            <value>stock.stock_location_comp_rule</value>
+        </function>
+        <!--禁用访问规则：stock.stock_location_route_comp_rule(库存路线)-->
+        <function model="ir.rule" name="rule_disable">
+            <value>stock.stock_location_route_comp_rule</value>
+        </function>
+        <!--禁用访问规则：stock.product_pulled_flow_comp_rule(库存规则)-->
+        <function model="ir.rule" name="rule_disable">
+            <value>stock.product_pulled_flow_comp_rule</value>
+        </function>
+        <!--禁用访问规则：stock.stock_warehouse_comp_rule(仓库)-->
+        <function model="ir.rule" name="rule_disable">
+            <value>stock.stock_warehouse_comp_rule</value>
+        </function>
+        <!--禁用访问规则：base.res_company_rule_employee(公司)-->
+        <function model="ir.rule" name="rule_disable">
+            <value>base.res_company_rule_employee</value>
+        </function>
+
+    </data>
+    <data noupdate="1">
+        <!--修改stock.picking访问权限-->
+        <!--<record model="ir.rule" id="stock_picking_user_rule">-->
+            <!--<field name="name">Stock Picking User Rule</field>-->
+            <!--<field name="model_id" search="[('model','=','stock.picking')]" model="ir.model"/>-->
+            <!--<field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>-->
+            <!--<field name="domain_force">['|', ('picking_type_id.warehouse_id.user_id', '=', user.id), ('picking_type_id.warehouse_id.manager_id', '=', user.id)]</field>-->
+        <!--</record>-->
+        <!--<record model="ir.rule" id="stock_picking_system_rule">-->
+            <!--<field name="name">Stock Picking System Rule</field>-->
+            <!--<field name="model_id" search="[('model','=','stock.picking')]" model="ir.model"/>-->
+            <!--<field name="groups" eval="[(4, ref('base.group_erp_manager'))]"/>-->
+            <!--<field name="domain_force">['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]</field>-->
+        <!--</record>-->
+
+    </data>
+    <!--存货估值访问规则-->
+    <data noupdate="1">
+        <record id="stock_inventory_valuation_rult" model="ir.rule">
+            <field name="name">stock_inventory_valuation rule</field>
+            <field name="model_id" ref="cj_stock.model_stock_inventory_valuation"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]</field>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+            <field name="perm_read" eval="1"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--修改main company-->
+    <data noupdate="1">
+        <record id="base.main_company" model="res.company">
+            <field name="name">川酒集团</field>
+        </record>
+
+    </data>
+
+</odoo>

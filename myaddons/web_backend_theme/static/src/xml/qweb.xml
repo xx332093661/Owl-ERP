@@ -1,0 +1,331 @@
+<template>
+    <div t-name="theme-switcher">
+        <div class="theme-switcher">
+            <div class="form_holder">
+                <div class="">
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <ul class="row nav nav-tabs">
+                            <li class="active">
+                                <!--<a data-toggle="tab" href="#theme_switcher">主题</a>-->
+                                主题
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade in active show" id="theme_switcher">
+                                <div class="side_switch_button mt8">
+                                    <p class="pull-left" style="padding-bottom: 0px;padding-top: 5px;">背景图
+                                    </p>
+                                    <p class="pull-right"
+                                       style="padding-bottom: 0px;margin-bottom: 0px; margin-right: 8px;">
+                                        <label class="switch">
+                                            <input class="bg_image" name="bg_image" type="checkbox"/>
+                                            <span class="slider round"/>
+                                        </label>
+                                    </p>
+                                </div>
+                                <div class="clearfix"/>
+                                <div class="theme_switcher">
+                                    <div class="s_subheading mt8 mb8 text-center">皮肤</div>
+                                    <a class="switch_style" data-theme="orange" href="#" title="Orange">
+                                        <img alt="Orange" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/theme_switcher/orange.png"/>
+                                    </a>
+                                    <a class="switch_style" data-theme="gray_black" href="#" title="Gray Black">
+                                        <img alt="Gray Black" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/theme_switcher/gray_black.png"/>
+                                    </a>
+                                    <a class="switch_style" data-theme="white" href="#" title="White Gray">
+                                        <img alt="White" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/theme_switcher/white.png"/>
+                                    </a>
+                                    <a class="switch_style" data-theme="prussian" href="#" title="Dark Blue">
+                                        <img alt="Dark Blue" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/theme_switcher/dark_blue.png"/>
+                                    </a>
+                                    <a class="switch_style" data-theme="blue" href="#" title="Blue">
+                                        <img alt="Blue" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/theme_switcher/blue.png"/>
+                                    </a>
+                                    <a class="switch_style" data-theme="grey" href="#" title="Grey">
+                                        <img alt="Grey" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/theme_switcher/grey.png"/>
+                                    </a>
+                                    <a class="switch_style" data-theme="dark_red" href="#" title="Dark Red">
+                                        <img alt="Dark Red" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/theme_switcher/dark_red.png"/>
+                                    </a>
+                                    <a class="switch_style" data-theme="pink" href="#" title="Pink">
+                                        <img alt="Pink" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/theme_switcher/pink.png"/>
+                                    </a>
+                                    <a class="switch_style" data-theme="yellow_green" href="#" title="Yellow Green">
+                                        <img alt="Yellow Green" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/theme_switcher/yellow_green.png"/>
+                                    </a>
+                                </div>
+                                <div class="cover_switcher">
+                                    <div class="s_subheading mt8 mb8 text-center">侧边栏图</div>
+                                    <a class="switch_cover" data-cover="cover_black" href="#" title="Black">
+                                        <img alt="Black" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/cover_switcher/cover_black.jpg"/>
+                                    </a>
+
+                                    <a class="switch_cover" data-cover="cover_red" href="#" title="Red">
+                                        <img alt="Red" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/cover_switcher/cover_red.jpg"/>
+                                    </a>
+                                    <a class="switch_cover" data-cover="cover_regular" href="#" title="Regular">
+                                        <img alt="Regular" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/cover_switcher/cover_regular.jpg"/>
+                                    </a>
+                                    <a class="switch_cover" data-cover="cover_rose" href="#" title="Rose">
+                                        <img alt="Rose" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/cover_switcher/cover_rose.jpg"/>
+                                    </a>
+                                    <a class="switch_cover" data-cover="cover_sky" href="#" title="Sky">
+                                        <img alt="Sky" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/cover_switcher/cover_sky.jpg"/>
+                                    </a>
+                                    <a class="switch_cover" data-cover="cover_sunrise" href="#" title="Sunrise">
+                                        <img alt="Sunrise" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/cover_switcher/cover_sunrise.jpg"/>
+                                    </a>
+                                    <a class="switch_cover" data-cover="cover_way" href="#" title="Way">
+                                        <img alt="Way" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/cover_switcher/cover_way.jpg"/>
+                                    </a>
+                                    <a class="switch_cover" data-cover="cover_design" href="#" title="Design 1">
+                                        <img alt="Design 1" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/cover_switcher/cover_design.jpg"/>
+                                    </a>
+                                    <a class="switch_cover" data-cover="cover_design2" href="#" title="Design 2">
+                                        <img alt="Design 2" class="img-thumbnail"
+                                             src="/web_backend_theme/static/src/img/cover_switcher/cover_design2.jpg"/>
+                                    </a>
+                                </div>
+
+                                <!--<a class="mt8 btn btn-success btn-block"-->
+                                   <!--href="https://apps.odoo.com/apps/themes/12.0/web_backend_theme/"-->
+                                   <!--style="background-color: #ffa534; color: #FFF; font-weight: bold;" target="new">Buy-->
+                                    <!--Now-->
+                                <!--</a>-->
+                                <hr style="margin-top: 10px; margin-bottom: 10px;"/>
+                                <div class="menu_style_container">
+                                    <p style="padding-bottom: 0px;">菜单样式</p>
+                                    <div class="text-center">
+                                        <ul>
+                                            <li style="display:inline-block; margin-right:20px">
+                                                <label class="oe_label" style="margin:0">
+                                                <input type="radio" id="menu_style_sidemenu" style="margin-left:0; margin-right:0"
+                                                       class="menu_style"
+                                                       value="sidemenu" name="menu_style"/>
+                                                    左侧菜单
+                                                </label>
+                                            </li>
+                                            <li style="display:inline-block">
+                                                <label class="oe_label" style="margin:0">
+                                                <input type="radio" id="menu_style_apps" style="margin-left:0; margin-right:0"
+                                                       class="menu_style"
+                                                       value="apps" name="menu_style"/>
+                                                    顶部菜单
+                                                </label>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <t t-name="ThemeSwicherSysTray">
+        <li class="o_theme_swicher_navbar_item">
+            <a class="theme-switcher-toggler" href="#" title="Settings">
+                <i class="fa fa-cog fa-spin"/>
+            </a>
+        </li>
+    </t>
+
+    <t t-extend="UserMenu">
+        <t t-jquery=".o_user_menu" t-operation="after">
+            <li class="oneclick_logout">
+                <a class="oneclick_logout" data-menu="logout" href="#" title="Logout">
+                    <i class="fa fa-sign-out"/>
+                </a>
+            </li>
+        </t>
+    </t>
+
+    <t t-name="UserLeft">
+        <div class="photo">
+            <img class="oe_topbar_avatar" t-att-data-default-src="_s + '/web/static/src/img/user_menu_avatar.png'"/>
+        </div>
+        <div class="info">
+            <a aria-expanded="false" class="collapsed" data-toggle="collapse" href="#userleft" id="user_name">
+                <span class="oe_topbar_name"/>
+                <b class="caret"/>
+            </a>
+            <div aria-expanded="false" class="collapse" id="userleft" style="height: 0px;">
+                <ul class="nav">
+                    <li>
+                        <a data-menu="settings" href="#">
+                            <i class="fa fa-cog"/>
+                            Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a data-menu="logout" href="#">
+                            <i class="fa fa-sign-out"/>
+                            Log out
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </t>
+
+    <header t-extend="Menu">
+        <t t-jquery=".o_menu_apps" t-operation="before">
+            <ul class="toogle_ul">
+                <li>
+                    <a class="toggle-slidebar">
+                        <i class="fa fa-bars"/>
+                    </a>
+                </li>
+            </ul>
+        </t>
+    </header>
+
+
+    <t t-extend="ImportView.import_button">
+        <t t-jquery="button" t-operation="replace">
+            <button class="btn btn-sm btn-default o_button_import" t-if="widget and widget.importEnabled" title="Import"
+                    type="button">
+                <i aria-hidden="true" class="fa fa-cloud-download btn_ico"/>
+                <span class="btn_txt">Import</span>
+            </button>
+        </t>
+    </t>
+
+    <t t-extend="KanbanView.buttons">
+        <t t-jquery="div &gt; button" t-operation="replace">
+            <div style="display: inline;">
+                <button accesskey="c" class="btn btn-primary btn-sm o-kanban-button-new" type="button">
+                    <i aria-hidden="true" class="fa fa-plus btn_ico"/>
+                    <span class="btn_txt">
+                        <t t-esc="create_text || _t('Create')"/>
+                    </span>
+                </button>
+            </div>
+        </t>
+    </t>
+
+
+    <t t-extend="SearchView.FilterMenu">
+        <t t-jquery="button.o_dropdown_toggler_btn" t-operation="replace">
+            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
+                <span class="fa fa-filter"/>
+                <span class="btn1_txt">Filters</span>
+                <span class="caret"/>
+            </button>
+        </t>
+    </t>
+
+    <t t-extend="SearchView.GroupByMenu">
+        <t t-jquery="button.o_dropdown_toggler_btn" t-operation="replace">
+            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
+                <span class="fa fa-bars"/>
+                <span class="btn1_txt">Group By</span>
+                <span class="caret"/>
+            </button>
+        </t>
+    </t>
+
+    <t t-extend="SearchView.FavoriteMenu">
+        <t t-jquery="button:first" t-operation="replace">
+            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
+                <span class="fa fa-star"/>
+                <span class="btn1_txt">Favorites</span>
+                <span class="caret"/>
+            </button>
+        </t>
+    </t>
+
+    <t t-extend="AppsMenu">
+        <t t-jquery="div.dropdown-menu" t-operation="replace">
+            <div class="dropdown-menu" role="menu">
+                <t t-as="app" t-foreach="widget.getApps()">
+                    <a class="dropdown-item o_app" role="menuitem" t-att-data-action-id="app.actionID"
+                       t-att-data-menu-id="app.menuID" t-att-data-menu-xmlid="app.xmlID">
+                        <img class="o_app_icon" t-att-alt="app.name" t-att-src="app.web_icon_data"/>
+                        <div class="o_app_name">
+                            <t t-esc="app.name"/>
+                        </div>
+                    </a>
+                </t>
+            </div>
+        </t>
+    </t>
+
+    <t t-extend="Menu">
+        <t t-jquery=".o_menu_systray" t-operation="after">
+            <button class="small_device_menu_toggle d-block d-md-none d-lg-none"
+                    data-target=".o_main_navbar &gt; .o_menu_sections" data-toggle="collapse">
+                <i class="fa fa-bars"/>
+            </button>
+        </t>
+    </t>
+
+    <t t-name="web_backend_theme.small_device_menu_href">
+        <t t-set="count" t-value="(count || 0) + 1"/>
+        <t t-if="!menu.children.length">
+            <li class="small_device_menu_one">
+                <a data-target="#o_navbar_collapse.in" data-toggle="collapse" role="menuitem"
+                   t-att-data-action-id="menu.action ? menu.action.split(',')[1] : ''"
+                   t-att-data-action-model="menu.action ? menu.action.split(',')[0] : ''" t-att-data-menu="menu.id"
+                   t-att-data-menu-xmlid="menu.xmlid" t-attf-class="dropdown-item o_menu_entry_level_#{count}"
+                   t-attf-href="#menu_id=#{menu.id}&amp;action=#{menu.action ? menu.action.split(',')[1] : ''}">
+                    <span>
+                        <t t-esc="menu.name"/>
+                    </span>
+                </a>
+            </li>
+        </t>
+        <t t-else="">
+            <li class="small_device_menu">
+                <a aria-expanded="true" data-toggle="dropdown" href="#" role="button" t-att-data-menu-xmlid="menu.xmlid"
+                   t-attf-class="dropdown-toggle o-no-caret o_menu_header_level_#{count}">
+                    <span>
+                        <t t-esc="menu.name"/>
+                    </span>
+                    <span class="fa fa-chevron-right float-right"/>
+                </a>
+                <ul class="dropdown-menu show" role="menu">
+                    <t t-as="submenu" t-foreach="menu.children">
+                        <t t-call="web_backend_theme.small_device_menu_href">
+                            <t t-set="menu" t-value="submenu"/>
+                        </t>
+                    </t>
+                </ul>
+            </li>
+        </t>
+    </t>
+
+    <t t-name="web_backend_theme.small_device_menu">
+        <t t-set="isMobile" t-value="true"/>
+        <t t-as="topmenu" t-foreach="menu_data.children">
+            <section t-att-class="topmenu.id">
+                <t t-if="topmenu.children.length">
+                    <t t-as="submenu" t-foreach="topmenu.children">
+                        <t t-call="web_backend_theme.small_device_menu_href">
+                            <t t-set="menu" t-value="submenu"/>
+                        </t>
+                    </t>
+                </t>
+            </section>
+        </t>
+    </t>
+</template>

@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_api_message,access_api_message,model_api_message,group_cj_api,1,1,1,1
+access_cj_org,access_cj_org,model_cj_org,group_cj_api,1,1,1,1
+access_oa_approval_callback_system,oa_approval_callback system,model_oa_approval_callback,base.group_system,1,1,0,0
+access_cj_oa_api_all,cj_oa_api all,model_cj_oa_api,,1,1,1,0
+access_cj_oa_api_system,cj_oa_api system,model_cj_oa_api,base.group_system,1,1,1,1

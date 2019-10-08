@@ -1,0 +1,66 @@
+# -*- coding: utf-8 -*-
+import logging
+from odoo import api, fields, models
+from odoo.tools import float_compare
+from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
+
+
+class SaleOrderLine(models.Model):
+    '''
+    拓展sale_line关于商品行成本的字段
+
+        订单成本包含四部分：
+        商品成本： 按照当日的结算价进行核算
+        物流成本：订单的物流成本
+        纸箱成本：订单对应包装的纸箱
+        打包成本： 打包人工成本（本期项目暂时列入到物流成本中，不独立核算，不能列入打包的按照费用呈报）
+    '''
+    _inherit = 'sale.order.line'
+
+    goods_amount = fields.Float("商品售价")
+    goods_cost = fields.Float("商品成本")
+    shipping_cost = fields.Float("物流成本")
+    box_cost = fields.Float("纸箱成本")
+    packing_cost = fields.Float("打包成本")
+    gross_profit = fields.Float("毛利额")
+    gross_rate = fields.Float("毛利率")
+
+    valuation_ids = fields.Many2many('stock.inventory.valuation.move','rel_sale_line_valuation_move','line_id','move_id',compute='_compute_valuation_move',string='Receptions',store=False)
+
+    market_price = fields.Float('标价')
+    original_price = fields.Float('原价')
+    use_point = fields.Float('使用的积分')
+    discount_amount = fields.Float('折扣金额')
+    discount_pop = fields.Float('促销活动优惠抵扣的金额')
+    discount_coupon = fields.Float('优惠卷抵扣的金额')
+    discount_grant = fields.Float('临时抵扣金额')
+
+
+
+    @api.multi
+    @api.depends('move_ids')
+    def _compute_valuation_move(self):
+        for ol in self:
+            ol.valuation_ids =[]
+            ids = ol.move_ids.ids
+            valuation_moves = self.env['stock.inventory.valuation.move'].search([('move_id', 'in', ids)])
+            if valuation_moves:
+                ol.valuation_ids = valuation_moves.mapped('id')
+                ol.goods_cost = sum(v.unit_cost*v.product_qty for v in valuation_moves)
+
+    # @api.depends('product_uom_qty', 'discount', 'price_unit', 'tax_id', 'discount_amount', 'discount_pop', 'discount_coupon', 'discount_grant')
+    # def _compute_amount(self):
+    #     print('0' * 100)
+    #     for line in self:
+    #         price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
+    #         taxes = line.tax_id.compute_all(price, line.order_id.currency_id, line.product_uom_qty, product=line.product_id, partner=line.order_id.partner_shipping_id)
+    #         line.update({
+    #             'price_tax': sum(t.get('amount', 0.0) for t in taxes.get('taxes', [])),
+    #             'price_total': taxes['total_included'] - line.discount_amount - line.discount_pop - line.discount_coupon - line.discount_grant,
+    #             'price_subtotal': taxes['total_excluded'] - line.discount_amount - line.discount_pop - line.discount_coupon - line.discount_grant,
+    #         })
+
+
+

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="purchase.menu_procurement_management" parent="purchase.menu_purchase_root" groups="base.group_private_addresses"/>
+    <!-- Purchase Control Menu -->
+    <menuitem id="purchase.menu_purchase_control" parent="purchase.menu_purchase_root"
+              groups="base.group_private_addresses"/>
+
+
+    <menuitem id="menu_purchase_operation" name="操作" parent="purchase.menu_purchase_root"
+              groups="purchase.group_purchase_manager,purchase.group_purchase_user" sequence="1"/>
+    <menuitem id="menu_purchase_main_data" name="主数据" parent="purchase.menu_purchase_root"
+              groups="purchase.group_purchase_manager,purchase.group_purchase_user" sequence="2"/>
+
+
+    <menuitem name="采购申请" id="menu_action_purchase_apply" action="action_purchase_apply"
+              parent="menu_purchase_operation" sequence="1"/>
+
+
+
+    <menuitem name="供应商报价单" action="action_purchase_price_list" id="menu_purchase_price_list" parent="menu_purchase_operation"
+              sequence="2"/>
+
+    <menuitem action="purchase.purchase_rfq" id="menu_purchase_xjd" name="采购订单"
+              parent="menu_purchase_operation"
+              sequence="4"/>
+
+    <menuitem action="action_purchase_order_return" id="menu_purchase_order_return" name="采购退货单"
+              parent="menu_purchase_operation"
+              sequence="5"/>
+
+    <!--<menuitem name="采购订单" action="purchase.purchase_form_action" id="menu_purchase_cgdd" parent="menu_purchase_operation"-->
+              <!--sequence="3"/>-->
+
+
+    <menuitem id="menu_purchase_gys" name="供应商"
+              parent="menu_purchase_main_data"
+              action="base.action_partner_supplier_form" sequence="1"/>
+
+    <menuitem name="供应商价格明细"
+              action="product.product_supplierinfo_type_action" id="menu_purchase_gysjgb"
+              parent="menu_purchase_main_data" sequence="2"/>
+
+    <menuitem name="供应商合同" id="menu_action_supplier_contract_admin" action="action_supplier_contract_admin"
+              parent="menu_purchase_main_data" sequence="3"/>
+
+    <menuitem name="产品" id="menu_purchase_product" action="purchase.product_normal_action_puchased"
+              parent="menu_purchase_main_data" sequence="4"/>
+
+    <menuitem name="采购订货规则" id="menu_purchase_order_point" action="action_purchase_order_point"
+              parent="menu_purchase_main_data" sequence="5"/>
+
+</odoo>

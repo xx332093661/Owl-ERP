@@ -1,0 +1,206 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* base_import_module
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0alpha1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-21 13:17+0000\n"
+"PO-Revision-Date: 2019-03-12 11:21+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Poedit 2.0.6\n"
+
+#. module: base_import_module
+#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
+msgid "Cancel"
+msgstr "取消"
+
+#. module: base_import_module
+#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
+msgid "Close"
+msgstr "关闭"
+
+#. module: base_import_module
+#: code:addons/base_import_module/controllers/main.py:31
+#, python-format
+msgid "Could not select database '%s'"
+msgstr ""
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_base_import_module__create_uid
+msgid "Created by"
+msgstr "创建者"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_base_import_module__create_date
+msgid "Created on"
+msgstr "创建时间"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_base_import_module__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: base_import_module
+#: code:addons/base_import_module/models/ir_module.py:123
+#, python-format
+msgid "File '%s' exceed maximum allowed file size"
+msgstr "文件 '%s' 超出了最大文件限制"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_base_import_module__force
+msgid "Force init"
+msgstr "强制初始化"
+
+#. module: base_import_module
+#: model:ir.model.fields,help:base_import_module.field_base_import_module__force
+msgid "Force init mode even if installed. (will update `noupdate='1'` records)"
+msgstr "强制初始化模式，即便已经安装（将更新 `noupdate='1'`记录）"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_base_import_module__id
+msgid "ID"
+msgstr "ID"
+
+#. module: base_import_module
+#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
+#, fuzzy
+#| msgid "Import Module"
+msgid "Import App"
+msgstr "导入模块"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_base_import_module__import_message
+#, fuzzy
+#| msgid "Import message"
+msgid "Import Message"
+msgstr "导入信息"
+
+#. module: base_import_module
+#: model:ir.actions.act_window,name:base_import_module.action_view_base_module_import
+#: model:ir.model,name:base_import_module.model_base_import_module
+#: model:ir.ui.menu,name:base_import_module.menu_view_base_module_import
+#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
+msgid "Import Module"
+msgstr "导入模块"
+
+#. module: base_import_module
+#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
+msgid "Import module"
+msgstr "导入模块"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_ir_module_module__imported
+#, fuzzy
+#| msgid "Import Module"
+msgid "Imported Module"
+msgstr "导入模块"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_base_import_module____last_update
+#, fuzzy
+#| msgid "Last Updated on"
+msgid "Last Modified on"
+msgstr "最后更新时间"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_base_import_module__write_uid
+msgid "Last Updated by"
+msgstr "最后更新者"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_base_import_module__write_date
+msgid "Last Updated on"
+msgstr "最后更新时间"
+
+#. module: base_import_module
+#: model:ir.model,name:base_import_module.model_ir_module_module
+msgid "Module"
+msgstr "模块"
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_base_import_module__module_file
+msgid "Module .ZIP file"
+msgstr "模块的“.zip”文件"
+
+#. module: base_import_module
+#: code:addons/base_import_module/models/ir_module.py:113
+#, python-format
+msgid "No file sent."
+msgstr ""
+
+#. module: base_import_module
+#: code:addons/base_import_module/controllers/main.py:25
+#, python-format
+msgid "Only administrators can upload a module"
+msgstr ""
+
+#. module: base_import_module
+#: code:addons/base_import_module/models/ir_module.py:115
+#, python-format
+msgid "Only zip files are supported."
+msgstr ""
+
+#. module: base_import_module
+#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
+msgid "Open Modules"
+msgstr "打开模块"
+
+#. module: base_import_module
+#: model_terms:ir.ui.view,arch_db:base_import_module.view_base_module_import
+msgid "Select module package to import (.zip file):"
+msgstr "选择要导入的包(“.zip”文件)："
+
+#. module: base_import_module
+#: model:ir.model.fields,field_description:base_import_module.field_base_import_module__state
+msgid "Status"
+msgstr "状态"
+
+#. module: base_import_module
+#: code:addons/base_import_module/models/ir_module.py:50
+#, python-format
+msgid "Studio customizations require Studio"
+msgstr ""
+
+#. module: base_import_module
+#: code:addons/base_import_module/models/ir_module.py:57
+#, python-format
+msgid "Studio customizations require the Odoo Studio app."
+msgstr ""
+
+#. module: base_import_module
+#: code:addons/base_import_module/models/ir_module.py:52
+#, python-format
+msgid "Unmet module dependencies: %s"
+msgstr "没有满足的模块依赖： %s，"
+
+#. module: base_import_module
+#: model:ir.model,name:base_import_module.model_ir_ui_view
+msgid "View"
+msgstr ""
+
+#. module: base_import_module
+#: selection:base.import.module,state:0
+msgid "done"
+msgstr "完成"
+
+#. module: base_import_module
+#: selection:base.import.module,state:0
+msgid "init"
+msgstr "初始化"
+
+#~ msgid "Error !"
+#~ msgstr "错误！"
+
+#~ msgid "File is not a zip file!"
+#~ msgstr "不是一个zip文件"
+
+#~ msgid "or"
+#~ msgstr "或"

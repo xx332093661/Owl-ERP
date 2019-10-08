@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_delivery_order_tree" model="ir.ui.view">
+            <field name="name">delivery.order.tree</field>
+            <field name="model">delivery.order</field>
+            <field name="arch" type="xml">
+                <tree create="1" delete="1" edit="1">
+                    <field name="name"/>
+                    <field name="carrier_id"/>
+                    <field name="sale_order_id"/>
+                    <field name="warehouse_id"/>
+                    <field name="company_id"/>
+                    <field name="delivery_state"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_delivery_order_form" model="ir.ui.view">
+            <field name="name">delivery.order.form</field>
+            <field name="model">delivery.order</field>
+            <field name="arch" type="xml">
+                <form create="1" delete="1" edit="1">
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="sale_order_id"/>
+                                <field name="company_id"/>
+                                <field name="delivery_state"/>
+                            </group>
+                            <group>
+                                <field name="carrier_id"/>
+                                <field name="warehouse_id"/>
+                                <field name="logistics_code"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="cost_box"/>
+                                <field name="cost_human"/>
+                            </group>
+                            <group>
+                                <field name="cost_carrier"/>
+                                <field name="cost"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="包装材料">
+                                <field name="package_box_ids">
+                                    <tree editable="top">
+                                        <field name="product_id"/>
+                                        <field name="product_qty"/>
+                                        <field name="cost"/>
+                                    </tree>
+                                    <form>
+                                        <group col="4">
+                                            <field name="product_id"/>
+                                            <field name="product_qty"/>
+                                            <field name="cost"/>
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="打包信息">
+                                <field name="line_ids">
+                                    <tree>
+                                        <field name="product_id"/>
+                                        <field name="product_uom_qty"/>
+                                        <field name="product_uom"/>
+                                    </tree>
+                                    <form>
+                                        <group col="4">
+                                            <field name="product_id"/>
+                                            <field name="product_uom_qty"/>
+                                            <field name="product_uom"/>
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="收货人信息">
+                                <group col="4">
+                                    <field name="consignee_name"/>
+                                    <field name="consignee_mobile"/>
+                                    <field name="address"/>
+                                    <field name="province_text"/>
+                                    <field name="city_text"/>
+                                    <field name="district_text"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_delivery_order_filter" model="ir.ui.view">
+            <field name="name">delivery.order.filter</field>
+            <field name="model">delivery.order</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="sale_order_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="状态" name="group_state" domain="[]" context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_delivery_order" model="ir.actions.act_window">
+            <field name="name">物流单</field>
+            <field name="res_model">delivery.order</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+    </data>
+
+</odoo>

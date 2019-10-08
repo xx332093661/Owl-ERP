@@ -1,0 +1,1986 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* crm_reveal
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~11.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-02 10:05+0000\n"
+"PO-Revision-Date: 2019-05-07 07:23+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Poedit 2.0.7\n"
+
+#. module: crm_reveal
+#: model:mail.template,body_html:crm_reveal.reveal_no_credits
+msgid ""
+"\n"
+"                \n"
+"                    <p>Dear,</p>\n"
+"                    <p>There is no more credits on your IAP Lead Generation "
+"account.<br/>\n"
+"                    You can charge your IAP Lead Generation account in the "
+"settings of the CRM app.<br/>\n"
+"\n"
+"                    <p>Best regards,</p>\n"
+"                    <p>Odoo S.A.</p>\n"
+"                \n"
+"            "
+msgstr ""
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.lead_message_template
+msgid "(Time Now)"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_1
+msgid "3D Printing"
+msgstr "3D打印"
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.lead_message_template
+msgid "<b>Contacts</b>"
+msgstr "<b> 联系人</b>"
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.lead_message_template
+msgid "<b>Phone :</b>"
+msgstr "<b> 电话：</b>"
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.lead_message_template
+msgid "<b>Timezone : </b>"
+msgstr "<b>时区：</b>"
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_rule_form
+msgid "<span class=\"o_stat_text\"> Leads </span>"
+msgstr ""
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_rule_form
+msgid "<span class=\"o_stat_text\"> Opportunities </span>"
+msgstr "<span class=\"o_stat_text\"> 商机</span>"
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_rule_form
+msgid "<span> people </span>"
+msgstr "<span> 人 </span>"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_2
+msgid "Accounting"
+msgstr "会计"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__active
+msgid "Active"
+msgstr "有效"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_205
+msgid "Advertising"
+msgstr "广告"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_3
+msgid "Aerospace & Defense"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_210
+msgid "Agricultural Products"
+msgstr "农业产品"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_4
+msgid "Agriculture"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_187
+msgid "Air Freight & Logistics"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_5
+msgid "Airlines"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_6
+msgid "Alternative Medicine"
+msgstr "替代药品"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_7
+msgid "Animation"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_8
+msgid "Apparel & Footwear"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_9
+msgid "Architecture"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_10
+msgid "Arts"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_11
+msgid "Arts & Crafts"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_12
+msgid "Asset Management"
+msgstr "资产管理"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_212
+msgid "Asset Management & Custody Banks"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_13
+msgid "Audio"
+msgstr "音频"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_14
+msgid "Automation"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_15
+msgid "Automotive"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_230
+msgid "B2B"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_231
+msgid "B2C"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_16
+msgid "Banking & Mortgages"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_157
+msgid "Banks"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_17
+msgid "Beverages"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_18
+msgid "Biotechnology"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_19
+msgid "Broadcasting"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_20
+msgid "Building Materials"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_21
+msgid "Business Supplies"
+msgstr "商业供应商"
+
+#. module: crm_reveal
+#: model:ir.model,name:crm_reveal.model_crm_reveal_rule
+msgid "CRM Lead Generation Rules"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model,name:crm_reveal.model_crm_reveal_view
+#, fuzzy
+msgid "CRM Reveal View"
+msgstr "视图"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_162
+msgid "Capital Goods"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_177
+msgid "Capital Markets"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_203
+msgid "Casinos & Gaming"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_22
+msgid "Chemicals"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_23
+msgid "Civil Engineering"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_24
+#, fuzzy
+msgid "Cloud Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_industry__color
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_role__color
+msgid "Color Index"
+msgstr "颜色序号"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_163
+#, fuzzy
+msgid "Commercial & Professional Services"
+msgstr "专业的税务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_216
+#, fuzzy
+msgid "Commercial Printing"
+msgstr "支票打印中"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_181
+#, fuzzy
+msgid "Commercial Services & Supplies"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_225
+msgid "Commodity Chemicals"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_25
+msgid "Communications"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_193
+#, fuzzy
+msgid "Communications Equipment"
+msgstr "设备维护"
+
+#. module: crm_reveal
+#: selection:crm.reveal.rule,lead_for:0
+msgid "Companies"
+msgstr "公司"
+
+#. module: crm_reveal
+#: selection:crm.reveal.rule,lead_for:0
+msgid "Companies + Contacts"
+msgstr "公司和联系人"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_26
+msgid "Computer Hardware"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_224
+msgid "Computer Networking"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_27
+msgid "Construction"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_182
+msgid "Construction & Engineering"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_28
+#, fuzzy
+msgid "Construction Contractors & Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_167
+msgid "Construction Materials"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_218
+msgid "Consulting"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_29
+#, fuzzy
+msgid "Consulting & Professional Services"
+msgstr "专业的税务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_30
+msgid "Consumer Discretionary"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_31
+msgid "Consumer Electronics"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_32
+msgid "Consumer Goods"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_150
+#, fuzzy
+msgid "Consumer Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_33
+msgid "Consumer Staples"
+msgstr ""
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_rule_form
+#, fuzzy
+msgid "Contact Filter"
+msgstr "联系人"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_196
+#, fuzzy
+msgid "Containers & Packaging"
+msgstr "交货包装"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_34
+#, fuzzy
+msgid "Corporate & Business"
+msgstr "发现一个商业伙伴"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_35
+msgid "Cosmetics"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__country_ids
+msgid "Countries"
+msgstr "国家"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_view__create_date
+msgid "Create Date"
+msgstr "创建日期"
+
+#. module: crm_reveal
+#: model_terms:ir.actions.act_window,help:crm_reveal.crm_reveal_rule_action
+msgid ""
+"Create rules to generate B2B leads/opportunities by tracking data of your "
+"website visitors."
+msgstr "通过跟踪你网站到访者的数据创建规则来创建 B2B 线索或商机。"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_industry__create_uid
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_role__create_uid
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__create_uid
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_seniority__create_uid
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_view__create_uid
+msgid "Created by"
+msgstr "创建人"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_industry__create_date
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_role__create_date
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__create_date
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_seniority__create_date
+msgid "Created on"
+msgstr "创建时间"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__calculate_credits
+#, fuzzy
+msgid "Credit Used"
+msgstr "使用人"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_222
+msgid "Data Processing & Outsourced Services"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__lead_for
+msgid "Data Tracking"
+msgstr "数据跟踪"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_36
+#, fuzzy
+msgid "Design"
+msgstr "设计欢迎信息"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_industry__display_name
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_role__display_name
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__display_name
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_seniority__display_name
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_view__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_172
+msgid "Distributors"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_213
+msgid "Diversified Capital Markets"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_151
+#, fuzzy
+msgid "Diversified Consumer Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_158
+#, fuzzy
+msgid "Diversified Financial Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_159
+msgid "Diversified Financials"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_199
+#, fuzzy
+msgid "Diversified Telecommunication Services"
+msgstr "只是服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_232
+#, fuzzy
+msgid "E-Commerce"
+msgstr "判断在电子商务网站显示顺序"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_37
+#, fuzzy
+msgid "E-Commerce & Marketplaces"
+msgstr "电子商务促销代码"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_38
+#, fuzzy
+msgid "E-Learning"
+msgstr "电子商务促销代码"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_39
+msgid "Education"
+msgstr "教育"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_170
+#, fuzzy
+msgid "Education Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_202
+msgid "Electric Utilities"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_40
+msgid "Electrical"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_183
+#, fuzzy
+msgid "Electrical Equipment"
+msgstr "设备维护"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_194
+msgid "Electronic Equipment, Instruments & Components"
+msgstr ""
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.lead_message_template
+msgid "Email"
+msgstr "电子邮件"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_41
+msgid "Energy"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_42
+msgid "Energy & Utilities"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_156
+#, fuzzy
+msgid "Energy Equipment & Services"
+msgstr "设备维护"
+
+#. module: crm_reveal
+#: code:addons/crm_reveal/models/crm_reveal_rule.py:73
+#, python-format
+msgid "Enter Valid Regex."
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_233
+#, fuzzy
+msgid "Enterprise"
+msgstr ""
+"<p class=\"o_view_nocontent\">\n"
+"                    立即购买Odoo Enterprise以获得更多提供商.\n"
+"                </p>"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_43
+msgid "Entertainment & Recreation"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_44
+msgid "Events"
+msgstr "活动"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__extra_contacts
+#, fuzzy
+msgid "Extra Contacts"
+msgstr "联系人"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_45
+msgid "Eyewear"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_46
+msgid "Facilities"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_47
+#, fuzzy
+msgid "Family Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_48
+msgid "Finance"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_49
+#, fuzzy
+msgid "Financial Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_145
+msgid "Financials"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_50
+#, fuzzy
+msgid "Fine Art"
+msgstr "最先进的技术"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_51
+msgid "Firearms"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_52
+msgid "Fishery"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_53
+msgid "Food"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_153
+msgid "Food & Staples Retailing"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_54
+msgid "Food Production"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_174
+#, fuzzy
+msgid "Food Products"
+msgstr "产品"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_209
+msgid "Food Retail"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_154
+msgid "Food, Beverage & Tobacco"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_55
+msgid "Forums"
+msgstr "论坛"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_56
+msgid "Fundraising"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_57
+msgid "Gambling & Casinos"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_176
+msgid "Gas Utilities"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__lead_ids
+#, fuzzy
+msgid "Generated Lead / Opportunity"
+msgstr "线索/商机"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_226
+msgid "Gold"
+msgstr "金"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_58
+msgid "Government"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_223
+#, fuzzy
+msgid "Graphic Design"
+msgstr "设计欢迎信息"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_59
+msgid "Ground Transportation"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model,name:crm_reveal.model_ir_http
+msgid "HTTP Routing"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_60
+msgid "Health & Wellness"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_61
+msgid "Health Care"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_160
+msgid "Health Care Equipment & Services"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_178
+msgid "Health Care Equipment & Supplies"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_179
+msgid "Health Care Providers & Services"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_215
+#, fuzzy
+msgid "Health Care Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: selection:crm.reveal.rule,priority:0
+msgid "High"
+msgstr "高"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_62
+#, fuzzy
+msgid "Higher Education"
+msgstr "教育"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_63
+#, fuzzy
+msgid "Home & Furniture"
+msgstr "网站首页"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_64
+#, fuzzy
+msgid "Home Improvement"
+msgstr "网站首页"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_207
+#, fuzzy
+msgid "Home Improvement Retail"
+msgstr "网站首页"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_208
+msgid "Homefurnishing Retail"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_169
+msgid "Hotels, Restaurants & Leisure"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_155
+#, fuzzy
+msgid "Household & Personal Products"
+msgstr "产品"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_219
+msgid "Human Resource & Employment Services"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_65
+#, fuzzy
+msgid "Human Resources"
+msgstr "人力资源/契约"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_lead__reveal_iap_credits
+msgid "IAP Credits"
+msgstr "IAP积分"
+
+#. module: crm_reveal
+#: model:mail.template,subject:crm_reveal.reveal_no_credits
+msgid "IAP Lead Generation Notification"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_industry__id
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_role__id
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__id
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_seniority__id
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_view__id
+msgid "ID"
+msgstr "ID"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_lead__reveal_ip
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_view__reveal_ip
+msgid "IP Address"
+msgstr "IP 地址"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_234
+msgid "ISP"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_191
+msgid "IT Services"
+msgstr "IT服务"
+
+#. module: crm_reveal
+#: model:ir.model.fields,help:crm_reveal.field_crm_reveal_rule__lead_for
+msgid ""
+"If you track company data, one credit will be consumed per lead/opportunity "
+"created. If you track company and contacts data, two credits will be "
+"consumed. Such data will be visible in the lead/opportunity."
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_66
+msgid "Import & Export"
+msgstr "导入和导出"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_168
+msgid "Independent Power and Renewable Electricity Producers"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_184
+msgid "Industrial Conglomerates"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_217
+msgid "Industrial Machinery"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_146
+msgid "Industrials"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_67
+msgid "Industrials & Manufacturing"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model,name:crm_reveal.model_crm_reveal_industry
+msgid "Industry Tag"
+msgstr "工业标签"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__industry_tag_ids
+msgid "Industry Tags"
+msgstr "工业标签"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_147
+#, fuzzy
+msgid "Information Technology"
+msgstr "最先进的技术"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_68
+#, fuzzy
+msgid "Information Technology & Services"
+msgstr "信息"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_69
+msgid "Insurance"
+msgstr "保险"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_228
+#, fuzzy
+msgid "Integrated Telecommunication Services"
+msgstr "只是服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_70
+msgid "International Relations"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_71
+msgid "International Trade"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_72
+msgid "Internet"
+msgstr "互联网"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_190
+#, fuzzy
+msgid "Internet Software & Services"
+msgstr "互联网协议"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_73
+msgid "Investment"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_74
+msgid "Investment Banking"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_214
+msgid "Investment Banking & Brokerage"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_75
+msgid "Investment Management"
+msgstr "投资管理"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_76
+msgid "Jewelry, Watches & Luxury Goods"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_77
+msgid "Judiciary"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_industry____last_update
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_role____last_update
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule____last_update
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_seniority____last_update
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_view____last_update
+msgid "Last Modified on"
+msgstr "最近修改日期"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_industry__write_uid
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_role__write_uid
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__write_uid
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_seniority__write_uid
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_view__write_uid
+msgid "Last Updated by"
+msgstr "最近更新于"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_industry__write_date
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_role__write_date
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__write_date
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_seniority__write_date
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_view__write_date
+msgid "Last Updated on"
+msgstr "最后更新日期"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_78
+msgid "Law Enforcement"
+msgstr ""
+
+#. module: crm_reveal
+#: selection:crm.reveal.rule,lead_type:0
+msgid "Lead"
+msgstr "线索"
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_rule_form
+msgid "Lead Data"
+msgstr "线索数据"
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_lead_form
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_lead_opportunity_form
+msgid "Lead Generation Information"
+msgstr "线索创建信息"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_lead__reveal_rule_id
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_view__reveal_rule_id
+msgid "Lead Generation Rule"
+msgstr "线索创建规则"
+
+#. module: crm_reveal
+#: model:ir.actions.act_window,name:crm_reveal.crm_reveal_rule_action
+#: model:ir.ui.menu,name:crm_reveal.crm_reveal_rule_menu_action
+msgid "Lead Generation Rules"
+msgstr "线索创建规则"
+
+#. module: crm_reveal
+#: model:ir.actions.act_window,name:crm_reveal.crm_reveal_view_action
+#: model:ir.ui.menu,name:crm_reveal.crm_reveal_view_menu_action
+msgid "Lead Generation Views"
+msgstr "线索创建视图"
+
+#. module: crm_reveal
+#: model:ir.actions.server,name:crm_reveal.ir_cron_crm_reveal_lead_ir_actions_server
+#: model:ir.cron,cron_name:crm_reveal.ir_cron_crm_reveal_lead
+#: model:ir.cron,name:crm_reveal.ir_cron_crm_reveal_lead
+msgid "Lead Generation: Leads/Opportunities Generation"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model,name:crm_reveal.model_crm_lead
+msgid "Lead/Opportunity"
+msgstr "线索/商机"
+
+#. module: crm_reveal
+#: model:ir.model.fields,help:crm_reveal.field_crm_reveal_rule__industry_tag_ids
+msgid "Leave empty to always match. Odoo will not create lead if no match"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,help:crm_reveal.field_crm_reveal_rule__company_size_max
+#: model:ir.model.fields,help:crm_reveal.field_crm_reveal_rule__company_size_min
+msgid "Leave it as 0 if you don't want to use this filter."
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_79
+#, fuzzy
+msgid "Legal Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_204
+msgid "Leisure Facilities"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_80
+msgid "Libraries"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_180
+msgid "Life Sciences Tools & Services"
+msgstr ""
+
+#. module: crm_reveal
+#: selection:crm.reveal.rule,priority:0
+msgid "Low"
+msgstr "低"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_81
+msgid "Machinery"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_188
+msgid "Marine"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_82
+msgid "Maritime"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_83
+msgid "Market Research"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_84
+#, fuzzy
+msgid "Marketing & Advertising"
+msgstr "垃圾邮件或广告"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_235
+msgid "Marketplace"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_148
+msgid "Materials"
+msgstr "原材料"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__company_size_max
+msgid "Max Company Size"
+msgstr "最大公司规模"
+
+#. module: crm_reveal
+#: sql_constraint:crm.reveal.rule:0
+msgid "Maximum 5 extra contacts are allowed!"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_85
+msgid "Mechanical Engineering"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_86
+#, fuzzy
+msgid "Media"
+msgstr ""
+"“<b>知识产权</b>”披露将告知用户你所创建的内容、徽标和其它视觉媒体都属于你的财"
+"产并受版权法保护。"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_87
+msgid "Medicine"
+msgstr ""
+
+#. module: crm_reveal
+#: selection:crm.reveal.rule,priority:0
+msgid "Medium"
+msgstr "渠道"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_197
+msgid "Metals & Mining"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_88
+msgid "Military"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__company_size_min
+msgid "Min Company Size"
+msgstr "最小公司规模"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_89
+msgid "Mining & Metals"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_236
+msgid "Mobile"
+msgstr "手机"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_206
+msgid "Movies & Entertainment"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_90
+msgid "Movies & TV"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_91
+msgid "Museums"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_92
+msgid "Music"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_seniority__name
+#: model_terms:ir.ui.view,arch_db:crm_reveal.lead_message_template
+msgid "Name"
+msgstr "名称"
+
+#. module: crm_reveal
+#: sql_constraint:crm.reveal.seniority:0
+msgid "Name already exists!"
+msgstr "名称已存在!"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_93
+msgid "Nanotechnology"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_94
+msgid "Networking"
+msgstr ""
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_rule_form
+msgid ""
+"No credit is consumed if the company is not found.<br/>\n"
+"                            1 credit is consumed if the company is found.<br/"
+">"
+msgstr ""
+"如果没找到公司将不消耗积分。<br/>\n"
+"                            如果找到了公司，将消耗1积分。<br/>"
+
+#. module: crm_reveal
+#: model_terms:ir.actions.act_window,help:crm_reveal.crm_reveal_rule_action
+msgid "No rule found"
+msgstr "没有找到规则"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_95
+#, fuzzy
+msgid "Non-Profit & Philanthropy"
+msgstr "所有非会员"
+
+#. module: crm_reveal
+#: selection:crm.reveal.view,reveal_state:0
+msgid "Not Found"
+msgstr "没找到"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__leads_count
+#, fuzzy
+msgid "Number of Generated Leads"
+msgstr "无线索."
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__opportunity_count
+msgid "Number of Generated Opportunity"
+msgstr "创建的商机数量"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_96
+msgid "Oil & Gas"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,help:crm_reveal.field_crm_reveal_rule__country_ids
+msgid ""
+"Only visitors of following countries will be converted into leads/"
+"opportunities (using GeoIP)."
+msgstr ""
+
+#. module: crm_reveal
+#: selection:crm.reveal.rule,lead_type:0
+msgid "Opportunity"
+msgstr "商机"
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_rule_form
+msgid "Opportunity Data"
+msgstr "商机数据"
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_rule_form
+msgid "Opportunity Generation Conditions"
+msgstr "商机创建条件"
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.lead_message_template
+msgid "Opportunity created by Odoo Lead Generation"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__other_role_ids
+msgid "Other Roles"
+msgstr "其它规则"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_97
+msgid "Outsourcing"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_211
+msgid "Packaged Foods & Meats"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_98
+#, fuzzy
+msgid "Packaging & Containers"
+msgstr "交货包装"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_198
+#, fuzzy
+msgid "Paper & Forest Products"
+msgstr "产品"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_99
+msgid "Paper Goods"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_227
+#, fuzzy
+msgid "Paper Products"
+msgstr "产品"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_100
+msgid "Payments"
+msgstr "支付"
+
+#. module: crm_reveal
+#: model:ir.model,name:crm_reveal.model_crm_reveal_role
+#, fuzzy
+msgid "People Role"
+msgstr "论坛成员"
+
+#. module: crm_reveal
+#: model:ir.model,name:crm_reveal.model_crm_reveal_seniority
+#, fuzzy
+msgid "People Seniority"
+msgstr "论坛成员"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_101
+msgid "Performing Arts"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_175
+#, fuzzy
+msgid "Personal Products"
+msgstr "个人发展:"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_102
+msgid "Pharmaceuticals"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_161
+msgid "Pharmaceuticals, Biotechnology & Life Sciences"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_103
+msgid "Pharmacy"
+msgstr ""
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.lead_message_template
+msgid "Phone"
+msgstr "电话"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_104
+msgid "Photography"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_105
+msgid "Plastics"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_106
+msgid "Plumbing"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_107
+msgid "Political Organization"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_108
+msgid "Pornography"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__preferred_role_id
+msgid "Preferred Role"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_109
+#, fuzzy
+msgid "Primary & Secondary Education"
+msgstr "教育"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_110
+msgid "Printing"
+msgstr "打印"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__priority
+msgid "Priority"
+msgstr "优先级"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_186
+#, fuzzy
+msgid "Professional Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_111
+#, fuzzy
+msgid "Public Relations"
+msgstr "公共"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_112
+#, fuzzy
+msgid "Publishing"
+msgstr "限制发布到本网站。"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_113
+msgid "Ranching"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_114
+#, fuzzy
+msgid "Real Estate"
+msgstr "真实姓名"
+
+#. module: crm_reveal
+#: model:ir.model.fields,help:crm_reveal.field_crm_reveal_rule__regex_url
+msgid ""
+"Regex to track website pages. Leave empty to track the entire website, or / "
+"to target the homepage. Example: /page* to track all the pages which begin "
+"with /page"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_115
+msgid "Religion"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_201
+msgid "Renewable Electricity"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_229
+msgid "Renewable Energy"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_116
+#, fuzzy
+msgid "Renewables & Environment"
+msgstr "环境"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_220
+#, fuzzy
+msgid "Research & Consulting Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_117
+msgid "Restaurants"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_118
+msgid "Retail"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_152
+msgid "Retailing"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_industry__reveal_id
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_role__reveal_id
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_seniority__reveal_id
+msgid "Reveal"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_lead__reveal_id
+#, fuzzy
+msgid "Reveal ID"
+msgstr "资源ID"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_189
+msgid "Road & Rail"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_role__name
+msgid "Role Name"
+msgstr "规则名称"
+
+#. module: crm_reveal
+#: sql_constraint:crm.reveal.role:0
+msgid "Role name already exists!"
+msgstr "规则名称已经存在！"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__name
+msgid "Rule Name"
+msgstr "规则名称"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_237
+msgid "SAAS"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__team_id
+msgid "Sales Channel"
+msgstr "销售渠道"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__user_id
+msgid "Salesperson"
+msgstr "业务员"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_119
+#, fuzzy
+msgid "Sanitization Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_120
+msgid "Scientific & Academic Research"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_121
+msgid "Security"
+msgstr "安全"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_221
+msgid "Semiconductors"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_164
+#, fuzzy
+msgid "Semiconductors & Semiconductor Equipment"
+msgstr "设备维护"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__seniority_id
+msgid "Seniority"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__sequence
+msgid "Sequence"
+msgstr "序列"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_122
+msgid "Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_123
+msgid "Shipbuilding"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_124
+#, fuzzy
+msgid "Shipping & Logistics"
+msgstr "送货"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_125
+msgid "Society"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_192
+msgid "Software"
+msgstr "软件"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_165
+#, fuzzy
+msgid "Software & Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_171
+#, fuzzy
+msgid "Specialized Consumer Services"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_173
+msgid "Specialty Retail"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_126
+msgid "Sporting Goods"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_127
+msgid "Sports & Fitness"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_view__reveal_state
+msgid "State"
+msgstr "状态"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_128
+msgid "Stores"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__suffix
+msgid "Suffix"
+msgstr "后缀"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_industry__name
+msgid "Tag Name"
+msgstr "标签名称"
+
+#. module: crm_reveal
+#: sql_constraint:crm.reveal.industry:0
+#, fuzzy
+msgid "Tag name already exists!"
+msgstr "标签名称已经存在了 !"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__tag_ids
+msgid "Tags"
+msgstr "标签"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_129
+msgid "Talent Agencies"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_130
+msgid "Technology"
+msgstr "技术"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_166
+#, fuzzy
+msgid "Technology Hardware & Equipment"
+msgstr "设备维护"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_195
+msgid "Technology Hardware, Storage & Peripherals"
+msgstr ""
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.lead_message_template
+#, fuzzy
+msgid "Technology Used :"
+msgstr "使用人"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_149
+msgid "Telecommunication Services"
+msgstr "通讯服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_131
+msgid "Telecommunications"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_132
+msgid "Textiles"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,help:crm_reveal.field_crm_reveal_rule__extra_contacts
+msgid ""
+"This is the number of extra contacts to track if their role and seniority "
+"match your criteria.Their details will show up in the history thread of "
+"generated leads/opportunities. One credit is consumed per tracked contact."
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,help:crm_reveal.field_crm_reveal_rule__suffix
+msgid ""
+"This will be appended in name of generated lead so you can identify lead/"
+"opportunity is generated with this rule"
+msgstr ""
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.lead_message_template
+msgid "Title"
+msgstr "标题"
+
+#. module: crm_reveal
+#: selection:crm.reveal.view,reveal_state:0
+msgid "To Process"
+msgstr "去处理"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_133
+msgid "Tobacco"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_134
+msgid "Tools"
+msgstr "工具"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_185
+#, fuzzy
+msgid "Trading Companies & Distributors"
+msgstr "公司"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_135
+msgid "Translation"
+msgstr "翻译"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_136
+msgid "Transportation"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_137
+msgid "Travel & Leisure"
+msgstr ""
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__lead_type
+msgid "Type"
+msgstr "类型"
+
+#. module: crm_reveal
+#: model:ir.model.fields,field_description:crm_reveal.field_crm_reveal_rule__regex_url
+#, fuzzy
+msgid "URL Expression"
+msgstr "语法"
+
+#. module: crm_reveal
+#: model:ir.model.fields,help:crm_reveal.field_crm_reveal_rule__sequence
+msgid ""
+"Used to order the rules with same URL and countries. Rules with a lower "
+"sequence number will be processed first."
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_138
+msgid "Utilities"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_139
+msgid "Venture Capital"
+msgstr ""
+
+#. module: crm_reveal
+#: selection:crm.reveal.rule,priority:0
+msgid "Very High"
+msgstr "非常高"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_140
+msgid "Veterinary"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_141
+msgid "Video Games"
+msgstr "视频游戏"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_142
+msgid "Warehousing"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_143
+#, fuzzy
+msgid "Web Services & Apps"
+msgstr "服务"
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_rule_form
+msgid "Website Traffic Conditions"
+msgstr "网站流量条件"
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_144
+msgid "Wholesale"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.industry,name:crm_reveal.crm_reveal_industry_200
+msgid "Wireless Telecommunication Services"
+msgstr "无线通讯服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_1
+msgid "ceo"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_2
+msgid "communications"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_3
+msgid "consulting"
+msgstr ""
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_rule_form
+msgid "credits are consumed if the company matches the rule."
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_4
+#, fuzzy
+msgid "customer_service"
+msgstr "Gengo 翻译服务"
+
+#. module: crm_reveal
+#: model:crm.reveal.seniority,name:crm_reveal.crm_reveal_seniority_1
+msgid "director"
+msgstr ""
+
+#. module: crm_reveal
+#: model_terms:ir.ui.view,arch_db:crm_reveal.crm_reveal_rule_form
+msgid "e.g. US Visitors"
+msgstr "例如：美国参观人员"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_5
+msgid "education"
+msgstr "教育"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_6
+msgid "engineering"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.seniority,name:crm_reveal.crm_reveal_seniority_2
+msgid "executive"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_7
+msgid "finance"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_8
+msgid "founder"
+msgstr "创始人"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_9
+#, fuzzy
+msgid "health_professional"
+msgstr "专业的税务"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_10
+msgid "human_resources"
+msgstr "人力资源"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_11
+msgid "information_technology"
+msgstr "信息技术"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_12
+#, fuzzy
+msgid "legal"
+msgstr ""
+"代码应该总是设​置一个名为\"result\"变量来保存你的测试结果，这可以是一个列表或"
+"一本字典。\n"
+" 如果结果是一个空列表，这意味着测试是成功的。\n"
+" 否则，它会尝试翻译和打印\"esult\"面的内容."
+
+#. module: crm_reveal
+#: model:crm.reveal.seniority,name:crm_reveal.crm_reveal_seniority_3
+msgid "manager"
+msgstr "经理"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_13
+#, fuzzy
+msgid "marketing"
+msgstr ""
+"这个社区是为专业人士和我们的产品和服务的爱好者。分享并讨论最好的内容和新的营"
+"销理念，打造你的专业形象和成为一个更好的营销在一起。"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_14
+#, fuzzy
+msgid "operations"
+msgstr "只是对生产的产品用产品和和物料表相关的操作计算产品的价格"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_15
+msgid "owner"
+msgstr "拥有者"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_16
+msgid "president"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_17
+msgid "product"
+msgstr "产品"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_18
+msgid "public_relations"
+msgstr "公共关系"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_19
+#, fuzzy
+msgid "real_estate"
+msgstr "真实姓名"
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_20
+msgid "recruiting"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_21
+msgid "research"
+msgstr ""
+
+#. module: crm_reveal
+#: model:crm.reveal.role,name:crm_reveal.crm_reveal_role_22
+msgid "sale"
+msgstr "销售"

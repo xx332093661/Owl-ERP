@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_order_form_aftersale" model="ir.ui.view">
+        <field name="name">sale.order.form.aftersale</field>
+        <field name="model">aftersale.order</field>
+        <field name="arch" type="xml">
+            <form string="Sales Order">
+                <header>
+                    <button name="action_confirm" string="确认" states="draft" type="object" class="oe_highlight"
+                            groups="sales_team.group_sale_salesman"/>
+                    <button name="action_confirm2" string="售后确认" states="confirm" type="object" class="oe_highlight"
+                            groups="sales_team.group_sale_salesman"/>
+                    <button name="action_done" string="完成" states="confirm2" type="object" class="oe_highlight"
+                            groups="sales_team.group_sale_salesman"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,confirm2,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" name="action_view_picking_in" class="oe_stat_button"
+                                icon="fa-pencil-square-o"
+                                attrs="{'invisible':['|', ('in_picking_id', '=', False), ('state', 'in', ('draft'))]}">
+                            <field name="in_picking_id" widget="statinfo" string="入库单"/>
+                        </button>
+                        <button type="object" name="action_view_picking_out" class="oe_stat_button"
+                                icon="fa-pencil-square-o"
+                                attrs="{'invisible':['|', ('out_picking_id', '=', False), ('state', 'in', ('draft'))]}">
+                            <field name="out_picking_id" widget="statinfo" string="出库单"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" string="服务单号" required="1"/>
+                            <field name="channel_id" string="所属渠道" required="1" options="{'no_create': 1}"/>
+                            <field name="sale_order_id" string="销售单" required="1" options="{'no_create': 1}"/>
+
+                        </group>
+                        <group>
+                            <field name="date" required="1"/>
+                            <field name="aftersale_type" string="售后类型" required="1"/>
+                            <field name="amount"/>
+                            <field name="pay_no"/>
+                        </group>
+
+
+                        <field name="note" string="售后说明"/>
+
+                    </group>
+                    <group string="退货" attrs="{'invisible': [('aftersale_type', 'not in', ['reback', 'backandsend'])]}">
+                        <field name="in_ids" string="退货清单"
+                               context="{'stock_type': 'in'}">
+                            <tree editable="bottom">
+                                <field name="product_id" required="1"/>
+                                <field name="delivery_qty"/>
+                                <field name="product_qty" string="退货数量"/>
+                                <field name="warehouse_id" required="1"/>
+                                <field name="sale_order_line_id" invisible="1"/>
+                                <field name="stock_type" invisible="1"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <group string="补发" attrs="{'invisible': [('aftersale_type', 'not in', ['resend', 'backandsend'])]}">
+                        <field name="out_ids" string="补发清单"
+                               context="{'stock_type': 'out'}">
+                            <tree editable="bottom">
+                                <field name="product_id" required="1"/>
+                                <field name="delivery_qty"/>
+                                <field name="product_qty" string="补发数量"/>
+                                <field name="warehouse_id" required="1"/>
+                                <field name="stock_type" invisible="1"/>
+                                <field name="sale_order_line_id" invisible="1"/>
+                            </tree>
+                        </field>
+                    </group>
+                </sheet>
+
+
+            </form>
+        </field>
+    </record>
+
+    <record id="view_sale_order_aftersale_tree" model="ir.ui.view">
+        <field name="name">sale.order.aftersale.tree</field>
+        <field name="model">aftersale.order</field>
+        <field name="domain">[('state', 'in', ('draft', 'comfirm','delivered','done'))]</field>
+        <field name="arch" type="xml">
+
+            <tree string="字段" class="o_sale_order">
+                <field name="name"/>
+                <field name="sale_order_id"/>
+                <field name="aftersale_type"/>
+                <field name="state"/>
+
+            </tree>
+
+        </field>
+    </record>
+
+    <record id="aftersale_order_view_search_view" model="ir.ui.view">
+        <field name="name">after.sale.order.list.select</field>
+        <field name="model">aftersale.order</field>
+        <field name="priority" eval="15"/>
+        <field name="arch" type="xml">
+            <search string="Search Sales Order">
+                <field name="name" string="模糊搜索" filter_domain="[('name','ilike',self)]"/>
+
+            </search>
+        </field>
+    </record>
+
+
+    <record id="action_orders_aftersale" model="ir.actions.act_window">
+        <field name="name">售后服务单</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">aftersale.order</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_ids" eval="[(5,0,0),
+                          (0,0,{'view_mode':'tree', 'view_id': ref('view_sale_order_aftersale_tree')}),
+                          (0,0,{'view_mode':'form', 'view_id': ref('view_order_form_aftersale')})]"/>
+        <field name="search_view_id" ref="aftersale_order_view_search_view"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                全渠道订单创建
+            </p>
+            <p>
+                根据销售情况，根据订单状态进行处理。
+            </p>
+        </field>
+    </record>
+
+
+</odoo>

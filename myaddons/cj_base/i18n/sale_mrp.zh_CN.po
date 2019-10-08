@@ -1,0 +1,49 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sale_mrp
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 9.0c\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-18 09:49+0000\n"
+"PO-Revision-Date: 2018-09-24 21:45+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Poedit 2.0.6\n"
+
+#. module: sale_mrp
+#: model:ir.model,name:sale_mrp.model_account_invoice_line
+msgid "Invoice Line"
+msgstr "发票明细"
+
+#. module: sale_mrp
+#: model:ir.model,name:sale_mrp.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "销售订单明细"
+
+#~ msgid "Indicate the Customer Reference from sales order."
+#~ msgstr "标识出销售订单中的相关客户"
+
+#~ msgid "Indicate the name of sales order."
+#~ msgstr "标识出销售订单的名称"
+
+#~ msgid "Manufacturing Order"
+#~ msgstr "订单生产"
+
+#~ msgid "Properties"
+#~ msgstr "属性"
+
+#~ msgid "Sale Name"
+#~ msgstr "销售名称"
+
+#~ msgid "Sale Reference"
+#~ msgstr "销售参考"
+
+#~ msgid "Stock Move"
+#~ msgstr "库存调拨"

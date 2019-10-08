@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <!--删除提示对话框的标题，如Odoo Server Error等-->
+    <t t-extend="Dialog">
+        <t t-jquery=".modal-title" t-operation="replace">
+            <h4 class="modal-title"><t t-raw="title.replace('Odoo Server Error', '服务错误')"/><span class="o_subtitle text-muted small"><t t-esc="subtitle"/></span></h4>
+        </t>
+    </t>
+</templates>

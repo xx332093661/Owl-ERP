@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="sale_channels_tree_view" model="ir.ui.view">
+            <field name="name">销售渠道</field>
+            <field name="model">sale.channels</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="company_id"/>
+                    <field name="name"/>
+                    <field name="description"/>
+                    <field name="code"/>
+                    <field name="principal"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="sale_channels_form_view" model="ir.ui.view">
+            <field name="name">销售渠道</field>
+            <field name="model">sale.channels</field>
+            <field name="arch" type="xml">
+                <form string="销售渠道">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                                <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                            </button>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="company_id"/>
+                            </group>
+                            <group>
+                                <field name="code"/>
+                                <field name="principal" options="{'no_create_edit': True, 'no_create':True}"/>
+                            </group>
+                            <field name="description" placeholder="渠道描述"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="sale_channels_action" model="ir.actions.act_window">
+            <field name="name">销售渠道</field>
+            <field name="res_model">sale.channels</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="sale_channels_menu" name="销售渠道" parent="sale.menu_sales_config" sequence="5"
+                  action="sale_channels_action"/>
+
+    </data>
+</odoo>

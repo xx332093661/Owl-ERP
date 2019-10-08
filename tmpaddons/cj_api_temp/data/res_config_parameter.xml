@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data noupdate="1">
+        <!--是否使用OA通道-->
+        <record id="icp_user_oa" model="ir.config_parameter">
+            <field name="key">icp_user_oa</field>
+            <field name="value">False</field>
+        </record>
+
+        <record id="cj_api.cj_rabbit_mq_ip_id" model="ir.config_parameter">
+            <!--<field name="key">cj_rabbit_mq_ip_id</field>-->
+            <field name="value">10.16.0.10</field>
+        </record>
+
+        <record id="cj_api.cj_rabbit_mq_port_id" model="ir.config_parameter">
+            <!--<field name="key">cj_rabbit_mq_port_id</field>-->
+            <field name="value">15672</field>
+        </record>
+        <record id="cj_api.cj_rabbit_mq_username_id" model="ir.config_parameter">
+            <!--<field name="key">cj_rabbit_mq_username_id</field>-->
+            <field name="value">admin</field>
+        </record>
+        <record id="cj_api.cj_rabbit_mq_password_id" model="ir.config_parameter">
+            <!--<field name="key">cj_rabbit_mq_password_id</field>-->
+            <field name="value">colorful*2018</field>
+        </record>
+        <record id="cj_api.cj_rabbit_mq_receive_exchange_id" model="ir.config_parameter">
+            <!--<field name="key">cj_rabbit_mq_receive_exchange_id</field>-->
+            <field name="value">MDM-EXCHANGE-MUSTANG1</field>
+        </record>
+        <record id="cj_api.cj_rabbit_mq_send_exchange_id" model="ir.config_parameter">
+            <!--<field name="key">cj_rabbit_mq_send_exchange_id</field>-->
+            <field name="value">MDM-EXCHANGE-MUSTANG</field>
+        </record>
+        <record id="cj_api.icp_oa_url" model="ir.config_parameter">
+            <!--<field name="key">icp_oa_url</field>-->
+            <field name="value">10.16.0.31</field>
+        </record>
+        <record id="cj_api.icp_oa_sender_login_name" model="ir.config_parameter">
+            <!--<field name="key">icp_oa_sender_login_name</field>-->
+            <field name="value">100364</field>
+        </record>
+        <record id="cj_api.icp_oa_token_username" model="ir.config_parameter">
+            <!--<field name="key">icp_oa_token_username</field>-->
+            <field name="value">ERP</field>
+        </record>
+        <record id="cj_api.icp_oa_token_password" model="ir.config_parameter">
+            <!--<field name="key">icp_oa_token_password</field>-->
+            <field name="value">123456</field>
+        </record>
+
+    </data>
+
+
+</odoo>

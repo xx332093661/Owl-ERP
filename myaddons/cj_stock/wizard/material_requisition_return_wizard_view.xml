@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_material_requisition_return_wizard_form" model="ir.ui.view">
+            <field name="name">material.requisition.return.wizard form</field>
+            <field name="model">material.requisition.return.wizard</field>
+            <field name="arch" type="xml">
+                <form string="退料向导">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="partner_id" domain="[('member', '=', False)]" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="warehouse_id"  options="{'no_create': 1, 'no_open': 1}"/>
+                            </group>
+                            <group>
+                                <field name="date"/>
+                            </group>
+                        </group>
+                        <separator string="领料明细"/>
+                        <field name="line_ids" nolable="1" colspan="4">
+                            <tree editable="top">
+                                <field name="product_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="requisition_qty"/>
+                                <field name="returned_qty"/>
+                                <field name="product_qty"/>
+                            </tree>
+                        </field>
+                        <field name="commentary" nolable="1" placeholder="备注..." colspan="4"/>
+                    </sheet>
+                    <footer>
+                        <button string='创建' name="button_ok" type="object" class="btn-primary"/>
+                        <button string='创建并确认入库' name="button_ok" type="object" class="btn-primary" context="{'confirm': 1}"/>
+                        <button string="取消" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_material_requisition_return_wizard" model="ir.actions.act_window">
+            <field name="name">退料向导</field>
+            <field name="res_model">material.requisition.return.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+
+</odoo>
+
+
+

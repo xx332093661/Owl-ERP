@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--供应商部分视图-->
+    <data>
+        <record id="invoice_supplier_tree" model="ir.ui.view">
+            <field name="name">account.invoice.supplier.tree</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_tree"/>
+            <field name="arch" type="xml">
+                <!--修改reference字段的string-->
+                <xpath expr="//field[@name='reference']" position="attributes">
+                    <attribute name="string">供应商参考</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="invoice_supplier_form" model="ir.ui.view">
+            <field name="name">invoice_supplier_form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header/button[1]" position="replace"/><!--删除打开账单按钮-->
+                <xpath expr="//header/button[1]" position="replace"/><!--删除付款登记按钮-->
+
+                <!--在供应商字段后添加付款条款字段-->
+                <xpath expr="//field[@name='payment_term_id']" position="replace"/>
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="payment_term_id"
+                           required="1"
+                           options="{'no_create': 1, 'no_open': 0}"/>
+                </xpath>
+                <!--删除user_id字段-->
+                <xpath expr="//field[@name='user_id']" position="replace"/>
+                <!--添加is_internal_settlement字段-->
+                <xpath expr="//field[@name='vendor_bill_id']" position="after">
+                    <field name="is_internal_settlement"/>
+                </xpath>
+                <!--删除date字段-->
+                <xpath expr="//field[@name='date']" position="replace"/>
+                <!--添加账单分期字段-->
+                <xpath expr="//field[@name='tax_line_ids']" position="before">
+                    <separator string="账单分期" attrs="{'invisible': ['|', ('state', '=', 'draft'), ('state', '=', False)]}"/>
+                    <field name="invoice_split_ids" attrs="{'invisible': ['|', ('state', '=', 'draft'), ('state', '=', False)]}">
+                        <tree>
+                            <field name="name" attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                            <field name="date_due"/>
+                            <field name="amount" sum="Total"/>
+                            <field name="paid_amount" sum="Total"/>
+                            <field name="type"/>
+                            <field name="state"/>
+                        </tree>
+                    </field>
+                </xpath>
+
+
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_unit']" position="before">
+                    <field name="purchase_line_price_unit" attrs="{'column_invisible': [('parent.is_internal_settlement', '!=', True)]}"/>
+                    <field name="internal_settlement_scale" attrs="{'column_invisible': [('parent.is_internal_settlement', '!=', True)]}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+
+    <!--客户部分视图-->
+    <data>
+        <record id="invoice_tree_with_onboarding" model="ir.ui.view">
+            <field name="name">account.invoice.tree</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_tree_with_onboarding"/>
+            <field name="arch" type="xml">
+                <!--删除tree视图的banner_route属性-->
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="banner_route"/>
+                </xpath>
+                <!--删除user_id字段-->
+                <xpath expr="//field[@name='user_id']" position="replace"/>
+                <!--修改amount_tax_signed字段的string-->
+                <xpath expr="//field[@name='amount_tax_signed']" position="attributes">
+                    <attribute name="string">税额</attribute>
+                </xpath>
+                <!--修改residual_signed字段的string-->
+                <xpath expr="//field[@name='residual_signed']" position="attributes">
+                    <attribute name="string">待收款</attribute>
+                </xpath>
+                <!--增加reference字段-->
+                <xpath expr="//field[@name='number']" position="after">
+                    <field name="reference" string="收款单号"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="invoice_form" model="ir.ui.view">
+            <field name="name">invoice_form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <!--删除记账按钮-->
+                <xpath expr="//button[@name='action_invoice_open']" position="replace"/>
+                <!--删除预览按钮-->
+                <xpath expr="//button[@name='preview_invoice']" position="replace"/>
+                <!--删除重置为草稿按钮-->
+                <xpath expr="//button[@name='action_invoice_draft']" position="replace"/>
+                <!--删除登记付款按钮-->
+                <xpath expr="//header/button[3]" position="replace"/>
+                <!--删除user_id(销售员)字段-->
+                <xpath expr="//field[@name='user_id']" position="replace"/>
+                <!--删除team_id(销售团队)字段-->
+                <xpath expr="//field[@name='team_id']" position="replace"/>
+                <!--payment_term_id(支付条款字段禁止创建)-->
+                <xpath expr="//field[@name='payment_term_id']" position="attributes">
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </xpath>
+                <!--在支付条款字段后添加reference和is_internal_settlement(是否是内部结算)字段-->
+                <xpath expr="//field[@name='reference']" position="replace"/>
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field name="reference" string="收款单号"/>
+                    <field name="is_internal_settlement"/>
+                </xpath>
+
+                <xpath expr="//field[@name='tax_line_ids']" position="replace"/>
+
+                <!--增加账单分期-->
+                <xpath expr="//group[hasclass('oe_right')]" position="replace">
+                    <group>
+                        <group>
+                            <div class="oe_inline">
+                                <separator string="账单分期" attrs="{'invisible': ['|', ('state', '=', 'draft'), ('state', '=', False)]}"/>
+                                <field name="invoice_split_ids" attrs="{'invisible': ['|', ('state', '=', 'draft'), ('state', '=', False)]}" nolabel="1">
+                                    <tree>
+                                        <field name="name" attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                                        <field name="date_due"/>
+                                        <field name="amount" sum="Total"/>
+                                        <field name="paid_amount" sum="Total"/>
+                                        <field name="state"/>
+                                    </tree>
+                                </field>
+
+                                <field name="tax_line_ids">
+                                    <tree editable="bottom" string="Taxes" create="0">
+                                        <field name="name"/>
+                                        <!--Need invisible fields for on_change to create all necessary info -->
+                                        <field name="tax_id" invisible="1"/>
+                                        <field name="sequence" invisible="1"/>
+                                        <field name="manual" invisible="1"/>
+                                        <field name="account_id" groups="account.group_account_user"/>
+                                        <field name="amount" invisible="1"/>
+                                        <field name="account_analytic_id" domain="[('company_id', '=', parent.company_id)]" groups="analytic.group_analytic_accounting"/>
+                                        <field name="analytic_tag_ids" groups="analytic.group_analytic_tags" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                        <field name="amount_rounding" invisible="1"/>
+                                        <field name="amount_total"/>
+                                        <field name="currency_id" invisible="1" force_save="1"/>
+                                    </tree>
+                                </field>
+                            </div>
+                        </group>
+                        <group class="oe_subtotal_footer oe_right">
+                            <field name="amount_untaxed"/>
+                            <field name="amount_tax"/>
+                            <field name="amount_total" class="oe_subtotal_footer_separator"/>
+                            <field name="payments_widget" colspan="2" nolabel="1" widget="payment"/>
+                            <field name="residual" class="oe_subtotal_footer_separator" attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                            <field name="reconciled" invisible="1"/>
+                            <field name="outstanding_credits_debits_widget" colspan="2" nolabel="1" widget="payment" attrs="{'invisible': [('state', 'not in', 'open')]}"/>
+                        </group>
+                    </group>
+                </xpath>
+
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_unit']" position="before">
+                    <field name="purchase_line_price_unit" attrs="{'column_invisible': [('parent.is_internal_settlement', '!=', True)]}"/>
+                    <field name="internal_settlement_scale" attrs="{'column_invisible': [('parent.is_internal_settlement', '!=', True)]}"/>
+                </xpath>
+
+                <!--删除发送和打印按钮-->
+                <xpath expr="//button[@name='action_invoice_sent'][1]" position="replace"/>
+                <xpath expr="//button[@name='action_invoice_sent'][1]" position="replace"/>
+            </field>
+        </record>
+
+    </data>
+</odoo>

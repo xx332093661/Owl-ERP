@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="material_requisition_oa_approval_callback" model="oa.approval.callback">
+            <field name="model">stock.material.requisition</field>
+            <field name="callback">_update_oa_approval_state</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,128 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* crm_project_issue
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0alpha1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-11-19 20:35+0800\n"
+"PO-Revision-Date: 2015-11-19 20:36+0800\n"
+"Last-Translator: 保定-粉刷匠 <openerp@126.com>\n"
+"Language-Team: \n"
+"Language: zh\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 1.8.6\n"
+
+#. module: crm_project_issue
+#: model:ir.ui.view,arch_db:crm_project_issue.crm_case_form_view_leads_project_issue
+msgid ""
+"<span class=\"o_stat_text\">Convert To</span>\n"
+"                            <span class=\"o_stat_text\">Issue</span>"
+msgstr ""
+"<span class=\"o_stat_text\">转换到</span>\n"
+"                            <span class=\"o_stat_text\">Issue</span>"
+
+#. module: crm_project_issue
+#: model:ir.ui.view,arch_db:crm_project_issue.view_crm_lead2projectissue_wizard
+msgid "Cancel"
+msgstr "取消"
+
+#. module: crm_project_issue
+#: model:ir.actions.act_window,name:crm_project_issue.convert_lead2projectissue_wizard_action
+#: model:ir.ui.view,arch_db:crm_project_issue.crm_case_form_view_leads_project_issue
+#: model:ir.ui.view,arch_db:crm_project_issue.view_crm_lead2projectissue_wizard
+msgid "Convert to Issue"
+msgstr "转换为问题"
+
+#. module: crm_project_issue
+#: model:ir.ui.view,arch_db:crm_project_issue.view_crm_lead2projectissue_wizard
+msgid "Create Issue"
+msgstr "创建问题"
+
+#. module: crm_project_issue
+#: selection:crm.lead2projectissue.wizard,action:0
+msgid "Create a new customer"
+msgstr "创建一个新客户"
+
+#. module: crm_project_issue
+#: model:ir.model.fields,field_description:crm_project_issue.field_crm_lead2projectissue_wizard_create_uid
+msgid "Created by"
+msgstr "创建者"
+
+#. module: crm_project_issue
+#: model:ir.model.fields,field_description:crm_project_issue.field_crm_lead2projectissue_wizard_create_date
+msgid "Created on"
+msgstr "创建时间"
+
+#. module: crm_project_issue
+#: model:ir.model.fields,field_description:crm_project_issue.field_crm_lead2projectissue_wizard_partner_id
+msgid "Customer"
+msgstr "客户"
+
+#. module: crm_project_issue
+#: model:ir.model.fields,field_description:crm_project_issue.field_crm_lead2projectissue_wizard_display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: crm_project_issue
+#: selection:crm.lead2projectissue.wizard,action:0
+msgid "Do not link to a customer"
+msgstr "不链接到一个客户"
+
+#. module: crm_project_issue
+#: model:ir.model,name:crm_project_issue.model_crm_lead2projectissue_wizard
+msgid "Handle partner binding or generation in CRM wizards."
+msgstr "在CRM向导里约束或生成业务伙伴"
+
+#. module: crm_project_issue
+#: model:ir.model.fields,field_description:crm_project_issue.field_crm_lead2projectissue_wizard_id
+msgid "ID"
+msgstr "ID"
+
+#. module: crm_project_issue
+#: model:ir.model.fields,field_description:crm_project_issue.field_crm_lead2projectissue_wizard___last_update
+msgid "Last Modified on"
+msgstr "最后修改在"
+
+#. module: crm_project_issue
+#: model:ir.model.fields,field_description:crm_project_issue.field_crm_lead2projectissue_wizard_write_uid
+msgid "Last Updated by"
+msgstr "最后更新者"
+
+#. module: crm_project_issue
+#: model:ir.model.fields,field_description:crm_project_issue.field_crm_lead2projectissue_wizard_write_date
+msgid "Last Updated on"
+msgstr "最后更新时间"
+
+#. module: crm_project_issue
+#: model:ir.model.fields,field_description:crm_project_issue.field_crm_lead2projectissue_wizard_lead_id
+msgid "Lead"
+msgstr "线索"
+
+#. module: crm_project_issue
+#: selection:crm.lead2projectissue.wizard,action:0
+msgid "Link to an existing customer"
+msgstr "链接到一个现有的客户"
+
+#. module: crm_project_issue
+#: model:ir.model.fields,field_description:crm_project_issue.field_crm_lead2projectissue_wizard_project_id
+msgid "Project"
+msgstr "项目"
+
+#. module: crm_project_issue
+#: model:ir.model.fields,field_description:crm_project_issue.field_crm_lead2projectissue_wizard_action
+msgid "Related Customer"
+msgstr "相关客户"
+
+#~ msgid "Convert To"
+#~ msgstr "转换为"
+
+#~ msgid "Issue"
+#~ msgstr "议题"
+
+#~ msgid "or"
+#~ msgstr "或"

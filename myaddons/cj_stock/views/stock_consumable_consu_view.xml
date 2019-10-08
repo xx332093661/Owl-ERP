@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_stock_consumable_consu_tree" model="ir.ui.view">
+            <field name="name">stock.consumable.consu.tree</field>
+            <field name="model">stock.consumable.consu</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="warehouse_id"/>
+                    <field name="company_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_stock_consumable_consu_form" model="ir.ui.view">
+            <field name="name">stock.consumable.consu.form</field>
+            <field name="model">stock.consumable.consu</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="%(action_import_consumable_consu_line_wizard)d" string="导入消耗明细" type="action"
+                                states="draft"
+                                class="oe_highlight" groups="stock.group_stock_user"/>
+
+                        <button name="action_confirm" string="确认" type="object"
+                                states="draft"
+                                class="oe_highlight" groups="stock.group_stock_user"/>
+
+                        <button name="action_draft" type="object"
+                                states="confirm" string="设为草稿" groups="stock.group_stock_user"/>
+
+                        <button name="action_manager_confirm" string="经理审核" type="object"
+                                states="confirm"
+                                class="oe_highlight" groups="stock.group_stock_manager"/>
+
+                        <button name="action_finance_confirm" string="财务审核" type="object"
+                                states="manager_confirm"
+                                class="oe_highlight" groups="account.group_account_invoice"/>
+
+                        <button name="action_done" string="完成" type="object"
+                                states="finance_confirm"
+                                class="oe_highlight" groups="stock.group_stock_user"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,manager_confirm,finance_confirm,done" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name"/></h1>
+                        </div>
+
+                        <group>
+                            <group>
+                                <field name="date_from" default_focus="0"/>
+                                <field name="warehouse_id" options="{'no_create': 1, 'no_open': 1}"/>
+
+                            </group>
+                            <group>
+                                <field name="date_to"/>
+                                <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="消耗明细">
+                                <field name="line_ids">
+                                    <tree editable="top">
+                                        <field name="product_id"/>
+                                        <field name="product_qty"/>
+                                    </tree>
+                                    <form>
+                                        <group col="4">
+                                            <field name="product_id"/>
+                                            <field name="product_qty"/>
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="库存移动">
+                                <field name="move_ids" readonly="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_stock_consumable_consu_filter" model="ir.ui.view">
+            <field name="name">stock.consumable.consu.filter</field>
+            <field name="model">stock.consumable.consu</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="warehouse_id"/>
+                    <filter string="确认" name="state_confirm" domain="[('state','=','confirm')]" help="仓管员已确认"/>
+                    <filter string="仓库经理确认" name="state_manager_confirm" domain="[('state','=','manager_confirm')]"/>
+                    <filter string="财务确认" name="state_finance_confirm" domain="[('state','=','finance_confirm')]"/>
+                    <filter string="完成" name="state_done" domain="[('state','=','done')]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="状态" name="group_state" domain="[]" context="{'group_by':'state'}"/>
+                        <filter string="仓库" name="group_warehouse" domain="[]" context="{'group_by':'warehouse_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_stock_consumable_consu" model="ir.actions.act_window">
+            <field name="name">易耗品消耗</field>
+            <field name="res_model">stock.consumable.consu</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="menu_action_stock_consumable_consu"
+                  action="action_stock_consumable_consu"
+                  groups="stock.group_stock_user"
+                  name="易耗品消耗" parent="menu_action_stock_consumable" sequence="2"/>
+
+    </data>
+
+</odoo>

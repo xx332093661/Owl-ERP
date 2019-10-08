@@ -1,0 +1,400 @@
+# Chinese (Simplified) translation for openobject-addons
+# Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
+# This file is distributed under the same license as the openobject-addons package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: openobject-addons\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-21 13:17+0000\n"
+"PO-Revision-Date: 2018-11-07 19:59+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2013-03-08 05:35+0000\n"
+"X-Generator: Poedit 2.0.7\n"
+
+#. module: auth_ldap
+#: model:ir.model.fields,help:auth_ldap.field_res_company_ldap__create_user
+msgid ""
+"Automatically create local user accounts for new users authenticating via "
+"LDAP"
+msgstr "通过LDAP，为新用户自动创建本地用户账户。"
+
+#. module: auth_ldap
+#: model:ir.model,name:auth_ldap.model_res_company
+msgid "Companies"
+msgstr "公司"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__company
+msgid "Company"
+msgstr "公司"
+
+#. module: auth_ldap
+#: model:ir.model,name:auth_ldap.model_res_config_settings
+msgid "Config Settings"
+msgstr "设置配置"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__create_user
+msgid "Create User"
+msgstr "创建用户"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__create_uid
+msgid "Created by"
+msgstr "创建者"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__create_date
+msgid "Created on"
+msgstr "创建时间"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__id
+msgid "ID"
+msgstr "ID"
+
+#. module: auth_ldap
+#: model_terms:ir.ui.view,arch_db:auth_ldap.res_company_ldap_view_tree
+#: model_terms:ir.ui.view,arch_db:auth_ldap.view_ldap_installer_form
+msgid "LDAP Configuration"
+msgstr "LDAP 设置"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company__ldaps
+#: model:ir.model.fields,field_description:auth_ldap.field_res_config_settings__ldaps
+msgid "LDAP Parameters"
+msgstr "LDAP 参数"
+
+#. module: auth_ldap
+#: model_terms:ir.ui.view,arch_db:auth_ldap.res_config_settings_view_form
+msgid "LDAP Server"
+msgstr "LDAP服务器"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__ldap_server
+msgid "LDAP Server address"
+msgstr "LDAP 服务器地址"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__ldap_server_port
+msgid "LDAP Server port"
+msgstr "LDAP 服务器端口"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__ldap_base
+msgid "LDAP base"
+msgstr "LDAP 基节点"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__ldap_binddn
+msgid "LDAP binddn"
+msgstr "LDAP binddn"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__ldap_filter
+msgid "LDAP filter"
+msgstr "LDAP 过滤器"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__ldap_password
+msgid "LDAP password"
+msgstr "LDAP 密码"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap____last_update
+msgid "Last Modified on"
+msgstr "最后修改日期"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__write_uid
+msgid "Last Updated by"
+msgstr "最后更新者"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__write_date
+msgid "Last Updated on"
+msgstr "最后更新时间"
+
+#. module: auth_ldap
+#: model_terms:ir.ui.view,arch_db:auth_ldap.view_ldap_installer_form
+msgid "Login Information"
+msgstr "登录信息"
+
+#. module: auth_ldap
+#: code:addons/auth_ldap/models/res_company_ldap.py:201
+#, python-format
+msgid "No local user found for LDAP login and not configured to create one"
+msgstr "没有发现LDAP本地用户并且没有设置为创建一个"
+
+#. module: auth_ldap
+#: model_terms:ir.ui.view,arch_db:auth_ldap.view_ldap_installer_form
+msgid "Process Parameter"
+msgstr "进程参数"
+
+#. module: auth_ldap
+#: model:ir.model.fields,help:auth_ldap.field_res_company_ldap__ldap_tls
+msgid ""
+"Request secure TLS/SSL encryption when connecting to the LDAP server. This "
+"option requires a server with STARTTLS enabled, otherwise all authentication "
+"attempts will fail."
+msgstr ""
+"当连接 LDAP 服务器时请求服务器使用安全的 TLS/SSL 加密。该选项需要服务器启用 "
+"STARTTLS，否则所有用户验证都将失败。"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__sequence
+msgid "Sequence"
+msgstr "序号"
+
+#. module: auth_ldap
+#: model_terms:ir.ui.view,arch_db:auth_ldap.view_ldap_installer_form
+msgid "Server Information"
+msgstr "服务器信息"
+
+#. module: auth_ldap
+#: model:ir.actions.act_window,name:auth_ldap.action_ldap_installer
+msgid "Setup your LDAP Server"
+msgstr "设置你的 LDAP 服务器"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__user
+msgid "Template User"
+msgstr "用户模板"
+
+#. module: auth_ldap
+#: model:ir.model.fields,help:auth_ldap.field_res_company_ldap__ldap_password
+msgid ""
+"The password of the user account on the LDAP server that is used to query "
+"the directory."
+msgstr "LDAP 服务器上的用户帐号密码，用于查询该目录服务。"
+
+#. module: auth_ldap
+#: model:ir.model.fields,help:auth_ldap.field_res_company_ldap__ldap_binddn
+msgid ""
+"The user account on the LDAP server that is used to query the directory. "
+"Leave empty to connect anonymously."
+msgstr "用于查询 LDAP 服务器目录的用户帐号。如果要匿名连接请保持为空。"
+
+#. module: auth_ldap
+#: model:ir.model.fields,field_description:auth_ldap.field_res_company_ldap__ldap_tls
+msgid "Use TLS"
+msgstr "使用安全传输协议"
+
+#. module: auth_ldap
+#: model_terms:ir.ui.view,arch_db:auth_ldap.view_ldap_installer_form
+msgid "User Information"
+msgstr "用户信息"
+
+#. module: auth_ldap
+#: model:ir.model.fields,help:auth_ldap.field_res_company_ldap__user
+msgid "User to copy when creating new users"
+msgstr "当创建新用户时，复制用户"
+
+#. module: auth_ldap
+#: model:ir.model,name:auth_ldap.model_res_users
+msgid "Users"
+msgstr "用户"
+
+#. module: auth_ldap
+#: model:ir.model,name:auth_ldap.model_res_company_ldap
+msgid "res.company.ldap"
+msgstr "res.company.ldap"
+
+#~ msgid "# Tasks"
+#~ msgstr "# 任务"
+
+#~ msgid "# Vendor Bills"
+#~ msgstr "# 供应商账单"
+
+#~ msgid "# of Purchase Order"
+#~ msgstr "# 采购单"
+
+#~ msgid "# of Sales Order"
+#~ msgstr " # 销售订单"
+
+#~ msgid "Account Payable"
+#~ msgstr "应付科目"
+
+#~ msgid "Account Receivable"
+#~ msgstr "应收科目"
+
+#~ msgid "Bank"
+#~ msgstr "银行"
+
+#~ msgid "Companies that refers to partner"
+#~ msgstr "和业务伙伴相关的公司"
+
+#~ msgid "Contracts"
+#~ msgstr "合同"
+
+#~ msgid "Count Payment Token"
+#~ msgstr "按次数付款方式"
+
+#~ msgid "Create user"
+#~ msgstr "创建用户"
+
+#~ msgid "Currency"
+#~ msgstr "货币"
+
+#~ msgid "Customer Location"
+#~ msgstr "客户库位"
+
+#~ msgid "Customer Payment Terms"
+#~ msgstr "客户支付条款"
+
+#~ msgid "Degree of trust you have in this debtor"
+#~ msgstr "你对借方的信任程度"
+
+#~ msgid "Fiscal Position"
+#~ msgstr "替换规则"
+
+#~ msgid "Has unreconciled entries"
+#~ msgstr "包含未核销的凭证"
+
+#~ msgid "Invoice"
+#~ msgstr "发票"
+
+#~ msgid "Invoices"
+#~ msgstr "发票"
+
+#~ msgid "Journal Items"
+#~ msgstr "会计凭证明细"
+
+#~ msgid "LDAP Parameters *"
+#~ msgstr "LDAP 参数 *"
+
+#~ msgid ""
+#~ "Last time the invoices & payments matching was performed for this "
+#~ "partner. It is set either if there's not at least an unreconciled debit "
+#~ "and an unreconciled credit or if you click the \"Done\" button."
+#~ msgstr ""
+#~ "该业务伙伴的发票和付款匹配的最后时间。当不存在至少一个未对帐的借方记录和一"
+#~ "个未对账的贷方记录时，或者点击了\"完成\"按钮时设置该时间。"
+
+#~ msgid "Latest Invoices & Payments Matching Date"
+#~ msgstr "发票和付款最后匹配日期"
+
+#~ msgid "Message for Invoice"
+#~ msgstr "发票上的信息"
+
+#~ msgid "Message for Purchase Order"
+#~ msgstr "采购单消息"
+
+#~ msgid "Message for Sales Order"
+#~ msgstr "销售订单消息"
+
+#~ msgid "Message for Stock Picking"
+#~ msgstr "仓库分拣信息"
+
+#~ msgid "Payable Limit"
+#~ msgstr "应付账款限额"
+
+#~ msgid "Payment Tokens"
+#~ msgstr "付款方式"
+
+#~ msgid "Purchase Order"
+#~ msgstr "采购单"
+
+#~ msgid "Sales Order"
+#~ msgstr "销售订单"
+
+#~ msgid ""
+#~ "Selecting the \"Warning\" option will notify user with the message, "
+#~ "Selecting \"Blocking Message\" will throw an exception with the message "
+#~ "and block the flow. The Message has to be written in the next field."
+#~ msgstr ""
+#~ "选择“警告”选项将会对用户生成一条提示信息，选择“阻止性消息”将会中断流程并产"
+#~ "生异常信息。信息的内容将在下一个字段中定义。"
+
+#~ msgid "Stock Picking"
+#~ msgstr "库存分拣"
+
+#~ msgid "Supplier Currency"
+#~ msgstr "供应商货币"
+
+#~ msgid "Tasks"
+#~ msgstr "任务"
+
+#~ msgid ""
+#~ "The fiscal position will determine taxes and accounts used for the "
+#~ "partner."
+#~ msgstr "替换规则确定业务伙伴的税替换和科目替换。"
+
+#~ msgid ""
+#~ "The partner has at least one unreconciled debit and credit since last "
+#~ "time the invoices & payments matching was performed."
+#~ msgstr "发票和付款后至少有一个借贷方不匹配．"
+
+#~ msgid ""
+#~ "This account will be used instead of the default one as the payable "
+#~ "account for the current partner"
+#~ msgstr "这科目将替换当前业务伙伴的默认支付科目"
+
+#~ msgid ""
+#~ "This account will be used instead of the default one as the receivable "
+#~ "account for the current partner"
+#~ msgstr "这科目将用于替换当前业务伙伴的默认应收账款科目"
+
+#~ msgid ""
+#~ "This currency will be used, instead of the default one, for purchases "
+#~ "from the current partner"
+#~ msgstr "对于从这个业务伙伴的采购，这个货币将被使用，替代默认货币。"
+
+#~ msgid ""
+#~ "This payment term will be used instead of the default one for purchase "
+#~ "orders and vendor bills"
+#~ msgstr "此条款将用以取代默认的采购单或供应商账单。"
+
+#~ msgid ""
+#~ "This payment term will be used instead of the default one for sale orders "
+#~ "and customer invoices"
+#~ msgstr "在销售订单和客户发票上，该付款方式将替换默认的付款方式。"
+
+#~ msgid ""
+#~ "This stock location will be used, instead of the default one, as the "
+#~ "destination location for goods you send to this partner"
+#~ msgstr "这库位替代默认值作为你出库到业务伙伴的目的库位."
+
+#~ msgid ""
+#~ "This stock location will be used, instead of the default one, as the "
+#~ "source location for goods you receive from the current partner"
+#~ msgstr "默认作为你接收当前业务伙伴产品的源库位"
+
+#~ msgid "Total Invoiced"
+#~ msgstr "开票总额"
+
+#~ msgid "Total Payable"
+#~ msgstr "应付账款合计"
+
+#~ msgid "Total Receivable"
+#~ msgstr "应收账款合计"
+
+#~ msgid "Total amount this customer owes you."
+#~ msgstr "客户欠款金额合计"
+
+#~ msgid "Total amount you have to pay to this vendor."
+#~ msgstr "应付供应商总金额"
+
+#~ msgid "Utility field to express amount currency"
+#~ msgstr "用来记录货币金额的字段"
+
+#~ msgid "Vendor Location"
+#~ msgstr "供应商库位"
+
+#~ msgid "Vendor Payment Terms"
+#~ msgstr "供应商支付条款"
+
+#~ msgid "base.config.settings"
+#~ msgstr "base.config.settings"

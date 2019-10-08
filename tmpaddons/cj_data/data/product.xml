@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="product_category_liquor" model="product.category">
+            <field name="parent_id" ref="cj_arap.product_category_tobacco_alcohol"/>
+            <field name="name">白酒</field>
+        </record>
+
+        <record id="product_category_liquor_sichuan" model="product.category">
+            <field name="parent_id" ref="product_category_liquor"/>
+            <field name="name">四川</field>
+        </record>
+
+        <record id="product_category_box" model="product.category">
+            <field name="parent_id" ref="cj_arap.product_category_package"/>
+            <field name="name">盒子</field>
+        </record>
+    </data>
+    
+    <data noupdate="1">
+        <record id="product_template_1" model="product.template">
+            <field name="name">38度剑南春500ml</field>
+            <field name="categ_id" ref="product_category_liquor_sichuan"/>
+            <field name="standard_price">150.0</field>
+            <field name="list_price">281.8</field>
+            <field name="type">product</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="tracking">lot</field>
+            <field name="default_code">10010000220</field>
+            <field name="barcode">6901434395981</field>
+        </record>
+
+        <record id="product_template_2" model="product.template">
+            <field name="name">42度泸州老窖百调橡木桶500ml</field>
+            <field name="categ_id" ref="product_category_liquor_sichuan"/>
+            <field name="standard_price">320.5</field>
+            <field name="list_price">463</field>
+            <field name="type">product</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="tracking">lot</field>
+            <field name="default_code">10010000006</field>
+            <field name="barcode">6971169760262</field>
+        </record>
+
+        <record id="product_template_3" model="product.template">
+            <field name="name">52°水井坊井台小酒 100ml</field>
+            <field name="categ_id" ref="product_category_liquor"/>
+            <field name="standard_price">85</field>
+            <field name="list_price">153</field>
+            <field name="type">product</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="tracking">lot</field>
+            <field name="default_code">10010000244</field>
+            <field name="barcode">0010001003013</field>
+        </record>
+
+        <record id="product_template_10" model="product.template">
+            <field name="name">52度伊力老窖500ml</field>
+            <field name="categ_id" ref="product_category_liquor_sichuan"/>
+            <field name="standard_price">85</field>
+            <field name="list_price">153</field>
+            <field name="type">product</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="tracking">lot</field>
+            <field name="default_code">10010000183</field>
+            <field name="barcode">6903764836189</field>
+        </record>
+
+        <record id="product_template_4" model="product.template">
+            <field name="name">单只皮盒（黑色）</field>
+            <field name="categ_id" ref="product_category_box"/>
+            <field name="standard_price">3</field>
+            <field name="list_price">0</field>
+            <field name="type">product</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="tracking">none</field>
+            <field name="sale_ok" eval="False"/>
+            <field name="default_code">10080000005</field>
+            <field name="barcode">0013003001005</field>
+        </record>
+
+        <record id="product_template_5" model="product.template">
+            <field name="name">双支皮盒丘比特</field>
+            <field name="categ_id" ref="product_category_box"/>
+            <field name="standard_price">1.5</field>
+            <field name="list_price">0</field>
+            <field name="type">product</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="tracking">none</field>
+            <field name="sale_ok" eval="False"/>
+            <field name="default_code">10080000002</field>
+            <field name="barcode">10080000002</field>
+        </record>
+
+    </data>
+
+    <data noupdate="1">
+
+        <record id="res_partner_1" model="res.partner">
+            <field name="name">供应商1</field>
+            <field name="supplier">1</field>
+            <field name="customer">0</field>
+            <field name="is_company">0</field>
+            <field name="company_type">company</field>
+        </record>
+        <record id="res_partner_2" model="res.partner">
+            <field name="name">客户1</field>
+            <field name="supplier">0</field>
+            <field name="customer">1</field>
+            <field name="is_company">0</field>
+            <field name="company_type">person</field>
+        </record>
+
+        <record id="res_partner_3" model="res.partner">
+            <field name="name">供应商2</field>
+            <field name="supplier">1</field>
+            <field name="customer">0</field>
+            <field name="is_company">0</field>
+            <field name="company_type">company</field>
+        </record>
+        <record id="res_partner_4" model="res.partner">
+            <field name="name">供应商3</field>
+            <field name="supplier">1</field>
+            <field name="customer">0</field>
+            <field name="is_company">0</field>
+            <field name="company_type">company</field>
+        </record>
+    </data>
+
+    <data>
+        <function model="stock.warehouse" name="update_warehouse"/>
+    </data>
+</odoo>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="l10n_chart_cj" model="account.chart.template">
+        <field name="property_account_receivable_id" ref="l10n_cj_1122"/><!--应收科目-->
+        <field name="property_account_payable_id" ref="l10n_cj_2202"/><!--应付科目-->
+        <field name="property_account_expense_categ_id" ref="l10n_cj_140599"/><!--费用科目的类别：库存商品\库存商品-->
+        <field name="property_account_income_categ_id" ref="l10n_cj_140599"/><!--收入科目的类别：库存商品\库存商品-->
+        <!--<field name="income_currency_exchange_account_id" ref=""/>&lt;!&ndash;汇率增益科目&ndash;&gt;-->
+        <!--<field name="expense_currency_exchange_account_id" ref="l10n_cn_6711"/>&lt;!&ndash;汇率损失科目&ndash;&gt;-->
+        <field name="alipay_categ_id" ref="l10n_cj_101213"/><!--支付宝：其他货币资金\支付宝-->
+        <field name="jd_categ_id" ref="l10n_cj_101215"/><!--京东默认科目：其他货币资金\京东-->
+        <field name="ping_duo_duo_categ_id" ref="l10n_cj_101217"/><!--拼多多默认科目：其他货币资金\拼多多-->
+        <!--<field name="unionpay_categ_id" ref="l10n_cj_101217"/>&lt;!&ndash;银联默认科目：其他货币资金\拼多多&ndash;&gt;-->
+
+        <field name="business_income_categ_id" ref="l10n_cj_60011099"/><!--主营业务收入科目：主营业务收入\酒业销售\其他-->
+        <field name="business_expense_categ_id" ref="l10n_cj_64011099"/><!--主营业务成本科目：主营业务成本\酒业销售\其他-->
+    </record>
+</odoo>

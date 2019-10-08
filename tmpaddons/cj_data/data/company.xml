@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--新增四川省川酒集团信息科技有限公司-->
+    <data noupdate="1">
+        <record id="res_partner_company_cj" model="res.partner">
+            <field name="name">四川省川酒集团信息科技有限公司</field>
+            <field eval="0" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">1</field>
+            <field eval="1" name="active"/>
+        </record>
+
+        <record id="res_company_cj" model="res.company">
+            <field name="currency_id" ref="base.CNY"/>
+            <field name="partner_id" ref="res_partner_company_cj"/>
+            <field name="parent_id" ref="base.main_company"/>
+            <field name="code">CJXX</field>
+            <field name="name">四川省川酒集团信息科技有限公司</field>
+        </record>
+
+        <!--admin允许的公司增加四川省川酒集团信息科技有限公司-->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[(4, ref('res_company_cj'))]"/>
+        </record>
+    </data>
+
+    <!--新增泸州电商-->
+    <data noupdate="1">
+        <record id="res_partner_company_lz" model="res.partner">
+            <field name="name">泸州电商</field>
+            <field eval="0" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">1</field>
+            <field eval="1" name="active"/>
+        </record>
+
+        <record id="res_company_lz" model="res.company">
+            <field name="currency_id" ref="base.CNY"/>
+            <field name="partner_id" ref="res_partner_company_lz"/>
+            <field name="parent_id" ref="base.main_company"/>
+            <field name="code">LZDS</field>
+            <field name="name">泸州电商</field>
+        </record>
+
+        <!--admin允许的公司增加泸州电商-->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[(4, ref('res_company_lz'))]"/>
+        </record>
+    </data>
+
+    <!--新增酒仓双楠店-->
+    <data noupdate="1">
+        <record id="res_partner_company_sn" model="res.partner">
+            <field name="name">酒仓双楠店</field>
+            <field eval="0" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">1</field>
+            <field eval="1" name="active"/>
+        </record>
+
+        <record id="res_company_sn" model="res.company">
+            <field name="currency_id" ref="base.CNY"/>
+            <field name="partner_id" ref="res_partner_company_sn"/>
+            <field name="parent_id" ref="res_company_cj"/>
+            <field name="code">SND</field>
+            <field name="name">酒仓双楠店</field>
+        </record>
+
+        <!--admin允许的公司增加酒仓双楠店-->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[(4, ref('res_company_sn'))]"/>
+        </record>
+    </data>
+
+    <!--新增酒仓双楠店（团购）-->
+    <data noupdate="1">
+        <record id="res_partner_company_sn_tg" model="res.partner">
+            <field name="name">酒仓双楠店（团购）</field>
+            <field eval="0" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">1</field>
+            <field eval="1" name="active"/>
+        </record>
+
+        <record id="res_company_sn_tg" model="res.company">
+            <field name="currency_id" ref="base.CNY"/>
+            <field name="partner_id" ref="res_partner_company_sn_tg"/>
+            <field name="parent_id" ref="res_company_cj"/>
+            <field name="code">SNDT</field>
+            <field name="name">酒仓双楠店（团购）</field>
+        </record>
+
+        <!--admin允许的公司增加酒仓双楠店（团购）-->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[(4, ref('res_company_sn_tg'))]"/>
+        </record>
+    </data>
+
+    <!--新增酒仓航空路店-->
+    <data noupdate="1">
+        <record id="res_partner_company_hk" model="res.partner">
+            <field name="name">酒仓航空路店</field>
+            <field eval="0" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">1</field>
+            <field eval="1" name="active"/>
+        </record>
+
+        <record id="res_company_hk" model="res.company">
+            <field name="currency_id" ref="base.CNY"/>
+            <field name="partner_id" ref="res_partner_company_hk"/>
+            <field name="parent_id" ref="res_company_cj"/>
+            <field name="code">HKL</field>
+            <field name="name">酒仓航空路店</field>
+        </record>
+
+        <!--admin允许的公司增加酒仓航空路店-->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[(4, ref('res_company_hk'))]"/>
+        </record>
+    </data>
+
+    <!--新增酒仓航空路店（团购）-->
+    <data noupdate="1">
+        <record id="res_partner_company_hk_tg" model="res.partner">
+            <field name="name">酒仓航空路店（团购）</field>
+            <field eval="0" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">1</field>
+            <field eval="1" name="active"/>
+        </record>
+
+        <record id="res_company_hk_tg" model="res.company">
+            <field name="currency_id" ref="base.CNY"/>
+            <field name="partner_id" ref="res_partner_company_hk_tg"/>
+            <field name="parent_id" ref="res_company_cj"/>
+            <field name="code">HKLT</field>
+            <field name="name">酒仓航空路店（团购）</field>
+        </record>
+
+        <!--admin允许的公司增加酒仓航空路店（团购）-->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[(4, ref('res_company_hk_tg'))]"/>
+        </record>
+    </data>
+
+    <!--新增酒仓贝森路店-->
+    <data noupdate="1">
+        <record id="res_partner_company_bs" model="res.partner">
+            <field name="name">酒仓贝森路店</field>
+            <field eval="0" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">1</field>
+            <field eval="1" name="active"/>
+        </record>
+
+        <record id="res_company_bs" model="res.company">
+            <field name="currency_id" ref="base.CNY"/>
+            <field name="partner_id" ref="res_partner_company_bs"/>
+            <field name="parent_id" ref="res_company_cj"/>
+            <field name="code">BSL</field>
+            <field name="name">酒仓贝森路店</field>
+        </record>
+
+        <!--admin允许的公司增加酒仓贝森路店-->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[(4, ref('res_company_bs'))]"/>
+        </record>
+    </data>
+
+    <!--新增酒仓贝森路店（团购）-->
+    <data noupdate="1">
+        <record id="res_partner_company_bs_tg" model="res.partner">
+            <field name="name">酒仓贝森路店（团购）</field>
+            <field eval="0" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">1</field>
+            <field eval="1" name="active"/>
+        </record>
+
+        <record id="res_company_bs_tg" model="res.company">
+            <field name="currency_id" ref="base.CNY"/>
+            <field name="partner_id" ref="res_partner_company_bs_tg"/>
+            <field name="parent_id" ref="res_company_cj"/>
+            <field name="code">BSLT</field>
+            <field name="name">酒仓贝森路店（团购）</field>
+        </record>
+
+        <!--admin允许的公司增加酒仓贝森路店（团购）-->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[(4, ref('res_company_bs_tg'))]"/>
+        </record>
+    </data>
+
+    <!--新增酒仓金沙店-->
+    <data noupdate="1">
+        <record id="res_partner_company_js" model="res.partner">
+            <field name="name">酒仓贝金沙店</field>
+            <field eval="0" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">1</field>
+            <field eval="1" name="active"/>
+        </record>
+
+        <record id="res_company_js" model="res.company">
+            <field name="currency_id" ref="base.CNY"/>
+            <field name="partner_id" ref="res_partner_company_js"/>
+            <field name="parent_id" ref="res_company_cj"/>
+            <field name="code">JSD</field>
+            <field name="name">酒仓贝金沙店</field>
+        </record>
+
+        <!--admin允许的公司增加酒仓金沙店-->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[(4, ref('res_company_js'))]"/>
+        </record>
+    </data>
+
+    <!--新增酒仓贝金沙店（团购）-->
+    <data noupdate="1">
+        <record id="res_partner_company_js_tg" model="res.partner">
+            <field name="name">酒仓贝金沙店（团购）</field>
+            <field eval="0" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">1</field>
+            <field eval="1" name="active"/>
+        </record>
+
+        <record id="res_company_js_tg" model="res.company">
+            <field name="currency_id" ref="base.CNY"/>
+            <field name="partner_id" ref="res_partner_company_js_tg"/>
+            <field name="parent_id" ref="res_company_cj"/>
+            <field name="code">JSDT</field>
+            <field name="name">酒仓金沙店（团购）</field>
+        </record>
+
+        <!--admin允许的公司增加酒仓金沙店（团购）-->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[(4, ref('res_company_js_tg'))]"/>
+        </record>
+    </data>
+
+    <!--新增酒仓陕西街旗舰店-->
+    <data noupdate="1">
+        <record id="res_partner_company_sx" model="res.partner">
+            <field name="name">酒仓陕西街旗舰店</field>
+            <field eval="0" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">1</field>
+            <field eval="1" name="active"/>
+        </record>
+
+        <record id="res_company_sx" model="res.company">
+            <field name="currency_id" ref="base.CNY"/>
+            <field name="partner_id" ref="res_partner_company_sx"/>
+            <field name="parent_id" ref="res_company_cj"/>
+            <field name="code">SXJ</field>
+            <field name="name">酒仓陕西街旗舰店</field>
+        </record>
+
+        <!--admin允许的公司增加酒仓陕西街旗舰店-->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[(4, ref('res_company_sx'))]"/>
+        </record>
+    </data>
+
+    <!--新增酒仓陕西街旗舰店（团购）-->
+    <data noupdate="1">
+        <record id="res_partner_company_sx_tg" model="res.partner">
+            <field name="name">酒仓陕西街旗舰店（团购）</field>
+            <field eval="0" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">1</field>
+            <field eval="1" name="active"/>
+        </record>
+
+        <record id="res_company_sx_tg" model="res.company">
+            <field name="currency_id" ref="base.CNY"/>
+            <field name="partner_id" ref="res_partner_company_sx_tg"/>
+            <field name="parent_id" ref="res_company_cj"/>
+            <field name="code">SXJT</field>
+            <field name="name">酒仓陕西街旗舰店（团购）</field>
+        </record>
+
+        <!--admin允许的公司增加酒仓陕西街旗舰店（团购）-->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[(4, ref('res_company_sx_tg'))]"/>
+        </record>
+    </data>
+
+</odoo>

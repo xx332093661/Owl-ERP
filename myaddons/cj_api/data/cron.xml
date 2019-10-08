@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="cj_mq_thread_cron" model="ir.cron">
+            <field name="name">开启mq收发</field>
+            <field name="model_id" ref="cj_api.model_api_message"/>
+            <field name="state">code</field>
+            <field name="code">model.start_mq_thread()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+        </record>
+
+        <record id="cj_sync_cron" model="ir.cron">
+            <field name="name">同步数据到中台</field>
+            <field name="model_id" ref="cj_api.model_cj_sync"/>
+            <field name="state">code</field>
+            <field name="code">model.do_sync()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+        </record>
+
+        <record id="cj_send_cron" model="ir.cron">
+            <field name="name">发送数据到中台</field>
+            <field name="model_id" ref="cj_api.model_cj_send"/>
+            <field name="state">code</field>
+            <field name="code">model.do_send()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+        </record>
+
+
+        <record id="cj_oa_get_flow_state_cron" model="ir.cron">
+            <field name="name">获取OA流程状态</field>
+            <field name="model_id" ref="cj_api.model_cj_oa_api"/>
+            <field name="state">code</field>
+            <field name="code">model.oa_get_flow_state()</field>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+        </record>
+
+        <record id="proc_content_cron" model="ir.cron">
+            <field name="name">处理mq消息</field>
+            <field name="model_id" ref="cj_api.model_api_message"/>
+            <field name="state">code</field>
+            <field name="code">model.proc_content()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+        </record>
+    </data>
+</odoo>

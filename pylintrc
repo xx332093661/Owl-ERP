@@ -1,0 +1,112 @@
+[MASTER]
+
+# 设置排除的文件列表
+ignore=YML,CONF,PO,POT,JS,PNG,TXT,MD
+ignore-patterns=.pylintrc,.gitignore,.po
+
+# 设置加载的插件列表
+load-plugins=pylint_odoo
+
+
+[MESSAGES CONTROL]
+
+# 设置禁用的检查项
+disable=I,W,C,
+        no-member,
+        no-self-use,
+        no-else-return,
+        not-an-iterable,
+        consider-using-ternary,
+        inconsistent-return-statements,
+        simplify-boolean-expression,
+        syntax-error,
+        line-too-long,
+        too-many-lines,
+        too-many-locals,
+        too-many-arguments,
+        too-many-format-args,
+        too-many-statements,
+        too-many-return-statements,
+        too-many-instance-attributes,
+        too-many-public-methods,
+        too-few-public-methods,
+        too-many-branches,
+
+# 设置启用的检查项
+enable=
+#       missing-readme,
+#       manifest-required-author,
+       manifest-required-key,
+#       manifest-deprecated-key,
+#       class-camelcase,
+       license-allowed,
+#       manifest-version-format,
+#       translation-required,
+       method-compute,
+       method-search,
+       method-inverse,
+       development-status-allowed,
+       no-utf8-coding-comment,
+#       unnecessary-utf8-coding-comment,
+       rst-syntax-error,
+       xml-syntax-error,
+       manifest-author-string,
+#       invalid-commit,
+       sql-injection,
+       resource-not-exist,
+       consider-merging-classes-inherited,
+       openerp-exception-warning,
+       old-api7-method-defined,
+       dangerous-filter-wo-user,
+#       duplicate-xml-record-id,
+       javascript-lint,
+#       deprecated-openerp-xml-node,
+       create-user-wo-reset-password,
+       duplicate-id-csv,
+#       duplicate-xml-fields,
+#       missing-newline-extrafiles,
+#       redundant-modulename-xml,
+#       wrong-tabs-instead-of-spaces,
+#       file-not-used,
+       missing-import-error,
+       missing-manifest-dependency,
+       xml-attribute-translatable,
+#       except-pass,
+#       deprecated-data-xml-node,
+#       dangerous-view-replace-wo-priority,
+#       xml-deprecated-tree-attribute,
+#       xml-deprecated-qweb-directive,
+       character-not-valid-in-resource-link,
+       odoo-addons-relative-import,
+       api-one-multi-together,
+       copy-wo-api-one,
+       translation-field,
+#       api-one-deprecated,
+#       attribute-deprecated,
+#       method-required-super,
+#       missing-return,
+       renamed-field-parameter,
+#       eval-referenced,
+#       attribute-string-redundant,
+       website-manifest-key-not-valid-uri,
+       translation-contains-variable,
+       incoherent-interpreter-exec-perm,
+       use-vim-comment
+
+
+[REPORT]
+
+# 输出格式
+output-format=colorized
+
+
+[FORMAT]
+
+# 设置行最大字符数
+max-line-length=120
+
+
+[TYPECHECK]
+
+# 设置排除的模块
+ignored-modules=odoo

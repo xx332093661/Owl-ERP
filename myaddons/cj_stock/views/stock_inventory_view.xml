@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--
+        修改盘点单窗体视图：
+        1、盘点明细增加company_id字段
+        2、盘点明细增加成本cost字段
+        3、增加导入盘点明细按钮
+        4、增加仓管员确认按钮、仓库经理确认按钮、财务专员确认按钮、财务经理确认按钮、盘点确认按钮
+        5、增加跟踪
+        6、删除原来的盘点确认按钮
+        7、原来的设为草稿按钮，增加groups属性
+        8、原来的取消盘点按钮，增加状态和groups属性，在开始盘点或仓库专员确认盘点后，都可以取消
+        9、替换原state字段
+        10、盘点明细在仓库专员确认后不能编辑
+        11、隐藏会计日期(accounting_date)字段
+        12、盘点库位(location_id)字段不可新增和编辑
+        13、盘点明细的批次号必填
+        14、盘点明细的实际数量必填
+        15、盘点明细的库位字段隐藏
+        16、增加盘点差导说明
+        17、修改盘点结果(stock.move)
+        18、库位(location_id)增加domain属性
+        -->
+        <record id="view_inventory_form_inherit" model="ir.ui.view">
+            <field name="name">view_inventory_form inherit</field>
+            <field name="model">stock.inventory</field>
+            <field name="inherit_id" ref="stock.view_inventory_form"/>
+            <field name="arch" type="xml">
+                <!--6、删除原来的盘点确认按钮-->
+                <xpath expr="//button[@name='action_validate']" position="replace"/>
+
+                <!--1、盘点明细增加company_id字段-->
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='state']" position="before">
+                    <field name="company_id" options="{'no_open': 1, 'no_create': 1}" required="1"/>
+                </xpath>
+
+                <!--2、盘点明细增加成本cost字段-->
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='product_qty']" position="after">
+                    <field name="cost"/>
+                </xpath>
+                <!--4、增加仓管员确认按钮、仓库经理确认按钮、财务专员确认按钮、财务经理确认按钮、完成盘点按钮-->
+                <xpath expr="//button[@name='action_start']" position="before">
+                    <button name="%(action_import_inventory_detail_wizard)d" states="confirm" string="导入盘点明细" type="action" class="oe_highlight" groups="stock.group_stock_user"/>
+                    <button name="action_user_confirm" states="confirm" string="确认" type="object" class="oe_highlight" groups="stock.group_stock_user"/>
+                    <button name="action_manager_confirm" states="user_confirm" string="确认" type="object" class="oe_highlight" groups="stock.group_stock_manager"/>
+                    <button name="action_finance_confirm" states="manager_confirm" string="确认" type="object" class="oe_highlight" groups="account.group_account_invoice"/>
+                    <button name="action_finance_manager_confirm" states="finance_confirm" string="确认" type="object" class="oe_highlight" groups="account.group_account_manager"/>
+                    <button name="action_validate" states="finance_manager_confirm" string="盘点确认" type="object" class="oe_highlight" groups="stock.group_stock_user"/>
+                </xpath>
+                <!--5、增加跟踪-->
+                <xpath expr="//sheet" position="after">
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </xpath>
+
+                <!--7、原来的设为草稿按钮，增加groups属性-->
+                <xpath expr="//button[@name='action_cancel_draft'][1]" position="attributes">
+                    <attribute name="groups">stock.group_stock_user</attribute>
+                </xpath>
+
+                <!--8、取消盘点按钮，增加状态和groups属性，在开始盘点或仓库专员确认盘点后，都可以取消-->
+                <xpath expr="//button[@name='action_cancel_draft'][2]" position="replace">
+                    <button name="action_cancel_draft" states="confirm,user_confirm" string="取消盘点" type="object" groups="stock.group_stock_user"/>
+                </xpath>
+
+                <!--9、替换原state字段-->
+                <xpath expr="//field[@name='state']" position="replace">
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,user_confirm,manager_confirm,finance_confirm,finance_manager_confirm,done"/>
+                </xpath>
+
+                <!--10、盘点明细在仓库专员确认后不能编辑-->
+                <xpath expr="//field[@name='line_ids']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', 'not in', ['draft', 'confirm'])]}</attribute>
+                    <attribute name="context">{'default_location_id': location_id,  'default_product_id': product_id, 'default_prod_lot_id': lot_id, 'default_package_id': package_id, 'default_partner_id': partner_id, 'default_company_id': company_id}</attribute>
+                </xpath>
+
+                <!--11、隐藏会计日期(accounting_date)字段-->
+                <xpath expr="//field[@name='accounting_date']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <!--
+                12、盘点库位(location_id)字段不可新增和编辑
+                18、库位(location_id)增加domain属性
+                -->
+                <xpath expr="//field[@name='location_id']" position="attributes">
+                    <attribute name="options">{'no_open': 1, 'no_create': 1}</attribute>
+                    <attribute name="domain">[('usage', '=', 'internal'), ('company_id', '=', company_id)]</attribute>
+                </xpath>
+
+                <!--13、盘点明细的批次号必填-->
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('product_tracking', '=', 'none')], 'required': [('product_tracking', '!=', 'none')]}</attribute>
+                </xpath>
+
+                <!--14、盘点明细的实际数量必填-->
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='product_qty']" position="attributes">
+                    <attribute name="required">1</attribute>
+                </xpath>
+
+                <!--15、盘点明细的库位字段隐藏-->
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='location_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <!--16、增加盘点差导说明-->
+                <xpath expr="//notebook" position="inside">
+                    <page string="盘点异常说明">
+                        <field name="communication" placeholder="盘点差异说明..." attrs="{'readonly':[('state', 'not in', ['draft', 'confirm'])]}"/>
+                    </page>
+                </xpath>
+
+                <!--17、修改盘点结果(stock.move)-->
+                <xpath expr="//field[@name='move_ids']" position="replace">
+                    <field name="move_ids">
+                        <tree decoration-warning="inventory_state == 'surplus'" decoration-danger="inventory_state == 'deficit'">
+                            <field name="product_id"/>
+                            <field name="picking_id" invisible="1" />
+                            <field name="create_date" invisible="1" />
+                            <field name="date_expected" invisible="1" />
+                            <field name="scrapped" invisible="1"/>
+                            <field name="state" invisible="1"/>
+                            <field name="location_id" string="源库位" invisible="1"/>
+                            <field name="location_dest_id" string="目标库位" invisible="1"/>
+                            <!--<field name="theoretical_qty"/>-->
+                            <!--<field name="quantity_done" string="在手数量"/>-->
+                            <field name="inventory_diff"/>
+                            <field name="inventory_state"/>
+                            <field name="product_uom" options="{'no_open': True, 'no_create': True}" string="单位" groups="uom.group_uom" invisible="1"/>
+                        </tree>
+                        <form>
+                            <group col="4">
+                                <field name="product_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <!--<field name="theoretical_qty"/>-->
+                                <!--<field name="quantity_done" string="在手数量"/>-->
+                                <field name="inventory_diff"/>
+                                <field name="inventory_state"/>
+                            </group>
+                        </form>
+                    </field>
+                </xpath>
+            </field>
+        </record>
+
+        <!--
+        修改盘点单搜索视图：
+        1、增加"仓库专员已确认"过虑器，以方便仓库经理进入到到盘点单时，直观地看到该其审批的单据
+        -->
+        <record id="view_inventory_filter" model="ir.ui.view">
+            <field name="name">stock.inventory.filter</field>
+            <field name="model">stock.inventory</field>
+            <field name="inherit_id" ref="stock.view_inventory_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='confirm']" position="after">
+                    <!--1、增加"仓库专员已确认"过虑器，以方便仓库经理进入到到盘点单时，直观地看到该其审批的单据-->
+                    <filter string="仓库专员已确认" name="state_user_confirm" domain="[('state', '=', 'user_confirm')]"/>
+                    <filter string="仓库经理已确认" name="state_manager_confirm" domain="[('state', '=', 'manager_confirm')]"/>
+                    <filter string="财务专员已确认" name="state_finance_confirm" domain="[('state', '=', 'finance_confirm')]"/>
+                    <filter string="财务经理已确认" name="state_finance_manager_confirm" domain="[('state', '=', 'finance_manager_confirm')]"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!--
+        修改盘点详情视图：
+        增加company_id字段
+        -->
+        <record id="stock_inventory_line_tree2_inherit" model="ir.ui.view">
+            <field name="name">stock_inventory_line_tree2 inherit</field>
+            <field name="model">stock.inventory.line</field>
+            <field name="inherit_id" ref="stock.stock_inventory_line_tree2"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='state']" position="before">
+                    <field name="company_id" options="{'no_open': 1, 'no_create': 1}"/>
+                </xpath>
+            </field>
+        </record>
+
+
+
+    </data>
+</odoo>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <menuitem id="menu_action_stock_consumable"
+                  groups="stock.group_stock_user"
+                  name="易耗品" parent="stock.menu_stock_root" sequence="3"/>
+
+        <!--禁用仓库/配置/设置菜单-->
+        <record id="stock.menu_stock_general_settings" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+        <!--禁用仓库/动作/运行排程菜单-->
+        <record id="stock.menu_procurement_compute" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+        <!--禁用仓库/主数据/再订购规则菜单-->
+        <record id="stock.menu_reordering_rules_config" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+        <!--禁用仓库/配置/交货菜单-->
+        <record id="delivery.menu_delivery" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+        <!--禁用仓库/配置/产品/条码规则菜单-->
+        <record id="stock.menu_wms_barcode_nomenclature_all" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+    </data>
+</odoo>

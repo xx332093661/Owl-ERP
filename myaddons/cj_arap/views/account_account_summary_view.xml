@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_account_account_summary_tree" model="ir.ui.view">
+            <field name="name">account.account.summary.tree</field>
+            <field name="model">account.account.summary</field>
+            <field name="arch" type="xml">
+                <tree string="科目发生额汇总">
+                    <field name="date"/>
+                    <field name="account_id"/>
+                    <field name="debit_amount" sum="借方合计"/>
+                    <field name="credit_amount" sum="贷方合计"/>
+                    <field name="amount_residual" sum="合计"/>
+                    <field name="company_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_account_account_summary_filter" model="ir.ui.view">
+            <field name="name">account.account.summary.filter</field>
+            <field name="model">account.account.summary</field>
+            <field name="arch" type="xml">
+                <search string="科目发生额汇总">
+                    <field name="date" string="日期"/>
+                    <field name="account_id" string="科目"/>
+                    <field name="company_id" string="公司"/>
+                    <group expand="0" string="Group By">
+                        <filter string="科目" name="group_account" domain="[]" context="{'group_by':'account_id'}"/>
+                        <filter string="公司" name="group_company_id" domain="[]" context="{'group_by':'company_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_account_account_summary" model="ir.actions.act_window">
+            <field name="name">科目发生额汇总</field>
+            <field name="res_model">account.account.summary</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="cj_arap.view_account_account_summary_tree"/>
+        </record>
+
+        <menuitem action="action_account_account_summary"
+                  id="menu_action_account_account_summary"
+                   parent="account.account_reports_management_menu" sequence="10"/>
+
+    </data>
+</odoo>

@@ -1,0 +1,780 @@
+# Chinese (Simplified) translation for openobject-addons
+# Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
+# This file is distributed under the same license as the openobject-addons package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: openobject-addons\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-21 13:17+0000\n"
+"PO-Revision-Date: 2018-10-06 10:24+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2013-03-08 05:37+0000\n"
+"X-Generator: Poedit 2.0.6\n"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid ""
+"<i class=\"fa fa-lg fa-building-o\"/>\n"
+"                                            <span class=\"text-muted\">\n"
+"                                                the creation of documents "
+"between your companies\n"
+"                                            </span>"
+msgstr ""
+"<i class=\"fa fa-lg fa-building-o\"/>\n"
+"                                            <span class=\"text-muted\">\n"
+"                                               你的公司间的文档创建\n"
+"                                            </span>"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid ""
+"<span class=\"o_form_label\">Document Template</span>\n"
+"                                        <span class=\"fa fa-lg fa-building-o"
+"\" title=\"Values set here are company-specific.\" aria-label=\"Values set "
+"here are company-specific.\" groups=\"base.group_multi_company\" role=\"img"
+"\"/>"
+msgstr ""
+"<span class=\"o_form_label\">文档模板</span>\n"
+"                                        <span class=\"fa fa-lg fa-building-o"
+"\" title=\"Values set here are company-specific.\" aria-label=\"Values set "
+"here are company-specific.\" groups=\"base.group_multi_company\" role=\"img"
+"\"/>"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid ""
+"<span class=\"o_form_label\">Format</span>\n"
+"                                        <span class=\"fa fa-lg fa-building-o"
+"\" title=\"Values set here are company-specific.\" aria-label=\"Values set "
+"here are company-specific.\" groups=\"base.group_multi_company\" role=\"img"
+"\"/>"
+msgstr ""
+"<span class=\"o_form_label\">格式</span>\n"
+"                                        <span class=\"fa fa-lg fa-building-o"
+"\" title=\"Values set here are company-specific.\" aria-label=\"Values set "
+"here are company-specific.\" groups=\"base.group_multi_company\" role=\"img"
+"\"/>"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid ""
+"<strong>Save</strong> this page and come back here to set up the feature."
+msgstr "<strong>保存</strong> 此页并返回此处设置功能."
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Access Rights"
+msgstr "访问权限"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Add fun feedback and motivate your employees"
+msgstr "加入有趣的反馈并激励你的员工"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_calendar
+msgid "Allow the users to synchronize their calendar  with Google Calendar"
+msgstr "允许用户将他们的日历与谷歌日历同步"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_base_import
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Allow users to import data from CSV/XLS/XLSX/ODS files"
+msgstr "允许用户导入 CSV/XLS/XLSX/ODS数据"
+
+#. module: base_setup
+#: model:ir.model.fields,help:base_setup.field_res_config_settings__group_multi_currency
+msgid "Allows to work in a multi currency environment"
+msgstr "允许在多币种环境中共组"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_voip
+msgid "Asterisk (VoIP)"
+msgstr "Asterisk (VoIP)"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_drive
+msgid "Attach Google documents to any record"
+msgstr "为任何记录添加Google文档"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_partner_autocomplete
+msgid "Auto-populate company data"
+msgstr "自动填写公司数据"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Autocomplete company data (name, logo, address, etc.)"
+msgstr "自动填写公司数据（名称、图标、地址等）"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Business Documents"
+msgstr "商务文件"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "By default, new users get highest access rights for all installed apps."
+msgstr "默认情况下，新用户获得所有已安装应用的最高访问权限."
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Change Document Template"
+msgstr "修改文档模板"
+
+#. module: base_setup
+#: code:addons/base_setup/models/res_config_settings.py:100
+#, python-format
+msgid "Choose Your Document Layout"
+msgstr "选择文档布局"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Choose your document's header and footer layout"
+msgstr "选择文档的页眉和页脚布局"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_pad
+msgid "Collaborative Pads"
+msgstr "协作"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Common Contact Book"
+msgstr "常见的联系簿"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Companies"
+msgstr "公司"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__company_id
+msgid "Company"
+msgstr "公司"
+
+#. module: base_setup
+#: model:ir.model,name:base_setup.model_res_config_settings
+msgid "Config Settings"
+msgstr "设置配置"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid ""
+"Configure company rules to automatically create SO/PO when one of your "
+"company sells/buys to another of your company."
+msgstr ""
+"配置公司规则，当你的一个公司向你的另一家公司出售/购买时，自动创建销售订单和采购"
+"单."
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Create and attach Google Drive documents to any record"
+msgstr "创建并附加谷歌文档到一些记录"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__report_footer
+msgid "Custom Report Footer"
+msgstr "定义报表页脚"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__user_default_rights
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Default Access Rights"
+msgstr "默认访问权限"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__external_report_layout_id
+msgid "Document Template"
+msgstr "文档模板"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Edit Layout"
+msgstr "编辑外观"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__external_email_server_default
+msgid "External Email Servers"
+msgstr "外部邮件服务器"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Extract and analyze Odoo data from Google Spreadsheet"
+msgstr "从谷歌电子表格提取和分析Odoo数据"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Find free high-resolution images from Unsplash"
+msgstr "在Unsplash上找到免费高清晰度的图片"
+
+#. module: base_setup
+#: model:ir.model.fields,help:base_setup.field_res_config_settings__report_footer
+msgid "Footer text displayed at the bottom of all reports."
+msgstr "页脚文本显示在所有报表的下方。"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Format"
+msgstr "格式"
+
+#. module: base_setup
+#: model:ir.ui.menu,name:base_setup.menu_config
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "General Settings"
+msgstr "常规设置"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Gengo Translations"
+msgstr "Gengo翻译"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Google Calendar"
+msgstr "谷歌日历"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Google Drive"
+msgstr "谷歌云存储"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_google_spreadsheet
+msgid "Google Spreadsheet"
+msgstr "Google电子表格"
+
+#. module: base_setup
+#: model:ir.model,name:base_setup.model_ir_http
+msgid "HTTP Routing"
+msgstr "HTTP路由"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Import & Export"
+msgstr "导入和导出"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Integrations"
+msgstr "集成"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Inter Company Flows"
+msgstr "公司内部工作流"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_auth_ldap
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "LDAP Authentication"
+msgstr "LDAP授权"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_inter_company_rules
+msgid "Manage Inter Company"
+msgstr "设置关联交易"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__group_multi_company
+msgid "Manage multiple companies"
+msgstr "允许多公司操作"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Manage multiple legal entities with separate accounting"
+msgstr "使用独立的会计来管理多个法律实体"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__group_multi_currency
+msgid "Multi-Currencies"
+msgstr "多货币"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Multi-companies"
+msgstr "多公司"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "OAuth Authentication"
+msgstr "OAuth授权"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__paperformat_id
+msgid "Paper format"
+msgstr "纸张格式"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Preview Document"
+msgstr "预览文档"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Set custom access rights for new users"
+msgstr "为新用户设置定制的访问权限"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Set the paper format of printed documents"
+msgstr "设置打印格式"
+
+#. module: base_setup
+#: model:ir.actions.act_window,name:base_setup.action_general_configuration
+msgid "Settings"
+msgstr "设置"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__company_share_partner
+msgid "Share partners to all companies"
+msgstr "将业务伙伴(客户或供应商)设为所有公司共享"
+
+#. module: base_setup
+#: model:ir.model.fields,help:base_setup.field_res_config_settings__company_share_partner
+msgid ""
+"Share your partners to all companies defined in your instance.\n"
+" * Checked : Partners are visible for every companies, even if a company is "
+"defined on the partner.\n"
+" * Unchecked : Each company can see only its partner (partners where company "
+"is defined). Partners not related to a company are visible for all companies."
+msgstr ""
+"在实例中将业务伙伴(客户或供应商)设为所有公司共享。\n"
+"* 选中 ：所有业务伙伴对每个公司都是可见的\n"
+"* 未选中 ：每个公司只能看到自己定义的业务伙伴。但是对于未关联任何公司的合作伙"
+"伴，每个公司是可见的."
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__show_effect
+msgid "Show Effect"
+msgstr "显示效果"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Synchronize your calendar with Google Calendar"
+msgstr "用谷歌日历同步你的日历"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Template"
+msgstr "模板"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_base_gengo
+msgid "Translate Your Website with Gengo"
+msgstr "使用Gengo翻译网站"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Translate your website with Gengo"
+msgstr "使用Gengo翻译网站"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_web_unsplash
+msgid "Unsplash Image Library"
+msgstr "Unsplash图片库"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Use LDAP credentials to log in"
+msgstr "使用LDAP凭据登录"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Use external accounts to log in (Google, Facebook, etc.)"
+msgstr "使用外部帐号登录(Google, Facebook,等)"
+
+#. module: base_setup
+#: model:ir.model.fields,field_description:base_setup.field_res_config_settings__module_auth_oauth
+msgid "Use external authentication providers (OAuth)"
+msgstr "使用外部验证提供商 (OAuth)"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Use external pads in Odoo Notes"
+msgstr "在Odoo即时消息中使用外部平台"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid "Users"
+msgstr "用户"
+
+#. module: base_setup
+#: model_terms:ir.ui.view,arch_db:base_setup.res_config_settings_view_form
+msgid ""
+"When populating your address book, Odoo provides a list of matching "
+"companies. When selecting one item, the company data and logo are auto-"
+"filled."
+msgstr ""
+"在填写你的通讯簿时，Odoo提供了一个匹配的公司列表，当选择一项时，公司数据和图"
+"标将自动填写。"
+
+#~ msgid "HTTP routing"
+#~ msgstr "HTTP路由"
+
+#~ msgid "res.config.settings"
+#~ msgstr "res.config.settings"
+
+#~ msgid "Multi-company"
+#~ msgstr "多公司"
+
+#~ msgid "Automate inter-company transactions"
+#~ msgstr "自动公司间交易"
+
+#~ msgid "Edit Header"
+#~ msgstr "编辑页眉"
+
+#~ msgid "Inter-Company Transactions"
+#~ msgstr "公司间交易"
+
+#~ msgid "Default Custom Report Footer"
+#~ msgstr "默认自定义报表页脚"
+
+#~ msgid "(reload fonts)"
+#~ msgstr "(重载字体)"
+
+#~ msgid ""
+#~ "<span>(*) This configuration value is related to the company you're "
+#~ "logged in.</span>"
+#~ msgstr "<span>(*) 这个设置的值和你登入的公司相关。</span>"
+
+#~ msgid "Activate the customer portal"
+#~ msgstr "激活客户门户"
+
+#~ msgid "Allow documents sharing"
+#~ msgstr "允许共享单据"
+
+#~ msgid "Allow multi currencies"
+#~ msgstr "允许多币种"
+
+#~ msgid "Apply"
+#~ msgstr "应用"
+
+#~ msgid "Authentication"
+#~ msgstr "身份验证"
+
+#~ msgid "Cancel"
+#~ msgstr "取消"
+
+#~ msgid ""
+#~ "Check this to define the report footer manually. Otherwise it will be "
+#~ "filled in automatically."
+#~ msgstr "单击 以手工定义报表页脚，否则将被自动填充，"
+
+#~ msgid "Configure outgoing email servers"
+#~ msgstr "设置发送邮件服务器"
+
+#~ msgid "Configure your company data"
+#~ msgstr "设置公司数据"
+
+#~ msgid "Created by"
+#~ msgstr "创建者"
+
+#~ msgid "Created on"
+#~ msgstr "创建时间"
+
+#~ msgid "Custom Report Footer *"
+#~ msgstr "自定义报表页脚 *"
+
+#~ msgid "Custom footer *"
+#~ msgstr "自定义页脚 *"
+
+#~ msgid "Display Name"
+#~ msgstr "显示名称"
+
+#~ msgid "Edit default access rights for new users"
+#~ msgstr "为新用户编辑默认访问权限"
+
+#~ msgid "Email"
+#~ msgstr "电子邮件"
+
+#~ msgid "Font *"
+#~ msgstr "字体 *"
+
+#~ msgid "Give your customers access to their documents."
+#~ msgstr "让你的客户访问他们的单据"
+
+#~ msgid "Google Integration"
+#~ msgstr "Google 集成"
+
+#~ msgid "ID"
+#~ msgstr "ID"
+
+#~ msgid "Import / Export"
+#~ msgstr "导入/导出"
+
+#~ msgid "Last Modified on"
+#~ msgstr "最近修改日期"
+
+#~ msgid "Last Updated by"
+#~ msgstr "最后更新者"
+
+#~ msgid "Last Updated on"
+#~ msgstr "最后更新时间"
+
+#~ msgid "Multi Company"
+#~ msgstr "多公司"
+
+#~ msgid "Multi Currencies"
+#~ msgstr "多币种"
+
+#~ msgid "New users access rights"
+#~ msgstr "新用户的访问权限"
+
+#~ msgid ""
+#~ "Once installed, you can configure your API credentials for \"Google "
+#~ "calendar\""
+#~ msgstr "一旦安装，你能够为谷歌日历设置你的API凭据"
+
+#~ msgid "Paper Format *"
+#~ msgstr "纸张格式 *"
+
+#~ msgid "Portal access"
+#~ msgstr "门户访问"
+
+#~ msgid "Preview RML Report"
+#~ msgstr "预览RML报表"
+
+#~ msgid "RML Header *"
+#~ msgstr "RML 页眉 *"
+
+#~ msgid "RML Internal Header *"
+#~ msgstr "RML 内部页眉 *"
+
+#~ msgid "RML Internal Header for Landscape Reports *"
+#~ msgstr "横制报表的RML内部页眉 *"
+
+#~ msgid "RML Report Configuration"
+#~ msgstr "RML报表配置"
+
+#~ msgid "Report Configuration"
+#~ msgstr "报表配置"
+
+#~ msgid "Report Footer *"
+#~ msgstr "报表页脚 *"
+
+#~ msgid ""
+#~ "Set the font into the report header, it will be used as default font in "
+#~ "the RML reports of the user company"
+#~ msgstr "将字体设置到报表头，它将被用作用户公司RML报表的默认字体"
+
+#~ msgid "Share or embbed any screen of Odoo."
+#~ msgstr "分享或者嵌入Odoo界面"
+
+#~ msgid "Shared resources"
+#~ msgstr "共享的资源"
+
+#~ msgid "This installs the module google_calendar."
+#~ msgstr "选中将会安装google_calendar模块。"
+
+#~ msgid "This installs the module google_docs."
+#~ msgstr "选中将会安装google_docs模块。"
+
+#~ msgid ""
+#~ "This installs the module inter_company_rules.\n"
+#~ " Configure company rules to automatically create SO/PO when one of your "
+#~ "company sells/buys to another of your company."
+#~ msgstr ""
+#~ "安装公司间关联交易规则模块.\n"
+#~ " 设置公司关联交易规则将会自动生成 售货单/采购单 当你的一个公司 与你的另一"
+#~ "个公司发生买卖行为时"
+
+#~ msgid ""
+#~ "When you send a document to a customer\n"
+#~ "                                    (quotation, invoice), your customer "
+#~ "will be\n"
+#~ "                                    able to signup to get all his "
+#~ "documents,\n"
+#~ "                                    read your company news, check his "
+#~ "projects,\n"
+#~ "                                    etc."
+#~ msgstr ""
+#~ "当你发送单据给客户（报价单，发票），\n"
+#~ "                                    你的客户将能够注册和登陆来获取他的文"
+#~ "件、\n"
+#~ "                                    阅读你的公司新闻，检查他的项目\n"
+#~ "                                    等。"
+
+#~ msgid ""
+#~ "Work in multi-company environments, with appropriate security access "
+#~ "between companies."
+#~ msgstr "工作在多公司环境，公司之间有适当地安全访问权限。"
+
+#~ msgid ""
+#~ "You will find more options in your company details: address for the "
+#~ "header and footer, overdue payments texts, etc."
+#~ msgstr ""
+#~ "你能在你的公司明细里找到多个选项：用于页首和页脚的地址，逾期支付文本等"
+
+#~ msgid "base.config.settings"
+#~ msgstr "base.config.settings"
+
+#~ msgid "Client"
+#~ msgstr "客户"
+
+#~ msgid "Configure Sales"
+#~ msgstr "销售模块设置"
+
+#~ msgid "Donor"
+#~ msgstr "捐助者"
+
+#~ msgid "Guest"
+#~ msgstr "访客"
+
+#~ msgid "How do you call a Customer"
+#~ msgstr "你如何称呼你的客户"
+
+#~ msgid "Member"
+#~ msgstr "会员"
+
+#~ msgid "Options"
+#~ msgstr "选项"
+
+#~ msgid "Partner"
+#~ msgstr "业务伙伴"
+
+#~ msgid "Patient"
+#~ msgstr "病人"
+
+#~ msgid "Specify Your Terminology"
+#~ msgstr "指定贵公司所用的术语"
+
+#~ msgid "Tenant"
+#~ msgstr "承租人"
+
+#~ msgid "Use another word to say \"Customer\""
+#~ msgstr "称呼客户的另一种方式"
+
+#~ msgid ""
+#~ "You can use this wizard to change the terminologies for customers in the "
+#~ "whole application."
+#~ msgstr "你用这个向导能在整个系统中用其它称谓来标识客户"
+
+#~ msgid "base.setup.terminology"
+#~ msgstr "base.setup.terminology"
+
+#~ msgid "sale.config.settings"
+#~ msgstr "sale.config.settings"
+
+#~ msgid "CRM"
+#~ msgstr "CRM"
+
+#~ msgid "Quotations and Sales Orders"
+#~ msgstr "报价和销售订单"
+
+#~ msgid "SALE"
+#~ msgstr "销售"
+
+#~ msgid "Sale Features"
+#~ msgstr "销售特性"
+
+#~ msgid "false"
+#~ msgstr "false"
+
+#~ msgid "or"
+#~ msgstr "或"
+
+#~ msgid "Contacts"
+#~ msgstr "联系人"
+
+#~ msgid "Get contacts automatically from linkedIn"
+#~ msgstr "自动获取LinkedIn联系人"
+
+#~ msgid ""
+#~ "Odoo allows to automatically create leads (or others documents)\n"
+#~ "                            from incoming emails. You can automatically "
+#~ "synchronize emails with Odoo\n"
+#~ "                            using regular POP/IMAP accounts, using a "
+#~ "direct email integration script for your\n"
+#~ "                            email server, or by manually pushing emails "
+#~ "to Odoo using specific\n"
+#~ "                            plugins for your preferred email application."
+#~ msgstr ""
+#~ "Odoo可以根据收到的邮件来自动创建线索（或其它单据）。\n"
+#~ "    你可通过常规的POP/IMAP账户或在邮件服务器端直接用邮件集成脚本来自动\n"
+#~ "    同步邮件，\n"
+#~ "    也可通过以下特定的插件来使用你喜爱的邮件客户端\n"
+#~ "    向Odoo推送邮件。"
+
+#~ msgid "Social Network Integration"
+#~ msgstr "集成社交网络"
+
+#~ msgid ""
+#~ "When you create a new contact (person or company), you will be able to "
+#~ "load all the data from LinkedIn (photos, address, etc)."
+#~ msgstr "创建联系人或者公司时,允许自动从LinkedIn载入相关信息(照片,地址等等)."
+
+#~ msgid "res_config_contents"
+#~ msgstr "res_config_contents"
+
+#~ msgid "Get access to statistics with your mass mailing, manage campaigns."
+#~ msgstr "能够获得你的批量邮件分析，管理营销活动。"
+
+#~ msgid "Manage mass mailing campaigns"
+#~ msgstr "管理批量邮件营销"
+
+#~ msgid "Enable Outlook plug-in"
+#~ msgstr "使用 Outlook 插件"
+
+#~ msgid "Enable Thunderbird plug-in"
+#~ msgstr "使用 Thunderbird 插件"
+
+#~ msgid "On Mail Client"
+#~ msgstr "邮件客户端"
+
+#~ msgid ""
+#~ "The Outlook plugin allows you to select an object that you would like to "
+#~ "add to your email and its attachments from MS Outlook. You can select a "
+#~ "partner, or a lead object and archive a selected email into an Odoo mail "
+#~ "message with attachments.\n"
+#~ "-This installs the module plugin_outlook."
+#~ msgstr ""
+#~ "Outlook 插件允许你选择想要添加来自MS Outlook的邮件和附件的对象。 你能选择"
+#~ "一个业务伙伴或者线索对象，并且把选择的邮件存档到一个带附件的 Openerp 邮件"
+#~ "消息中。\n"
+#~ "为此要安装模块plugin_outlook."
+
+#~ msgid ""
+#~ "The plugin allows you archive email and its attachments to the selected "
+#~ "Odoo objects. You can select a partner, or a lead and attach the selected "
+#~ "mail as a .eml file in the attachment of a selected record. You can "
+#~ "create documents for CRM Lead, Partner from the selected emails.\n"
+#~ "-This installs the module plugin_thunderbird."
+#~ msgstr ""
+#~ "这个插件允许你把email和附件存档到选定的Openerp对象。你能选择一个业务伙伴、"
+#~ "或者线索，并将选择的邮件以.eml 文件的形式添加到所选中记录的附件中。\n"
+#~ "\n"
+#~ "为此要安装模块 plugin_thunderbird."
+
+#~ msgid "--db-filter=YOUR_DATABAE"
+#~ msgstr "--db-filter=YOUR_DATABAE"
+
+#~ msgid ""
+#~ "The public portal is accessible only if you are in a single database "
+#~ "mode. You can\n"
+#~ "                                    launch the Odoo Server with the option"
+#~ msgstr ""
+#~ "只用当你在 单数据库 模式时，公共门户才是可以访问的。你能用此选项运行 Odoo"
+#~ "服务器。"
+
+#~ msgid "Enable the public part of openerp, openerp becomes a public website."
+#~ msgstr "启用Openerp的公共部分，Openerp成为一个公共的web站点"
+
+#~ msgid ""
+#~ "to do so.\n"
+#~ "                                    Once activated, the login page will "
+#~ "be replaced by the public website."
+#~ msgstr "这样做了，一旦激活，登录页面将被公共web站点替换。"
+
+#~ msgid "(company news, jobs, contact form, etc.)"
+#~ msgstr "（公司新闻，工作，联系人表单 等）"
+
+#~ msgid "Activate the public portal"
+#~ msgstr "启用公共门户"

@@ -1,0 +1,1536 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* portal
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 7.0-20130415-111315\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-03-15 22:20+0800\n"
+"PO-Revision-Date: 2019-03-15 22:21+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Poedit 1.8.12\n"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/js/portal_sidebar.js:43
+#, python-format
+msgid "%d days overdue"
+msgstr "逾期 %d 天"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_show_sign_in
+msgid "<b>Sign in</b>"
+msgstr "<b>登录</b>"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_back_in_edit_mode
+msgid "<i class=\"fa fa-arrow-right\"/> Back to edit mode"
+msgstr "<i class=\"fa fa-arrow-right\"/> 回到编辑模式"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.record_pager
+msgid ""
+"<i class=\"fa fa-chevron-left\" role=\"img\" aria-label=\"Previous\" title="
+"\"Previous\"/>"
+msgstr ""
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.record_pager
+msgid ""
+"<i class=\"fa fa-chevron-right\" role=\"img\" aria-label=\"Next\" title="
+"\"Next\"/>"
+msgstr ""
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_layout
+msgid "<i class=\"fa fa-pencil\"/> Edit"
+msgstr "<i class=\"fa fa-pencil\"/> 编辑"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_searchbar
+msgid "<span class=\"small mr-1 navbar-text\">Filter By:</span>"
+msgstr "<span class=\"small mr-1 navbar-text\">过滤被：</span>"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_searchbar
+msgid "<span class=\"small mr-1 navbar-text\">Group By:</span>"
+msgstr "<span class=\"small mr-1 navbar-text\">分组按:</span>"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_searchbar
+msgid "<span class=\"small mr-1 navbar-text\">Sort By:</span>"
+msgstr "<span class=\"small mr-1 navbar-text\">分类按：</span>"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_share_template
+msgid "<strong>Open </strong>"
+msgstr "<strong>打开</strong>"
+
+#. module: portal
+#: model:mail.template,body_html:portal.mail_template_data_portal_welcome
+msgid ""
+"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-top: "
+"16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; "
+"color: #454748; width: 100%; border-collapse:separate;\"><tr><td align="
+"\"center\">\n"
+"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style="
+"\"padding: 16px; background-color: white; color: #454748; border-collapse:"
+"separate;\">\n"
+"<tbody>\n"
+"    <!-- HEADER -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width="
+"\"590\" style=\"min-width: 590px; background-color: white; padding: 0px 8px "
+"0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"middle\">\n"
+"                    <span style=\"font-size: 10px;\">Your Account</span><br/"
+">\n"
+"                    <span style=\"font-size: 20px; font-weight: bold;\">\n"
+"                        ${object.user_id.name}\n"
+"                    </span>\n"
+"                </td><td valign=\"middle\" align=\"right\">\n"
+"                    <img src=\"/logo.png?company=${object.user_id.company_id."
+"id}\" style=\"padding: 0px; margin: 0px; height: auto; width: 80px;\" alt="
+"\"${object.user_id.company_id.name}\"/>\n"
+"                </td></tr>\n"
+"                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
+"                  <hr width=\"100%\" style=\"background-color:"
+"rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;"
+"min-height:1px;line-height:0; margin:16px 0px 16px 0px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"    <!-- CONTENT -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width="
+"\"590\" style=\"min-width: 590px; background-color: white; padding: 0px 8px "
+"0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"top\" style=\"font-size: 13px;\">\n"
+"                    <div>\n"
+"                        Dear ${object.user_id.name or ''},<br/> <br/>\n"
+"                        You have been given access to ${object.user_id."
+"company_id.name}'s portal.<br/>\n"
+"                        Your login account data is:\n"
+"                        <ul>\n"
+"                            <li>Username: ${object.user_id.login or ''}</"
+"li>\n"
+"                            <li>Portal: <a href=\"${'portal_url' in ctx and "
+"ctx['portal_url'] or ''}\">${'portal_url' in ctx and ctx['portal_url'] or ''}"
+"</a></li>\n"
+"                            <li>Database: ${'dbname' in ctx and "
+"ctx['dbname'] or ''}</li>\n"
+"                        </ul>\n"
+"                        You can set or change your password via the "
+"following url:\n"
+"                        <ul>\n"
+"                            <li><a href=\"${object.user_id.signup_url}\">"
+"${object.user_id.signup_url}</a></li>\n"
+"                        </ul>\n"
+"                        ${object.wizard_id.welcome_message or ''}\n"
+"                    </div>\n"
+"                </td></tr>\n"
+"                <tr><td style=\"text-align:center;\">\n"
+"                  <hr width=\"100%\" style=\"background-color:"
+"rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;"
+"min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"    <!-- FOOTER -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width="
+"\"590\" style=\"min-width: 590px; background-color: white; font-size: 11px; "
+"padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"middle\" align=\"left\">\n"
+"                    ${object.user_id.company_id.name}\n"
+"                </td></tr>\n"
+"                <tr><td valign=\"middle\" align=\"left\" style=\"opacity: "
+"0.7;\">\n"
+"                    ${object.user_id.company_id.phone}\n"
+"                    % if object.user_id.company_id.email\n"
+"                        | <a href=\"'mailto:%s' % ${object.user_id."
+"company_id.email}\" style=\"text-decoration:none; color: #454748;\">${object."
+"user_id.company_id.email}</a>\n"
+"                    % endif\n"
+"                    % if object.user_id.company_id.website\n"
+"                        | <a href=\"'%s' % ${object.user_id.company_id."
+"website}\" style=\"text-decoration:none; color: #454748;\">\n"
+"                        ${object.user_id.company_id.website}\n"
+"                    </a>\n"
+"                    % endif\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"</tbody>\n"
+"</table>\n"
+"</td></tr>\n"
+"<!-- POWERED BY -->\n"
+"<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
+"    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
+"style=\"min-width: 590px; background-color: #F1F1F1; color: #454748; "
+"padding: 8px; border-collapse:separate;\">\n"
+"      <tr><td style=\"text-align: center; font-size: 13px;\">\n"
+"        Powered by <a target=\"_blank\" href=\"https://www.odoo.com?"
+"utm_source=db&amp;utm_medium=portalinvite\" style=\"color: #875A7B;\">Odoo</"
+"a>\n"
+"      </td></tr>\n"
+"    </table>\n"
+"</td></tr>\n"
+"</table>\n"
+"            "
+msgstr ""
+"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-top: "
+"16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; "
+"color: #454748; width: 100%; border-collapse:separate;\"><tr><td align="
+"\"center\">\n"
+"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" style="
+"\"padding: 16px; background-color: white; color: #454748; border-collapse:"
+"separate;\">\n"
+"<tbody>\n"
+"    <!-- HEADER -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width="
+"\"590\" style=\"min-width: 590px; background-color: white; padding: 0px 8px "
+"0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"middle\">\n"
+"                    <span style=\"font-size: 10px;\">你的账号</span><br/>\n"
+"                    <span style=\"font-size: 20px; font-weight: bold;\">\n"
+"                        ${object.user_id.name}\n"
+"                    </span>\n"
+"                </td><td valign=\"middle\" align=\"right\">\n"
+"                    <img src=\"/logo.png?company=${object.user_id.company_id."
+"id}\" style=\"padding: 0px; margin: 0px; height: auto; width: 80px;\" alt="
+"\"${object.user_id.company_id.name}\"/>\n"
+"                </td></tr>\n"
+"                <tr><td colspan=\"2\" style=\"text-align:center;\">\n"
+"                  <hr width=\"100%\" style=\"background-color:"
+"rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;"
+"min-height:1px;line-height:0; margin:16px 0px 16px 0px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"    <!-- CONTENT -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width="
+"\"590\" style=\"min-width: 590px; background-color: white; padding: 0px 8px "
+"0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"top\" style=\"font-size: 13px;\">\n"
+"                    <div>\n"
+"                        尊敬的${object.user_id.name or ''},<br/> <br/>\n"
+"                        你被允许访问${object.user_id.company_id.name}'s "
+"portal.<br/>\n"
+"                        你的登录账号数据是：\n"
+"                        <ul>\n"
+"                            <li>用户: ${object.user_id.login or ''}</li>\n"
+"                            <li>门户: <a href=\"${'portal_url' in ctx and "
+"ctx['portal_url'] or ''}\">${'portal_url' in ctx and ctx['portal_url'] or ''}"
+"</a></li>\n"
+"                            <li>数据库: ${'dbname' in ctx and ctx['dbname'] "
+"or ''}</li>\n"
+"                        </ul>\n"
+"                        你可以设置或改变你的密码通过下列网址：\n"
+"                        <ul>\n"
+"                            <li><a href=\"${object.user_id.signup_url}\">"
+"${object.user_id.signup_url}</a></li>\n"
+"                        </ul>\n"
+"                        ${object.wizard_id.welcome_message or ''}\n"
+"                    </div>\n"
+"                </td></tr>\n"
+"                <tr><td style=\"text-align:center;\">\n"
+"                  <hr width=\"100%\" style=\"background-color:"
+"rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;"
+"min-height:1px;line-height:0; margin: 16px 0px 16px 0px;\"/>\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"    <!-- FOOTER -->\n"
+"    <tr>\n"
+"        <td align=\"center\" style=\"min-width: 590px;\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width="
+"\"590\" style=\"min-width: 590px; background-color: white; font-size: 11px; "
+"padding: 0px 8px 0px 8px; border-collapse:separate;\">\n"
+"                <tr><td valign=\"middle\" align=\"left\">\n"
+"                    ${object.user_id.company_id.name}\n"
+"                </td></tr>\n"
+"                <tr><td valign=\"middle\" align=\"left\" style=\"opacity: "
+"0.7;\">\n"
+"                    ${object.user_id.company_id.phone}\n"
+"                    % if object.user_id.company_id.email\n"
+"                        | <a href=\"'mailto:%s' % ${object.user_id."
+"company_id.email}\" style=\"text-decoration:none; color: #454748;\">${object."
+"user_id.company_id.email}</a>\n"
+"                    % endif\n"
+"                    % if object.user_id.company_id.website\n"
+"                        | <a href=\"'%s' % ${object.user_id.company_id."
+"website}\" style=\"text-decoration:none; color: #454748;\">\n"
+"                        ${object.user_id.company_id.website}\n"
+"                    </a>\n"
+"                    % endif\n"
+"                </td></tr>\n"
+"            </table>\n"
+"        </td>\n"
+"    </tr>\n"
+"</tbody>\n"
+"</table>\n"
+"</td></tr>\n"
+"<!-- POWERED BY -->\n"
+"<tr><td align=\"center\" style=\"min-width: 590px;\">\n"
+"    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"590\" "
+"style=\"min-width: 590px; background-color: #F1F1F1; color: #454748; "
+"padding: 8px; border-collapse:separate;\">\n"
+"      <tr><td style=\"text-align: center; font-size: 13px;\">\n"
+"        推动被<a target=\"_blank\" href=\"https://www.odoo.com?"
+"utm_source=db&amp;utm_medium=portalinvite\" style=\"color: #875A7B;\">Odoo</"
+"a>\n"
+"      </td></tr>\n"
+"    </table>\n"
+"</td></tr>\n"
+"</table>\n"
+"            "
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_mixin__access_warning
+#: model:ir.model.fields,field_description:portal.field_portal_share__access_warning
+msgid "Access warning"
+msgstr "访问警告"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_share_wizard
+msgid "Add a note"
+msgstr "添加备注"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_share_wizard
+msgid "Add contacts to share the document..."
+msgstr "加入联系人来分享文档..."
+
+#. module: portal
+#: model:ir.model.fields,help:portal.field_portal_share__note
+msgid "Add extra content to display in the email"
+msgstr "添加额外内容来在邮件中显示"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.wizard_view
+msgid "Apply"
+msgstr "应用"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_archive_groups
+msgid "Archives"
+msgstr "存档"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:26
+#, python-format
+msgid "Avatar"
+msgstr "虚拟角色"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_share_wizard
+#: model_terms:ir.ui.view,arch_db:portal.wizard_view
+msgid "Cancel"
+msgstr "取消"
+
+#. module: portal
+#: code:addons/portal/controllers/portal.py:220
+#, python-format
+msgid ""
+"Changing VAT number is not allowed once document(s) have been issued for "
+"your account. Please contact us directly for this operation."
+msgstr ""
+"一旦你的账户被登记，更改VAT号码是不允许的。对于这个操作，请直接联系我们。"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "City"
+msgstr "城市"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_signature.xml:12
+#, python-format
+msgid "Clear"
+msgstr "清除"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_signature.xml:27
+#, python-format
+msgid "Click here to see your document."
+msgstr "点击这里查看你的文档."
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_back_in_edit_mode
+#: model_terms:ir.ui.view,arch_db:portal.portal_layout
+msgid "Close"
+msgstr "关闭"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "Company Name"
+msgstr "公司名称"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid ""
+"Confirm\n"
+"                                <span class=\"fa fa-long-arrow-right\"/>"
+msgstr ""
+"确认\n"
+"                                <span class=\"fa fa-long-arrow-right\"/>"
+
+#. module: portal
+#: model:ir.model,name:portal.model_res_partner
+#: model:ir.model.fields,field_description:portal.field_portal_wizard_user__partner_id
+msgid "Contact"
+msgstr "联系人"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.wizard_view
+msgid "Contacts"
+msgstr "联系我们"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "Country"
+msgstr "国家和地区"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "Country..."
+msgstr "国家/地区..."
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_share__create_uid
+#: model:ir.model.fields,field_description:portal.field_portal_wizard__create_uid
+#: model:ir.model.fields,field_description:portal.field_portal_wizard_user__create_uid
+msgid "Created by"
+msgstr "创建者"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_share__create_date
+#: model:ir.model.fields,field_description:portal.field_portal_wizard__create_date
+#: model:ir.model.fields,field_description:portal.field_portal_wizard_user__create_date
+msgid "Created on"
+msgstr "创建时间"
+
+#. module: portal
+#: model:ir.model.fields,help:portal.field_portal_mixin__access_url
+msgid "Customer Portal URL"
+msgstr "门户"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_share_template
+msgid "Dear"
+msgstr "你好"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_mixin__display_name
+#: model:ir.model.fields,field_description:portal.field_portal_share__display_name
+#: model:ir.model.fields,field_description:portal.field_portal_wizard__display_name
+#: model:ir.model.fields,field_description:portal.field_portal_wizard_user__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_signature.xml:14
+#, python-format
+msgid "Draw your signature"
+msgstr "签名"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/js/portal_sidebar.js:41
+#, python-format
+msgid "Due in %d days"
+msgstr "%d 天后到期"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/js/portal_sidebar.js:39
+#, python-format
+msgid "Due today"
+msgstr "今天到期"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_wizard_user__email
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "Email"
+msgstr "Email"
+
+#. module: portal
+#: model:ir.model,name:portal.model_mail_thread
+msgid "Email Thread"
+msgstr "邮件线程"
+
+#. module: portal
+#: model:ir.actions.act_window,name:portal.partner_wizard_action
+#: model:ir.model,name:portal.model_portal_wizard
+#: model_terms:ir.ui.view,arch_db:portal.wizard_view
+msgid "Grant Portal Access"
+msgstr "允许访问门户"
+
+#. module: portal
+#: model:ir.model,name:portal.model_ir_http
+msgid "HTTP Routing"
+msgstr "HTTP 路由"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_breadcrumbs
+msgid "Home"
+msgstr "首页"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_mixin__id
+#: model:ir.model.fields,field_description:portal.field_portal_share__id
+#: model:ir.model.fields,field_description:portal.field_portal_wizard__id
+#: model:ir.model.fields,field_description:portal.field_portal_wizard_user__id
+msgid "ID"
+msgstr "ID"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_wizard_user__in_portal
+msgid "In Portal"
+msgstr "在门户中"
+
+#. module: portal
+#: code:addons/portal/controllers/portal.py:201
+#, python-format
+msgid "Invalid Email! Please enter a valid email address."
+msgstr "无效邮件地址!请输入有效的邮件地址."
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_wizard__welcome_message
+msgid "Invitation Message"
+msgstr "邀请消息"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_mixin____last_update
+#: model:ir.model.fields,field_description:portal.field_portal_share____last_update
+#: model:ir.model.fields,field_description:portal.field_portal_wizard____last_update
+#: model:ir.model.fields,field_description:portal.field_portal_wizard_user____last_update
+msgid "Last Modified on"
+msgstr "最后修改日期"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_share__write_uid
+#: model:ir.model.fields,field_description:portal.field_portal_wizard__write_uid
+#: model:ir.model.fields,field_description:portal.field_portal_wizard_user__write_uid
+msgid "Last Updated by"
+msgstr "最后更新者"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_share__write_date
+#: model:ir.model.fields,field_description:portal.field_portal_wizard__write_date
+#: model:ir.model.fields,field_description:portal.field_portal_wizard_user__write_date
+msgid "Last Updated on"
+msgstr "最后更新时间"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:21
+#, python-format
+msgid "Leave a comment"
+msgstr "发表评论"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_share__share_link
+msgid "Link"
+msgstr "链接"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_wizard_user__user_id
+msgid "Login User"
+msgstr "登陆用户"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.frontend_layout
+msgid "Logout"
+msgstr "注销"
+
+#. module: portal
+#: model:ir.model,name:portal.model_mail_message
+msgid "Message"
+msgstr "消息"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.my_account_link
+msgid "My Account"
+msgstr "我的帐户"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:92
+#: model_terms:ir.ui.view,arch_db:portal.pager
+#, python-format
+msgid "Next"
+msgstr "下一个"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_share__note
+msgid "Note"
+msgstr "便签"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.frontend_layout
+msgid "Odoo"
+msgstr "Odoo"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_record_sidebar
+msgid "Odoo Logo"
+msgstr "Odoo Logo"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:39
+#, python-format
+msgid "Oops! Something went wrong. Try to reload the page and log in."
+msgstr "哦!有错误,尝试重新加载页面并登录."
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "Phone"
+msgstr "电话"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_mixin__access_url
+msgid "Portal Access URL"
+msgstr "门户访问地址"
+
+#. module: portal
+#: model:ir.model,name:portal.model_portal_mixin
+msgid "Portal Mixin"
+msgstr "门户"
+
+#. module: portal
+#: model:ir.model,name:portal.model_portal_share
+msgid "Portal Sharing"
+msgstr "门户分享"
+
+#. module: portal
+#: model:ir.model,name:portal.model_portal_wizard_user
+msgid "Portal User Config"
+msgstr "门户用户设置"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.frontend_layout
+#: model_terms:ir.ui.view,arch_db:portal.portal_record_sidebar
+msgid "Powered by"
+msgstr "推动人"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.pager
+msgid "Prev"
+msgstr "前翻"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:84
+#, python-format
+msgid "Previous"
+msgstr "上一个"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/js/portal_chatter.js:109
+#, python-format
+msgid "Published on %s"
+msgstr "发表于 %s"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_share__partner_ids
+msgid "Recipients"
+msgstr "收件人"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_share__res_id
+msgid "Related Document ID"
+msgstr "相关单据编号"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_share__res_model
+msgid "Related Document Model"
+msgstr "相关单据模型"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_searchbar
+msgid "Search"
+msgstr "搜索"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_mixin__access_token
+msgid "Security Token"
+msgstr "安全令牌"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.wizard_view
+msgid ""
+"Select which contacts should belong to the portal in the list below.\n"
+"                        The email address of each selected contact must be "
+"valid and unique.\n"
+"                        If necessary, you can fix any contact's email "
+"address directly in the list."
+msgstr ""
+"选择哪个联系人属于以下列表中的门户。\n"
+"                        每个选定的联系人的电子邮件地址必须有效和唯一。\n"
+"                        如果必要的话，可以直接在列表中修正电子邮件地址。"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:42
+#: model_terms:ir.ui.view,arch_db:portal.portal_share_wizard
+#, python-format
+msgid "Send"
+msgstr "发送"
+
+#. module: portal
+#: code:addons/portal/wizard/portal_wizard.py:100
+#, python-format
+msgid "Several contacts have the same email: "
+msgstr "多个联系人拥有同一个邮箱: "
+
+#. module: portal
+#: model:ir.actions.act_window,name:portal.portal_share_action
+#: model_terms:ir.ui.view,arch_db:portal.portal_share_wizard
+msgid "Share Document"
+msgstr "分享文档"
+
+#. module: portal
+#: code:addons/portal/wizard/portal_wizard.py:97
+#, python-format
+msgid "Some contacts don't have a valid email: "
+msgstr "一些联系人没有有效的邮箱: "
+
+#. module: portal
+#: code:addons/portal/wizard/portal_wizard.py:103
+#, python-format
+msgid "Some contacts have the same email as an existing portal user:"
+msgstr "一个联系人的邮箱和已存在的门户用户的邮箱相同："
+
+#. module: portal
+#: code:addons/portal/controllers/portal.py:224
+#, python-format
+msgid "Some required fields are empty."
+msgstr "有必填字段为空."
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "State / Province"
+msgstr "州/省"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "Street"
+msgstr "街道"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_signature.xml:25
+#, python-format
+msgid "Thank You !"
+msgstr "谢谢!"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:12
+#, python-format
+msgid "There are no comments for now."
+msgstr "目前没有评论."
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_back_in_edit_mode
+msgid "This is a preview of the customer portal."
+msgstr "这个是客户门户的预览。"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.wizard_view
+msgid "This text is included in the email sent to new portal users."
+msgstr "这段文字将包含在发送给新门户网站用户的电子邮件中。"
+
+#. module: portal
+#: model:ir.model.fields,help:portal.field_portal_wizard__welcome_message
+msgid "This text is included in the email sent to new users of the portal."
+msgstr "这段文字包含门户网站的新用户发送的电子邮件."
+
+#. module: portal
+#: code:addons/portal/wizard/portal_wizard.py:106
+#, python-format
+msgid ""
+"To resolve this error, you can: \n"
+"- Correct the emails of the relevant contacts\n"
+"- Grant access only to contacts with unique emails"
+msgstr ""
+"要解决这个错误，你可以： \n"
+"- 更正相关联系人的邮箱\n"
+"- 仅允许拥有唯一的邮箱地址的联系人访问"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_searchbar
+msgid "Toggle filters"
+msgstr "切换过滤器"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_wizard__user_ids
+msgid "Users"
+msgstr "用户"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "VAT Number"
+msgstr "增值税税号"
+
+#. module: portal
+#: code:addons/portal/models/portal_mixin.py:83
+#, python-format
+msgid "View %s"
+msgstr "查看 %s"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_account_analytic_account__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_calendar_event__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_event_event__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_event_registration__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_fleet_vehicle__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_fleet_vehicle_log_contract__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_gamification_badge__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_gamification_challenge__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_hr_department__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_hr_employee__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_hr_job__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_mail_blacklist__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_mail_channel__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_mail_thread__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_maintenance_equipment__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_maintenance_equipment_category__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_maintenance_request__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_note_note__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_res_partner__website_message_ids
+#: model:ir.model.fields,field_description:portal.field_res_users__website_message_ids
+msgid "Website Messages"
+msgstr "网站信息"
+
+#. module: portal
+#: model:ir.model.fields,help:portal.field_account_analytic_account__website_message_ids
+#: model:ir.model.fields,help:portal.field_calendar_event__website_message_ids
+#: model:ir.model.fields,help:portal.field_event_event__website_message_ids
+#: model:ir.model.fields,help:portal.field_event_registration__website_message_ids
+#: model:ir.model.fields,help:portal.field_fleet_vehicle__website_message_ids
+#: model:ir.model.fields,help:portal.field_fleet_vehicle_log_contract__website_message_ids
+#: model:ir.model.fields,help:portal.field_gamification_badge__website_message_ids
+#: model:ir.model.fields,help:portal.field_gamification_challenge__website_message_ids
+#: model:ir.model.fields,help:portal.field_hr_department__website_message_ids
+#: model:ir.model.fields,help:portal.field_hr_employee__website_message_ids
+#: model:ir.model.fields,help:portal.field_hr_job__website_message_ids
+#: model:ir.model.fields,help:portal.field_mail_blacklist__website_message_ids
+#: model:ir.model.fields,help:portal.field_mail_channel__website_message_ids
+#: model:ir.model.fields,help:portal.field_mail_thread__website_message_ids
+#: model:ir.model.fields,help:portal.field_maintenance_equipment__website_message_ids
+#: model:ir.model.fields,help:portal.field_maintenance_equipment_category__website_message_ids
+#: model:ir.model.fields,help:portal.field_maintenance_request__website_message_ids
+#: model:ir.model.fields,help:portal.field_note_note__website_message_ids
+#: model:ir.model.fields,help:portal.field_res_partner__website_message_ids
+#: model:ir.model.fields,help:portal.field_res_users__website_message_ids
+msgid "Website communication history"
+msgstr "网站联系历史"
+
+#. module: portal
+#: model:ir.model.fields,field_description:portal.field_portal_wizard_user__wizard_id
+msgid "Wizard"
+msgstr "向导"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:31
+#, python-format
+msgid "Write a message..."
+msgstr "写一个消息..."
+
+#. module: portal
+#: code:addons/portal/wizard/portal_share.py:59
+#: code:addons/portal/wizard/portal_share.py:71
+#, python-format
+msgid "You are invited to access %s"
+msgstr "你被邀请访问 %s"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_share_template
+msgid "You have been invited to access the following document:"
+msgstr "你被邀请访问下列文档："
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:22
+#, python-format
+msgid "You must be"
+msgstr "你必须"
+
+#. module: portal
+#: code:addons/portal/wizard/portal_wizard.py:175
+#, python-format
+msgid "You must have an email address in your User Preferences to send emails."
+msgstr "个人设置里必须输入一个邮件地址才能发送邮件."
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "Your Contact Details"
+msgstr "你的详细联系方式"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_breadcrumbs
+#: model_terms:ir.ui.view,arch_db:portal.portal_layout
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "Your Details"
+msgstr "你的详情"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_home
+msgid "Your Documents"
+msgstr "你的文档"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_signature.xml:6
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+#, python-format
+msgid "Your Name"
+msgstr "姓名"
+
+#. module: portal
+#: model:mail.template,subject:portal.mail_template_data_portal_welcome
+msgid "Your Odoo account at ${object.user_id.company_id.name}"
+msgstr "你的Odoo账号在 ${object.user_id.company_id.name}"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_contact
+msgid "Your contact"
+msgstr "你的联系人"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "Zip / Postal Code"
+msgstr "邮编"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:56
+#, python-format
+msgid "avatar"
+msgstr "头像"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:9
+#, python-format
+msgid "comment"
+msgstr "评论"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:10
+#, python-format
+msgid "comments"
+msgstr "评论"
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:22
+#, python-format
+msgid "logged in"
+msgstr "已登录"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_record_sidebar
+msgid "odoo"
+msgstr "odoo"
+
+#. module: portal
+#: model_terms:ir.ui.view,arch_db:portal.portal_my_details
+msgid "select..."
+msgstr "选择..."
+
+#. module: portal
+#. openerp-web
+#: code:addons/portal/static/src/xml/portal_chatter.xml:22
+#, python-format
+msgid "to post a comment."
+msgstr "发布评论."
+
+#~ msgid ""
+#~ "\n"
+#~ "<p>\n"
+#~ "    Dear ${object.user_id.name or ''},\n"
+#~ "</p>\n"
+#~ "<p>\n"
+#~ "    You have been given access to ${user.company_id.name}'s portal.\n"
+#~ "</p>\n"
+#~ "<p>\n"
+#~ "    Your login account data is:\n"
+#~ "</p>\n"
+#~ "<ul>\n"
+#~ "    <li>Username: ${object.user_id.login or ''}</li>\n"
+#~ "    <li>Portal: <a href=\"${'portal_url' in ctx and ctx['portal_url'] or "
+#~ "''}\">${'portal_url' in ctx and ctx['portal_url'] or ''}</a></li>\n"
+#~ "    <li>Database: ${'dbname' in ctx and ctx['dbname'] or ''}</li>\n"
+#~ "</ul>\n"
+#~ "<p>\n"
+#~ "    You can set or change your password via the following url:\n"
+#~ "</p>\n"
+#~ "<ul>\n"
+#~ "    <li><a href=\"${object.user_id.signup_url}\">${object.user_id."
+#~ "signup_url}</a></li>\n"
+#~ "</ul>\n"
+#~ "<p>\n"
+#~ "${object.wizard_id.welcome_message or ''}"
+#~ msgstr ""
+#~ "\n"
+#~ "<p>\n"
+#~ "    尊敬的 ${object.user_id.name or ''},\n"
+#~ "</p>\n"
+#~ "<p>\n"
+#~ "    你被邀请访问 ${user.company_id.name}'s portal.\n"
+#~ "</p>\n"
+#~ "<p>\n"
+#~ "    你的登录账号数据是:\n"
+#~ "</p>\n"
+#~ "<ul>\n"
+#~ "    <li>用户名: ${object.user_id.login or ''}</li>\n"
+#~ "    <li>门户: <a href=\"${'portal_url' in ctx and ctx['portal_url'] or "
+#~ "''}\">${'portal_url' in ctx and ctx['portal_url'] or ''}</a></li>\n"
+#~ "    <li>数据库: ${'dbname' in ctx and ctx['dbname'] or ''}</li>\n"
+#~ "</ul>\n"
+#~ "<p>\n"
+#~ "    你可以使用下面网址来设置或更改密码：\n"
+#~ "</p>\n"
+#~ "<ul>\n"
+#~ "    <li><a href=\"${object.user_id.signup_url}\">${object.user_id."
+#~ "signup_url}</a></li>\n"
+#~ "</ul>\n"
+#~ "<p>\n"
+#~ "${object.wizard_id.welcome_message or ''}"
+
+#~ msgid "<span id=\"search_label\">Search</span> <span class=\"caret\"/>"
+#~ msgstr "<span id=\"search_label\">搜索</span> <span class=\"caret\"/>"
+
+#~ msgid "Change"
+#~ msgstr "修改"
+
+#~ msgid "HTTP routing"
+#~ msgstr "HTTP路由"
+
+#~ msgid "Portal Access Management"
+#~ msgstr "门户访问管理"
+
+#~ msgid "Your Odoo account at ${user.company_id.name}"
+#~ msgstr "你的Odoo帐号在 ${user.company_id.name}"
+
+#~ msgid "portal.mixin"
+#~ msgstr "portal.mixin"
+
+#~ msgid ""
+#~ "\n"
+#~ "<p>\n"
+#~ "    Dear ${object.user_id.name or ''},\n"
+#~ "</p>\n"
+#~ "<p>\n"
+#~ "    You have been given access to ${user.company_id.name}'s ${object."
+#~ "wizard_id.portal_id.name}.\n"
+#~ "</p>\n"
+#~ "<p>\n"
+#~ "    Your login account data is:\n"
+#~ "</p>\n"
+#~ "<ul>\n"
+#~ "    <li>Username: ${object.user_id.login or ''}</li>\n"
+#~ "    <li>Portal: <a href=\"${'portal_url' in ctx and ctx['portal_url'] or "
+#~ "''}\">${'portal_url' in ctx and ctx['portal_url'] or ''}</a></li>\n"
+#~ "    <li>Database: ${'dbname' in ctx and ctx['dbname'] or ''}</li>\n"
+#~ "</ul>\n"
+#~ "<p>\n"
+#~ "    You can set or change your password via the following url:\n"
+#~ "</p>\n"
+#~ "<ul>\n"
+#~ "    <li><a href=\"${object.user_id.signup_url}\">${object.user_id."
+#~ "signup_url}</a></li>\n"
+#~ "</ul>\n"
+#~ "<p>\n"
+#~ "${object.wizard_id.welcome_message or ''}"
+#~ msgstr ""
+#~ "\n"
+#~ "<p>\n"
+#~ "    ${object.user_id.name or ''} 你好,\n"
+#~ "</p>\n"
+#~ "<p>\n"
+#~ "    你已经获得了 ${user.company_id.name} 的 ${object.wizard_id.portal_id."
+#~ "name} 访问权限.\n"
+#~ "</p>\n"
+#~ "<p>\n"
+#~ "    你的登录帐户是:\n"
+#~ "</p>\n"
+#~ "<ul>\n"
+#~ "    <li>用户名: ${object.user_id.login or ''}</li>\n"
+#~ "    <li>门户: <a href=\"${'portal_url' in ctx and ctx['portal_url'] or "
+#~ "''}\">${'portal_url' in ctx and ctx['portal_url'] or ''}</a></li>\n"
+#~ "    <li>帐套: ${'dbname' in ctx and ctx['dbname'] or ''}</li>\n"
+#~ "</ul>\n"
+#~ "<p>\n"
+#~ "    通过下面地址可以设置或修改你的密码:\n"
+#~ "</p>\n"
+#~ "<ul>\n"
+#~ "    <li><a href=\"${object.user_id.signup_url}\">${object.user_id."
+#~ "signup_url}</a></li>\n"
+#~ "</ul>\n"
+#~ "<p>\n"
+#~ "${object.wizard_id.welcome_message or ''}"
+
+#~ msgid "Group %s is not a portal"
+#~ msgstr "组 %s 不是门户"
+
+#~ msgid "Portal"
+#~ msgstr "门户"
+
+#~ msgid "The portal that users can be added in or removed from."
+#~ msgstr "用户可以添加或删除该门户网站信息."
+
+#~ msgid ""
+#~ "\n"
+#~ "<p>\n"
+#~ "    Dear ${object.user_id.name or ''},\n"
+#~ "</p>\n"
+#~ "<p>\n"
+#~ "    You have been given access to ${user.company_id.name}'s ${object."
+#~ "wizard_id.portal_id.name}.\n"
+#~ "</p>\n"
+#~ "<p>\n"
+#~ "    Your login account data is:\n"
+#~ "</p>\n"
+#~ "<ul>\n"
+#~ "    <li>Username: ${object.user_id.login or ''}</li>\n"
+#~ "    <li>Portal: <a href=\"${'portal_url' in ctx and ctx['portal_url'] or "
+#~ "''}\">${'portal_url' in ctx and ctx['portal_url'] or ''}</a></li>\n"
+#~ "\t<li>Database: ${'dbname' in ctx and ctx['dbname'] or ''}</li>\n"
+#~ "</ul>\n"
+#~ "<p>\n"
+#~ "\tYou can set or change your password via the following url:\n"
+#~ "</p>\n"
+#~ "<ul>\n"
+#~ "    <li><a href=\"${object.user_id.signup_url}\">${object.user_id."
+#~ "signup_url}</a></li>\n"
+#~ "</ul>\n"
+#~ "<p>\n"
+#~ "${object.wizard_id.welcome_message or ''}"
+#~ msgstr ""
+#~ "\n"
+#~ "<p>\n"
+#~ "    尊敬的 ${object.user_id.name or ''},\n"
+#~ "</p>\n"
+#~ "<p>\n"
+#~ "    你被授权访问 ${user.company_id.name}的 ${object.wizard_id.portal_id."
+#~ "name}.\n"
+#~ "</p>\n"
+#~ "<p>\n"
+#~ "   你的登陆账号信息为:\n"
+#~ "</p>\n"
+#~ "<ul>\n"
+#~ "    <li>用户名: ${object.user_id.login or ''}</li>\n"
+#~ "    <li>门户: <a href=\"${'portal_url' in ctx and ctx['portal_url'] or "
+#~ "''}\">${'portal_url' in ctx and ctx['portal_url'] or ''}</a></li>\n"
+#~ "\t<li>数据库: ${'dbname' in ctx and ctx['dbname'] or ''}</li>\n"
+#~ "</ul>\n"
+#~ "<p>\n"
+#~ "\t你可以用下面的链接来设置或更改你的密码:\n"
+#~ "</p>\n"
+#~ "<ul>\n"
+#~ "    <li><a href=\"${object.user_id.signup_url}\">${object.user_id."
+#~ "signup_url}</a></li>\n"
+#~ "</ul>\n"
+#~ "<p>\n"
+#~ "${object.wizard_id.welcome_message or ''}"
+
+#~ msgid "Access Groups"
+#~ msgstr "访问用户组"
+
+#~ msgid "If checked, this group is usable as a portal."
+#~ msgstr "如果勾选，这个组可以作为门户"
+
+#~ msgid "Non-Portal Groups"
+#~ msgstr "非门户组"
+
+#~ msgid "Portal Groups"
+#~ msgstr "门户组"
+
+#~ msgid "After Sale Services"
+#~ msgstr "售后服务"
+
+#~ msgid "Billing"
+#~ msgstr "账单"
+
+#~ msgid "Projects"
+#~ msgstr "项目"
+
+#~ msgid ""
+#~ "Dear %(name)s,\n"
+#~ "\n"
+#~ "You have been given access to %(company)s's %(portal)s.\n"
+#~ "\n"
+#~ "Your login account data is:\n"
+#~ "  Username: %(login)s\n"
+#~ "  Portal: %(portal_url)s\n"
+#~ "  Database: %(db)s \n"
+#~ "\n"
+#~ "You can set or change your password via the following url:\n"
+#~ "   %(signup_url)s\n"
+#~ "\n"
+#~ "%(welcome_message)s\n"
+#~ "\n"
+#~ "--\n"
+#~ "Odoo - Open Source Business Applications\n"
+#~ "http://www.openerp.com\n"
+#~ msgstr ""
+#~ "尊敬的 %(name)s,\n"
+#~ "\n"
+#~ "你被允许访问 %(company)s 的 %(portal)s.\n"
+#~ "\n"
+#~ "你的登录信息为:\n"
+#~ "用户名: %(login)s\n"
+#~ "门户l: %(portal_url)s\n"
+#~ "数据库: %(db)s\n"
+#~ "\n"
+#~ "你可以设置或更改你的密码，通过下面网址:\n"
+#~ "   %(signup_url)s\n"
+#~ "\n"
+#~ "%(welcome_message)s\n"
+#~ "\n"
+#~ "--\n"
+#~ "Odoo - 开源商业应用解决方案\n"
+#~ "http://www.odoo.com\n"
+
+#~ msgid "Inbox"
+#~ msgstr "收件箱"
+
+#~ msgid "Messaging"
+#~ msgstr "消息"
+
+#~ msgid "Outgoing Mails"
+#~ msgstr "外发邮件"
+
+#~ msgid "access directly to"
+#~ msgstr "直接访问"
+
+#~ msgid "false"
+#~ msgstr "false"
+
+#~ msgid "or"
+#~ msgstr "或"
+
+#~ msgid "your messages "
+#~ msgstr "你的消息"
+
+#~ msgid ""
+#~ "<p>\n"
+#~ "                    <b>Good Job!</b> Your inbox is empty.\n"
+#~ "                </p><p>\n"
+#~ "                    Your inbox contains private messages or emails sent "
+#~ "to you\n"
+#~ "                    as well as information related to documents or people "
+#~ "you\n"
+#~ "                    follow.\n"
+#~ "                </p>\n"
+#~ "            "
+#~ msgstr ""
+#~ "<p>\n"
+#~ "                    <b>做的不错!</b> 你的收件箱是空的。\n"
+#~ "                </p><p>\n"
+#~ "                    除了你关注的文档和人的最新动态，\n"
+#~ "                    你的收件箱还包含了未处理的私人信息和邮件。\n"
+#~ "                </p>\n"
+#~ "            "
+
+#~ msgid ""
+#~ "<p>\n"
+#~ "                    <b>No todo.</b>\n"
+#~ "                </p><p>\n"
+#~ "                    When you process messages in your inbox, you can mark "
+#~ "some\n"
+#~ "                    as <i>todo</i>. From this menu, you can process all "
+#~ "your todo.\n"
+#~ "                </p>\n"
+#~ "            "
+#~ msgstr ""
+#~ "没有待办事项，当你处理收件箱中的邮件时，你可以标记一些作为待办事项。\n"
+#~ "从这个菜单中，你能处理所有的待办事项。"
+
+#~ msgid ""
+#~ "<p>\n"
+#~ "                    No message found and no message sent yet.\n"
+#~ "                </p><p>\n"
+#~ "                    Click on the top-right icon to compose a message. "
+#~ "This\n"
+#~ "                    message will be sent by email if it's an internal "
+#~ "contact.\n"
+#~ "                </p>\n"
+#~ "            "
+#~ msgstr ""
+#~ "没有发现未发送的信息。\n"
+#~ "单击右上角的图标来撰写信息。如果接收人是内部联系人，信息将被通过电子邮件发"
+#~ "送。"
+
+#~ msgid "Access Denied"
+#~ msgstr "存取被拒绝"
+
+#~ msgid "Contacts Error"
+#~ msgstr "联系错误"
+
+#~ msgid "Details"
+#~ msgstr "详情"
+
+#~ msgid "Email Required"
+#~ msgstr "必须输入邮箱地址"
+
+#~ msgid "Existing Groups (e.g Portal Groups)"
+#~ msgstr "已经存在组（例如 门户组）"
+
+#~ msgid "Existing groups"
+#~ msgstr "现有的组"
+
+#~ msgid "Existing users"
+#~ msgstr "现有用户"
+
+#~ msgid "Please select at least one group to share with"
+#~ msgstr "请选择要分享信息的至少一个用户组"
+
+#~ msgid "Please select at least one user to share with"
+#~ msgstr "请选择要分享信息的至少一个用户"
+
+#~ msgid "Share Wizard"
+#~ msgstr "共享向导"
+
+#~ msgid ""
+#~ "The requested operation cannot be completed due to security restrictions. "
+#~ "Please contact your system administrator.\n"
+#~ "\n"
+#~ "(Document type: %s, Operation: %s)"
+#~ msgstr ""
+#~ "因为安全限制，所要求的操作不能完成，请联系系统管理员。\n"
+#~ "\n"
+#~ "(文件类型: %s,操作： %s)"
+
+#~ msgid "To-do"
+#~ msgstr "待办事项"
+
+#~ msgid "Users you already shared with"
+#~ msgstr "你已经分享的用户"
+
+#~ msgid ""
+#~ ", <span class='oe_mail_footer_access'><small>access %s %s through <a "
+#~ "style='color:inherit' href=\"%s\">our Customer Portal</a></small></span>"
+#~ msgstr ""
+#~ ", <span class='oe_mail_footer_access'><small>读取 %s %s 通过 <a "
+#~ "style='color:inherit' href=\"%s\">我们公司的门户</a></small></span>"
+
+#~ msgid "Mako"
+#~ msgstr "Mako"
+
+#~ msgid "Company Jobs"
+#~ msgstr "公司招聘"
+
+#~ msgid "<p>Access this document <a href=\"%s\">directly in Odoo</a></p>"
+#~ msgstr "<p>在Odoo中，直接 <a href=\"%s\">访问此文件</a></p>"
+
+#~ msgid "reference: the reference number of the document to pay"
+#~ msgstr "参考：要支付的文件关联的参考号"
+
+#~ msgid ""
+#~ "Make this payment acquirer available in portal forms (Customer invoices, "
+#~ "etc.)"
+#~ msgstr "请支付收购方在门户网站的形式（客户发票等）"
+
+#~ msgid ""
+#~ ", so it may use Mako expressions.\n"
+#~ "                                The Mako evaluation context provides:"
+#~ msgstr "所以它可能会使用 Mako  表达式。Mako的评价内容为"
+
+#~ msgid ""
+#~ "<p>\n"
+#~ "                    Youd don't have unread company's news.\n"
+#~ "                </p>\n"
+#~ "            "
+#~ msgstr "未读的公司信息"
+
+#~ msgid "Jobs"
+#~ msgstr "招聘"
+
+#~ msgid "Pay safely online"
+#~ msgstr "安全在线支付"
+
+#~ msgid "No online payment acquirers configured"
+#~ msgstr "没有设置在线支付受让人"
+
+#~ msgid ""
+#~ "<p>\n"
+#~ "                    Youd don't have unread job offers.\n"
+#~ "                </p>\n"
+#~ "            "
+#~ msgstr "未读的招聘信息"
+
+#~ msgid "Anonymous"
+#~ msgstr "任何人"
+
+#~ msgid "News"
+#~ msgstr "新闻"
+
+#~ msgid ""
+#~ "Portal members have specific access rights (such as record rules and "
+#~ "restricted menus).\n"
+#~ "                They usually do not belong to the usual Odoo groups."
+#~ msgstr ""
+#~ "门户成员有特定的访问权限（如创纪录的规则和限制菜单）  他们通常不属于通常的"
+#~ "Odoo的组"
+
+#~ msgid "Payment Acquirers"
+#~ msgstr "支付受让人"
+
+#~ msgid "Name"
+#~ msgstr "名称"
+
+#~ msgid "uid: the current user id"
+#~ msgstr "uid: 当前用户 id"
+
+#~ msgid ""
+#~ "kind: the kind of document on which the payment form is rendered "
+#~ "(translated to user language, e.g. \"Invoice\")"
+#~ msgstr ""
+#~ "类型: 文档类型，在它里面其付款单格式被更新（例如：“Ivoice”被翻译为自己的语"
+#~ "言“发票”）。"
+
+#~ msgid ""
+#~ "quote(): a method to quote special string character to make them suitable "
+#~ "for inclusion in a URL"
+#~ msgstr "quote():使它们适合于包含在URL中引用特殊的字符串中的字符"
+
+#~ msgid "amount: the total amount to pay, as a float"
+#~ msgstr "合计：需要支付的总数，浮点数"
+
+#~ msgid ""
+#~ "<p>Access your messages and personal documents through <a href=\"%s\">our "
+#~ "Customer Portal</a></p>"
+#~ msgstr ""
+#~ "<p>要访问你的消息和私人文档可通过 <a href=\"%s\">our Customer Portal</a></"
+#~ "p>"
+
+#~ msgid "Payment form template (HTML)"
+#~ msgstr "支付表格模板（HTML）"
+
+#~ msgid ""
+#~ "Anonymous users have specific access rights (such as record rules and "
+#~ "restricted menus).\n"
+#~ "                They usually do not belong to the usual Odoo groups."
+#~ msgstr ""
+#~ "匿名用户有特定的访问权限（如创纪录的规则和限制菜单）他们通常不属于通常的"
+#~ "Odoo的组"
+
+#~ msgid "Online Payment Acquirer"
+#~ msgstr "在线支付受让人"
+
+#~ msgid "Company News"
+#~ msgstr "公司新闻"
+
+#~ msgid ""
+#~ "You can finish the configuration in the <a href=\"%s\">Bank&Cash "
+#~ "settings</a>"
+#~ msgstr "可以在 <a href=\"%s\">银行&现金设置</a> 中完成设置"
+
+#~ msgid "cr: the current database cursor"
+#~ msgstr "cr: 当前数据库游标"
+
+#~ msgid ""
+#~ "object: the document on which the payment form is rendered (usually an "
+#~ "invoice or sales order record)"
+#~ msgstr "“对象：支付明细（通常是发票或销售订单记录）”"
+
+#~ msgid "About Us"
+#~ msgstr "关于我们"
+
+#~ msgid "Payment Acquirer"
+#~ msgstr "支付受让人"
+
+#~ msgid ""
+#~ "currency: the currency record in which the document is issued (e.g. "
+#~ "currency.name could be EUR)"
+#~ msgstr ""
+#~ "currency: the currency record in which the document is issued (e.g. "
+#~ "currency.name could be EUR)"
+
+#~ msgid ""
+#~ "\n"
+#~ "% if object.company_id.paypal_account:\n"
+#~ "<form action=\"https://www.paypal.com/cgi-bin/webscr\" method=\"post\" "
+#~ "target=\"_blank\">\n"
+#~ "  <input type=\"hidden\" name=\"cmd\" value=\"_xclick\"/>\n"
+#~ "  <input type=\"hidden\" name=\"business\" value=\"${object.company_id."
+#~ "paypal_account}\"/>\n"
+#~ "  <input type=\"hidden\" name=\"item_name\" value=\"${object.company_id."
+#~ "name} ${kind.title()} ${reference}\"/>\n"
+#~ "  <input type=\"hidden\" name=\"amount\" value=\"${amount}\"/>\n"
+#~ "  <input type=\"hidden\" name=\"currency_code\" value=\"${currency."
+#~ "name}\"/>\n"
+#~ "  <input type=\"image\" name=\"submit\" src=\"https://www.paypal.com/"
+#~ "en_US/i/btn/btn_paynowCC_LG.gif\"/>\n"
+#~ "</form>\n"
+#~ "% endif\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "% if object.company_id.paypal_account:\n"
+#~ "<form action=\"https://www.paypal.com/cgi-bin/webscr\" method=\"post\" "
+#~ "target=\"_blank\">\n"
+#~ "  <input type=\"hidden\" name=\"cmd\" value=\"_xclick\"/>\n"
+#~ "  <input type=\"hidden\" name=\"business\" value=\"${object.company_id."
+#~ "paypal_account}\"/>\n"
+#~ "  <input type=\"hidden\" name=\"item_name\" value=\"${object.company_id."
+#~ "name} ${kind.title()} ${reference}\"/>\n"
+#~ "  <input type=\"hidden\" name=\"amount\" value=\"${amount}\"/>\n"
+#~ "  <input type=\"hidden\" name=\"currency_code\" value=\"${currency."
+#~ "name}\"/>\n"
+#~ "  <input type=\"image\" name=\"submit\" src=\"https://www.paypal.com/"
+#~ "en_US/i/btn/btn_paynowCC_LG.gif\"/>\n"
+#~ "</form>\n"
+#~ "% endif\n"
+#~ "            "
+
+#~ msgid ""
+#~ "If the template renders to an empty result in a certain context it will "
+#~ "be ignored, as if it was inactive."
+#~ msgstr "如果模板为空，它会被忽略。"
+
+#~ msgid "Visible"
+#~ msgstr "可见性"
+
+#~ msgid "ctx: the current context dictionary"
+#~ msgstr "当前上下文字典"
+
+#~ msgid ""
+#~ "This is an HTML form template to submit a payment through this acquirer.\n"
+#~ "                                The template will be rendered with"
+#~ msgstr "是一个HTML表单模板，通过渲染模板发送付款信息"
+
+#~ msgid "Form Template"
+#~ msgstr "表格模板"

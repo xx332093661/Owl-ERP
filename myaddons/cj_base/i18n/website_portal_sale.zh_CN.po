@@ -1,0 +1,271 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* website_portal_sale
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 10.0alpha1c\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-08-06 12:53+0000\n"
+"PO-Revision-Date: 2016-12-30 18:34+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"Language: zh_CN\n"
+"X-Generator: Poedit 1.8.11\n"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_invoices
+msgid "<i class=\"fa fa-arrow-circle-right\"/> Pay Now"
+msgstr "<i class=\"fa fa-arrow-right\"/>现在付款"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_orders
+msgid "<span class=\"label label-danger\"><i class=\"fa fa-fw fa-warning\"/> Problem</span>"
+msgstr "<span class=\"label label-danger\"><i class=\"fa fa-fw fa-warning\"/> 问题</span>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_orders
+msgid "<span class=\"label label-default\"><i class=\"fa fa-fw fa-check\"/> Done</span>"
+msgstr "<span class=\"label label-default\"><i class=\"fa fa-fw fa-check\"/> 完成</span>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_invoices
+msgid "<span class=\"label label-default\"><i class=\"fa fa-fw fa-check\"/> Paid</span>"
+msgstr "<span class=\"label label-default\"><i class=\"fa fa-fw fa-check\"/> 支付</span>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_quotations
+msgid "<span class=\"label label-default\"><i class=\"fa fa-fw fa-clock-o\"/> Expired</span>"
+msgstr "<span class=\"label label-default\"><i class=\"fa fa-fw fa-clock-o\"/> 到期</span>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_invoices
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_quotations
+msgid "<span class=\"label label-default\"><i class=\"fa fa-fw fa-remove\"/> Cancelled</span>"
+msgstr "<span class=\"label label-default\"><i class=\"fa fa-fw fa-remove\"/> 取消</span>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "<span class=\"label label-info orders_label_text_align\"><i class=\"fa fa-fw fa-clock-o\"/> Waiting</span>"
+msgstr "<span class=\"label label-info orders_label_text_align\"><i class=\"fa fa-fw fa-clock-o\"/> 请稍后</span>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_orders
+msgid "<span class=\"label label-info\"><i class=\"fa fa-fw fa-clock-o\"/> Invoiced</span>"
+msgstr "<span class=\"label label-info\"><i class=\"fa fa-fw fa-clock-o\"/> 发票</span>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_invoices
+msgid "<span class=\"label label-info\"><i class=\"fa fa-fw fa-clock-o\"/> Waiting for Payment</span>"
+msgstr "<span class=\"label label-info\"><i class=\"fa fa-fw fa-clock-o\"/> 等待付款</span>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "<span class=\"label label-success orders_label_text_align\"><i class=\"fa fa-fw fa-check\"/> Paid</span>"
+msgstr "<span class=\"label label-success orders_label_text_align\"><i class=\"fa fa-fw fa-check\"/> 支付</span>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "<strong>Contact</strong>"
+msgstr "<strong>联系人</strong>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "<strong>Date:</strong>"
+msgstr "<strong>日期：</strong>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "<strong>Invoices</strong>"
+msgstr "<strong>发票</strong>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "<strong>Invoicing Address</strong>"
+msgstr "<strong>开票地址</strong>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "<strong>Product</strong>"
+msgstr "<strong>产品</strong>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "<strong>Quantity</strong>"
+msgstr "<strong>数量</strong>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "<strong>Shipping Address</strong>"
+msgstr "<strong>收货地址</strong>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "<strong>Subtotal</strong>"
+msgstr "<strong>小计</strong>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "<strong>Total:</strong>"
+msgstr "<strong>总计：</strong>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "<strong>Unit Price</strong>"
+msgstr "<strong>单价</strong>"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.sale_backend_link
+msgid "Access the complete Sale application"
+msgstr "建立完善的销售流程"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_invoices
+msgid "Amount Due"
+msgstr "到期未收（付）金额"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_invoices
+msgid "Due Date"
+msgstr "到期日"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.sales_backend_access
+msgid "If you wish to access the complete application to manage your orders, you can follow"
+msgstr "你可以按照你要操作的流程来管理你的订单。"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_invoices
+msgid "Invoice #"
+msgstr "票号"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_invoices
+msgid "Invoice Date"
+msgstr "开票日期"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_home_menu_sale
+msgid "Invoices"
+msgstr "发票列表"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "My Orders"
+msgstr "我的订单"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "My Quotes"
+msgstr "我的报价单"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "Order"
+msgstr "订单"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_orders
+msgid "Order Date"
+msgstr "订单日期"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_home_menu_sale
+msgid "Orders"
+msgstr "订单"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_invoices
+msgid "Pay Now"
+msgstr "现在支付"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "Quotation"
+msgstr "报价单"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_quotations
+msgid "Quotation #"
+msgstr "报价单 #"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_home_menu_sale
+msgid "Quotes"
+msgstr "报价单"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_orders
+msgid "Sale Order #"
+msgstr "销售订单 #"
+
+#. module: website_portal_sale
+#: model:ir.model,name:website_portal_sale.model_sale_order
+msgid "Sales Order"
+msgstr "销售订单"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "Taxes:"
+msgstr "税:"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_home_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_invoices
+msgid "There are currently no invoices for your account."
+msgstr "目前你帐户没有发票。"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_home_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_orders
+msgid "There are currently no orders for your account."
+msgstr "目前你帐户没有订单。"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_home_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_quotations
+msgid "There are currently no quotes for your account."
+msgstr "目前你的帐户没有报价内容。"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_orders
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_quotations
+msgid "Total"
+msgstr "总计"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.orders_followup
+msgid "Untaxed Amount:"
+msgstr "不含税金额："
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_quotations
+msgid "Valid Until"
+msgstr "有效期至"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_home_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_invoices
+msgid "Your Invoices and Payments"
+msgstr "你的未结发票、付款和未记账的资金"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_home_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_orders
+msgid "Your Orders"
+msgstr "你的订单"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_home_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.portal_my_quotations
+msgid "Your Quotes"
+msgstr "你的报价单"
+
+#. module: website_portal_sale
+#: model:ir.ui.view,arch_db:website_portal_sale.sales_backend_access
+msgid "this link"
+msgstr "这个链接"

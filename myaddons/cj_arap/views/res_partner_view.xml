@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_partner_property_form" model="ir.ui.view">
+            <field name="name">res.partner.property.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="account.view_partner_property_form"/>
+            <field name="arch" type="xml">
+                <!--应收应付标签页只能系统管理员查看-->
+                <xpath expr="//page[@name='accounting']" position="attributes">
+                    <attribute name="groups">base.group_erp_manager</attribute>
+                </xpath>
+                <!--property_account_receivable_id(应收账款科目)增加context-->
+                <xpath expr="//field[@name='property_account_receivable_id']" position="attributes">
+                    <attribute name="context">{'only_myself': 1}</attribute>
+                </xpath>
+                <!--property_account_receivable_id(应付账款科目)增加context-->
+                <xpath expr="//field[@name='property_account_payable_id']" position="attributes">
+                    <attribute name="context">{'only_myself': 1}</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="partner_view_button_contracts_count" model="ir.ui.view">
+            <field name="name">partner.view.button.contracts_count</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="account.partner_view_button_contracts_count"/>
+            <field name="arch" type="xml">
+                <!--辅助核算项按钮只能系统管理员查看-->
+                <xpath expr="//field[@name='contracts_count']/.." position="attributes">
+                    <attribute name="groups">base.group_erp_manager</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="res_partner_view_form_payment_defaultcreditcard" model="ir.ui.view">
+            <field name="name">res.partner.view.form.payment.defaultcreditcard</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="sale.res_partner_view_form_payment_defaultcreditcard"/>
+            <field name="arch" type="xml">
+                <!--隐藏信用卡查看按钮只能系统管理员查看-->
+                <xpath expr="//field[@name='payment_token_count']/../../.." position="attributes">
+                    <attribute name="groups">base.group_erp_manager</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="partner_view_buttons" model="ir.ui.view">
+            <field name="name">partner.view.buttons</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="account.partner_view_buttons"/>
+            <field name="arch" type="xml">
+                <!--已开票按钮的显示改为客户结算单-->
+                <xpath expr="//button[@name='action_view_partner_invoices']/div/span[2]" position="replace">
+                    <span class="o_stat_text">客户结算单</span>
+                </xpath>
+            </field>
+        </record>
+
+        <!--销售订单按钮账务人员可见-->
+        <record id="res_partner_view_buttons" model="ir.ui.view">
+            <field name="name">res.partner.view.buttons</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="sale.res_partner_view_buttons"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='sale_order_count']/.." position="attributes">
+                    <attribute name="groups">sales_team.group_sale_salesman, account.group_account_invoice</attribute>
+                </xpath>
+            </field>
+        </record>
+        <record id="sale.res_partner_view_buttons" model="ir.ui.view">
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]"/>
+        </record>
+        <record id="sale.act_res_partner_2_sale_order" model="ir.actions.act_window">
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]"/>
+        </record>
+
+        <!--采购订单按钮财务人员可见-->
+        <record id="res_partner_view_purchase_buttons" model="ir.ui.view">
+            <field name="name">res.partner.view.purchase.buttons</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="purchase.res_partner_view_purchase_buttons"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='purchase_order_count']/.." position="attributes">
+                    <attribute name="groups">purchase.group_purchase_user, account.group_account_invoice</attribute>
+                </xpath>
+            </field>
+        </record>
+        <record id="purchase.res_partner_view_purchase_buttons" model="ir.ui.view">
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]"/>
+        </record>
+        <record id="purchase.act_res_partner_2_purchase_order" model="ir.actions.act_window">
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]"/>
+        </record>
+
+        <!--增加应收应付标签页-->
+        <record id="view_partner_form" model="ir.ui.view">
+            <field name="name">res.partner.form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="cj_base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page string="待收款" attrs="{'invisible': [('has_receivable', '=', False)]}" groups="account.group_account_invoice">
+                        <field name="invoice_split_ids" domain="[('sale_order_id', '!=', False), ('state', '!=', 'paid')]"/>
+                        <field name="has_receivable" invisible="1"/>
+                    </page>
+                    <page string="待付款" attrs="{'invisible': [('has_payable', '=', False)]}" groups="account.group_account_invoice">
+                        <field name="invoice_split_ids" domain="[('purchase_order_id', '!=', False), ('state', '!=', 'paid')]"/>
+                        <field name="has_payable" invisible="1"/>
+                    </page>
+                </xpath>
+
+            </field>
+        </record>
+
+        <!--供应商账单替换成已开单金额-->
+        <record id="res_partner_view_purchase_account_buttons" model="ir.ui.view">
+            <field name="name">res.partner.view.purchase.account.buttons</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="purchase.res_partner_view_purchase_account_buttons"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='supplier_invoice_count']/.." position="replace">
+                    <button class="oe_stat_button" name="%(purchase.act_res_partner_2_supplier_invoices)d" type="action"
+                        attrs="{'invisible': [('supplier', '=', False)]}" icon="fa-pencil-square-o"
+                        groups="account.group_account_invoice">
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="total_invoiced_purchase" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </span>
+                            <span class="o_stat_text">供应商账单</span>
+                        </div>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+
+        <!--增加付款记录、收款记录、待付款记录、待收款记录、付款申请按钮-->
+        <record id="res_partner_view_account_payment_payable" model="ir.ui.view">
+            <field name="name">res.partner.view.account.payment.payable</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form" />
+            <!--<field name="priority" eval="9"/>-->
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice'))]"/>
+            <field name="arch" type="xml">
+                <button name="toggle_active" position="before">
+                    <!--付款记录-->
+                    <button class="oe_stat_button" name="%(cj_arap.action_account_payments_payable2)d" type="action"
+                        groups="account.group_account_invoice"
+                        attrs="{'invisible': [('supplier', '=', False)]}" icon="fa-usd">
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="total_payed" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </span>
+                            <span class="o_stat_text">已付款</span>
+                        </div>
+                    </button>
+                    <!--收款记录-->
+                    <button class="oe_stat_button" type="action" name="%(cj_arap.action_account_payments2)d"
+                        groups="account.group_account_invoice"
+                        attrs="{'invisible': [('customer', '=', False)]}"
+                        icon="fa-usd">
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="total_received" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </span>
+                            <span class="o_stat_text">已收款</span>
+                        </div>
+                    </button>
+                    <!--待付款记录-->
+                    <button class="oe_stat_button" name="%(cj_arap.account_account_invoice_split2)d" type="action"
+                        groups="account.group_account_invoice"
+                        attrs="{'invisible': [('supplier', '=', False)]}" icon="fa-usd">
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="total_wait_payment" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </span>
+                            <span class="o_stat_text">待付款</span>
+                        </div>
+                    </button>
+                    <!--待收款记录-->
+                    <button class="oe_stat_button" type="action" name="%(cj_arap.account_account_invoice_split3)d"
+                        groups="account.group_account_invoice"
+                        attrs="{'invisible': [('customer', '=', False)]}"
+                        icon="fa-usd">
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="total_wait_receive" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </span>
+                            <span class="o_stat_text">待收款</span>
+                        </div>
+                    </button>
+                    <!--付款申请-->
+                    <button class="oe_stat_button" name="%(cj_arap.action_account_payment_apply2)d" type="action"
+                        groups="account.group_account_invoice"
+                        attrs="{'invisible': [('supplier', '=', False)]}" icon="fa-usd">
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="total_apply_count"/>
+                            </span>
+                            <span class="o_stat_text">付款申请</span>
+                        </div>
+                    </button>
+                </button>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

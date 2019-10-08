@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem id="menu_action_inventory_form"
+                  action="stock.action_inventory_form"
+                  groups="account.group_account_invoice"
+                  name="盘点单" parent="menu_account_stock" sequence="20"/>
+
+    </data>
+
+</odoo>

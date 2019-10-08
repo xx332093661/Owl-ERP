@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="cj_sale_user_groups" model="ir.module.category">
+        <field name="name">销售模块用户角色</field>
+        <field name="description">False</field>
+        <field name="sequence">0</field>
+    </record>
+
+    <record id="role_sale_user" model="res.groups">
+        <field name="name">销售专员</field>
+        <field name="category_id" ref="cj_sale_user_groups"/>
+        <field name="users" eval="[
+        (4, ref('base.user_admin')),
+		]"/>
+    </record>
+
+    <record id="role_sale_operate" model="res.groups">
+        <field name="name">销售运营</field>
+        <field name="category_id" ref="cj_sale_user_groups"/>
+        <field name="users" eval="[
+        (4, ref('base.user_admin')),
+		]"/>
+    </record>
+
+    <record id="role_sale_manage" model="res.groups">
+        <field name="name">销售经理</field>
+        <field name="category_id" ref="cj_sale_user_groups"/>
+        <field name="users" eval="[
+        (4, ref('base.user_admin')),
+		]"/>
+    </record>
+
+</odoo>

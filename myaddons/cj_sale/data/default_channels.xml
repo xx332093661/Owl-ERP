@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="default_sale_channels1" model="sale.channels">
+            <field name="name">天猫</field>
+            <field name="description">天猫</field>
+            <field name="code">tmall</field>
+        </record>
+
+        <record id="default_sale_channels2" model="sale.channels">
+            <field name="name">京东</field>
+            <field name="description">京东</field>
+            <field name="code">jd</field>
+        </record>
+
+        <record id="default_sale_channels3" model="sale.channels">
+            <field name="name">零售通</field>
+            <field name="description">零售通</field>
+            <field name="code">ls</field>
+        </record>
+
+        <record id="default_sale_channels4" model="sale.channels">
+            <field name="name">酒仓门店</field>
+            <field name="description">酒仓门店</field>
+            <field name="code">jc</field>
+        </record>
+
+        <record id="default_sale_channels5" model="sale.channels">
+            <field name="name">自有渠道</field>
+            <field name="description">自有渠道</field>
+            <field name="code">my</field>
+        </record>
+
+    </data>
+</odoo>

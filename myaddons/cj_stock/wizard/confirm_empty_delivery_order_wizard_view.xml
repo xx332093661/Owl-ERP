@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_confirm_empty_delivery_order_wizard_form" model="ir.ui.view">
+            <field name="name">confirm.empty.delivery.order.wizard form</field>
+            <field name="model">confirm.empty.delivery.order.wizard</field>
+            <field name="arch" type="xml">
+                <form string="确认空的物流单向导">
+                    <p>
+                        <field name="message" readonly="1" style="font-weight:bold"/>
+                    </p>
+                    <p>
+                        <field name="confirm_msg" readonly="1"/>
+                        <field name="delivery_order_id" invisible="1"/>
+                        <field name="callback" invisible="1"/>
+                    </p>
+                    <footer>
+                        <button string='确定' name="button_ok" type="object" class="btn-primary"/>
+                        <button string="取消" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+
+</odoo>
+
+
+

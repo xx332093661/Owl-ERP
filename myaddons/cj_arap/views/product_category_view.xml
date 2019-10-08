@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--
+        字段property_account_income_categ_id(收入科目)、
+        字段property_account_expense_categ_id(费用科目)
+        增加上下文，经只能选择用户当前公司下的数据
+        -->
+        <record id="account_view_category_property_form" model="ir.ui.view">
+            <field name="name">product.category.property.form.inherit</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="account.view_category_property_form"/>
+            <field name="arch" type="xml">
+                <field name="property_account_income_categ_id" position="attributes">
+                    <attribute name="context">{'only_myself': 1}</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </field>
+                <field name="property_account_expense_categ_id" position="attributes">
+                    <attribute name="context">{'only_myself': 1}</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </field>
+            </field>
+        </record>
+
+        <!--
+        字段property_account_creditor_price_difference_categ(价格差异科目)
+        增加上下文，经只能选择用户当前公司下的数据
+        -->
+        <record id="purchase_view_category_property_form" model="ir.ui.view">
+            <field name="name">product.category.property.form.inherit.stock</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="purchase.view_category_property_form"/>
+            <field name="arch" type="xml">
+                <field name="property_account_creditor_price_difference_categ" position="attributes">
+                    <attribute name="context">{'only_myself': 1}</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </field>
+            </field>
+        </record>
+
+        <!--
+        字段property_stock_account_input_categ_id(入库科目)、
+        字段property_stock_account_output_categ_id(出库科目)、
+        字段property_stock_valuation_account_id(库存估值科目)、
+        字段property_stock_journal（库存分录）
+        增加上下文，经只能选择用户当前公司下的数据
+        -->
+        <record id="stock_account_view_category_property_form" model="ir.ui.view">
+            <field name="name">product.category.stock.property.form.inherit</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="stock_account.view_category_property_form"/>
+            <field name="arch" type="xml">
+                <field name="property_stock_account_input_categ_id" position="attributes">
+                    <attribute name="context">{'only_myself': 1}</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </field>
+                <field name="property_stock_account_output_categ_id" position="attributes">
+                    <attribute name="context">{'only_myself': 1}</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </field>
+                <field name="property_stock_valuation_account_id" position="attributes">
+                    <attribute name="context">{'only_myself': 1}</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </field>
+                <field name="property_stock_journal" position="attributes">
+                    <attribute name="context">{'only_myself': 1}</attribute>
+                    <attribute name="options">{'no_create': 1}</attribute>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

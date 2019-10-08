@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<odoo>
+    <!--跨公司调拨-->
+    <data noupdate="1">
+        <record id="mms_stock_across_move_approval" model="mail.message.subtype">
+            <field name="name">跨公司调拨审核</field>
+            <field name="is_approval_prompt" eval="True"/>
+            <field name="res_model">stock.across.move</field>
+        </record>
+
+        <record id="mms_purchase_order_approval" model="mail.message.subtype">
+            <field name="name">采购订单审批通过</field>
+            <field name="is_approval_prompt" eval="True"/>
+            <field name="res_model">purchase.order</field>
+        </record>
+
+        <record id="mms_sale_order_approval" model="mail.message.subtype">
+            <field name="name">团购单审批通过</field>
+            <field name="is_approval_prompt" eval="True"/>
+            <field name="res_model">sale.order</field>
+        </record>
+
+    </data>
+
+    <!--盘点单-->
+    <data noupdate="1">
+        <record id="mms_stock_inventory_stock_user_approval" model="mail.message.subtype">
+            <field name="name">盘点单仓库专员审核</field>
+            <field name="is_approval_prompt" eval="True"/>
+            <field name="res_model">stock.inventory</field>
+        </record>
+
+        <record id="mms_stock_inventory_stock_manager_approval" model="mail.message.subtype">
+            <field name="name">盘点单仓库经理审核</field>
+            <field name="is_approval_prompt" eval="True"/>
+            <field name="res_model">stock.inventory</field>
+        </record>
+
+        <record id="mms_stock_inventory_account_invoice_approval" model="mail.message.subtype">
+            <field name="name">盘点单财务专员审核</field>
+            <field name="is_approval_prompt" eval="True"/>
+            <field name="res_model">stock.inventory</field>
+        </record>
+
+        <record id="mms_stock_inventory_account_manager_approval" model="mail.message.subtype">
+            <field name="name">盘点单财务经理审核</field>
+            <field name="is_approval_prompt" eval="True"/>
+            <field name="res_model">stock.inventory</field>
+        </record>
+    </data>
+</odoo>

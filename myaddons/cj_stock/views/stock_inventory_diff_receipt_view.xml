@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_stock_inventory_diff_receipt_tree" model="ir.ui.view">
+            <field name="name">stock.inventory.diff.receipt.tree</field>
+            <field name="model">stock.inventory.diff.receipt</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="company_id"/>
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="inventory_id"/>
+                    <field name="inventory_cost_type"/>
+                    <field name="partner_id"/>
+                    <field name="payment_term_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_stock_inventory_diff_receipt_form" model="ir.ui.view">
+            <field name="name">stock.inventory.diff.receipt.form</field>
+            <field name="model">stock.inventory.diff.receipt</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_confirm" string="确认" type="object"
+                                states="draft"
+                                class="oe_highlight" groups="stock.group_stock_user"/>
+
+                        <button name="action_draft" type="object"
+                                states="confirm" string="设为草稿" groups="stock.group_stock_user"/>
+
+                        <button name="action_manager_confirm" string="经理审核" type="object"
+                                states="confirm"
+                                class="oe_highlight" groups="stock.group_stock_manager"/>
+
+                        <button name="action_finance_confirm" string="财务审核" type="object"
+                                states="manager_confirm"
+                                class="oe_highlight" groups="account.group_account_invoice"/>
+
+                        <button name="action_done" string="完成" type="object"
+                                states="finance_confirm"
+                                class="oe_highlight" groups="stock.group_stock_user"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,manager_confirm,finance_confirm,done" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name"/></h1>
+                        </div>
+
+                        <group>
+                            <group>
+
+                                <field name="partner_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="payment_term_id"/>
+                                <field name="amount"/>
+                            </group>
+                            <group>
+                                <field name="inventory_id" options="{'no_create': 1}"/>
+                                <field name="inventory_cost_type"/>
+                                <field name="date"/>
+
+                                <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="收款明细">
+                                <field name="line_ids">
+                                    <tree editable="top">
+                                        <field name="product_id"/>
+                                        <field name="product_qty"/>
+                                        <field name="cost"/>
+                                        <field name="amount"/>
+                                    </tree>
+                                    <form>
+                                        <group col="4">
+                                            <field name="product_id"/>
+                                            <field name="product_qty"/>
+                                            <field name="cost"/>
+                                            <field name="amount"/>
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_stock_inventory_diff_receipt_filter" model="ir.ui.view">
+            <field name="name">stock.inventory.diff.receipt.filter</field>
+            <field name="model">stock.inventory.diff.receipt</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="company_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="状态" name="group_state" domain="[]" context="{'group_by':'state'}"/>
+                        <filter string="公司" name="group_warehouse" domain="[]" context="{'group_by':'company_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_stock_inventory_diff_receipt" model="ir.actions.act_window">
+            <field name="name">盘亏收款</field>
+            <field name="res_model">stock.inventory.diff.receipt</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="menu_action_stock_inventory_diff_receipt"
+                  action="action_stock_inventory_diff_receipt"
+                  groups="stock.group_stock_user"
+                  name="盘亏收款" parent="stock.menu_stock_inventory_control" sequence="20"/>
+
+    </data>
+
+</odoo>

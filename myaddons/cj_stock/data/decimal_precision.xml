@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!--存货估值小数精度-->
+        <record forcecreate="True" id="valuation_decimal_payment" model="decimal.precision">
+            <field name="name">Inventory valuation</field>
+            <field name="digits">4</field>
+        </record>
+    </data>
+</odoo>

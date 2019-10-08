@@ -1,0 +1,522 @@
+# Chinese (Simplified) translation for openobject-addons
+# Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
+# This file is distributed under the same license as the openobject-addons package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: openobject-addons\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-21 13:17+0000\n"
+"PO-Revision-Date: 2019-03-12 10:54+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2013-03-08 05:32+0000\n"
+"X-Generator: Poedit 2.0.6\n"
+
+#. module: account_check_printing
+#: code:addons/account_check_printing/models/account_journal.py:58
+#, python-format
+msgid " : Check Number Sequence"
+msgstr " : 检查序列号"
+
+#. module: account_check_printing
+#: code:addons/account_check_printing/models/account_payment.py:63
+#, python-format
+msgid "A check memo cannot exceed 60 characters."
+msgstr "一份支票备忘录，不能超过 60 个字符。"
+
+#. module: account_check_printing
+#: model:ir.model,name:account_check_printing.model_account_chart_template
+msgid "Account Chart Template"
+msgstr ""
+
+#. module: account_check_printing
+#: model:ir.model.fields,help:account_check_printing.field_res_company__account_check_printing_margin_left
+#: model:ir.model.fields,help:account_check_printing.field_res_company__account_check_printing_margin_right
+#: model:ir.model.fields,help:account_check_printing.field_res_company__account_check_printing_margin_top
+#: model:ir.model.fields,help:account_check_printing.field_res_config_settings__account_check_printing_margin_left
+#: model:ir.model.fields,help:account_check_printing.field_res_config_settings__account_check_printing_margin_right
+#: model:ir.model.fields,help:account_check_printing.field_res_config_settings__account_check_printing_margin_top
+msgid ""
+"Adjust the margins of generated checks to make it fit your printer's "
+"settings."
+msgstr ""
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_account_payment__check_amount_in_words
+#: model:ir.model.fields,field_description:account_check_printing.field_account_register_payments__check_amount_in_words
+msgid "Amount in Words"
+msgstr "金额大写"
+
+#. module: account_check_printing
+#: model_terms:ir.ui.view,arch_db:account_check_printing.print_pre_numbered_checks_view
+msgid "Cancel"
+msgstr "取消"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_res_company__account_check_printing_layout
+#: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_layout
+msgid "Check Layout"
+msgstr "支票布局"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_res_company__account_check_printing_margin_left
+#: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_margin_left
+#, fuzzy
+#| msgid "Check to print"
+msgid "Check Left Margin"
+msgstr "要打印的支票"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_account_payment__check_number
+#: model:ir.model.fields,field_description:account_check_printing.field_account_register_payments__check_number
+msgid "Check Number"
+msgstr "支票编号"
+
+#. module: account_check_printing
+#: model_terms:ir.ui.view,arch_db:account_check_printing.view_account_journal_form_inherited
+msgid "Check Printing"
+msgstr "支票打印中"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_account_journal__check_printing_payment_method_selected
+#, fuzzy
+#| msgid "Check printing payment method selected"
+msgid "Check Printing Payment Method Selected"
+msgstr "支票打印选择的付款方法"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_margin_right
+#, fuzzy
+#| msgid "Check to print"
+msgid "Check Right Margin"
+msgstr "要打印的支票"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_account_journal__check_sequence_id
+msgid "Check Sequence"
+msgstr "支票序列"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_res_company__account_check_printing_margin_top
+#: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_margin_top
+#, fuzzy
+#| msgid "Checks To Print"
+msgid "Check Top Margin"
+msgstr "要打印的支票"
+
+#. module: account_check_printing
+#: model:ir.model.fields,help:account_check_printing.field_account_journal__check_manual_sequencing
+#: model:ir.model.fields,help:account_check_printing.field_account_payment__check_manual_sequencing
+#: model:ir.model.fields,help:account_check_printing.field_account_register_payments__check_manual_sequencing
+msgid "Check this option if your pre-printed checks are not numbered."
+msgstr "如果你预先印制的检查都没有编号，勾选这个选项。"
+
+#. module: account_check_printing
+#: model_terms:ir.ui.view,arch_db:account_check_printing.account_journal_dashboard_kanban_view_inherited
+msgid "Check to print"
+msgstr "要打印的支票"
+
+#. module: account_check_printing
+#: model:account.payment.method,name:account_check_printing.account_payment_method_check
+#, fuzzy
+#| msgid "Check"
+msgid "Checks"
+msgstr "支票"
+
+#. module: account_check_printing
+#: model_terms:ir.ui.view,arch_db:account_check_printing.view_payment_check_printing_search
+msgid "Checks To Print"
+msgstr "要打印的支票"
+
+#. module: account_check_printing
+#: model:ir.model.fields,help:account_check_printing.field_account_journal__check_sequence_id
+msgid "Checks numbering sequence."
+msgstr "支票编号序列"
+
+#. module: account_check_printing
+#: code:addons/account_check_printing/models/account_journal.py:97
+#, python-format
+msgid "Checks to Print"
+msgstr "要打印的支票"
+
+#. module: account_check_printing
+#: model_terms:ir.ui.view,arch_db:account_check_printing.account_journal_dashboard_kanban_view_inherited
+msgid "Checks to print"
+msgstr "要打印的支票"
+
+#. module: account_check_printing
+#: model:ir.model,name:account_check_printing.model_res_company
+msgid "Companies"
+msgstr "公司"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__country_code
+msgid "Company Country code"
+msgstr ""
+
+#. module: account_check_printing
+#: model:ir.model,name:account_check_printing.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_print_prenumbered_checks__create_uid
+msgid "Created by"
+msgstr "创建者"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_print_prenumbered_checks__create_date
+msgid "Created on"
+msgstr "创建时间"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_print_prenumbered_checks__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_print_prenumbered_checks__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_check_printing
+#: code:addons/account_check_printing/models/account_payment.py:84
+#, python-format
+msgid ""
+"In order to print multiple checks at once, they must belong to the same bank "
+"journal."
+msgstr "为了一次打印多张支票，他们必须属于同一个银行存款日记帐。"
+
+#. module: account_check_printing
+#: model:ir.model,name:account_check_printing.model_account_journal
+msgid "Journal"
+msgstr "凭证簿"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_print_prenumbered_checks____last_update
+msgid "Last Modified on"
+msgstr "最后修改日"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_print_prenumbered_checks__write_uid
+msgid "Last Updated by"
+msgstr "最后更新者"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_print_prenumbered_checks__write_date
+msgid "Last Updated on"
+msgstr "最后更新时间"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_account_journal__check_manual_sequencing
+#: model:ir.model.fields,field_description:account_check_printing.field_account_payment__check_manual_sequencing
+#: model:ir.model.fields,field_description:account_check_printing.field_account_register_payments__check_manual_sequencing
+msgid "Manual Numbering"
+msgstr "手动编号"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_res_company__account_check_printing_multi_stub
+#: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_multi_stub
+msgid "Multi-Pages Check Stub"
+msgstr ""
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_account_journal__check_next_number
+#: model:ir.model.fields,field_description:account_check_printing.field_print_prenumbered_checks__next_check_number
+msgid "Next Check Number"
+msgstr "下一个支票编号"
+
+#. module: account_check_printing
+#: selection:res.company,account_check_printing_layout:0
+msgid "None"
+msgstr ""
+
+#. module: account_check_printing
+#: model:ir.model.fields,help:account_check_printing.field_account_register_payments__check_number
+msgid ""
+"Number of the check corresponding to this payment. If your pre-printed check "
+"are not already numbered, you can manage the numbering in the journal "
+"configuration page."
+msgstr ""
+"对应于该支付的支票编号。如果你预先打印的支票不是已经存在的编号，你可以在日志"
+"配置界面管理编号。"
+
+#. module: account_check_printing
+#: model:ir.model,name:account_check_printing.model_account_payment
+msgid "Payments"
+msgstr "支付"
+
+#. module: account_check_printing
+#: code:addons/account_check_printing/models/account_payment.py:81
+#, python-format
+msgid ""
+"Payments to print as a checks must have 'Check' selected as payment method "
+"and not have already been reconciled"
+msgstr ""
+"作为一个要打印付款支票必须已经选择'支票'作为支付方法并且不是已经被调整。"
+
+#. module: account_check_printing
+#: model_terms:ir.ui.view,arch_db:account_check_printing.print_pre_numbered_checks_view
+msgid ""
+"Please enter the number of the first pre-printed check that you are about to "
+"print on."
+msgstr "请输入你将要打印支票中第一个预打印支票的编号。"
+
+#. module: account_check_printing
+#: model_terms:ir.ui.view,arch_db:account_check_printing.print_pre_numbered_checks_view
+msgid "Print"
+msgstr "打印"
+
+#. module: account_check_printing
+#: model_terms:ir.ui.view,arch_db:account_check_printing.view_account_payment_form_inherited
+msgid "Print Check"
+msgstr "打印支票"
+
+#. module: account_check_printing
+#: model:ir.actions.server,name:account_check_printing.action_account_print_checks
+msgid "Print Checks"
+msgstr "打印支票"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_res_company__account_check_printing_date_label
+#: model:ir.model.fields,field_description:account_check_printing.field_res_config_settings__account_check_printing_date_label
+msgid "Print Date Label"
+msgstr ""
+
+#. module: account_check_printing
+#: code:addons/account_check_printing/models/account_payment.py:94
+#: model:ir.model,name:account_check_printing.model_print_prenumbered_checks
+#: model_terms:ir.ui.view,arch_db:account_check_printing.print_pre_numbered_checks_view
+#, python-format
+msgid "Print Pre-numbered Checks"
+msgstr "打印预编号的支票"
+
+#. module: account_check_printing
+#: model:ir.model,name:account_check_printing.model_account_register_payments
+#, fuzzy
+#| msgid "Payments"
+msgid "Register Payments"
+msgstr "支付"
+
+#. module: account_check_printing
+#: model:ir.model.fields,field_description:account_check_printing.field_res_company__account_check_printing_margin_right
+msgid "Right Margin"
+msgstr ""
+
+#. module: account_check_printing
+#: model:ir.model.fields,help:account_check_printing.field_res_company__account_check_printing_layout
+#: model:ir.model.fields,help:account_check_printing.field_res_config_settings__account_check_printing_layout
+msgid ""
+"Select the format corresponding to the check paper you will be printing your "
+"checks on.\n"
+"In order to disable the printing feature, select 'None'."
+msgstr ""
+
+#. module: account_check_printing
+#: model:ir.model.fields,help:account_check_printing.field_account_journal__check_next_number
+msgid "Sequence number of the next printed check."
+msgstr "将要打印的下一张支票的编号。"
+
+#. module: account_check_printing
+#: model:ir.model.fields,help:account_check_printing.field_account_journal__check_printing_payment_method_selected
+msgid ""
+"Technical feature used to know whether check printing was enabled as payment "
+"method."
+msgstr "技术特性，用于知道是否预打印支票作为支付方式。"
+
+#. module: account_check_printing
+#: model:ir.model.fields,help:account_check_printing.field_res_config_settings__country_code
+msgid ""
+"The ISO country code in two chars. \n"
+"You can use this field for quick search."
+msgstr ""
+
+#. module: account_check_printing
+#: code:addons/account_check_printing/models/account_journal.py:26
+#, python-format
+msgid ""
+"The last check number was %s. In order to avoid a check being rejected by "
+"the bank, you can only use a greater number."
+msgstr "最后的支票号码是 %s,为了避免支票被银行拒绝，你只能使用一个更大的编号。"
+
+#. module: account_check_printing
+#: model:ir.model.fields,help:account_check_printing.field_account_payment__check_number
+msgid ""
+"The selected journal is configured to print check numbers. If your pre-"
+"printed check paper already has numbers or if the current numbering is "
+"wrong, you can change it in the journal configuration page."
+msgstr ""
+"选择的日志被配置为打印支票编号。如果你的预打印的纸支票已经有编号或如果当前的"
+"编号是错误的，你可以在日志配置页面更改。"
+
+#. module: account_check_printing
+#: model:ir.model.fields,help:account_check_printing.field_res_company__account_check_printing_multi_stub
+#: model:ir.model.fields,help:account_check_printing.field_res_config_settings__account_check_printing_multi_stub
+msgid ""
+"This option allows you to print check details (stub) on multiple pages if "
+"they don't fit on a single page."
+msgstr ""
+
+#. module: account_check_printing
+#: model:ir.model.fields,help:account_check_printing.field_res_company__account_check_printing_date_label
+#: model:ir.model.fields,help:account_check_printing.field_res_config_settings__account_check_printing_date_label
+msgid ""
+"This option allows you to print the date label on the check as per CPA. "
+"Disable this if your pre-printed check includes the date label."
+msgstr ""
+
+#. module: account_check_printing
+#: model_terms:ir.ui.view,arch_db:account_check_printing.print_pre_numbered_checks_view
+msgid ""
+"This will allow to save on payments the number of the corresponding check."
+msgstr "相应支票的变号将允许保存到支付上。"
+
+#. module: account_check_printing
+#: model_terms:ir.ui.view,arch_db:account_check_printing.view_account_payment_form_inherited
+msgid "Unmark Sent"
+msgstr "取消已发送标记"
+
+#. module: account_check_printing
+#: code:addons/account_check_printing/models/account_payment.py:116
+#, python-format
+msgid ""
+"You have to choose a check layout. For this, go in Apps, search for 'Checks "
+"layout' and install one."
+msgstr ""
+
+#. module: account_check_printing
+#: selection:res.company,account_check_printing_layout:0
+#, fuzzy
+#| msgid "Check in middle"
+msgid "check in middle"
+msgstr "支票正文"
+
+#. module: account_check_printing
+#: selection:res.company,account_check_printing_layout:0
+#, fuzzy
+#| msgid "Check on bottom"
+msgid "check on bottom"
+msgstr "支票页脚"
+
+#. module: account_check_printing
+#: selection:res.company,account_check_printing_layout:0
+#, fuzzy
+#| msgid "Check on bottom"
+msgid "check on top"
+msgstr "支票页脚"
+
+#~ msgid " and %s/100"
+#~ msgstr "和 %s/100"
+
+#~ msgid "Register payments on multiple invoices"
+#~ msgstr "在多张发票上登记付款记录"
+
+#~ msgid ""
+#~ "There is no check layout configured.\n"
+#~ "Make sure the proper check printing module is installed and its "
+#~ "configuration (in company settings > 'Configuration' tab) is correct."
+#~ msgstr ""
+#~ "没有支票布局配置。确保已安装了正确的支票打印模块及其配置（在公司设置>“配"
+#~ "置”选项卡）是正确的。"
+
+#~ msgid "or"
+#~ msgstr "或"
+
+#~ msgid ""
+#~ "<p class=\"oe_view_nocontent_create\">\n"
+#~ "                Click to create a new check. \n"
+#~ "              </p><p>\n"
+#~ "                The check payment form allows you to track the payment "
+#~ "you do\n"
+#~ "                to your suppliers using checks. When you select a "
+#~ "supplier, the\n"
+#~ "                payment method and an amount for the payment, Odoo will\n"
+#~ "                propose to reconcile your payment with the open supplier\n"
+#~ "                invoices or bills.\n"
+#~ "              </p>\n"
+#~ "            "
+#~ msgstr ""
+#~ "<p class=\"oe_view_nocontent_create\">\n"
+#~ "                单击创建一个新的支票。\n"
+#~ "              </p><p>\n"
+#~ "                支票支付表单允许跟踪用支票支付给供应商的过程。当你选择了一"
+#~ "个供应商，Odoo将自动提供支付方法和支付金额，用于核销待支付的供应商发票和单"
+#~ "据。\n"
+#~ "              </p>\n"
+#~ "            "
+
+#~ msgid "Accounting Voucher"
+#~ msgstr "会计凭证"
+
+#~ msgid "Allow Check writing"
+#~ msgstr "允许打印支票"
+
+#~ msgid "Check if you use a preformated sheet for check"
+#~ msgstr "检查你是否使用一个已定义好的支票表格"
+
+#~ msgid ""
+#~ "Check on top is compatible with Quicken, QuickBooks and Microsoft Money. "
+#~ "Check in middle is compatible with Peachtree, ACCPAC and DacEasy. Check "
+#~ "on bottom is compatible with Peachtree, ACCPAC and DacEasy only"
+#~ msgstr ""
+#~ "支票页眉支持Quicken,QuickBooks和Microsoft Money等软件，可从这些软件中获取"
+#~ "数据并填入支票抬头页眉。支票正文的数据支持Peachtree,ACCPAC和DacEasy等软"
+#~ "件。支票页脚部分仅支持Peachtree,ACCPAC和DacEasy。生成支票时请留意相应的兼"
+#~ "容性问题。"
+
+#~ msgid "Check this if the journal is to be used for writing checks."
+#~ msgstr "如果这个凭证簿用于写支票，请勾选这里。"
+
+#~ msgid "Description"
+#~ msgstr "描述"
+
+#~ msgid "Discount"
+#~ msgstr "折扣"
+
+#~ msgid "Due Date"
+#~ msgstr "到期日期"
+
+#~ msgid "Error!"
+#~ msgstr "错误！"
+
+#~ msgid "No check selected "
+#~ msgstr "没有选择的支票"
+
+#~ msgid "Open Balance"
+#~ msgstr "期初余额"
+
+#~ msgid "Original Amount"
+#~ msgstr "原始金额"
+
+#~ msgid "Prin Check in Batch"
+#~ msgstr "批量打印支票"
+
+#~ msgid "Print Check in Batch"
+#~ msgstr "批量打印支票"
+
+#~ msgid "Printing error"
+#~ msgstr "打印错误"
+
+#~ msgid "Use Preprinted Check"
+#~ msgstr "用预先打印的支票"
+
+#~ msgid "Write Checks"
+#~ msgstr "开具支票"
+
+#~ msgid "Print Check (Bottom)"
+#~ msgstr "打印支票（底部）"
+
+#~ msgid "Print Check (Middle)"
+#~ msgstr "打印支票（中间）"
+
+#~ msgid "Balance Due"
+#~ msgstr "截止余额"
+
+#~ msgid "Print Check (Top)"
+#~ msgstr "打印支票（顶部）"

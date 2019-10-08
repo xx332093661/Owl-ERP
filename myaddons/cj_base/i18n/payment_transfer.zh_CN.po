@@ -1,0 +1,155 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* payment_transfer
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0rc1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-18 09:49+0000\n"
+"PO-Revision-Date: 2018-09-22 21:34+0800\n"
+"Last-Translator: 保定-粉刷匠 <992102498@qq.com>\n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Poedit 2.0.7\n"
+
+#. module: payment_transfer
+#: code:addons/payment_transfer/models/payment.py:83
+#, python-format
+msgid "; multiple order found"
+msgstr "；找到多个订单"
+
+#. module: payment_transfer
+#: code:addons/payment_transfer/models/payment.py:81
+#, python-format
+msgid "; no order found"
+msgstr "；未找到订单"
+
+#. module: payment_transfer
+#: code:addons/payment_transfer/models/payment.py:41
+#, python-format
+msgid ""
+"<div>\n"
+"<h3>Please use the following transfer details</h3>\n"
+"<h4>%(bank_title)s</h4>\n"
+"%(bank_accounts)s\n"
+"<h4>Communication</h4>\n"
+"<p>Please use the order name as communication reference.</p>\n"
+"</div>"
+msgstr ""
+"<div>\n"
+"<h3>请使用下列交易详情Please use the following transfer details</h3>\n"
+"<h4>%(bank_title)s</h4>\n"
+"%(bank_accounts)s\n"
+"<h4>沟通</h4>\n"
+"<p>请使用订单名称作为沟通信息P。</p>\n"
+"</div>"
+
+#. module: payment_transfer
+#: selection:payment.acquirer,provider:0
+msgid "Adyen"
+msgstr "Adyen"
+
+#. module: payment_transfer
+#: selection:payment.acquirer,provider:0
+msgid "Authorize.Net"
+msgstr "Authorize.Net"
+
+#. module: payment_transfer
+#: code:addons/payment_transfer/models/payment.py:39
+#, python-format
+msgid "Bank Account"
+msgstr "银行账户"
+
+#. module: payment_transfer
+#: code:addons/payment_transfer/models/payment.py:39
+#, python-format
+msgid "Bank Accounts"
+msgstr "银行账户"
+
+#. module: payment_transfer
+#: selection:payment.acquirer,provider:0
+msgid "Buckaroo"
+msgstr "Buckaroo"
+
+#. module: payment_transfer
+#: selection:payment.acquirer,provider:0
+msgid "Manual Configuration"
+msgstr "人工配置"
+
+#. module: payment_transfer
+#: selection:payment.acquirer,provider:0
+msgid "Ogone"
+msgstr "Ogone"
+
+#. module: payment_transfer
+#: selection:payment.acquirer,provider:0
+msgid "PayUmoney"
+msgstr "PayUmoney"
+
+#. module: payment_transfer
+#: model:ir.model,name:payment_transfer.model_payment_acquirer
+msgid "Payment Acquirer"
+msgstr "支付收购方"
+
+#. module: payment_transfer
+#: model:ir.model,name:payment_transfer.model_payment_transaction
+msgid "Payment Transaction"
+msgstr "支付交易"
+
+#. module: payment_transfer
+#: selection:payment.acquirer,provider:0
+msgid "Paypal"
+msgstr "Paypal"
+
+#. module: payment_transfer
+#: model:ir.model.fields,field_description:payment_transfer.field_payment_acquirer__provider
+msgid "Provider"
+msgstr "提供者"
+
+#. module: payment_transfer
+#: selection:payment.acquirer,provider:0
+msgid "Sips"
+msgstr "Sips"
+
+#. module: payment_transfer
+#: selection:payment.acquirer,provider:0
+msgid "Stripe"
+msgstr "指纹"
+
+#. module: payment_transfer
+#: selection:payment.acquirer,provider:0
+msgid "Wire Transfer"
+msgstr "电汇"
+
+#. module: payment_transfer
+#: code:addons/payment_transfer/models/payment.py:79
+#, python-format
+msgid "received data for reference %s"
+msgstr "接收的关于%s的参考数据"
+
+#~ msgid "<span><i>Cancel,</i> Your payment has been cancelled.</span>"
+#~ msgstr "<span><i>取消，</i>你的付款已取消。</span>"
+
+#~ msgid "<span><i>Done,</i> Your online payment has been successfully processed. Thank you for your order.</span>"
+#~ msgstr "<span><i>完成，</i>你的在线支付已经成功处理，谢谢你的订单。</span>"
+
+#~ msgid "<span><i>Error,</i> Please be aware that an error occurred during the transaction. The order has been confirmed but won't be paid. Don't hesitate to contact us if you have any questions on the status of your order.</span>"
+#~ msgstr "<span><i>错误，</i>请注意，在交易过程中出现错误。该订单已被确认，但不会被支付。如果你对你的订单状态的任何问题，不要犹豫，请联系我们。</span>"
+
+#~ msgid "<span><i>Pending,</i> Your online payment has been successfully processed. But your order is not validated yet.</span>"
+#~ msgstr ""
+#~ "<span><i>挂起，</i>你的在线支付已经成功处理，但是你的订单还没有生效。\n"
+#~ "</span>"
+
+#~ msgid "Transfer information will be provided after choosing the payment mode."
+#~ msgstr "转账信息将在选择付款方式后提供。"
+
+#~ msgid "<span><i>Error,</i> An error occurred. We cannot process your payment for the moment, please try again later.</span>"
+#~ msgstr ""
+#~ "<span><i>错误，</i>发生了一个错误。我们当前不能处理你的付款，请稍后重试。\n"
+#~ "</span>"

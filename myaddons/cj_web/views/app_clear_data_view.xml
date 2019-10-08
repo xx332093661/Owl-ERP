@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_app_clear_data_form" model="ir.ui.view">
+            <field name="name">app.clear.data.form</field>
+            <field name="model">app.clear.data</field>
+            <field eval="16" name="priority"/>
+            <field name="arch" type="xml">
+                <form string="清理数据">
+                    <div class="mt16 o_settings_container" name="data-clean">
+                        <h2 name="data-clean" class="o_horizontal_separator">数据清理（请谨慎操作！）</h2>
+                        <div class="col-12 col-lg-12 mb4">
+                            <span class="col-3 col-lg-2 text-left">销售</span>
+                            <button string="删除所有报价单、销售单" type="object" name="remove_sales"
+                                    confirm="您确认要删除指定数据？" class="oe_highlight"/>
+                        </div>
+                        <!--<div class="col-12 col-lg-12 mb4">-->
+                            <!--<span class="col-3 col-lg-2 text-left">POS</span>-->
+                            <!--<button string="删除所有POS订单" type="object" name="remove_pos" confirm="您确认要删除指定数据？"-->
+                                    <!--class="oe_highlight"/>-->
+                        <!--</div>-->
+                        <div class="col-12 col-lg-12 mb4">
+                            <span class="col-3 col-lg-2 text-left">采购</span>
+                            <button string="删除所有询价单、采购单，采购招标" type="object" name="remove_purchase"
+                                    confirm="您确认要删除指定数据？" class="oe_highlight"/>
+                        </div>
+                        <!--<div class="col-12 col-lg-12 mb4">-->
+                            <!--<span class="col-3 col-lg-2 text-left">MRP</span>-->
+                            <!--<button string="删除所有生产单" type="object" name="remove_mrp"-->
+                                    <!--confirm="您确认要删除指定数据？" class="oe_highlight"/>-->
+                            <!--<button string="删除所有物料清单" type="object" name="remove_mrp_bom"-->
+                                    <!--style="margin-left:5px"-->
+                                    <!--confirm="您确认要删除指定数据？" class="oe_highlight"/>-->
+                        <!--</div>-->
+                        <div class="col-12 col-lg-12 mb4">
+                            <span class="col-3 col-lg-2 text-left">仓库</span>
+                            <button string="删除所有库存调拨/拣货/包装/批次/易耗品申报/物流单数据" type="object" name="remove_inventory"
+                                    confirm="您确认要删除指定数据？" class="oe_highlight"/>
+                        </div>
+                        <div class="col-12 col-lg-12 mb4">
+                            <span class="col-3 col-lg-2 text-left">财务</span>
+                            <button string="删除所有收据/发票/账单" type="object" name="remove_account"
+                                    confirm="您确认要删除指定数据？" class="oe_highlight"/>
+                            <button string="清除会计科目，便于重置" type="object" name="remove_account_chart"
+                                    style="margin-left:5px"
+                                    confirm="您确认要删除指定数据？" class="oe_highlight"/>
+                        </div>
+                        <!--<div class="col-12 col-lg-12 mb4">-->
+                            <!--<span class="col-3 col-lg-2 text-left">项目</span>-->
+                            <!--<button string="删除所有项目/任务/预测" type="object" name="remove_project"-->
+                                    <!--confirm="您确认要删除指定数据？" class="oe_highlight"/>-->
+                        <!--</div>-->
+                        <div class="col-12 col-lg-12 mb4">
+                            <span class="col-3 col-lg-2 text-left">基础数据</span>
+                            <button string="删除所有产品及变体" type="object" name="remove_product"
+                                    confirm="您确认要删除指定数据？" class="oe_highlight"/>
+                            <button string="删除所有产品属性" type="object" name="remove_product_attribute"
+                                    style="margin-left:5px"
+                                    confirm="您确认要删除指定数据？" class="oe_highlight"/>
+                            <button string="删除所有消息" type="object" name="remove_message"
+                                    style="margin-left:5px"
+                                    confirm="您确认要删除指定数据？" class="oe_highlight"/>
+                            <button string="删除所有工作流" type="object" name="remove_workflow"
+                                    style="margin-left:5px"
+                                    confirm="您确认要删除指定数据？" class="oe_highlight"/>
+                        </div>
+                    </div>
+                    <footer>
+                        <button string="关闭" special="cancel" class="btn-primary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_app_clear_data" model="ir.actions.act_window">
+            <field name="name">数据清理</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">app.clear.data</field>
+            <field name="target">new</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+        </record>
+
+    </data>
+</odoo>

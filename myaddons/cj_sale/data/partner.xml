@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="default_cj_partner" model="res.partner">
+            <field name="name">默认客户</field>
+            <field eval="1" name="customer"/>
+            <field eval="0" name="supplier"/>
+            <field name="is_company">0</field>
+        </record>
+
+
+    </data>
+</odoo>
