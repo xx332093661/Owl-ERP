@@ -49,6 +49,7 @@ class StockPicking(models.Model):
         self._generate_sale_internal_settlement_invoice()
         # 供应商销售后付款处理
         self._generate_sale_sale_after_payment_invoice()
+        # 联营商品处理
 
         # 创建销售订单对应的结算单
         invoice = self._generate_sale_invoice_create(self.sale_id)
@@ -368,6 +369,12 @@ class StockPicking(models.Model):
             invoice.sudo().action_invoice_open()  # 打开并登记凭证
             self.env['account.invoice.split'].create_invoice_split(invoice)  # 创建账单分期
 
+    def _generate_sale_joint_invoice(self):
+        """联营商品处理(销售后结算)"""
+        def filter_stock_move_line(x):
+            return x.lot_id.purchase_order_ids.payment_term_id.type == 'sale_after_payment'
+
+
     def _generate_sale_invoice_create(self, sale):
         """创建销售订单对应的结算单"""
 
@@ -633,7 +640,7 @@ class StockPicking(models.Model):
             # 'cash_rounding_id': False,  # 现金舍入方式
             # 'comment': '',  # 其它信息
             # 'date': False,  # 会计日期(Keep empty to use the invoice date.)
-            'date_due': self._compute_invoice_date_due(purchase, date_invoice), # 截止日期
+            'date_due': self._compute_invoice_date_due(purchase, date_invoice, payment_term),  # 截止日期
             'date_invoice': date_invoice,  # 开票日期
             'fiscal_position_id': self._compute_invoice_fiscal_position_id(partner),  # 替换规则
             'incoterm_id': False,  # 国际贸易术语
@@ -821,7 +828,7 @@ class StockPicking(models.Model):
 
         # 按订单明细的支付条款分组
         for payment_term, order_line in groupby(sorted(purchase.order_line, key=lambda x: x.payment_term_id.id), lambda x: x.payment_term_id):
-            if payment_term.type == 'sale_after_payment':  # 销售后支付，不做任何操作
+            if payment_term.type in ['sale_after_payment', 'joint']:  # 销售后支付或联营商品，不做任何操作
                 continue
 
             # 创建账单
