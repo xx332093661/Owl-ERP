@@ -8,7 +8,8 @@ PAYMENT_TERM_TYPE = [
     ('normal', '正常结算'),
     ('cycle_payment', '滚单结算'),
     ('sale_after_payment', '销售后结算'),
-    ('first_payment', '先款后货')
+    ('first_payment', '先款后货'),
+    ('joint', '联营'),
 ]
 
 
@@ -20,6 +21,7 @@ class AccountPaymentTerm(models.Model):
     _inherit = 'account.payment.term'
 
     type = fields.Selection(PAYMENT_TERM_TYPE, '结算类型', default='normal')
+    fee_rate = fields.Float('扣率(%)', help='联营扣点')
 
     @api.multi
     def write(self, vals):

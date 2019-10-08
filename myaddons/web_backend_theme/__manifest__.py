@@ -18,6 +18,7 @@
     'depends': ['web'],
 
     'data': [
+        'security/ir.model.access.csv',
         'views/template.xml',
         'views/company_view.xml',
         'views/users_view.xml',
