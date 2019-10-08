@@ -1296,6 +1296,110 @@ class ApiMessage(models.Model):
 
     def deal_mustang_to_erp_store_stock_update_record_push(self, content):  # mustang-to-erp-store-stock-update-record-push
         """门店库存变更记录"""
+        sale_order_obj = self.env['sale.order']
+        return_picking_obj = self.env['stock.return.picking']
+        product_obj = self.env['product.product']
+        picking_obj = self.env['stock.picking']
+
+        content = json.loads(content)
+        update_type = content['type']  # 变更类型
+        order_name = content['updateCode']  # 变更单号（如果是订单产生的库存变化，那变更类型就是销售出库，变更单号就是订单号）
+        default_code = content['goodsCode']  # 商品编码
+
+        product = product_obj.search([('default_code', '=', default_code)])
+        if not product:
+            raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
+
+        if update_type == 'STOCK_01001':  # 销售退货(只有一次退货)
+            sale_order = sale_order_obj.search([('name', '=', order_name), ])
+            if not sale_order:
+                raise MyValidationError('14', '变更单号：%s未找到对应的销售订单！' % order_name)
+
+            picking = picking_obj.search([('sale_id', '=', sale_order.id)])
+            stock_move = picking.move_ids_without_package.filtered(lambda x: x.product_id.id == product.id)
+
+            return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create({
+                'product_return_moves': [(6, 0, {
+                    'product_id': product.id,
+                    'quantity': abs(content['quantity']),
+                    'move_id': stock_move.id
+                })],
+            })
+            new_picking_id, pick_type_id = return_picking._create_returns()
+            picking_obj.browse(new_picking_id).action_done()  # 确认入库
+
+        if update_type == 'STOCK_01002':  # 销售出库
+            sale_order = sale_order_obj.search([('name', '=', order_name), ])
+            if not sale_order:
+                raise MyValidationError('14', '变更单号：%s未找到对应的销售订单！' % order_name)
+
+            if sale_order.state == 'draft':
+                sale_order.action_confirm()  # 确认草稿订单
+
+            picking = picking_obj.search([('sale_id', '=', sale_order.id)])
+
+            if picking.state != 'assigned':
+                picking.action_assign()
+
+            if picking.state != 'assigned':
+                raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
+            picking.action_done()  # 确认出库
+
+        if update_type == 'STOCK_01003':  # 销售退货冲销
+            raise MyValidationError('00', '未实现的处理')
+
+        if update_type == 'STOCK_01004':  # 销售出库冲销
+            raise MyValidationError('00', '未实现的处理')
+
+        if update_type == 'STOCK_02001':  # 采购入库
+            raise MyValidationError('00', '未实现的处理')
+
+        if update_type == 'STOCK_02002':  # 采购退货
+            raise MyValidationError('00', '未实现的处理')
+
+        if update_type == 'STOCK_02003':  # 仓库配货入库
+            # 公司下总仓->门店仓
+            pass
+
+        if update_type == 'STOCK_02004':  # 采购入库冲销
+            raise MyValidationError('00', '未实现的处理')
+
+        if update_type == 'STOCK_02005':  # 采购退货冲销
+            raise MyValidationError('00', '未实现的处理')
+
+        if update_type == 'STOCK_02006':  # 仓库配货入库冲销
+            pass
+
+        if update_type == 'STOCK_03001':  # 两步式调拨-出库
+            pass
+
+        if update_type == 'STOCK_03002':  # 两步式调拨-入库
+            pass
+
+        if update_type == 'STOCK_03003':  # 盘盈入库
+            pass
+
+        if update_type == 'STOCK_03004':  # 盘亏出库
+            pass
+
+        if update_type == 'STOCK_03005':  # 返货总仓出库
+            pass
+
+        if update_type == 'STOCK_03006':  # 两步式调拨-出库冲销
+            pass
+
+        if update_type == 'STOCK_03007':  # 两步式调拨-入库冲销
+            pass
+
+        if update_type == 'STOCK_03008':  # 盘盈入库冲销
+            pass
+
+        if update_type == 'STOCK_03009':  # 盘亏出库冲销
+            pass
+
+        if update_type == 'STOCK_03010':  # 返货总仓出库冲销
+            pass
 
     def deal_mustang_to_erp_service_list_push(self, content):  # mustang-to-erp-service-list-push
         """售后服务单"""

@@ -96,7 +96,7 @@
                     <field name="product_id" options="{'no_create': 1}"/>
                     <field name="partner_id" options="{'no_create': 1}"/>
                     <field name="payment_term_id"/>
-                    <field name="commerce_model_id"/>
+                    <!--<field name="commerce_model_id"/>-->
                     <field name="is_stock"/>
                     <field name="time_price"/>
                 </tree>
@@ -113,7 +113,7 @@
                             <field name="product_id" options="{'no_create': 1}"/>
                             <field name="partner_id" options="{'no_create': 1}"/>
                             <field name="payment_term_id"/>
-                            <field name="commerce_model_id"/>
+                            <!--<field name="commerce_model_id"/>-->
                             <field name="is_stock"/>
                             <field name="time_price"/>
                         </group>
@@ -129,6 +129,8 @@
                 <search>
                     <field name="product_id"/>
                     <field name="partner_id"/>
+                    <separator/>
+                    <filter string="已归档" name="inactive" domain="[('active','=',False)]"/>
                 </search>
             </field>
         </record>

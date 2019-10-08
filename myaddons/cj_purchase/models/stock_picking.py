@@ -19,9 +19,9 @@ class StockMove(models.Model):
 
             # 采购申请状态检查
             if picking.purchase_id and picking.purchase_id.apply_id:
-                picking.purchase_id.apply_id.check_state()
+                picking.purchase_id.sudo().apply_id.check_state()
 
             # 退货单状态检查
             if picking.order_return_id:
-                picking.order_return_id.check_done()
+                picking.order_return_id.sudo().check_done()
         return res

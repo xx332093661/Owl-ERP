@@ -229,7 +229,7 @@
             <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
                 <span class="fa fa-filter"/>
                 <span class="btn1_txt">Filters</span>
-                <span class="caret"/>
+                <!--<span class="caret"/>-->
             </button>
         </t>
     </t>
@@ -239,7 +239,7 @@
             <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
                 <span class="fa fa-bars"/>
                 <span class="btn1_txt">Group By</span>
-                <span class="caret"/>
+                <!--<span class="caret"/>-->
             </button>
         </t>
     </t>
@@ -249,7 +249,7 @@
             <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">
                 <span class="fa fa-star"/>
                 <span class="btn1_txt">Favorites</span>
-                <span class="caret"/>
+                <!--<span class="caret"/>-->
             </button>
         </t>
     </t>

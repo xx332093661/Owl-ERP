@@ -9,7 +9,7 @@ class Users(models.Model):
     cover_bg = fields.Char('背景图', default='/web_backend_theme/static/src/img/cover/cover_sunrise.jpg')
     company_theme = fields.Boolean('使用公司主题', readonly=1, compute='_compute_company_theme')
     hide_theme_switcher = fields.Boolean('主题切换', default=True)
-    menu_style = fields.Selection([('apps', '顶部菜单'), ('sidemenu', '左侧菜单')], '菜单样式', default='sidemenu')
+    menu_style = fields.Selection([('apps', '顶部菜单'), ('sidemenu', '左侧菜单')], '菜单样式', default='apps')
     theme = fields.Selection([
         ('orange', '橙色'),
         ('gray_black', '灰黑色'),
@@ -32,21 +32,21 @@ class Users(models.Model):
 
     @api.multi
     def cover_switcher_write(self, cover_bg):
-        self.sudo().cover_bg = cover_bg
+        self.cover_bg = cover_bg
 
     @api.multi
     def color_switcher_write(self, theme):
-        self.sudo().theme = theme
+        self.theme = theme
 
     @api.multi
     def allow_cover_bg_write(self, allow_cover_bg):
-        self.sudo().allow_cover_bg = allow_cover_bg
+        self.allow_cover_bg = allow_cover_bg
         return {
             'cover_bg': self.cover_bg
         }
 
     @api.multi
     def switch_menu_style(self, menu_style):
-        self.sudo().menu_style = menu_style
+        self.menu_style = menu_style
 
 

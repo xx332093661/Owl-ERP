@@ -26,11 +26,8 @@ $white_color: #FFF;
 .o_list_view .checkbox-inline input[type="checkbox"] {
     margin-left: 0;
 }
-.o_list_view [type="checkbox"] + label {
+.o_list_view .o_list_record_selector [type="checkbox"] + label {
     top: -21px;
-}
-.o_field_x2many_list  .o_list_view [type="checkbox"] + label {
-    top: 0;
 }
 .o_list_view .custom-control {
     height: 20px;
