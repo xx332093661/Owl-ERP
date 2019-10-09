@@ -199,7 +199,7 @@ class AfterSaleOrderLine(models.Model):
         template = {
             'name': (self.name or ''),
             'product_id': self.product_id.id,
-            'product_uom': self.sale_order_line_id.product_uom_id.id if self.sale_order_line_id else self.product_id.uom_id.id,
+            'product_uom': self.sale_order_line_id.product_uom.id if self.sale_order_line_id else self.product_id.uom_id.id,
             'date': self.after_order_id.date,
             'date_expected': self.after_order_id.date,
             'location_id': picking.location_id.id,
