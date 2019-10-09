@@ -316,16 +316,16 @@ class PurchaseOrder(models.Model):
         action['domain'] = [('purchase_order_id', '=', self.id)]
         return action
 
-    @api.model
-    def create(self, vals):
-        model_obj = self.env['product.supplier.model']
-
-        res = super(PurchaseOrder, self).create(vals)
-        for line in res.mapped('order_line'):
-            if not model_obj.search([('product_id', '=', line.product_id.id), ('partner_id', '=', res.partner_id.id)]):
-                model_obj.create({
-                    'product_id': line.product_id.id,
-                    'partner_id': res.partner_id.id,
-                    'payment_term_id': line.payment_term_id.id
-                })
-        return res
+    # @api.model
+    # def create(self, vals):
+    #     model_obj = self.env['product.supplier.model']
+    #
+    #     res = super(PurchaseOrder, self).create(vals)
+    #     for line in res.mapped('order_line'):
+    #         if not model_obj.search([('product_id', '=', line.product_id.id), ('partner_id', '=', res.partner_id.id)]):
+    #             model_obj.create({
+    #                 'product_id': line.product_id.id,
+    #                 'partner_id': res.partner_id.id,
+    #                 'payment_term_id': line.payment_term_id.id
+    #             })
+    #     return res
