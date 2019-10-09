@@ -97,8 +97,10 @@ class ProductSupplierModel(models.Model):
     def unlink(self):
         line_obj = self.env['purchase.order.line']
         for res in self:
-            if res.payment_term_id.type in [] and line_obj.search([()]):
+            if res.payment_term_id.type in ['joint', 'sale_after_payment'] and line_obj.search([()]):
                 pass
+
+        return super(ProductSupplierModel, self).unlink()
 
     @api.multi
     @api.constrains('product_id', 'partner_id', 'payment_term_id', 'company_id')
@@ -125,8 +127,7 @@ class ProductSupplierModel(models.Model):
                         (product.name, types[supplier_model.payment_term_id.type]))
 
             if res.payment_term_id.type in ['joint', 'sale_after_payment']:
-                supplier_model = self.with_context(active_test=False).search(
-                    [('product_id', '=', product.id), ('payment_term_id.type', 'not in', ['joint', 'sale_after_payment']), ('id', '!=', res.id)])
+                supplier_model = self.with_context(active_test=False).search([('product_id', '=', product.id), ('id', '!=', res.id)])
 
                 if supplier_model:
                     raise ValidationError(
