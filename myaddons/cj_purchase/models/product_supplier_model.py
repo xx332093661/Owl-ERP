@@ -34,7 +34,6 @@ class StockModel(models.Model):
 class ProductSupplierModel(models.Model):
     _name = 'product.supplier.model'
     _description = '商品供应商模式'
-    _log_access = False
 
     product_id = fields.Many2one('product.product', '商品', required=1, index=1)
     partner_id = fields.Many2one('res.partner', '供应商', required=1, index=1, domain="[('supplier', '=', True)]")
@@ -71,6 +70,56 @@ class ProductSupplierModel(models.Model):
         for product, ls in groupby(sorted(sale_after_payment_res, key=lambda x: x.product_id.id), lambda x: x.product_id):
             if len(list(ls)) > 1:
                 raise ValidationError('商品：%s不能同时有多家供应商销售后结算！' % product.name)
+
+
+class PurchaseOrder(models.Model):
+    """功能：
+        确认订单或者提交OA审批时时，验证支付条款订单明细支付条款
+    """
+    _inherit = 'purchase.order'
+
+    def button_confirm1(self):
+        super(PurchaseOrder, self).button_confirm1()
+        self._check_payment_term()
+
+    def button_confirm2(self):
+        super(PurchaseOrder, self).button_confirm2()
+        self._check_payment_term()
+
+    def _check_payment_term(self):
+        """验证支付条款"""
+        from odoo.addons.cj_arap.models.account_payment_term import PAYMENT_TERM_TYPE
+        types = dict(PAYMENT_TERM_TYPE)
+        supplier_model_obj = self.env['product.supplier.model']
+        partner_id = self.partner_id.id  # 供应商
+        for line in self.order_line:
+            product = line.product_id
+            product_id = product.id
+            payment_term = line.payment_term_id  # 支付条款
+
+            supplier_model = supplier_model_obj.search([('product_id', '=', product_id), ('partner_id', '=', partner_id)])
+            if not supplier_model:
+                supplier_model_obj.create({
+                    'product_id': product_id,
+                    'partner_id': partner_id,
+                    'payment_term_id': payment_term.id,
+                    'active': True
+                })
+            else:
+                # 供应商模式的结算模式为销售后结算或联营，采购订单的支付方式非销售后结算或联营
+                model_payment_type = supplier_model.payment_term_id.type  # 供应商模式结算模式的类型
+                payment_type = payment_term.type
+                if (model_payment_type == 'sale_after_payment' and payment_type != 'sale_after_payment') or \
+                        (model_payment_type == 'joint' and payment_type != 'joint'):
+                    raise ValidationError('商品：%s供应商模式的结算类型为"%s"，不能以"%s"方式采购！' %
+                                          (product.name, types[model_payment_type], types[payment_type]))
+
+                supplier_model.payment_term_id = payment_term.id  # 更新供应商模式的结算方式为当前支付条款
+
+
+
+
+
 
 
 
