@@ -329,3 +329,24 @@ class PurchaseOrder(models.Model):
     #                 'payment_term_id': line.payment_term_id.id
     #             })
     #     return res
+
+    @api.onchange('partner_id', 'company_id')
+    def onchange_partner_id(self):
+        picking_type_obj = self.env['stock.picking.type']
+
+        if not self.partner_id:
+            self.fiscal_position_id = False
+            self.payment_term_id = False
+            self.currency_id = self.env.user.company_id.currency_id.id
+        else:
+            self.fiscal_position_id = self.env['account.fiscal.position'].with_context(
+                company_id=self.company_id.id).get_fiscal_position(self.partner_id.id)
+            self.payment_term_id = self.partner_id.property_supplier_payment_term_id.id
+            self.currency_id = self.partner_id.property_purchase_currency_id.id or self.env.user.company_id.currency_id.id
+
+        if not self.company_id:
+            self.picking_type_id = False
+        else:
+            picking_type = picking_type_obj.search([('warehouse_id.company_id', '=', self.company_id.id), ('code', '=', 'incoming')], limit=1)
+            self.picking_type_id = picking_type.id
+        return {}
