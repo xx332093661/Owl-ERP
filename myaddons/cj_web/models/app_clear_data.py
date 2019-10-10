@@ -136,7 +136,8 @@ class AppClearData(models.Model):
             ['purchase.apply.line', ],
             ['purchase.apply', ],
             ['purchase.supplierinfo', ],
-            ['purchase.price.list']
+            ['purchase.price.list'],
+            ['product.supplier.model']
         ]
         try:
             for line in to_removes:
