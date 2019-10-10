@@ -401,7 +401,10 @@ class StockPicking(models.Model):
                     'discount': 0.0,
                     'account_analytic_id': purchase_order_line.account_analytic_id.id,
                     'analytic_tag_ids': purchase_order_line.analytic_tag_ids.ids,
-                    'invoice_line_tax_ids': invoice_line_tax_ids.ids
+                    'invoice_line_tax_ids': invoice_line_tax_ids.ids,
+                    'supplier_model_id': val['supplier_model_id'],
+                    'fee_rate': val['fee_rate'],
+
                 }))
 
             return vals_list
@@ -412,7 +415,7 @@ class StockPicking(models.Model):
         tz = self.env.user.tz or 'Asia/Shanghai'
         date_invoice = datetime.now(tz=pytz.timezone(tz)).date()
 
-        company = self.sale_id.company_id.id
+        company = self.sale_id.company_id
         company_id = company.id
         currency = company.currency_id  # 币种
         currency_id = currency.id
@@ -449,7 +452,10 @@ class StockPicking(models.Model):
                     'payment_term': payment_term,
                     'invoice_qty': invoice_qty,
                     'purchase_order_line': order_line,
-                    'price_unit': float_round(line.move_id.sale_line_id.price_unit * (100 - payment_term.fee_rate) / 100.0, precision_digits=2),  # 结算单价
+                    # 'price_unit': float_round(line.move_id.sale_line_id.price_unit * (100 - payment_term.fee_rate) / 100.0, precision_digits=2),  # 结算单价
+                    'price_unit': line.move_id.sale_line_id.price_unit,
+                    'fee_rate': payment_term.fee_rate,
+                    'supplier_model_id': supplier_model.id
                 })
 
                 if float_is_zero(qty_done, precision_digits=2):
@@ -472,7 +478,7 @@ class StockPicking(models.Model):
                 # 'cash_rounding_id': False,  # 现金舍入方式
                 # 'comment': '',  # 其它信息
                 # 'date': False,  # 会计日期(Keep empty to use the invoice date.)
-                'date_due': self._compute_invoice_date_due(purchase, date_invoice),  # 截止日期
+                'date_due': self._compute_invoice_date_due(purchase, date_invoice, payment_term),  # 截止日期
                 'date_invoice': date_invoice,  # 开票日期
                 'fiscal_position_id': self._compute_invoice_fiscal_position_id(partner),  # 替换规则
                 'incoterm_id': False,  # 国际贸易术语
