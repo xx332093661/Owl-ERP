@@ -373,7 +373,7 @@ class StockPicking(models.Model):
     def _generate_sale_joint_invoice(self):
         """联营商品处理(销售后结算)"""
         def filter_stock_move_line(x):
-            return supplier_model_obj.search([('product_id', '=', x.product_id.id)]).payment_term_id.type == 'joint'
+            return supplier_model_obj.search([('product_id', '=', x.product_id.id), ('company_id', '=', company_id)]).payment_term_id.type == 'joint'
 
         def sort_key(x):
             return x['purchase'].id, x['payment_term'].id
@@ -434,7 +434,7 @@ class StockPicking(models.Model):
 
             qty_done = line.qty_done  # 完成的数量
 
-            for order_line in order_line_obj.search([('partner_id', '=', partner.id), ('product_id', '=', product.id)], order='id asc'):
+            for order_line in order_line_obj.search([('partner_id', '=', partner.id), ('product_id', '=', product.id), ('company_id', '=', company_id), ('state', 'in', ['purchase', 'done'])], order='id desc'):
                 qty_received = order_line.qty_received  # 接收的数量
                 qty_invoiced = order_line.qty_invoiced  # 开单的数量
                 qty = qty_received - qty_invoiced

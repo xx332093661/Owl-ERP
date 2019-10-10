@@ -131,15 +131,15 @@ class PurchaseOrder(models.Model):
         for line in self.order_line:
             product = line.product_id
             product_id = product.id
-            payment_term = line.payment_term_id  # 支付条款
+            payment_term_id = line.payment_term_id.id  # 支付条款
 
-            supplier_model = supplier_model_obj.search([('product_id', '=', product_id), ('partner_id', '=', partner_id), ('company_id', '=', company_id)])
+            supplier_model = supplier_model_obj.search([('product_id', '=', product_id), ('partner_id', '=', partner_id), ('company_id', '=', company_id), ('payment_term_id', '=', payment_term_id)])
             if not supplier_model:
                 supplier_model_obj.create({
                     'company_id': company_id,
                     'product_id': product_id,
                     'partner_id': partner_id,
-                    'payment_term_id': payment_term.id,
+                    'payment_term_id': payment_term_id,
                     'active': True
                 })
 
