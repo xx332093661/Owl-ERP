@@ -29,6 +29,7 @@
         'data/partner.xml',
         'data/oa_approval_callback.xml',
         'data/decimal_precision.xml',
+        'data/product_product.xml',
 
         'views/sale_channels.xml',
         'views/sale_activity.xml',
@@ -37,6 +38,7 @@
         'views/sale_order_groupn.xml',
         'views/delivery_order_view.xml',
         'views/res_config_setting_view.xml',
+        'views/delivery_carrier_view.xml',
 
         'wizard/sale_purchase_confirm_view.xml',
 
