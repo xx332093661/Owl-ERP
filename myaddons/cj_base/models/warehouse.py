@@ -16,3 +16,6 @@ class Warehouse(models.Model):
     charge_person = fields.Char('仓库负责人')
     charge_phone = fields.Char('仓库负责人电话')
     status = fields.Selection([('0', '启用'), ('1', '停用')], '川酒状态', default='0')
+    province = fields.Char('省')
+    city = fields.Char('市')
+    area = fields.Char('区')

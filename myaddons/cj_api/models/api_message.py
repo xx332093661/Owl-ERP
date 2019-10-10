@@ -430,6 +430,9 @@ class ApiMessage(models.Model):
                 'charge_person': wh['chargePerson'],
                 'charge_phone': wh['chargePhone'],
                 'status': wh['status'],  # [('0', '启用'), ('1', '停用')]
+                'province': wh.get('province'),
+                'city': wh.get('city'),
+                'area': wh.get('area'),
                 #
                 # 'user_id': 3,
                 # 'manager_id': 3,
