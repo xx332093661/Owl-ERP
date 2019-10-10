@@ -8,22 +8,22 @@ class PurchaseOrderLine(models.Model):
 
     payment_term_id = fields.Many2one('account.payment.term', '支付条款', required=1)
 
-    @api.multi
-    def _constraint_only_payment_term(self):
-        """同一个商品不同供应商不能同时存在两个联营和销售后结算"""
-        supplier_model_obj = self.env['product.supplier.model']
-        for line in self:
-            if line.payment_term_id.type in ('sale_after_payment', 'joint'):
-                supplier_model = supplier_model_obj.search([('partner_id', '!=', line.order_id.partner_id.id),
-                                                            ('product_id', '=', line.product_id.id),
-                                                            ('payment_term_id.type', '=', line.payment_term_id.type)], limit=1)
-                if supplier_model:
-                    raise UserError('商品：%s存在相同支付条款(供应商：%s)' % (line.product_id.name, supplier_model.partner_id.name))
-        return True
-
-    _constraints = [
-        (_constraint_only_payment_term, '支付条款必须唯一', []),
-    ]
+    # @api.multi
+    # def _constraint_only_payment_term(self):
+    #     """同一个商品不同供应商不能同时存在两个联营和销售后结算"""
+    #     supplier_model_obj = self.env['product.supplier.model']
+    #     for line in self:
+    #         if line.payment_term_id.type in ('sale_after_payment', 'joint'):
+    #             supplier_model = supplier_model_obj.search([('partner_id', '!=', line.order_id.partner_id.id),
+    #                                                         ('product_id', '=', line.product_id.id),
+    #                                                         ('payment_term_id.type', '=', line.payment_term_id.type)], limit=1)
+    #             if supplier_model:
+    #                 raise UserError('商品：%s存在相同支付条款(供应商：%s)' % (line.product_id.name, supplier_model.partner_id.name))
+    #     return True
+    #
+    # _constraints = [
+    #     (_constraint_only_payment_term, '支付条款必须唯一', []),
+    # ]
 
     # @api.model
     # def default_get(self, fields_list):

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from itertools import groupby
-from collections import Counter
 import importlib
 
 from odoo import models, fields, api
@@ -47,60 +45,37 @@ class ProductSupplierModel(models.Model):
 
     active = fields.Boolean('归档', default=True)
 
-    # @api.model
-    # def create(self, vals):
-    #     from odoo.addons.cj_arap.models.account_payment_term import PAYMENT_TERM_TYPE
-    #
-    #     company_obj = self.env['res.company']
-    #     product_obj = self.env['product.product']
-    #     partner_obj = self.env['res.partner']
-    #
-    #     company_id = vals['company_id']
-    #     product_id = vals['product_id']
-    #     partner_id = vals['partner_id']
-    #     company_name = company_obj.browse(company_id).name
-    #     product_name = product_obj.browse(product_id).name
-    #     partner_name = partner_obj.browse(partner_id).name
-    #
-    #     types = dict(PAYMENT_TERM_TYPE)
-    #
-    #     if self.search([('company_id', '=', company_id), ('product_id', '=', product_id), ('partner_id', '=', partner_id)]):
-    #         raise ValidationError('商品供应商模式 公司：%s 商品：%s 供应商：%s重复！' %
-    #                               (company_name, product_name, partner_name))
-    #
-    #     supplier_model = self.with_context(active_test=False).search(
-    #         [('product_id', '=', product_id), ('payment_term_id.type', 'in', ['joint', 'sale_after_payment'])])
-    #     if supplier_model:
-    #         raise ValidationError('商品%s存在%s的结算模式，不能再创建其他类型的结算模式！' % (product_name, types[supplier_model.payment_term_id.type]))
-    #
-    #     res = super(ProductSupplierModel, self).create(vals)
-    #
-    #     return res
-    #
-    # @api.one
-    # def write(self, vals):
-    #     res = super(ProductSupplierModel, self).write(vals)
-    #     if 'active' in vals:
-    #         return res
-    #
-    #     company_name = self.company_id.name
-    #     product_name = self.product_id.name
-    #     partner_name = self.partner_id.name
-    #     if self.search([('company_id', '=', self.company_id.id), ('product_id', '=', self.product_id.id), ('partner_id', '=', self.partner_id.id), ('id', '!=', self.id)]):
-    #         raise ValidationError('商品供应商模式 公司：%s 商品：%s 供应商：%s重复！' %
-    #                               (company_name, product_name, partner_name))
-    #
-    #     supplier_model = self.with_context(active_test=False).search(
-    #         [('product_id', '=', self.product_id.id), ('payment_term_id.type', 'in', ['joint', 'sale_after_payment']), ('id', '!=', self.id)])
-
     @api.multi
     def unlink(self):
+        module = importlib.import_module('odoo.addons.cj_arap.models.account_payment_term')
+        types = dict(module.PAYMENT_TERM_TYPE)
+
         line_obj = self.env['purchase.order.line']
         for res in self:
-            if res.payment_term_id.type in ['joint', 'sale_after_payment'] and line_obj.search([()]):
-                pass
+            if res.payment_term_id.type in ['joint', 'sale_after_payment'] and line_obj.search([('product_id', '=', res.product_id.id), ('company_id', '=', res.company_id.id)]):
+                raise ValidationError('商品：%s存在以%s为结算方式的采购订单，不能删除！' % (res.product_id.name, types[res.payment_term_id.type]))
 
         return super(ProductSupplierModel, self).unlink()
+
+    @api.multi
+    def write(self, vals):
+        if 'payment_term_id' in vals:
+            module = importlib.import_module('odoo.addons.cj_arap.models.account_payment_term')
+            types = dict(module.PAYMENT_TERM_TYPE)
+
+            line_obj = self.env['purchase.order.line']
+            new_payment_term_type = self.env['account.payment.term'].browse(vals['payment_term_id']).type
+
+            joint_types = ['joint', 'sale_after_payment']
+            for res in self:
+                if line_obj.search([('product_id', '=', res.product_id.id), ('company_id', '=', res.company_id.id)]):
+                    if (res.payment_term_id.type in joint_types and new_payment_term_type not in joint_types) or \
+                            (res.payment_term_id.type not in joint_types and new_payment_term_type in joint_types):
+                        raise ValidationError(
+                            '商品：%s存在以%s为结算方式的采购订单，不能修改结算模式！' %
+                            (res.product_id.name, types[res.payment_term_id.type]))
+
+        return super(ProductSupplierModel, self).write(vals)
 
     @api.multi
     @api.constrains('product_id', 'partner_id', 'payment_term_id', 'company_id')
@@ -117,22 +92,21 @@ class ProductSupplierModel(models.Model):
                 raise ValidationError('商品供应商模式 公司：%s 商品：%s 供应商：%s重复！' %
                                       (company.name, product.name, partner.name))
 
-            if res.payment_term_id.type not in ['joint', 'sale_after_payment']:
-                supplier_model = self.with_context(active_test=False).search(
-                    [('product_id', '=', product.id), ('payment_term_id.type', 'in', ['joint', 'sale_after_payment']), ('id', '!=', res.id)])
+            supplier_model = self.with_context(active_test=False).search(
+                [('product_id', '=', product.id), ('payment_term_id.type', 'in', ['joint', 'sale_after_payment']),
+                 ('id', '!=', res.id)], limit=1)
 
-                if supplier_model:
-                    raise ValidationError(
-                        '商品%s存在%s的结算模式，不能再创建其他类型的结算模式！' %
-                        (product.name, types[supplier_model.payment_term_id.type]))
+            if supplier_model:
+                supplier_model_type = supplier_model.payment_term_id.type
+                res_type = res.payment_term_id.type
+                if (supplier_model_type == 'joint' and res_type != 'joint') or \
+                        (supplier_model_type == 'sale_after_payment' and res_type != 'sale_after_payment') or \
+                        (supplier_model_type not in ['joint', 'sale_after_payment'] and res_type in ['joint', 'sale_after_payment']):
+                        raise ValidationError('商品%s存在%s的结算模式，不能再创建%s的结算模式！' %
+                                              (product.name, types[supplier_model_type], types[res_type]))
 
-            if res.payment_term_id.type in ['joint', 'sale_after_payment']:
-                supplier_model = self.with_context(active_test=False).search([('product_id', '=', product.id), ('id', '!=', res.id)])
-
-                if supplier_model:
-                    raise ValidationError(
-                        '商品%s存在%s的结算模式，不能再创建%s的结算模式！' %
-                        (product.name, types[supplier_model.payment_term_id.type], types[res.payment_term_id.type]))
+                if supplier_model_type in ['joint', 'sale_after_payment'] and supplier_model.partner_id.id != res.partner_id.id:
+                    raise ValidationError('%s模式的商品：%s，禁止修改供应商！' % (types[supplier_model_type], product.name))
 
 
 class PurchaseOrder(models.Model):
@@ -151,8 +125,6 @@ class PurchaseOrder(models.Model):
 
     def _check_payment_term(self):
         """验证支付条款"""
-        from odoo.addons.cj_arap.models.account_payment_term import PAYMENT_TERM_TYPE
-        types = dict(PAYMENT_TERM_TYPE)
         supplier_model_obj = self.env['product.supplier.model']
         partner_id = self.partner_id.id  # 供应商
         company_id = self.company_id.id  # 公司
@@ -170,17 +142,6 @@ class PurchaseOrder(models.Model):
                     'payment_term_id': payment_term.id,
                     'active': True
                 })
-            else:
-                # 供应商模式的结算模式为销售后结算或联营，采购订单的支付方式非销售后结算或联营
-                model_payment_type = supplier_model.payment_term_id.type  # 供应商模式结算模式的类型
-                payment_type = payment_term.type
-                if (model_payment_type == 'sale_after_payment' and payment_type != 'sale_after_payment') or \
-                        (model_payment_type == 'joint' and payment_type != 'joint'):
-                    raise ValidationError('商品：%s供应商模式的结算类型为"%s"，不能以"%s"方式采购！' %
-                                          (product.name, types[model_payment_type], types[payment_type]))
-
-                if supplier_model.payment_term_id.id != payment_term.id:
-                    supplier_model.payment_term_id = payment_term.id  # 更新供应商模式的结算方式为当前支付条款
 
 
 
