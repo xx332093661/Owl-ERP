@@ -85,6 +85,7 @@
                             <!--<field name="list_base" class="oe_inline" style="width:80px !important" required="1"/>-->
                             <span>基数</span>
                             )
+                            <span>因子：</span>
                             <field name="variable_factor" class="oe_inline"/>
                         </div>
                     </group>
