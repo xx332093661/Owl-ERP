@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import odoorpc
 import json
+
+import os
 import xlwt
 import xlrd
 
@@ -15,8 +17,12 @@ def _deal_content(content):
 
 
 def generate_supplier_excel():
+    file_path = os.path.join(os.path.abspath('.'), file_name)
+    if os.path.exists(file_path):
+        os.remove(file_name)
+
     odoo = odoorpc.ODOO(host='localhost', port=8079)
-    odoo.login('odoocjl1', login='admin', password='admin')
+    odoo.login('odoocjl3', login='admin', password='admin')
 
     workbook = xlwt.Workbook()
     worksheet = workbook.add_sheet('Sheet 1')
@@ -80,5 +86,5 @@ def check_supplier():
     print('供应商总数量：', len(company_ids))  # 2 ok
 
 
-# generate_supplier_excel()
-check_supplier()
+generate_supplier_excel()
+# check_supplier()

@@ -16,7 +16,7 @@ class DeliveryCarrier(models.Model):
     @api.model
     def default_get(self, fields_list):
         res = super(DeliveryCarrier, self).default_get(fields_list)
-        res['product_id'] = self.env.ref('cj_sale.product_product_delivery').id
+        res['product_id'] = self.env.ref('cj_delivery.product_product_delivery').id
         return res
 
 

@@ -85,6 +85,9 @@ class SaleOrder(models.Model):
     consignee_name = fields.Char('收货人名字')
     consignee_mobile = fields.Char('收货人电话')
     address = fields.Char('收货人地址')
+    consignee_state_id = fields.Many2one('res.country.state', '省')
+    consignee_city_id = fields.Many2one('res.city', '市')
+    consignee_district_id = fields.Many2one('res.city', '区(县)')
 
     arap_checked = fields.Boolean(string="商品核算", helps="是否完成了该订单的应收应付核算检查", default=False)
     cost_checked = fields.Boolean(string="物流核算", helps="是否完成了订单商品成本的计算", default=False)

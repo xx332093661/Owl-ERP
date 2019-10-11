@@ -13,21 +13,21 @@ _logger = logging.getLogger(__name__)
 
 # mq消息处理顺序
 MQ_SEQUENCE = {
-    'MDM-ERP-ORG-QUEUE': 1,
-    'MDM-ERP-STORE-QUEUE': 2,
-    'MDM-ERP-SUPPLIER-QUEUE': 3,
-    'MDM-ERP-DISTRIBUTOR-QUEUE': 4,
-    'MDM-ERP-MEMBER-QUEUE': 5,
-    'MDM-ERP-WAREHOUSE-QUEUE': 6,
-    'MDM-ERP-MATERIAL-QUEUE': 7,
-    'mustang-to-erp-store-stock-push': 8,
-    'mustang-to-erp-order-push': 9,
-    'WMS-ERP-STOCKOUT-QUEUE': 10,
-    'mustang-to-erp-order-status-push': 11,
-    'mustang-to-erp-service-list-push': 12,
-    'mustang-to-erp-logistics-push': 13,
-    'WMS-ERP-STOCK-QUEUE': 14,
-    'mustang-to-erp-store-stock-update-record-push': 15
+    'MDM-ERP-ORG-QUEUE': 1,  # 组织机构
+    'MDM-ERP-STORE-QUEUE': 2,  # 门店信息
+    'MDM-ERP-SUPPLIER-QUEUE': 3,  # 供应商
+    'MDM-ERP-DISTRIBUTOR-QUEUE': 4,  # 经销商
+    'MDM-ERP-MEMBER-QUEUE': 5,  # 会员
+    'MDM-ERP-WAREHOUSE-QUEUE': 6,  # 仓库
+    'MDM-ERP-MATERIAL-QUEUE': 7,  # 商品
+    'mustang-to-erp-store-stock-push': 8,  # 门店库存
+    'WMS-ERP-STOCK-QUEUE': 9,  # 外部仓库库存
+    'mustang-to-erp-store-stock-update-record-push': 10,  # 门店库存变更记录
+    'mustang-to-erp-order-push': 11,  # 订单
+    'mustang-to-erp-logistics-push': 12,  # 物流信息
+    'WMS-ERP-STOCKOUT-QUEUE': 13,  # 订单出库
+    'mustang-to-erp-order-status-push': 14,  # 订单状态
+    'mustang-to-erp-service-list-push': 15,  # 售后服务单
 }
 
 
