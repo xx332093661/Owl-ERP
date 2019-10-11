@@ -28,6 +28,5 @@ class PriceRule(models.Model):
     city_ids = fields.Many2many('res.city', 'delivery_price_rule_city_rel', 'rule_id', 'city_id', '目的地')
 
     list_base = fields.Float('基数')
-    list_total = fields.Float('总数')
 
 
