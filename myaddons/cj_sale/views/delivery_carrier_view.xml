@@ -65,10 +65,13 @@
                     <group>
                         <label for="variable" string="条件"/>
                         <div class="o_row">
-                            <field name="variable" invisible="1"/>
-                            <spen>重量</spen>
+                            <field name="variable"/>
                             <field name="operator"/>
                             <field name="max_value"/>
+                        </div>
+                        <label for="list_base"/>
+                        <div>
+                            <field name="list_base" class="oe_inline" required="1"/>
                         </div>
                         <label for="list_base_price" string="运输成本"/>
                         <div>
@@ -76,11 +79,13 @@
                             +
                             <field name="list_price" class="oe_inline"/>
                             *(
-                            <spen>总重量</spen>
+                            <!--<field name="list_total" class="oe_inline" style="width:80px !important" required="1"/>-->
+                            <span>总数</span>
                             -
-                            <field name="list_base_weight" class="oe_inline" style="width:80px !important" required="1"/>
+                            <!--<field name="list_base" class="oe_inline" style="width:80px !important" required="1"/>-->
+                            <span>基数</span>
                             )
-                            <field name="variable_factor" class="oe_inline" invisible="1"/>
+                            <field name="variable_factor" class="oe_inline"/>
                         </div>
                     </group>
                 </xpath>

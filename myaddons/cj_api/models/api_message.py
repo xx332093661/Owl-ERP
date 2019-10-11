@@ -396,9 +396,46 @@ class ApiMessage(models.Model):
 
     def deal_mdm_erp_warehouse_queue(self, content):  # MDM-ERP-WAREHOUSE-QUEUE
         """处理仓库数据"""
+        def get_province():
+            province = wh.get('province')
+            if not province:
+                return False
+
+            if province == '天津':
+                province = '天津市'
+
+            state = state_obj.search([('name', '=', province), ('country_id', '=', country_id)])
+            if state:
+                state = state_obj.create({
+                    'country_id': country_id,
+                    'name': province,
+                    'code': 'todo'  # todo
+                })
+
+            return state.id
+
+        def get_city():
+            city = wh.get('city')
+            if not city:
+                return False
+
+            state = city_obj.search([('name', '=', city), ('country_id', '=', country_id)])
+            if state:
+                state = state_obj.create({
+                    'country_id': country_id,
+                    'name': city,
+                    'state_id': state_id,
+                })
+
+            return state.id
+
         warehouse_obj = self.env['stock.warehouse']
         company_obj = self.env['res.company']
         org_obj = self.env['cj.org'].sudo()
+        state_obj = self.env['res.country.state']
+        city_obj = self.env['res.city']
+
+        country_id = self.env.ref('base.cn')
 
         content, body = self._deal_content(content)
         for wh in body:
@@ -419,6 +456,8 @@ class ApiMessage(models.Model):
                     'supplier': True,
                 })
 
+            state_id = get_province()
+            city_id = get_city()
             val = {
                 'cj_id': wh['id'],
                 'code': wh['code'],
@@ -430,12 +469,9 @@ class ApiMessage(models.Model):
                 'charge_person': wh['chargePerson'],
                 'charge_phone': wh['chargePhone'],
                 'status': wh['status'],  # [('0', '启用'), ('1', '停用')]
-                'province': wh.get('province'),
-                'city': wh.get('city'),
-                'area': wh.get('area'),
-                #
-                # 'user_id': 3,
-                # 'manager_id': 3,
+                'state_id': state_id,
+                'city_id': city_id,
+                'area_id': wh.get('area'),
 
                 'active': True
             }

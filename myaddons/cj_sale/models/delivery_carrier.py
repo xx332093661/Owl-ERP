@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import fields, models
+from odoo import fields, models, api
 
 
 class DeliveryCarrier(models.Model):
@@ -13,6 +13,12 @@ class DeliveryCarrier(models.Model):
                                    '国家', default=lambda self: self.env.ref('base.cn').ids)
     company_id = fields.Many2one('res.company', string='公司', related=False, store=True, readonly=False)
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super(DeliveryCarrier, self).default_get(fields_list)
+        res['product_id'] = self.env.ref('cj_sale.product_product_delivery').id
+        return res
+
 
 class PriceRule(models.Model):
     _inherit = "delivery.price.rule"
@@ -21,6 +27,7 @@ class PriceRule(models.Model):
     state_ids = fields.Many2many('res.country.state', 'delivery_price_rule_state_rel', 'rule_id', 'state_id', '省份')
     city_ids = fields.Many2many('res.city', 'delivery_price_rule_city_rel', 'rule_id', 'city_id', '目的地')
 
-    list_base_weight = fields.Float('基础重量')
-    list_total_weight = fields.Float('总重量')
+    list_base = fields.Float('基数')
+    list_total = fields.Float('总数')
+
 

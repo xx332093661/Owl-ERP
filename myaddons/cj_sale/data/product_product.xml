@@ -3,9 +3,9 @@
 
     <data noupdate="1">
         <!--YTO公司运输服务-->
-        <record id="product_product_delivery_yto" model="product.product">
-            <field name="name">YTO公司运输服务</field>
-            <field name="default_code">delivery_yto</field>
+        <record id="product_product_delivery" model="product.product">
+            <field name="name">运输服务</field>
+            <field name="default_code">delivery</field>
             <field name="type">service</field>
             <field name="categ_id" ref="delivery.product_category_deliveries"/>
             <field name="sale_ok" eval="False"/>
