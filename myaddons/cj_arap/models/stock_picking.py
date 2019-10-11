@@ -50,6 +50,7 @@ class StockPicking(models.Model):
         # 供应商销售后付款处理
         self._generate_sale_sale_after_payment_invoice()
         # 联营商品处理
+        self._generate_sale_joint_invoice()
 
         # 创建销售订单对应的结算单
         invoice = self._generate_sale_invoice_create(self.sale_id)
@@ -255,74 +256,99 @@ class StockPicking(models.Model):
 
     def _generate_sale_sale_after_payment_invoice(self):
         """创建销售关联的销售后付款"""
-        def prepare_invoice_line(mls):
-            invoice_line_obj = self.env['account.invoice.line']
+        def filter_stock_move_line(x):
+            return supplier_model_obj.search([('product_id', '=', x.product_id.id), ('company_id', '=', company_id)]).payment_term_id.type == 'sale_after_payment'
 
+        def sort_key(x):
+            return x['purchase'].id, x['payment_term'].id
+
+        def group_key(x):
+            return x['purchase'], x['payment_term']
+
+        def prepare_invoice_line():
             vals_list = []
-            for ml in mls:
-                ml_qty = ml.qty_done  # 移动数量
-                rounding = ml.product_id.uom_id.rounding  # 计量舍入精度
-                for line in purchase.order_line.filtered(lambda x: x.product_id == ml.product_id):
-
-                    # 应开单数量
-                    if line.product_id.purchase_method == 'purchase':
-                        should_qty = line.product_qty - line.qty_invoiced
-                    else:
-                        should_qty = line.qty_received - line.qty_invoiced
-
-                    invoice_qty = min(ml_qty, should_qty)  # 实际开单数量
-
-                    if float_compare(invoice_qty, 0.0, precision_rounding=rounding) <= 0:
-                        continue
-
-                    taxes = line.taxes_id
-                    invoice_line_tax_ids = purchase.fiscal_position_id.map_tax(
-                        taxes, line.product_id, purchase.partner_id)  # TODO 这里计算税可能有问题，应只按invoice_qty(开单数量)来计算
-
-                    vals_list.append((0, 0, {
-                        'purchase_line_id': line.id,
-                        'name': line.order_id.name + ': ' + line.name,
-                        'origin': line.order_id.origin,
-                        'uom_id': line.product_uom.id,
-                        'product_id': line.product_id.id,
-                        'account_id': invoice_line_obj.with_context(journal_id=journal.id, type='in_invoice')._default_account(), # stock.journal的对应科目
-                        'price_unit': line.order_id.currency_id._convert(line.price_unit, currency, line.company_id, date_invoice, round=False),
-                        'quantity': invoice_qty,
-                        'discount': 0.0,
-                        'account_analytic_id': line.account_analytic_id.id,
-                        'analytic_tag_ids': line.analytic_tag_ids.ids,
-                        'invoice_line_tax_ids': invoice_line_tax_ids.ids
-                    }))
-
-                    ml_qty -= invoice_qty
-                    if float_compare(ml_qty, 0.0, precision_rounding=rounding) <= 0:
-                        break
-
-                if float_compare(ml_qty, 0.0, precision_rounding=rounding) <= 0:
-                    continue
+            for val in vs:
+                purchase_order_line = val['purchase_order_line']  # 采购订单行
+                taxes = purchase_order_line.taxes_id
+                invoice_line_tax_ids = purchase.fiscal_position_id.map_tax(taxes, purchase_order_line.product_id, purchase.partner_id)  # TODO 这里计算税可能有问题，应只按invoice_qty(开单数量)来计算
+                vals_list.append((0, 0, {
+                    'purchase_line_id': purchase_order_line.id,
+                    'name': purchase.name + ': ' + purchase_order_line.name,
+                    'origin': purchase.origin,
+                    'uom_id': purchase_order_line.product_uom.id,
+                    'product_id': purchase_order_line.product_id.id,
+                    'account_id': invoice_line_obj._default_account(), # stock.journal的对应科目
+                    'price_unit': val['price_unit'],
+                    'quantity': val['invoice_qty'],
+                    'discount': 0.0,
+                    'account_analytic_id': purchase_order_line.account_analytic_id.id,
+                    'analytic_tag_ids': purchase_order_line.analytic_tag_ids.ids,
+                    'invoice_line_tax_ids': invoice_line_tax_ids.ids,
+                    'supplier_model_id': val['supplier_model_id'],
+                    'fee_rate': val['fee_rate'],
+                }))
 
             return vals_list
 
-        def filter_stock_move_line(x):
-            return x.lot_id.purchase_order_ids.payment_term_id.type == 'sale_after_payment'
+        supplier_model_obj = self.env['product.supplier.model'].with_context(active_test=False)  # 商品供应商模式
+        order_line_obj = self.env['purchase.order.line']
 
-        def group_key(x):
-            return x.lot_id.purchase_order_ids
-
-        move_lines = self.move_line_ids.filtered(filter_stock_move_line)
-        # 按采购订单分组
         tz = self.env.user.tz or 'Asia/Shanghai'
         date_invoice = datetime.now(tz=pytz.timezone(tz)).date()
-        for purchase, smls in groupby(sorted(move_lines, key=group_key), group_key):  # smls = stock.move.line
-            move_lines = self.env['stock.move.line'].concat(*list(smls))
-            # 创建账单
-            partner = purchase.partner_id  # 供应商
-            company = purchase.company_id  # 公司
-            company_id = company.id
-            currency = purchase.currency_id  # 币种
-            currency_id = currency.id
-            journal = self._compute_invoice_journal(company_id, 'in_invoice', currency_id)  # 分录
-            payment_term = purchase.payment_term_id  # 支付条款
+
+        company = self.sale_id.company_id
+        company_id = company.id
+        currency = company.currency_id  # 币种
+        currency_id = currency.id
+
+        journal = self._compute_invoice_journal(company_id, 'in_invoice', currency_id)  # 分录
+
+        invoice_line_obj = self.env['account.invoice.line'].with_context(journal_id=journal.id, type='in_invoice')
+
+        move_lines = self.move_line_ids.filtered(filter_stock_move_line)
+
+        values = []
+        for line in move_lines:
+            product = line.product_id
+            supplier_model = supplier_model_obj.search([('product_id', '=', product.id), ('company_id', '=', company_id)])
+
+            partner = supplier_model.partner_id  # 供应商
+            payment_term = supplier_model.payment_term_id  # 结算模式
+
+            qty_done = line.qty_done  # 完成的数量
+
+            domain = [('partner_id', '=', partner.id), ('product_id', '=', product.id)]
+            domain.extend([('company_id', '=', company_id), ('state', 'in', ['purchase', 'done'])])
+
+            for order_line in order_line_obj.search(domain, order='id desc'):
+                qty_received = order_line.qty_received  # 接收的数量
+                qty_invoiced = order_line.qty_invoiced  # 开单的数量
+                qty = qty_received - qty_invoiced
+                if float_is_zero(qty, precision_digits=2):
+                    continue
+
+                purchase = order_line.order_id
+
+                invoice_qty = min(qty, qty_done)
+                qty_done -= invoice_qty
+
+                values.append({
+                    'product': product,
+                    'purchase': purchase,
+                    'payment_term': payment_term,
+                    'invoice_qty': invoice_qty,
+                    'purchase_order_line': order_line,
+                    # 'price_unit': float_round(line.move_id.sale_line_id.price_unit * (100 - payment_term.fee_rate) / 100.0, precision_digits=2),  # 结算单价
+                    'price_unit': order_line.price_unit,
+                    'fee_rate': 0,
+                    'supplier_model_id': supplier_model.id
+                })
+
+                if float_is_zero(qty_done, precision_digits=2):
+                    break
+
+        for (purchase, payment_term), vs in groupby(sorted(values, key=sort_key), group_key):  # 按采购订单和支付条款分组
+            partner = purchase.partner_id
 
             vals = {
                 'state': 'draft',  # 状态
@@ -338,11 +364,11 @@ class StockPicking(models.Model):
                 # 'cash_rounding_id': False,  # 现金舍入方式
                 # 'comment': '',  # 其它信息
                 # 'date': False,  # 会计日期(Keep empty to use the invoice date.)
-                'date_due': self._compute_invoice_date_due(purchase, date_invoice),  # 截止日期
+                'date_due': self._compute_invoice_date_due(purchase, date_invoice, payment_term),  # 截止日期
                 'date_invoice': date_invoice,  # 开票日期
                 'fiscal_position_id': self._compute_invoice_fiscal_position_id(partner),  # 替换规则
                 'incoterm_id': False,  # 国际贸易术语
-                'invoice_line_ids': prepare_invoice_line(move_lines),  # 发票明细
+                'invoice_line_ids': prepare_invoice_line(),  # 发票明细
                 # 'invoice_split_ids': [],  # 账单分期
                 'journal_id': journal.id,  # 分录
                 # 'move_id': False,  # 会计凭证(稍后创建)
@@ -362,7 +388,6 @@ class StockPicking(models.Model):
                 'user_id': self.env.user.id,  # 销售员(采购负责人)
                 'stock_picking_id': self.id,
             }
-
             invoice = self.env['account.invoice'].create(vals)
             invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
 
@@ -372,8 +397,143 @@ class StockPicking(models.Model):
     def _generate_sale_joint_invoice(self):
         """联营商品处理(销售后结算)"""
         def filter_stock_move_line(x):
-            return x.lot_id.purchase_order_ids.payment_term_id.type == 'sale_after_payment'
+            return supplier_model_obj.search([('product_id', '=', x.product_id.id), ('company_id', '=', company_id)]).payment_term_id.type == 'joint'
 
+        def sort_key(x):
+            return x['purchase'].id, x['payment_term'].id
+
+        def group_key(x):
+            return x['purchase'], x['payment_term']
+
+        def prepare_invoice_line():
+            vals_list = []
+            for val in vs:
+                purchase_order_line = val['purchase_order_line']  # 采购订单行
+                taxes = purchase_order_line.taxes_id
+                invoice_line_tax_ids = purchase.fiscal_position_id.map_tax(taxes, purchase_order_line.product_id, purchase.partner_id)  # TODO 这里计算税可能有问题，应只按invoice_qty(开单数量)来计算
+                vals_list.append((0, 0, {
+                    'purchase_line_id': purchase_order_line.id,
+                    'name': purchase.name + ': ' + purchase_order_line.name,
+                    'origin': purchase.origin,
+                    'uom_id': purchase_order_line.product_uom.id,
+                    'product_id': purchase_order_line.product_id.id,
+                    'account_id': invoice_line_obj._default_account(), # stock.journal的对应科目
+                    'price_unit': val['price_unit'],
+                    'quantity': val['invoice_qty'],
+                    'discount': 0.0,
+                    'account_analytic_id': purchase_order_line.account_analytic_id.id,
+                    'analytic_tag_ids': purchase_order_line.analytic_tag_ids.ids,
+                    'invoice_line_tax_ids': invoice_line_tax_ids.ids,
+                    'supplier_model_id': val['supplier_model_id'],
+                    'fee_rate': val['fee_rate'],
+
+                }))
+
+            return vals_list
+
+        supplier_model_obj = self.env['product.supplier.model'].with_context(active_test=False)  # 商品供应商模式
+        order_line_obj = self.env['purchase.order.line']
+
+        tz = self.env.user.tz or 'Asia/Shanghai'
+        date_invoice = datetime.now(tz=pytz.timezone(tz)).date()
+
+        company = self.sale_id.company_id
+        company_id = company.id
+        currency = company.currency_id  # 币种
+        currency_id = currency.id
+
+        journal = self._compute_invoice_journal(company_id, 'in_invoice', currency_id)  # 分录
+
+        invoice_line_obj = self.env['account.invoice.line'].with_context(journal_id=journal.id, type='in_invoice')
+
+        move_lines = self.move_line_ids.filtered(filter_stock_move_line)
+
+        values = []
+        for line in move_lines:
+            product = line.product_id
+            supplier_model = supplier_model_obj.search([('product_id', '=', product.id), ('company_id', '=', company_id)])
+
+            partner = supplier_model.partner_id  # 供应商
+            payment_term = supplier_model.payment_term_id  # 结算模式
+
+            qty_done = line.qty_done  # 完成的数量
+
+            domain = [('partner_id', '=', partner.id), ('product_id', '=', product.id)]
+            domain.extend([('company_id', '=', company_id), ('state', 'in', ['purchase', 'done'])])
+
+            for order_line in order_line_obj.search(domain, order='id desc'):
+                qty_received = order_line.qty_received  # 接收的数量
+                qty_invoiced = order_line.qty_invoiced  # 开单的数量
+                qty = qty_received - qty_invoiced
+                if float_is_zero(qty, precision_digits=2):
+                    continue
+
+                purchase = order_line.order_id
+
+                invoice_qty = min(qty, qty_done)
+                qty_done -= invoice_qty
+
+                values.append({
+                    'product': product,
+                    'purchase': purchase,
+                    'payment_term': payment_term,
+                    'invoice_qty': invoice_qty,
+                    'purchase_order_line': order_line,
+                    # 'price_unit': float_round(line.move_id.sale_line_id.price_unit * (100 - payment_term.fee_rate) / 100.0, precision_digits=2),  # 结算单价
+                    'price_unit': line.move_id.sale_line_id.price_unit,
+                    'fee_rate': payment_term.fee_rate,
+                    'supplier_model_id': supplier_model.id
+                })
+
+                if float_is_zero(qty_done, precision_digits=2):
+                    break
+
+        for (purchase, payment_term), vs in groupby(sorted(values, key=sort_key), group_key):  # 按采购订单和支付条款分组
+            partner = purchase.partner_id
+
+            vals = {
+                'state': 'draft',  # 状态
+                'origin': purchase.name,  # 源文档
+                'reference': purchase.partner_ref,  # 供应商单号
+                'purchase_id': purchase.id,
+                'currency_id': currency_id,  # 币种
+                'company_id': company_id,  # 公司
+                'payment_term_id': payment_term.id,  # 支付条款
+                'type': 'in_invoice',  # 类型
+
+                'account_id': partner._get_partner_account_id(company_id, 'in_invoice'),  # 供应商科目
+                # 'cash_rounding_id': False,  # 现金舍入方式
+                # 'comment': '',  # 其它信息
+                # 'date': False,  # 会计日期(Keep empty to use the invoice date.)
+                'date_due': self._compute_invoice_date_due(purchase, date_invoice, payment_term),  # 截止日期
+                'date_invoice': date_invoice,  # 开票日期
+                'fiscal_position_id': self._compute_invoice_fiscal_position_id(partner),  # 替换规则
+                'incoterm_id': False,  # 国际贸易术语
+                'invoice_line_ids': prepare_invoice_line(),  # 发票明细
+                # 'invoice_split_ids': [],  # 账单分期
+                'journal_id': journal.id,  # 分录
+                # 'move_id': False,  # 会计凭证(稍后创建)
+                # 'move_name': False,  # 会计凭证名称(稍后创建)
+                # 'name': False,  # 参考/说明(自动产生)
+                'partner_bank_id': self._compute_invoice_partner_bank_id(partner),  # 银行账户
+                'partner_id': partner.id,  # 业务伙伴(供应商)
+                'refund_invoice_id': False,  # 为红字发票开票(退款账单关联的账单) TODO 待计算退货
+                'sent': False,  # 已汇
+                'source_email': False,  # 源电子邮件
+                # 'tax_line_ids': [],  # 税额明细行
+                # 'transaction_ids': False,  # 交易(此时未发生支付)
+                # 'vendor_bill_id': False,  # 供应商账单(此处未发生)
+                # 'vendor_bill_purchase_id': False,  # 采购单和账单二者(选择供应商未开票的订单)
+
+                # 'team_id': False,  # 销售团队(默认)
+                'user_id': self.env.user.id,  # 销售员(采购负责人)
+                'stock_picking_id': self.id,
+            }
+            invoice = self.env['account.invoice'].create(vals)
+            invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
+
+            invoice.sudo().action_invoice_open()  # 打开并登记凭证
+            self.env['account.invoice.split'].create_invoice_split(invoice)  # 创建账单分期
 
     def _generate_sale_invoice_create(self, sale):
         """创建销售订单对应的结算单"""

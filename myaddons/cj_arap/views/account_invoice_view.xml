@@ -52,11 +52,19 @@
                     </field>
                 </xpath>
 
-
+                <!--内部结算增加内部强算比例和采购单价字段-->
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_unit']" position="before">
                     <field name="purchase_line_price_unit" attrs="{'column_invisible': [('parent.is_internal_settlement', '!=', True)]}"/>
                     <field name="internal_settlement_scale" attrs="{'column_invisible': [('parent.is_internal_settlement', '!=', True)]}"/>
                 </xpath>
+
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_subtotal']" position="before">
+                    <field name="supplier_model_id"/>
+                    <!--<field name="supplier_model_id" attrs="{'column_invisible': [('parent.payment_term_id.type', '!=', 'joint')]}"/>-->
+                    <field name="fee_rate"/>
+                    <field name="joint_fee"/>
+                </xpath>
+
             </field>
         </record>
     </data>

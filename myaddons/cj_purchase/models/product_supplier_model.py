@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from itertools import groupby
-from collections import Counter
+import importlib
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
@@ -34,8 +33,8 @@ class StockModel(models.Model):
 class ProductSupplierModel(models.Model):
     _name = 'product.supplier.model'
     _description = '商品供应商模式'
-    _log_access = False
 
+    company_id = fields.Many2one('res.company', '公司', required=1, index=1, default=lambda self: self.env.user.company_id.id)
     product_id = fields.Many2one('product.product', '商品', required=1, index=1)
     partner_id = fields.Many2one('res.partner', '供应商', required=1, index=1, domain="[('supplier', '=', True)]")
     payment_term_id = fields.Many2one('account.payment.term', '支付条款', required=1, index=1)
@@ -46,31 +45,108 @@ class ProductSupplierModel(models.Model):
 
     active = fields.Boolean('归档', default=True)
 
-    # _sql_constraints = [('product_id_partner_id_uniq', 'unique (product_id, partner_id)', '供应商商品重复!')]
+    @api.multi
+    def unlink(self):
+        module = importlib.import_module('odoo.addons.cj_arap.models.account_payment_term')
+        types = dict(module.PAYMENT_TERM_TYPE)
+
+        line_obj = self.env['purchase.order.line']
+        for res in self:
+            if res.payment_term_id.type in ['joint', 'sale_after_payment'] and line_obj.search([('product_id', '=', res.product_id.id), ('company_id', '=', res.company_id.id)]):
+                raise ValidationError('商品：%s存在以%s为结算方式的采购订单，不能删除！' % (res.product_id.name, types[res.payment_term_id.type]))
+
+        return super(ProductSupplierModel, self).unlink()
 
     @api.multi
-    @api.constrains('product_id', 'partner_id', 'payment_term_id')
-    def _check_product(self):
+    def write(self, vals):
+        if 'payment_term_id' in vals:
+            module = importlib.import_module('odoo.addons.cj_arap.models.account_payment_term')
+            types = dict(module.PAYMENT_TERM_TYPE)
+
+            line_obj = self.env['purchase.order.line']
+            new_payment_term_type = self.env['account.payment.term'].browse(vals['payment_term_id']).type
+
+            joint_types = ['joint', 'sale_after_payment']
+            for res in self:
+                if line_obj.search([('product_id', '=', res.product_id.id), ('company_id', '=', res.company_id.id)]):
+                    if (res.payment_term_id.type in joint_types and new_payment_term_type not in joint_types) or \
+                            (res.payment_term_id.type not in joint_types and new_payment_term_type in joint_types):
+                        raise ValidationError(
+                            '商品：%s存在以%s为结算方式的采购订单，不能修改结算模式！' %
+                            (res.product_id.name, types[res.payment_term_id.type]))
+
+        return super(ProductSupplierModel, self).write(vals)
+
+    @api.multi
+    @api.constrains('product_id', 'partner_id', 'payment_term_id', 'company_id')
+    def _check_product_repeat(self):
         """校验"""
-        res = self.search([])
-        res |= self
-        # 供应商商品重复
-        for partner, ls in groupby(sorted(res, key=lambda x: x.partner_id.id), lambda x: x.partner_id):
-            for product, count in Counter([l.product_id for l in ls]).items():
-                if count > 1:
-                    raise ValidationError('供应商：%s商品：%s重复！' % (partner.name, product.name))
+        module = importlib.import_module('odoo.addons.cj_arap.models.account_payment_term')
+        types = dict(module.PAYMENT_TERM_TYPE)
+        for res in self:
+            company = res.company_id
+            product = res.product_id
+            partner = res.partner_id
+            if self.search([('company_id', '=', company.id), ('product_id', '=', product.id),
+                            ('partner_id', '=', partner.id), ('id', '!=', res.id)]):
+                raise ValidationError('商品供应商模式 公司：%s 商品：%s 供应商：%s重复！' %
+                                      (company.name, product.name, partner.name))
 
-        # 联营商品，不能同时有多家不同的供应商联营
-        joint_res = res.filtered(lambda x: x.payment_term_id.type == 'joint')
-        for product, ls in groupby(sorted(joint_res, key=lambda x: x.product_id.id), lambda x: x.product_id):
-            if len(list(ls)) > 1:
-                raise ValidationError('商品：%s不能同时有多家供应商联营！' % product.name)
+            supplier_model = self.with_context(active_test=False).search(
+                [('product_id', '=', product.id), ('payment_term_id.type', 'in', ['joint', 'sale_after_payment']),
+                 ('id', '!=', res.id)], limit=1)
 
-        # 销售后结算商品，不能同时存在多家供应商
-        sale_after_payment_res = res.filtered(lambda x: x.payment_term_id.type == 'sale_after_payment')
-        for product, ls in groupby(sorted(sale_after_payment_res, key=lambda x: x.product_id.id), lambda x: x.product_id):
-            if len(list(ls)) > 1:
-                raise ValidationError('商品：%s不能同时有多家供应商销售后结算！' % product.name)
+            if supplier_model:
+                supplier_model_type = supplier_model.payment_term_id.type
+                res_type = res.payment_term_id.type
+                if (supplier_model_type == 'joint' and res_type != 'joint') or \
+                        (supplier_model_type == 'sale_after_payment' and res_type != 'sale_after_payment') or \
+                        (supplier_model_type not in ['joint', 'sale_after_payment'] and res_type in ['joint', 'sale_after_payment']):
+                        raise ValidationError('商品%s存在%s的结算模式，不能再创建%s的结算模式！' %
+                                              (product.name, types[supplier_model_type], types[res_type]))
+
+                if supplier_model_type in ['joint', 'sale_after_payment'] and supplier_model.partner_id.id != res.partner_id.id:
+                    raise ValidationError('%s模式的商品：%s，禁止修改供应商！' % (types[supplier_model_type], product.name))
+
+
+class PurchaseOrder(models.Model):
+    """功能：
+        确认订单或者提交OA审批时时，验证支付条款订单明细支付条款
+    """
+    _inherit = 'purchase.order'
+
+    def button_confirm1(self):
+        super(PurchaseOrder, self).button_confirm1()
+        self._check_payment_term()
+
+    def button_confirm2(self):
+        super(PurchaseOrder, self).button_confirm2()
+        self._check_payment_term()
+
+    def _check_payment_term(self):
+        """验证支付条款"""
+        supplier_model_obj = self.env['product.supplier.model']
+        partner_id = self.partner_id.id  # 供应商
+        company_id = self.company_id.id  # 公司
+        for line in self.order_line:
+            product = line.product_id
+            product_id = product.id
+            payment_term_id = line.payment_term_id.id  # 支付条款
+
+            supplier_model = supplier_model_obj.search([('product_id', '=', product_id), ('partner_id', '=', partner_id), ('company_id', '=', company_id), ('payment_term_id', '=', payment_term_id)])
+            if not supplier_model:
+                supplier_model_obj.create({
+                    'company_id': company_id,
+                    'product_id': product_id,
+                    'partner_id': partner_id,
+                    'payment_term_id': payment_term_id,
+                    'active': True
+                })
+
+
+
+
+
 
 
 

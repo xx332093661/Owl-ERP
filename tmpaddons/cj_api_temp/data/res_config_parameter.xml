@@ -32,22 +32,22 @@
             <!--<field name="key">cj_rabbit_mq_send_exchange_id</field>-->
             <field name="value">MDM-EXCHANGE-MUSTANG</field>
         </record>
-        <record id="cj_api.icp_oa_url" model="ir.config_parameter">
-            <!--<field name="key">icp_oa_url</field>-->
-            <field name="value">10.16.0.31</field>
-        </record>
-        <record id="cj_api.icp_oa_sender_login_name" model="ir.config_parameter">
-            <!--<field name="key">icp_oa_sender_login_name</field>-->
-            <field name="value">100364</field>
-        </record>
-        <record id="cj_api.icp_oa_token_username" model="ir.config_parameter">
-            <!--<field name="key">icp_oa_token_username</field>-->
-            <field name="value">ERP</field>
-        </record>
-        <record id="cj_api.icp_oa_token_password" model="ir.config_parameter">
-            <!--<field name="key">icp_oa_token_password</field>-->
-            <field name="value">123456</field>
-        </record>
+        <!--<record id="cj_api.icp_oa_url" model="ir.config_parameter">-->
+            <!--&lt;!&ndash;<field name="key">icp_oa_url</field>&ndash;&gt;-->
+            <!--<field name="value">10.16.0.31</field>-->
+        <!--</record>-->
+        <!--<record id="cj_api.icp_oa_sender_login_name" model="ir.config_parameter">-->
+            <!--&lt;!&ndash;<field name="key">icp_oa_sender_login_name</field>&ndash;&gt;-->
+            <!--<field name="value">100364</field>-->
+        <!--</record>-->
+        <!--<record id="cj_api.icp_oa_token_username" model="ir.config_parameter">-->
+            <!--&lt;!&ndash;<field name="key">icp_oa_token_username</field>&ndash;&gt;-->
+            <!--<field name="value">ERP</field>-->
+        <!--</record>-->
+        <!--<record id="cj_api.icp_oa_token_password" model="ir.config_parameter">-->
+            <!--&lt;!&ndash;<field name="key">icp_oa_token_password</field>&ndash;&gt;-->
+            <!--<field name="value">123456</field>-->
+        <!--</record>-->
 
     </data>
 

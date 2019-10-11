@@ -7,4 +7,5 @@ from . import delivery_order
 from . import aftersale_order
 from . import account_payment
 from . import stock_move
+from . import delivery_carrier
 

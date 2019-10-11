@@ -274,6 +274,36 @@ class AccountInvoiceLine(models.Model):
 
     internal_settlement_scale = fields.Float('结算比例', help='内部结算比例', digits=(16, 4), related='invoice_id.internal_settlement_scale', store=1)
     purchase_line_price_unit = fields.Float(string='采购单价', digits=dp.get_precision('Product Price'))
+    fee_rate = fields.Float('联营扣点', readonly=1)
+    supplier_model_id = fields.Many2one('product.supplier.model', '商品供应商模式', readonly=1)
+
+    joint_fee = fields.Float('联营扣费', compute='_compute_price', store=1)
+
+    @api.one
+    @api.depends('price_unit', 'discount', 'invoice_line_tax_ids', 'quantity',
+        'product_id', 'invoice_id.partner_id', 'invoice_id.currency_id', 'invoice_id.company_id',
+        'invoice_id.date_invoice', 'invoice_id.date', 'fee_rate')
+    def _compute_price(self):
+        currency = self.invoice_id and self.invoice_id.currency_id or None
+        price = self.price_unit * (1 - (self.discount or 0.0) / 100.0)
+        taxes = False
+        if self.invoice_line_tax_ids:
+            taxes = self.invoice_line_tax_ids.compute_all(price, currency, self.quantity, product=self.product_id, partner=self.invoice_id.partner_id)
+
+        # price_subtotal-不含税总金额  price_subtotal_signed-公司本位币的总金额，负数为红字发票
+        # price_total-含税总金额
+        price_subtotal = price_subtotal_signed = taxes['total_excluded'] if taxes else self.quantity * price
+        self.joint_fee = float_round((price_subtotal * self.fee_rate) / 100.0, precision_digits=2)
+        self.price_subtotal = price_subtotal - self.joint_fee
+        price_subtotal_signed -= self.joint_fee
+        self.price_total = taxes['total_included'] if taxes else self.price_subtotal
+        if self.invoice_id.currency_id and self.invoice_id.currency_id != self.invoice_id.company_id.currency_id:
+            currency = self.invoice_id.currency_id
+            date = self.invoice_id._get_currency_rate_date()
+            price_subtotal_signed = currency._convert(price_subtotal_signed, self.invoice_id.company_id.currency_id, self.company_id or self.env.user.company_id, date or fields.Date.today())
+        sign = self.invoice_id.type in ['in_refund', 'out_refund'] and -1 or 1
+        self.price_subtotal_signed = price_subtotal_signed * sign
+
 
 
 @api.v8

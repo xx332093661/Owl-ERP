@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
+from odoo.osv import expression
 
 
 class ProductTemplate(models.Model):
@@ -40,6 +41,18 @@ class ProductProduct(models.Model):
                 domain.append(arg)
 
         return super(ProductProduct, self)._search(domain, offset=offset, limit=limit, order=order, count=False, access_rights_uid=access_rights_uid)
+
+    @api.model
+    def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
+        """ 商品名称、物料编码、条形码都可以搜索 """
+        if name and operator in ('=', 'ilike', '=ilike', 'like', '=like'):
+            args = args or []
+            domain = ['|', ('name', operator, name), '|', ('barcode', operator, name), ('default_code', operator, name)]
+
+            product_ids = self._search(expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid)
+            return self.browse(product_ids).name_get()
+
+        return super(ProductProduct, self)._name_search(name=name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
 
     def init(self):
         """在安装程序后调用post_init_hook，不能删除product_product的product_product_barcode_uniq，在升级时解决此问题"""

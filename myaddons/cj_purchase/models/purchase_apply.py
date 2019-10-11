@@ -126,7 +126,7 @@ class PurchaseApply(models.Model):
     @api.multi
     def check_state(self):
         """检查当前申请单的状态"""
-        print(222)
+
         self.ensure_one()
 
         # 是否已完成 是否全部发货 是否部分发货
@@ -138,7 +138,7 @@ class PurchaseApply(models.Model):
                 all_done = False
             if line.receive_qty > 0:
                 all_done = True
-        print(all_done)
+
         if all_done:
             self.state = 'done'
             return
@@ -409,16 +409,16 @@ class PurchaseApply(models.Model):
         for supplierinfo in supplierinfos:
             contract = contract_obj.get_contract_by_partner(supplierinfo.name.id)
             if contract:
-                payment_term_id = contract.payment_term_id.id
+                payment_term = contract.payment_term_id
             else:
-                payment_term_id = self.env.ref('account.account_payment_term_immediate').id
+                payment_term = self.env.ref('account.account_payment_term_immediate')
 
             val = {
                 'partner_id': supplierinfo.name.id,
                 'apply_id': self.id,
                 'date_order': datetime.now().strftime(DATETIME_FORMAT),
                 # 'settlement_method': 'at once',
-                'payment_term_id': payment_term_id,  # 根据供应商合同获取
+                'payment_term_id': payment_term.id,  # 根据供应商合同获取
                 'company_id': self.company_id.id,
                 'order_line': []
             }
@@ -443,17 +443,17 @@ class PurchaseApply(models.Model):
 
                 supplier_model = supplier_model_obj.search([('product_id', '=', new_order_line.product_id.id), ('partner_id', '=', supplierinfo.name.id)], limit=1)
                 if supplier_model:
-                    payment_term_id = supplier_model.payment_term_id.id
+                    payment_term = supplier_model.payment_term_id
 
                 order_line_obj.create({
                     'order_id': order.id,
                     'name': new_order_line.name,
                     'product_id': new_order_line.product_id.id,
-                    'price_unit': line.price,
+                    'price_unit': line.price if payment_term.type not in ['joint'] else 0,
                     'product_qty': line.product_qty,
                     'date_planned': new_order_line.date_planned,
                     'product_uom': new_order_line.product_uom.id,
-                    'payment_term_id': payment_term_id,
+                    'payment_term_id': payment_term.id,
                 })
 
             order_ids.append(order.id)
