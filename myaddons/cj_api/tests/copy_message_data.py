@@ -6,14 +6,17 @@ import odoorpc
 odoo_8079 = odoorpc.ODOO(host='localhost', port=8079)
 odoo_8079.login('odoocjl3', login='admin', password='admin')
 
-odoo_8069 = odoorpc.ODOO(host='localhost', port=8069)
-odoo_8069.login('odoocj33', login='admin', password='admin')
+# odoo_8069 = odoorpc.ODOO(host='localhost', port=8069)
+# odoo_8069.login('odoocj33', login='admin', password='admin')
 
 # odoo_8069 = odoorpc.ODOO(host='42.121.2.58', port=8069)
 # odoo_8069.login('odoocj3', login='admin', password='admin')
 
 # odoo_8069 = odoorpc.ODOO(host='10.16.0.35', port=8079)
 # odoo_8069.login('odoo_owl', login='admin', password='admin')
+
+odoo_8069 = odoorpc.ODOO(host='10.16.0.35', port=8080)
+odoo_8069.login('odooapi', login='admin', password='admin')
 
 
 def create(message_name):
@@ -62,19 +65,19 @@ create('WMS-ERP-STOCK-QUEUE')
 create('mustang-to-erp-order-push')
 
 # 11 物流信息
-# create('mustang-to-erp-logistics-push')
+create('mustang-to-erp-logistics-push')
 
 # 12 出库单
-# create('WMS-ERP-STOCKOUT-QUEUE')
+create('WMS-ERP-STOCKOUT-QUEUE')
 
 # 10 门店库存变动
-# create('mustang-to-erp-store-stock-update-record-push')
+create('mustang-to-erp-store-stock-update-record-push')
 
 # 14 订单状态
-# create('mustang-to-erp-order-status-push')
+create('mustang-to-erp-order-status-push')
 
 # 15 售后服务单
-# create('mustang-to-erp-service-list-push')
+create('mustang-to-erp-service-list-push')
 
 
 

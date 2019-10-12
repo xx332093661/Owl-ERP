@@ -134,10 +134,10 @@ class AccountPayment(models.Model):
             if res.sale_order_id.state == 'oa_refuse':
                 raise ValidationError('OA拒绝了还有收款记录？')
 
-            if res.sale_order_id.state == 'cancel':
+            if res.sale_order_id.state == 'cancel' and res.state != 'cancelled':
                 raise ValidationError('订单取消还有收款记录？')
 
-            if res.sale_order_id.state not in ['draft', 'sent']:
+            if res.sale_order_id.state not in ['draft', 'sent', 'cancel']:
                 res.post()
 
         return res
