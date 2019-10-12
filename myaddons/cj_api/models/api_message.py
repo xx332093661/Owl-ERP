@@ -6,14 +6,14 @@ import uuid
 from datetime import timedelta
 import random
 from pypinyin import lazy_pinyin, Style
+import json
+from itertools import groupby
 
 from odoo import fields, models, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_is_zero, float_compare
-import json
 from odoo.exceptions import ValidationError
-from itertools import groupby
 from .rabbit_mq_receive import RabbitMQReceiveThread
 from .rabbit_mq_send import RabbitMQSendThread
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_is_zero, float_compare
 
 _logger = logging.getLogger(__name__)
 
@@ -39,6 +39,8 @@ PROCESS_ERROR = {
     '18': '出库数量大于订单数量',
     '19': '未完成出库',
     '20': '未找到省',
+    '21': '门店库存变更未找到相应的变更类型',
+    '22':  '只处理订单一条出库记录',  # pos订单有多条记录，只处理其中一条出库数据时，报此错
 }
 
 
@@ -111,9 +113,24 @@ class ApiMessage(models.Model):
     def proc_content(self, messages=None):
         """处理同步数据"""
         if not messages:
-            messages = self.search([('state', '!=', 'done'), ('attempts', '<', 3)], order='id')
+            messages = self.search([('state', '!=', 'error'), ('attempts', '<', 3)], order='sequence')
 
-        _logger.info(u'开始处理{}条数据'.format(len(messages)))
+        _logger.info(u'开始处理{0}条数据'.format(len(messages)))
+
+        res = {}
+        for sequence, ls in groupby(messages, lambda x: x.sequence):
+            res[sequence] = ls
+
+        index = 0
+        for sequence in sorted(res.keys()):
+            messages = res[sequence]
+            # 门店库存变更，按update_code分下组，再去执行 todo
+            if messages[0].message_name == 'mustang-to-erp-store-stock-update-record-push':
+                pass
+            else:
+                for message in messages:
+                    pass
+
         for index, message in enumerate(sorted(messages, key=lambda x: x.sequence)):
             _logger.info('处理进度：{0}/{1}'.format(index + 1, len(messages)))
 
@@ -1066,9 +1083,13 @@ class ApiMessage(models.Model):
         product_obj = self.env['product.product']
         valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值
 
-        # 1、验证物流单是否重复、订单和仓库是否存在
-        if delivery_obj.search([('name', '=', content['expressCode']), ('logistics_code', '=', content['logisticsCode'])]):
-            raise MyValidationError('17', '物流单号：%s-%s重复' % (content['logisticsCode'], content['expressCode'], ))
+        express_code = content.get('expressCode')  # 物流单号
+        logistics_code = content.get('logisticsCode')
+
+        # 1、验证物流单是否重复、订单和仓库是否存在(express_code为空的情况上为自提)
+        if express_code:
+            if delivery_obj.search([('name', '=', express_code), ('logistics_code', '=', logistics_code)]):
+                raise MyValidationError('17', '物流单号：%s-%s重复' % (logistics_code, express_code, ))
 
         order_name = content['deliveryOrderCode']  # 订单号
 
@@ -1103,16 +1124,17 @@ class ApiMessage(models.Model):
                 'current_cost': cost
             }))
 
-        delivery_obj.create({
-            'name': content['expressCode'],  # 快递单号
-            'logistics_code': content['logisticsCode'],  # 快递公司编号
-            'sale_order_id': order.id,
-            'company_id': order.company_id.id,
-            'delivery_type': 'send',  # 物流单方向
-            'line_ids': delivery_line_ids,
-            'delivery_state': content['status'],  # 物流单状态
-            'state': 'draft',  # TODO 暂时为draft，具体状态待商讨
-        })
+        if express_code:
+            delivery_obj.create({
+                'name': content['expressCode'],  # 快递单号
+                'logistics_code': content['logisticsCode'],  # 快递公司编号
+                'sale_order_id': order.id,
+                'company_id': order.company_id.id,
+                'delivery_type': 'send',  # 物流单方向
+                'line_ids': delivery_line_ids,
+                'delivery_state': content['status'],  # 物流单状态
+                'state': 'draft',  # TODO 暂时为draft，具体状态待商讨
+            })
 
         # 3、订单确认
         if order.state == 'draft':
@@ -1169,18 +1191,19 @@ class ApiMessage(models.Model):
             stock_move.quantity_done = line['product_uom_qty']
 
         # 6、创建跨公司调拨单
-        if warehouse.company_id.id != order.company_id.id and not across_obj.search([('origin_id', '=', order.id), ('origin_type', '=', 'sale')]):
-            across_obj.create({
-                'company_id': warehouse.company_id.id,  # 调出仓库的公司
-                'warehouse_out_id': warehouse.id,  # 调出仓库
-                'warehouse_in_id': order.warehouse_id.id,  # 调入仓库
-                'payment_term_id': self.env.ref('account.account_payment_term_immediate').id,  # 引用立即支付支付条款,  # 收款条款
-                'cost_type': 'increase',  # 成本方法(加价)
-                'cost_increase_rating': 0,  # 加价百分比
-                'line_ids': across_line_ids,
-                'origin_id': order.id,  # 来源
-                'origin_type': 'sale'  # 来源类型
-            })
+        if warehouse.company_id.id != order.company_id.id:
+            if not across_obj.search([('origin_id', '=', order.id), ('origin_type', '=', 'sale')]):
+                across_obj.create({
+                    'company_id': warehouse.company_id.id,  # 调出仓库的公司
+                    'warehouse_out_id': warehouse.id,  # 调出仓库
+                    'warehouse_in_id': order.warehouse_id.id,  # 调入仓库
+                    'payment_term_id': self.env.ref('account.account_payment_term_immediate').id,  # 引用立即支付支付条款,  # 收款条款
+                    'cost_type': 'increase',  # 成本方法(加价)
+                    'cost_increase_rating': 0,  # 加价百分比
+                    'line_ids': across_line_ids,
+                    'origin_id': order.id,  # 来源
+                    'origin_type': 'sale'  # 来源类型
+                })
             # 这里创建跨公司调拨后直接返回，待跨公司调拨完成后，执行对应的订单出库
             return
 
@@ -1228,6 +1251,7 @@ class ApiMessage(models.Model):
             })
             new_picking_id, pick_type_id = return_picking._create_returns()
             picking_obj.browse(new_picking_id).action_done()  # 确认入库
+            return
 
         if update_type == 'STOCK_01002':  # 销售出库
             sale_order = sale_order_obj.search([('name', '=', order_name), ])
@@ -1238,6 +1262,8 @@ class ApiMessage(models.Model):
                 sale_order.action_confirm()  # 确认草稿订单
 
             picking = picking_obj.search([('sale_id', '=', sale_order.id)])
+            stock_move = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))[0]
+            stock_move.quantity_done = abs(content['quantity'])
 
             if picking.state != 'assigned':
                 picking.action_assign()
@@ -1245,7 +1271,8 @@ class ApiMessage(models.Model):
             if picking.state != 'assigned':
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
-            picking.action_done()  # 确认出库
+            picking.button_validate()  # 确认出库
+            return
 
         if update_type == 'STOCK_01003':  # 销售退货冲销
             raise MyValidationError('00', '未实现的处理')
@@ -1301,6 +1328,8 @@ class ApiMessage(models.Model):
 
         if update_type == 'STOCK_03010':  # 返货总仓出库冲销
             raise MyValidationError('00', '未实现的处理')
+
+        raise MyValidationError('21', '未找到变更类型：%s' % update_type)
 
     # 14、mustang-to-erp-order-status-push 订单状态
     def deal_mustang_to_erp_order_status_push(self, content):  # mustang-to-erp-order-status-push
