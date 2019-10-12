@@ -45,6 +45,8 @@ class Company(models.Model):
         company = super(Company, self).create(vals)
 
         self.env.ref('base.user_admin').company_ids = [(4, company.id)]  # admin赋所有会计权限
+        if not company.parent_id and company.id != self.env.ref('base.main_company').id:
+            company.parent_id = self.env.ref('base.main_company').id
 
         return company
 

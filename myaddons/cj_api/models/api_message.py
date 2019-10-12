@@ -834,9 +834,9 @@ class ApiMessage(models.Model):
         def create_sale_order():
             """创订销售订单"""
             consignee = content['consignee']  # 收货人信息
-            consignee_state_id = self.get_country_state_id(consignee['provinceText'])
-            consignee_city_id = self.get_city_area_id(consignee['cityText'], consignee_state_id)
-            consignee_district_id = self.get_city_area_id(consignee['districtText'], consignee_state_id, consignee_city_id)
+            consignee_state_id = self.get_country_state_id(consignee.get('provinceText', False))
+            consignee_city_id = self.get_city_area_id(consignee.get('cityText'), consignee_state_id)
+            consignee_district_id = self.get_city_area_id(consignee.get('districtText'), consignee_state_id, consignee_city_id)
             val = {
                 'date_order': (fields.Datetime.to_datetime(content['omsCreateTime'].replace('T', ' ')) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
                 'partner_id': partner_id,
@@ -927,7 +927,7 @@ class ApiMessage(models.Model):
             })
             return order_line
 
-        order_obj = self.env['sale.order'].sudo()
+        order_obj = self.env['sale.order']
         order_line_obj = self.env['sale.order.line']
         payment_obj = self.env['account.payment']
         company_obj = self.env['res.company']

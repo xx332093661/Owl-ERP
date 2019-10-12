@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_check_sync_data" model="ir.cron">
+            <field name="name">API:验证同步的数据</field>
+            <field name="model_id" ref="cj_api.model_api_message"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_sync_data()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">0</field>
+            <field name="doall" eval="False"/>
+            <field name="active" eval="False"/>
+        </record>
+    </data>
+</odoo>
