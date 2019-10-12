@@ -262,7 +262,7 @@ class SaleOrder(models.Model):
                 sale_line.box_cost = box_cost * (sale_line.goods_cost / order.goods_cost)
 
                 sale_line.gross_profit = sale_line.price_total - sale_line.goods_cost - sale_line.shipping_cost - sale_line.box_cost
-                sale_line.gross_rate = sale_line.gross_profit / order.price_total
+                sale_line.gross_rate = sale_line.gross_profit / order.amount_total
             if ok:
                 order.shipping_cost = shipping_cost
                 order.box_cost = box_cost
