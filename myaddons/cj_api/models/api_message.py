@@ -40,7 +40,7 @@ PROCESS_ERROR = {
     '19': '未完成出库',
     '20': '未找到省',
     '21': '门店库存变更未找到相应的变更类型',
-    '22':  '只处理订单一条出库记录',  # pos订单有多条记录，只处理其中一条出库数据时，报此错
+    '22':  'POS出库数量小于订单数量',  # pos订单有多条记录，只处理其中一条出库数据时，报此错
 }
 
 
@@ -112,35 +112,64 @@ class ApiMessage(models.Model):
     @api.model
     def proc_content(self, messages=None):
         """处理同步数据"""
-        if not messages:
-            messages = self.search([('state', '!=', 'error'), ('attempts', '<', 3)], order='sequence')
+        def get_update_code(m):
+            """"""
+            content = json.loads(m.content)
+            return content.get('updateCode', uuid.uuid1().hex)
 
-        _logger.info(u'开始处理{0}条数据'.format(len(messages)))
+        def group_key(x):
+            return getattr(x, 'update_code', '')
+
+        if not messages:
+            messages = self.search([('state', '!=', 'error'), ('attempts', '<', 3)], order='sequence asc, id desc')
+
+        total_count = len(messages)
+        _logger.info(u'开始处理{0}条数据'.format(total_count))
 
         res = {}
-        for sequence, ls in groupby(messages, lambda x: x.sequence):
-            res[sequence] = ls
+        for sequence, msgs in groupby(messages, lambda x: x.sequence):
+            msgs = list(msgs)
+            for msg in msgs:
+                if msg.message_name == 'mustang-to-erp-store-stock-update-record-push':
+                    setattr(msg, 'update_code', get_update_code(msg))
+            res[sequence] = msgs
 
         index = 0
         for sequence in sorted(res.keys()):
             messages = res[sequence]
             # 门店库存变更，按update_code分下组，再去执行 todo
             if messages[0].message_name == 'mustang-to-erp-store-stock-update-record-push':
-                pass
+
+                for update_code, msgs in groupby(sorted(messages, key=group_key), group_key):
+                    obj = self.env['api.message']
+                    for msg in msgs:
+                        obj |= msg
+
+                    index += len(obj)
+                    _logger.info('处理进度：{0}/{1}'.format(index, total_count))
+                    obj.deal_mq_content()
             else:
                 for message in messages:
-                    pass
+                    index += 1
+                    _logger.info('处理进度：{0}/{1}'.format(index, total_count))
+                    if message.message_type == 'interface':
+                        message.deal_interface_content()  # 处理接口返回数据
+                    elif message.message_type == 'rabbit_mq':
+                        message.deal_mq_content()  # 处理rabbitmq接收到的数据
 
-        for index, message in enumerate(sorted(messages, key=lambda x: x.sequence)):
-            _logger.info('处理进度：{0}/{1}'.format(index + 1, len(messages)))
+                    if total_count > 100 and index % 10 == 9:
+                        self.env.cr.commit()
 
-            if message.message_type == 'interface':
-                message.deal_interface_content()  # 处理接口返回数据
-            elif message.message_type == 'rabbit_mq':
-                message.deal_mq_content()  # 处理rabbitmq接收到的数据
-
-            if len(messages) > 100 and index % 10 == 9:
-                self.env.cr.commit()
+        # for index, message in enumerate(sorted(messages, key=lambda x: x.sequence)):
+        #     _logger.info('处理进度：{0}/{1}'.format(index + 1, len(messages)))
+        #
+        #     if message.message_type == 'interface':
+        #         message.deal_interface_content()  # 处理接口返回数据
+        #     elif message.message_type == 'rabbit_mq':
+        #         message.deal_mq_content()  # 处理rabbitmq接收到的数据
+        #
+        #     if len(messages) > 100 and index % 10 == 9:
+        #         self.env.cr.commit()
 
         _logger.info(u'数据处理完毕')
 
@@ -183,7 +212,7 @@ class ApiMessage(models.Model):
         name = uuid.uuid1().hex
         self._cr.execute('SAVEPOINT "%s"' % name)
         try:
-            getattr(self, 'deal_' + self.message_name.replace('-', '_').lower())(self.content)
+            getattr(self, 'deal_' + self[0].message_name.replace('-', '_').lower())(self.mapped('content'))
             self.write({
                 'state': 'done',
                 'error': False,
@@ -1178,7 +1207,7 @@ class ApiMessage(models.Model):
         res = list(filter(lambda x: float_compare(x['deliver_qty'], x['wait_qty'], precision_rounding=0.01) == 1, wait_out_lines))
         if res:
             pros = ['[%s]%s' % (product_obj.browse(r['product_id']).default_code, product_obj.browse(r['product_id']).name) for r in res]
-            raise MyValidationError('18', '商品：%s发货数量大于待发货数量！' % ('、'.join(pros)))
+            raise MyValidationError('18', '商品：%s发货数量大于待订单数量！' % ('、'.join(pros)))
 
         # 5、根据出库明细，修改订单对应的stock.picking明细的完成数量
         picking = list(order.picking_ids.filtered(lambda x: x.state not in ['draft', 'cancel', 'done']))
@@ -1218,40 +1247,40 @@ class ApiMessage(models.Model):
         picking.action_done()  # 确认出库
 
     # 13、mustang-to-erp-store-stock-update-record-push 门店库存变更记录
-    def deal_mustang_to_erp_store_stock_update_record_push(self, content):
+    def deal_mustang_to_erp_store_stock_update_record_push(self, contents):
         """门店库存变更记录"""
         sale_order_obj = self.env['sale.order']
         return_picking_obj = self.env['stock.return.picking']
         product_obj = self.env['product.product']
         picking_obj = self.env['stock.picking']
 
-        content = json.loads(content)
-        update_type = content['type']  # 变更类型
-        order_name = content['updateCode']  # 变更单号（如果是订单产生的库存变化，那变更类型就是销售出库，变更单号就是订单号）
-        default_code = content['goodsCode']  # 商品编码
+        contents = [json.loads(content) for content in contents]
+        update_type = contents[0]['type']  # 变更类型
+        order_name = contents[0]['updateCode']  # 变更单号（如果是订单产生的库存变化，那变更类型就是销售出库，变更单号就是订单号）
+        # default_code = content['goodsCode']  # 商品编码
 
-        product = product_obj.search([('default_code', '=', default_code)])
-        if not product:
-            raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
+        # product = product_obj.search([('default_code', '=', default_code)])
+        # if not product:
+        #     raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
 
-        if update_type == 'STOCK_01001':  # 销售退货(只有一次退货)
-            sale_order = sale_order_obj.search([('name', '=', order_name), ])
-            if not sale_order:
-                raise MyValidationError('14', '变更单号：%s未找到对应的销售订单！' % order_name)
-
-            picking = picking_obj.search([('sale_id', '=', sale_order.id)])
-            stock_move = picking.move_ids_without_package.filtered(lambda x: x.product_id.id == product.id)
-
-            return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create({
-                'product_return_moves': [(6, 0, {
-                    'product_id': product.id,
-                    'quantity': abs(content['quantity']),
-                    'move_id': stock_move.id
-                })],
-            })
-            new_picking_id, pick_type_id = return_picking._create_returns()
-            picking_obj.browse(new_picking_id).action_done()  # 确认入库
-            return
+        # if update_type == 'STOCK_01001':  # 销售退货(只有一次退货)
+        #     sale_order = sale_order_obj.search([('name', '=', order_name), ])
+        #     if not sale_order:
+        #         raise MyValidationError('14', '变更单号：%s未找到对应的销售订单！' % order_name)
+        #
+        #     picking = picking_obj.search([('sale_id', '=', sale_order.id)])
+        #     stock_move = picking.move_ids_without_package.filtered(lambda x: x.product_id.id == product.id)
+        #
+        #     return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create({
+        #         'product_return_moves': [(6, 0, {
+        #             'product_id': product.id,
+        #             'quantity': abs(content['quantity']),
+        #             'move_id': stock_move.id
+        #         })],
+        #     })
+        #     new_picking_id, pick_type_id = return_picking._create_returns()
+        #     picking_obj.browse(new_picking_id).action_done()  # 确认入库
+        #     return
 
         if update_type == 'STOCK_01002':  # 销售出库
             sale_order = sale_order_obj.search([('name', '=', order_name), ])
@@ -1261,9 +1290,52 @@ class ApiMessage(models.Model):
             if sale_order.state == 'draft':
                 sale_order.action_confirm()  # 确认草稿订单
 
+            wait_out_lines = []  # 待出库
+            for product, ls in groupby(sorted(sale_order.order_line, key=lambda x: x.product_id), lambda x: x.product_id):  # 按商品分组
+                wait_qty = sum([line.product_uom_qty for line in ls]) - sum([line.qty_delivered for line in ls])
+                wait_out_lines.append({
+                    'product_id': product.id,
+                    'wait_qty': wait_qty,  # 待出库数量
+                    'deliver_qty': 0  # 出库数量
+                })
+
+            for content in contents:
+                default_code = content['goodsCode']  # 商品编码
+
+                product = product_obj.search([('default_code', '=', default_code)])
+                if not product:
+                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
+
+                res = list(filter(lambda x: x['product_id'] == product.id, wait_out_lines))
+                if not res:
+                    wait_out_lines.append({
+                        'product_id': product.id,
+                        'wait_qty': 0,
+                        'deliver_qty': abs(content['quantity'])
+                    })
+                else:
+                    res[0]['deliver_qty'] += abs(content['quantity'])
+
+            # 发货数量大于待发货数量
+            res = list(filter(lambda x: float_compare(x['deliver_qty'], x['wait_qty'], precision_rounding=0.01) == 1, wait_out_lines))
+            if res:
+                pros = ['[%s]%s' % (product_obj.browse(r['product_id']).default_code, product_obj.browse(r['product_id']).name) for r in res]
+                raise MyValidationError('18', '商品：%s发货数量大于待订单数量！' % ('、'.join(pros)))
+
+            # 发货数量小于订单数量(因为pos销售出库是一次性的，所以这里可以进行判断)
+            res = list(filter(lambda x: float_compare(x['deliver_qty'], x['wait_qty'], precision_rounding=0.01) == -1, wait_out_lines))
+            if res:
+                pros = ['[%s]%s' % (product_obj.browse(r['product_id']).default_code, product_obj.browse(r['product_id']).name) for r in res]
+                raise MyValidationError('22', '商品：%s发货数量小于待订单数量！' % ('、'.join(pros)))
+
             picking = picking_obj.search([('sale_id', '=', sale_order.id)])
-            stock_move = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))[0]
-            stock_move.quantity_done = abs(content['quantity'])
+            for content in contents:
+                default_code = content['goodsCode']  # 商品编码
+
+                product = product_obj.search([('default_code', '=', default_code)])
+
+                stock_move = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))[0]
+                stock_move.quantity_done = abs(content['quantity'])
 
             if picking.state != 'assigned':
                 picking.action_assign()
@@ -1273,6 +1345,9 @@ class ApiMessage(models.Model):
 
             picking.button_validate()  # 确认出库
             return
+
+        if update_type == 'STOCK_01001':  # 销售退货(只有一次退货)
+            raise MyValidationError('00', '未实现的处理')
 
         if update_type == 'STOCK_01003':  # 销售退货冲销
             raise MyValidationError('00', '未实现的处理')
