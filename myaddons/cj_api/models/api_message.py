@@ -231,13 +231,14 @@ class ApiMessage(models.Model):
 
             error_msg = PROCESS_ERROR[error_no]
             self._cr.execute('ROLLBACK TO SAVEPOINT "%s"' % name)
-            self.write({
-                'state': 'error',
-                'attempts': self.attempts + 1,
-                'error': traceback.format_exc(),
-                'error_no': error_no,
-                'error_msg': error_msg
-            })
+            for res in self:
+                res.write({
+                    'state': 'error',
+                    'attempts': res.attempts + 1,
+                    'error': traceback.format_exc(),
+                    'error_no': error_no,
+                    'error_msg': error_msg
+                })
             _logger.error(traceback.format_exc())
         finally:
             self._cr.execute('RELEASE SAVEPOINT "%s"' % name)

@@ -5,7 +5,7 @@ import threading
 import traceback
 import pika
 
-from odoo import fields, models, api
+from odoo import api
 from odoo.tools import config
 import odoo
 
