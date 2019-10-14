@@ -1264,7 +1264,7 @@ class ApiMessage(models.Model):
 
         update_types = list(set([content['type'] for content in contents]))
         order_names = list(set([content['updateCode'] for content in contents]))
-        if len(update_types) != order_names:
+        if len(update_types) != len(order_names):
             raise MyValidationError('23', '变更单号：%s找到多种变更类型：%s' % (order_names, update_types))
 
         update_type = contents[0]['type']  # 变更类型
