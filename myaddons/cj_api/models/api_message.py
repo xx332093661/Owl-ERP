@@ -122,7 +122,7 @@ class ApiMessage(models.Model):
             return getattr(x, 'update_code', '')
 
         if not messages:
-            messages = self.search(['&', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', 3)], order='sequence asc, id desc')
+            messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', 3)], order='sequence asc, id desc')
 
         total_count = len(messages)
         _logger.info(u'开始处理{0}条数据'.format(total_count))
