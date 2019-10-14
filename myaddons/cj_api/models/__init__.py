@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from . import api_message
 from . import rabbit_mq_send
+from . import api_message
 from . import send
 from . import cj_oa_api
 from . import cj_org

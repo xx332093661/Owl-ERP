@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--圆通快递-->
+    <data noupdate="1">
+        <record id="yto_delivery_carrier" model="delivery.carrier">
+            <field name="name">YTO物流服务费</field>
+            <field name="delivery_type">base_on_rule</field>
+            <field name="partner_id" ref="cj_delivery.res_partner_yto"/>
+            <field name="product_id" ref="cj_delivery.product_product_delivery"/>
+            <field name="fixed_price">0.0</field>
+            <field name="free_over" eval="False"/>
+            <field name="amount">1000</field>
+            <field name="sequence">1</field>
+            <field name="country_ids"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_SC')])]"/>
+            <field name="city_ids" eval="[(6,0,[ref('cj_delivery.china_city_cds')])]"/>
+        </record>
+        <!--收费明细-->
+
+        <!--四川、重庆 重量<=3 -->
+        <record id="yto_from_cds_rule1" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_SC'), ref('l10n_cn.state_CQ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5"/>
+            <field name="list_price" eval="0.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--四川、重庆 3<重量<=10 -->
+        <record id="yto_from_cds_rule2" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_SC'), ref('l10n_cn.state_CQ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="3"/>
+            <field name="list_base_price" eval="6"/>
+            <field name="list_price" eval="1"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--四川、重庆 重量>10 -->
+        <record id="yto_from_cds_rule3" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_SC'), ref('l10n_cn.state_CQ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5"/>
+            <field name="list_price" eval="1.2"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--云南、贵州、陕西、江苏、浙江、上海、安徽、河南、湖北、福建    重量<=3 -->
+        <record id="yto_from_cds_rule4" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_YN'), ref('l10n_cn.state_GZ'),
+            ref('l10n_cn.state_SN'), ref('l10n_cn.state_JS'), ref('l10n_cn.state_ZJ'),
+            ref('l10n_cn.state_SH'), ref('l10n_cn.state_AH'), ref('l10n_cn.state_HA'),
+            ref('l10n_cn.state_HB'), ref('l10n_cn.state_FJ'), ref('l10n_cn.state_BJ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5"/>
+            <field name="list_price" eval="0.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--云南、贵州、陕西、江苏、浙江、上海、安徽、河南、湖北、福建    3<重量<=10 -->
+        <record id="yto_from_cds_rule5" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_YN'), ref('l10n_cn.state_GZ'),
+            ref('l10n_cn.state_SN'), ref('l10n_cn.state_JS'), ref('l10n_cn.state_ZJ'),
+            ref('l10n_cn.state_SH'), ref('l10n_cn.state_AH'), ref('l10n_cn.state_HA'),
+            ref('l10n_cn.state_HB'), ref('l10n_cn.state_FJ'), ref('l10n_cn.state_BJ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="3"/>
+            <field name="list_base_price" eval="6"/>
+            <field name="list_price" eval="1.2"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--云南、贵州、陕西、江苏、浙江、上海、安徽、河南、湖北、福建    重量>10 -->
+        <record id="yto_from_cds_rule6" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_YN'), ref('l10n_cn.state_GZ'),
+            ref('l10n_cn.state_SN'), ref('l10n_cn.state_JS'), ref('l10n_cn.state_ZJ'),
+            ref('l10n_cn.state_SH'), ref('l10n_cn.state_AH'), ref('l10n_cn.state_HA'),
+            ref('l10n_cn.state_HB'), ref('l10n_cn.state_FJ'), ref('l10n_cn.state_BJ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5"/>
+            <field name="list_price" eval="2.4"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--北京、天津、广东、广西、河北、湖南、江西、山西、山东   重量<=3 -->
+        <record id="yto_from_cds_rule7" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_BJ'),
+            ref('l10n_cn.state_TJ'), ref('l10n_cn.state_GD'), ref('l10n_cn.state_GX'),
+            ref('l10n_cn.state_HE'), ref('l10n_cn.state_HN'), ref('l10n_cn.state_JX'),
+            ref('l10n_cn.state_SX'), ref('l10n_cn.state_SD')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5"/>
+            <field name="list_price" eval="0.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--北京、天津、广东、广西、河北、湖南、江西、山西、山东   3<重量<=10 -->
+        <record id="yto_from_cds_rule8" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_BJ'),
+            ref('l10n_cn.state_TJ'), ref('l10n_cn.state_GD'), ref('l10n_cn.state_GX'),
+            ref('l10n_cn.state_HE'), ref('l10n_cn.state_HN'), ref('l10n_cn.state_JX'),
+            ref('l10n_cn.state_SX'), ref('l10n_cn.state_SD')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="3"/>
+            <field name="list_base_price" eval="6"/>
+            <field name="list_price" eval="1.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--北京、天津、广东、广西、河北、湖南、江西、山西、山东  重量>10 -->
+        <record id="yto_from_cds_rule9" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_BJ'),
+            ref('l10n_cn.state_TJ'), ref('l10n_cn.state_GD'), ref('l10n_cn.state_GX'),
+            ref('l10n_cn.state_HE'), ref('l10n_cn.state_HN'), ref('l10n_cn.state_JX'),
+            ref('l10n_cn.state_SX'), ref('l10n_cn.state_SD')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5"/>
+            <field name="list_price" eval="3"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--甘肃、宁夏、青海   重量<=3 -->
+        <record id="yto_from_cds_rule10" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_GS'),
+            ref('l10n_cn.state_NX'), ref('l10n_cn.state_QH')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5.5"/>
+            <field name="list_price" eval="0.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--甘肃、宁夏、青海   3<重量<=10 -->
+        <record id="yto_from_cds_rule11" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_GS'),
+            ref('l10n_cn.state_NX'), ref('l10n_cn.state_QH')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="3"/>
+            <field name="list_base_price" eval="6.5"/>
+            <field name="list_price" eval="1.8"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--甘肃、宁夏、青海   重量>10 -->
+        <record id="yto_from_cds_rule12" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_GS'),
+            ref('l10n_cn.state_NX'), ref('l10n_cn.state_QH')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="6"/>
+            <field name="list_price" eval="5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--黑龙江、吉林、辽宁   重量<=3 -->
+        <record id="yto_from_cds_rule13" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_HL'),
+            ref('l10n_cn.state_JL'), ref('l10n_cn.state_LN')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5.5"/>
+            <field name="list_price" eval="0.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--黑龙江、吉林、辽宁   3<重量<=10 -->
+        <record id="yto_from_cds_rule14" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_HL'),
+            ref('l10n_cn.state_JL'), ref('l10n_cn.state_LN')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="3"/>
+            <field name="list_base_price" eval="6.5"/>
+            <field name="list_price" eval="1.8"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--黑龙江、吉林、辽宁   重量>10 -->
+        <record id="yto_from_cds_rule15" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_HL'),
+            ref('l10n_cn.state_JL'), ref('l10n_cn.state_LN')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="6"/>
+            <field name="list_price" eval="5.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--内蒙、海南   重量<=3 -->
+        <record id="yto_from_cds_rule16" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_NM'), ref('l10n_cn.state_HI')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="0"/>
+            <field name="list_base_price" eval="0"/>
+            <field name="list_price" eval="12"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--内蒙、海南   重量>3 -->
+        <record id="yto_from_cds_rule17" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_NM'), ref('l10n_cn.state_HI')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="0"/>
+            <field name="list_base_price" eval="0"/>
+            <field name="list_price" eval="10"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--新疆   重量<=3 -->
+        <record id="yto_from_cds_rule18" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_XJ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="0"/>
+            <field name="list_base_price" eval="0"/>
+            <field name="list_price" eval="18"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--新疆   重量>3 -->
+        <record id="yto_from_cds_rule19" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_XJ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="0"/>
+            <field name="list_base_price" eval="0"/>
+            <field name="list_price" eval="12"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--西藏   重量<=3 -->
+        <record id="yto_from_cds_rule20" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_XZ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="0"/>
+            <field name="list_base_price" eval="0"/>
+            <field name="list_price" eval="18"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--西藏   重量>3 -->
+        <record id="yto_from_cds_rule21" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.yto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_XZ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="0"/>
+            <field name="list_base_price" eval="0"/>
+            <field name="list_price" eval="15"/>
+            <field name="variable_factor">weight</field>
+        </record>
+    </data>
+
+    <!--中通快递-->
+    <data noupdate="1">
+        <record id="zto_delivery_carrier" model="delivery.carrier">
+            <field name="name">ZTO物流服务费</field>
+            <field name="delivery_type">base_on_rule</field>
+            <field name="partner_id" ref="cj_delivery.res_partner_zto"/>
+            <field name="product_id" ref="cj_delivery.product_product_delivery"/>
+            <field name="fixed_price">0.0</field>
+            <field name="free_over" eval="False"/>
+            <field name="amount">1000</field>
+            <field name="sequence">1</field>
+            <field name="country_ids"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_SC')])]"/>
+            <field name="city_ids" eval="[(6,0,[ref('cj_delivery.china_city_cds')])]"/>
+        </record>
+        <!--收费明细-->
+
+        <!--四川、重庆 重量<=3 -->
+        <record id="zto_from_cds_rule1" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_SC'), ref('l10n_cn.state_CQ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5"/>
+            <field name="list_price" eval="0.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--四川、重庆 3<重量<=10 -->
+        <record id="zto_from_cds_rule2" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_SC'), ref('l10n_cn.state_CQ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="3"/>
+            <field name="list_base_price" eval="6"/>
+            <field name="list_price" eval="1"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--四川、重庆 重量>10 -->
+        <record id="zto_from_cds_rule3" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_SC'), ref('l10n_cn.state_CQ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5"/>
+            <field name="list_price" eval="1.2"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--云南、贵州、陕西、江苏、浙江、上海、安徽、河南、湖北、福建    重量<=3 -->
+        <record id="zto_from_cds_rule4" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_YN'), ref('l10n_cn.state_GZ'),
+            ref('l10n_cn.state_SN'), ref('l10n_cn.state_JS'), ref('l10n_cn.state_ZJ'),
+            ref('l10n_cn.state_SH'), ref('l10n_cn.state_AH'), ref('l10n_cn.state_HA'),
+            ref('l10n_cn.state_HB'), ref('l10n_cn.state_FJ'), ref('l10n_cn.state_BJ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5"/>
+            <field name="list_price" eval="0.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--云南、贵州、陕西、江苏、浙江、上海、安徽、河南、湖北、福建    3<重量<=10 -->
+        <record id="zto_from_cds_rule5" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_YN'), ref('l10n_cn.state_GZ'),
+            ref('l10n_cn.state_SN'), ref('l10n_cn.state_JS'), ref('l10n_cn.state_ZJ'),
+            ref('l10n_cn.state_SH'), ref('l10n_cn.state_AH'), ref('l10n_cn.state_HA'),
+            ref('l10n_cn.state_HB'), ref('l10n_cn.state_FJ'), ref('l10n_cn.state_BJ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="3"/>
+            <field name="list_base_price" eval="6"/>
+            <field name="list_price" eval="1.2"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--云南、贵州、陕西、江苏、浙江、上海、安徽、河南、湖北、福建    重量>10 -->
+        <record id="zto_from_cds_rule6" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_YN'), ref('l10n_cn.state_GZ'),
+            ref('l10n_cn.state_SN'), ref('l10n_cn.state_JS'), ref('l10n_cn.state_ZJ'),
+            ref('l10n_cn.state_SH'), ref('l10n_cn.state_AH'), ref('l10n_cn.state_HA'),
+            ref('l10n_cn.state_HB'), ref('l10n_cn.state_FJ'), ref('l10n_cn.state_BJ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5"/>
+            <field name="list_price" eval="2.4"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--北京、天津、广东、广西、河北、湖南、江西、山西、山东   重量<=3 -->
+        <record id="zto_from_cds_rule7" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_BJ'),
+            ref('l10n_cn.state_TJ'), ref('l10n_cn.state_GD'), ref('l10n_cn.state_GX'),
+            ref('l10n_cn.state_HE'), ref('l10n_cn.state_HN'), ref('l10n_cn.state_JX'),
+            ref('l10n_cn.state_SX'), ref('l10n_cn.state_SD')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5"/>
+            <field name="list_price" eval="0.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--北京、天津、广东、广西、河北、湖南、江西、山西、山东   3<重量<=10 -->
+        <record id="zto_from_cds_rule8" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_BJ'),
+            ref('l10n_cn.state_TJ'), ref('l10n_cn.state_GD'), ref('l10n_cn.state_GX'),
+            ref('l10n_cn.state_HE'), ref('l10n_cn.state_HN'), ref('l10n_cn.state_JX'),
+            ref('l10n_cn.state_SX'), ref('l10n_cn.state_SD')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="3"/>
+            <field name="list_base_price" eval="6"/>
+            <field name="list_price" eval="1.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--北京、天津、广东、广西、河北、湖南、江西、山西、山东  重量>10 -->
+        <record id="zto_from_cds_rule9" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_BJ'),
+            ref('l10n_cn.state_TJ'), ref('l10n_cn.state_GD'), ref('l10n_cn.state_GX'),
+            ref('l10n_cn.state_HE'), ref('l10n_cn.state_HN'), ref('l10n_cn.state_JX'),
+            ref('l10n_cn.state_SX'), ref('l10n_cn.state_SD')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5"/>
+            <field name="list_price" eval="3"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--甘肃、宁夏、青海   重量<=3 -->
+        <record id="zto_from_cds_rule10" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_GS'),
+            ref('l10n_cn.state_NX'), ref('l10n_cn.state_QH')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5.5"/>
+            <field name="list_price" eval="0.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--甘肃、宁夏、青海   3<重量<=10 -->
+        <record id="zto_from_cds_rule11" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_GS'),
+            ref('l10n_cn.state_NX'), ref('l10n_cn.state_QH')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="3"/>
+            <field name="list_base_price" eval="6.5"/>
+            <field name="list_price" eval="1.8"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--甘肃、宁夏、青海   重量>10 -->
+        <record id="zto_from_cds_rule12" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_GS'),
+            ref('l10n_cn.state_NX'), ref('l10n_cn.state_QH')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="6"/>
+            <field name="list_price" eval="5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--黑龙江、吉林、辽宁   重量<=3 -->
+        <record id="zto_from_cds_rule13" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_HL'),
+            ref('l10n_cn.state_JL'), ref('l10n_cn.state_LN')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="5.5"/>
+            <field name="list_price" eval="0.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--黑龙江、吉林、辽宁   3<重量<=10 -->
+        <record id="zto_from_cds_rule14" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_HL'),
+            ref('l10n_cn.state_JL'), ref('l10n_cn.state_LN')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="3"/>
+            <field name="list_base_price" eval="6.5"/>
+            <field name="list_price" eval="1.8"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--黑龙江、吉林、辽宁   重量>10 -->
+        <record id="zto_from_cds_rule15" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_HL'),
+            ref('l10n_cn.state_JL'), ref('l10n_cn.state_LN')
+            ])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="10"/>
+            <field name="list_base" eval="1"/>
+            <field name="list_base_price" eval="6"/>
+            <field name="list_price" eval="5.5"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--内蒙、海南   重量<=3 -->
+        <record id="zto_from_cds_rule16" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_NM'), ref('l10n_cn.state_HI')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="0"/>
+            <field name="list_base_price" eval="0"/>
+            <field name="list_price" eval="12"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--内蒙、海南   重量>3 -->
+        <record id="zto_from_cds_rule17" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_NM'), ref('l10n_cn.state_HI')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="0"/>
+            <field name="list_base_price" eval="0"/>
+            <field name="list_price" eval="10"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--新疆   重量<=3 -->
+        <record id="zto_from_cds_rule18" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_XJ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="0"/>
+            <field name="list_base_price" eval="0"/>
+            <field name="list_price" eval="18"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--新疆   重量>3 -->
+        <record id="zto_from_cds_rule19" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_XJ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="0"/>
+            <field name="list_base_price" eval="0"/>
+            <field name="list_price" eval="12"/>
+            <field name="variable_factor">weight</field>
+        </record>
+
+        <!--西藏   重量<=3 -->
+        <record id="zto_from_cds_rule20" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_XZ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&lt;=</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="0"/>
+            <field name="list_base_price" eval="0"/>
+            <field name="list_price" eval="18"/>
+            <field name="variable_factor">weight</field>
+        </record>
+        <!--西藏   重量>3 -->
+        <record id="zto_from_cds_rule21" model="delivery.price.rule">
+            <field name="carrier_id" ref="cj_delivery.zto_delivery_carrier"/>
+            <field name="country_ids" eval="[(6,0,[ref('base.cn')])]"/>
+            <field name="state_ids" eval="[(6,0,[ref('l10n_cn.state_XZ')])]"/>
+            <field name="variable">weight</field>
+            <field name="operator">&gt;</field>
+            <field name="max_value" eval="3"/>
+            <field name="list_base" eval="0"/>
+            <field name="list_base_price" eval="0"/>
+            <field name="list_price" eval="15"/>
+            <field name="variable_factor">weight</field>
+        </record>
+    </data>
+</odoo>

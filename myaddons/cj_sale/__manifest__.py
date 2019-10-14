@@ -29,7 +29,6 @@
         'data/partner.xml',
         'data/oa_approval_callback.xml',
         'data/decimal_precision.xml',
-        'data/product_product.xml',
 
         'views/sale_channels.xml',
         'views/sale_activity.xml',

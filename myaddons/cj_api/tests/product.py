@@ -22,7 +22,7 @@ def generate_product_excel():
         os.remove(file_name)
 
     odoo = odoorpc.ODOO(host='localhost', port=8079)
-    odoo.login('odoocjl2', login='admin', password='admin')
+    odoo.login('odoocjl3', login='admin', password='admin')
 
     workbook = xlwt.Workbook()
     worksheet = workbook.add_sheet('Sheet 1')
@@ -50,7 +50,10 @@ def generate_product_excel():
             parse_error_count += 1
             continue
 
+        print(content['version'])
         for index, b in enumerate(body):
+            if not b:
+                continue
             worksheet.write(row_index, 0, str(b.get('id', 0)))
             worksheet.write(row_index, 1, b.get('barcode'))
             worksheet.write(row_index, 2, b.get('bigClass'))

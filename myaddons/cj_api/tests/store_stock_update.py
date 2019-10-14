@@ -21,7 +21,7 @@ def generate_store_stock_update_excel():
         os.remove(file_name)
 
     odoo = odoorpc.ODOO(host='localhost', port=8079)
-    odoo.login('odoocjl2', login='admin', password='admin')
+    odoo.login('odoocjl3', login='admin', password='admin')
 
     workbook = xlwt.Workbook()
     worksheet = workbook.add_sheet('Sheet 1')
@@ -89,7 +89,7 @@ def check_store_stock_update():
     print('上级组织不存在数量：', len(no_exist), no_exist)  # 上级组织不存在： 1 ['556270392595976192']
 
 
-# generate_store_stock_update_excel()
+generate_store_stock_update_excel()
 # check_org()
 
 

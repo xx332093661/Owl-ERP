@@ -16,7 +16,7 @@ def _deal_content(content):
 
 def generate_warehouse_excel():
     odoo = odoorpc.ODOO(host='localhost', port=8079)
-    odoo.login('odoocjl1', login='admin', password='admin')
+    odoo.login('odoocjl3', login='admin', password='admin')
 
     workbook = xlwt.Workbook()
     worksheet = workbook.add_sheet('Sheet 1')
@@ -119,5 +119,5 @@ def get_org_info():
 
     return org_ids
 
-# generate_warehouse_excel()
-check_warehouse()
+generate_warehouse_excel()
+# check_warehouse()

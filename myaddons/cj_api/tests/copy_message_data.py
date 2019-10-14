@@ -4,16 +4,19 @@ from itertools import groupby
 import odoorpc
 
 odoo_8079 = odoorpc.ODOO(host='localhost', port=8079)
-odoo_8079.login('odoocjl2', login='admin', password='admin')
+odoo_8079.login('odoocjl3', login='admin', password='admin')
 
 odoo_8069 = odoorpc.ODOO(host='localhost', port=8069)
-odoo_8069.login('odoocj31', login='admin', password='admin')
+odoo_8069.login('odoocj33', login='admin', password='admin')
 
 # odoo_8069 = odoorpc.ODOO(host='42.121.2.58', port=8069)
 # odoo_8069.login('odoocj3', login='admin', password='admin')
 
-odoo_8069 = odoorpc.ODOO(host='10.16.0.35', port=8079)
-odoo_8069.login('odoo_owl', login='admin', password='admin')
+# odoo_8069 = odoorpc.ODOO(host='10.16.0.35', port=8079)
+# odoo_8069.login('odoo_owl', login='admin', password='admin')
+
+# odoo_8069 = odoorpc.ODOO(host='10.16.0.35', port=8080)
+# odoo_8069.login('odooapi', login='admin', password='admin')
 
 
 def create(message_name):
@@ -31,45 +34,52 @@ def create(message_name):
 
     odoo_8069.env['api.message'].create(vals)
 
-# 组织机构(ok)
-create('MDM-ERP-ORG-QUEUE')
+# 1 组织机构(ok)
+# create('MDM-ERP-ORG-QUEUE')
 
-# 门店(ok)
-create('MDM-ERP-STORE-QUEUE')
+# 2 门店(ok)
+# create('MDM-ERP-STORE-QUEUE')
 
-# 供应商
+# 3 供应商(ok)
 # create('MDM-ERP-SUPPLIER-QUEUE')
 
-# 经销商
+# 4 经销商(ok)
 # create('MDM-ERP-DISTRIBUTOR-QUEUE')
 
-# 会员(ok)
-create('MDM-ERP-MEMBER-QUEUE')
+# 5 会员(ok)
+# create('MDM-ERP-MEMBER-QUEUE')
 
-# 仓库(ok)
-create('MDM-ERP-WAREHOUSE-QUEUE')
+# 6 仓库(ok)
+# create('MDM-ERP-WAREHOUSE-QUEUE')
 
-# 商品(ok)
-create('MDM-ERP-MATERIAL-QUEUE')
+# 7 商品(ok)
+# create('MDM-ERP-MATERIAL-QUEUE')
 
-# 门店库存(ok)
-create('mustang-to-erp-store-stock-push')
+# 8 门店库存(ok)
+# create('mustang-to-erp-store-stock-push')
 
-# 全渠道订单(ok)
-create('mustang-to-erp-order-push')
+# 9 外部仓库库存(ok)
+# create('WMS-ERP-STOCK-QUEUE')
 
-# 出库单
-create('WMS-ERP-STOCKOUT-QUEUE')
+# 10 全渠道订单(ok)
+# create('mustang-to-erp-order-push')
 
-# 订单状态
-create('mustang-to-erp-order-status-push')
+# 11 物流信息
+# create('mustang-to-erp-logistics-push')
 
-# 库存数据队列
-create('WMS-ERP-STOCK-QUEUE')
+# 12 出库单
+# create('WMS-ERP-STOCKOUT-QUEUE')
 
-# 物流信息
-create('mustang-to-erp-logistics-push')
-
-# 门店库存变动
+# 10 门店库存变动
 create('mustang-to-erp-store-stock-update-record-push')
+
+# 14 订单状态
+# create('mustang-to-erp-order-status-push')
+
+# 15 售后服务单
+# create('mustang-to-erp-service-list-push')
+
+
+
+
 

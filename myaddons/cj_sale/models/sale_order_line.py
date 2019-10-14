@@ -20,14 +20,15 @@ class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
     goods_amount = fields.Float("商品售价")
-    goods_cost = fields.Float("商品成本")
+    goods_cost = fields.Float("商品成本", compute='_compute_valuation_move', store=0)
     shipping_cost = fields.Float("物流成本")
     box_cost = fields.Float("纸箱成本")
     packing_cost = fields.Float("打包成本")
     gross_profit = fields.Float("毛利额")
     gross_rate = fields.Float("毛利率")
 
-    valuation_ids = fields.Many2many('stock.inventory.valuation.move','rel_sale_line_valuation_move','line_id','move_id',compute='_compute_valuation_move',string='Receptions',store=False)
+    valuation_ids = fields.Many2many('stock.inventory.valuation.move', 'rel_sale_line_valuation_move', 'line_id', 'move_id',
+                                     compute='_compute_valuation_move', string='Receptions', store=0)
 
     market_price = fields.Float('标价')
     original_price = fields.Float('原价')
@@ -36,8 +37,6 @@ class SaleOrderLine(models.Model):
     discount_pop = fields.Float('促销活动优惠抵扣的金额')
     discount_coupon = fields.Float('优惠卷抵扣的金额')
     discount_grant = fields.Float('临时抵扣金额')
-
-
 
     @api.multi
     @api.depends('move_ids')

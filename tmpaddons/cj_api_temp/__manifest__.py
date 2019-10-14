@@ -13,6 +13,7 @@
     'depends': ['cj_api'],
     'data': [
         'data/res_config_parameter.xml',
+        'data/ir_cron.xml',
         'views/res_config_settings_view.xml',
     ],
     'demo': [
