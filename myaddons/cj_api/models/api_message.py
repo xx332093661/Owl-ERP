@@ -41,6 +41,7 @@ PROCESS_ERROR = {
     '20': '未找到省',
     '21': '门店库存变更未找到相应的变更类型',
     '22':  'POS出库数量小于订单数量',  # pos订单有多条记录，只处理其中一条出库数据时，报此错
+    '23': '门店库存变更同一单号对应多种变更类型',  # pos订单有多条记录，只处理其中一条出库数据时，报此错
 }
 
 
@@ -1259,8 +1260,15 @@ class ApiMessage(models.Model):
         picking_obj = self.env['stock.picking']
 
         contents = [json.loads(content) for content in contents]
+
+        update_types = list(set([content['type'] for content in contents]))
+        order_names = list(set([content['updateCode'] for content in contents]))
+        if len(update_types) != order_names:
+            raise MyValidationError('23', '变更单号：%s找到多种变更类型：%s' % (order_names, update_types))
+
         update_type = contents[0]['type']  # 变更类型
         order_name = contents[0]['updateCode']  # 变更单号（如果是订单产生的库存变化，那变更类型就是销售出库，变更单号就是订单号）
+
         # default_code = content['goodsCode']  # 商品编码
 
         # product = product_obj.search([('default_code', '=', default_code)])
