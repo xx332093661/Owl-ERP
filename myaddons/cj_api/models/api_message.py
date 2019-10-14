@@ -157,7 +157,7 @@ class ApiMessage(models.Model):
             else:
                 for message in messages:
                     index += 1
-                    _logger.info('处理进度：{0}/{1}，ids：'.format(index, total_count, message.ids))
+                    _logger.info('处理进度：{0}/{1}，ids：%s'.format(index, total_count, message.ids))
                     if message.message_type == 'interface':
                         message.deal_interface_content()  # 处理接口返回数据
                     elif message.message_type == 'rabbit_mq':
