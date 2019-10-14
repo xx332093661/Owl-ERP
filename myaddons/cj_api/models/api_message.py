@@ -152,12 +152,12 @@ class ApiMessage(models.Model):
                         obj |= msg
 
                     index += len(obj)
-                    _logger.info('处理进度：{0}/{1}，ids：%s'.format(index, total_count, obj.ids))
+                    _logger.info('处理进度：{0}/{1}，ids：{2}'.format(index, total_count, obj.ids))
                     obj.deal_mq_content()
             else:
                 for message in messages:
                     index += 1
-                    _logger.info('处理进度：{0}/{1}，ids：%s'.format(index, total_count, message.ids))
+                    _logger.info('处理进度：{0}/{1}，ids：{2}'.format(index, total_count, message.ids))
                     if message.message_type == 'interface':
                         message.deal_interface_content()  # 处理接口返回数据
                     elif message.message_type == 'rabbit_mq':
