@@ -24,6 +24,7 @@ class PurchaseOrderPoint(models.Model):
         readonly=True, required=True,
         default=lambda self: self._context.get('product_uom', False))
     product_min_qty = fields.Integer('安全库存量')
+    product_max_qty = fields.Integer('最大库存量')
     purchase_min_qty = fields.Integer('最小采购量')
     company_id = fields.Many2one(
         'res.company', '公司', required=True,
