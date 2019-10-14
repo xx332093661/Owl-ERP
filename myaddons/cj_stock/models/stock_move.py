@@ -289,28 +289,28 @@ class StockMove(models.Model):
         """合并stock.move分组字段
             增加owner_id分组
         """
-        return [
-            'product_id', 'price_unit', 'product_packaging', 'procure_method',
-            'product_uom', 'restrict_partner_id', 'scrapped', 'origin_returned_move_id',
-            'package_level_id', 'owner_id'
-        ]
+        distinct_fields = super(StockMove, self)._prepare_merge_moves_distinct_fields()
+        distinct_fields.append('owner_id')
+        return distinct_fields
 
-    @api.model_create_multi
-    def create(self, vals_list):
+    @api.model
+    def create(self, vals):
         """
         计算库存移动的company_id字段值
         """
-        for vals in vals_list:
-            if not vals.get('company_id'):
-                if vals.get('owner_id'):
-                    vals['company_id'] = vals['owner_id']
-                else:
-                    if vals.get('picking_id', False):
-                        picking = self.env['stock.picking'].browse(vals['picking_id'])
-                        if picking.company_id:
-                            vals['company_id'] = picking.company_id.id
 
-        return super(StockMove, self).create(vals_list)
+        if not vals.get('company_id'):
+            if vals.get('owner_id'):
+                vals['company_id'] = vals['owner_id']
+            else:
+                if vals.get('picking_id', False):
+                    picking = self.env['stock.picking'].browse(vals['picking_id'])
+                    if picking.company_id:
+                        vals['company_id'] = picking.company_id.id
+
+        res = super(StockMove, self).create(vals)
+        print('stock.move.create,vals: ', vals, ', id:', res.id)
+        return res
 
     def write(self, vals):
         """
@@ -330,6 +330,10 @@ class StockMove(models.Model):
             self.create_inventory_valuation()
 
         return res
+
+    def unlink(self):
+        print('stock.move, ids: %s', self.ids)
+        return super(StockMove, self).unlink()
 
     def create_inventory_valuation(self):
         """生成存货估值明细表

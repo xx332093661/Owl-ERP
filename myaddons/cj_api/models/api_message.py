@@ -42,7 +42,7 @@ PROCESS_ERROR = {
     '20': '未找到省',
     '21': '门店库存变更未找到相应的变更类型',
     '22':  'POS出库数量小于订单数量',  # pos订单有多条记录，只处理其中一条出库数据时，报此错
-    '23': '门店库存变更同一单号对应多种变更类型',  # pos订单有多条记录，只处理其中一条出库数据时，报此错
+    '23': '门店库存变更同一单号对应多种变更类型',
 }
 
 
@@ -115,7 +115,7 @@ class ApiMessage(models.Model):
     def proc_content(self, messages=None):
         """处理同步数据"""
         def get_update_code(m):
-            """"""
+            """获取门店库存变更的单号"""
             content = json.loads(m.content)
             return content.get('updateCode', uuid.uuid1().hex)
 
@@ -165,17 +165,6 @@ class ApiMessage(models.Model):
 
                     if total_count > 100 and index % 10 == 9:
                         self.env.cr.commit()
-
-        # for index, message in enumerate(sorted(messages, key=lambda x: x.sequence)):
-        #     _logger.info('处理进度：{0}/{1}'.format(index + 1, len(messages)))
-        #
-        #     if message.message_type == 'interface':
-        #         message.deal_interface_content()  # 处理接口返回数据
-        #     elif message.message_type == 'rabbit_mq':
-        #         message.deal_mq_content()  # 处理rabbitmq接收到的数据
-        #
-        #     if len(messages) > 100 and index % 10 == 9:
-        #         self.env.cr.commit()
 
         _logger.info(u'数据处理完毕')
 
