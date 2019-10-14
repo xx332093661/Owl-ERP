@@ -13,7 +13,8 @@ from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 from .rabbit_mq_receive import RabbitMQReceiveThread
 from .rabbit_mq_send import RabbitMQSendThread
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_is_zero, float_compare
+from .rabbit_mq_receive import MQ_SEQUENCE
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare
 
 _logger = logging.getLogger(__name__)
 
@@ -123,10 +124,13 @@ class ApiMessage(models.Model):
 
         if not messages:
             messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', 3)], order='sequence asc, id desc')
+        else:
+            messages = self.search([('id', 'in', messages.ids)], order='sequence asc, id desc')
 
         total_count = len(messages)
         _logger.info(u'开始处理{0}条数据'.format(total_count))
 
+        sequence_dict = {v: k for k, v in MQ_SEQUENCE.items()}
         res = {}
         for sequence, msgs in groupby(messages, lambda x: x.sequence):
             msgs = list(msgs)
@@ -137,6 +141,7 @@ class ApiMessage(models.Model):
 
         index = 0
         for sequence in sorted(res.keys()):
+            _logger.info('处理序号：%s，队列类型：%s' % (sequence, sequence_dict[sequence]))
             messages = res[sequence]
             # 门店库存变更，按update_code分下组，再去执行 todo
             if messages[0].message_name == 'mustang-to-erp-store-stock-update-record-push':
@@ -1259,6 +1264,9 @@ class ApiMessage(models.Model):
         return_picking_obj = self.env['stock.return.picking']
         product_obj = self.env['product.product']
         picking_obj = self.env['stock.picking']
+
+        if not isinstance(contents, list):
+            contents = [contents]
 
         contents = [json.loads(content) for content in contents]
 
