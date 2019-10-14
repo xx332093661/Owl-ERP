@@ -212,7 +212,11 @@ class ApiMessage(models.Model):
         name = uuid.uuid1().hex
         self._cr.execute('SAVEPOINT "%s"' % name)
         try:
-            getattr(self, 'deal_' + self[0].message_name.replace('-', '_').lower())(self.mapped('content'))
+            contents = self.mapped('content')
+            if len(contents) == 1:
+                contents = contents[0]
+
+            getattr(self, 'deal_' + self[0].message_name.replace('-', '_').lower())(contents)
             self.write({
                 'state': 'done',
                 'error': False,
