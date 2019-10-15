@@ -154,6 +154,9 @@ class ApiMessage(models.Model):
                     index += len(obj)
                     _logger.info('处理进度：{0}/{1}，ids：{2}'.format(index, total_count, obj.ids))
                     obj.deal_mq_content()
+
+                    if total_count > 100 and index % 10 == 9:
+                        self.env.cr.commit()
             else:
                 for message in messages:
                     index += 1
