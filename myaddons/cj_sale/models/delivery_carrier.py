@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+from math import ceil
+
 from odoo import fields, models, api
+from odoo.exceptions import ValidationError
+from odoo.tools import safe_eval
 
 
 class DeliveryCarrier(models.Model):
@@ -18,6 +22,79 @@ class DeliveryCarrier(models.Model):
         res = super(DeliveryCarrier, self).default_get(fields_list)
         res['product_id'] = self.env.ref('cj_delivery.product_product_delivery').id
         return res
+
+    def get_delivery_fee(self, sale_order, warehouse, logistics_code, weight, quantity):
+        """计算快递费"""
+        w_state_id = warehouse.state_id.id  # 仓库所在省
+        w_city_id = warehouse.city_id.id  # 仓库所在市
+        if not w_state_id and not w_city_id:
+            raise ValidationError('发货仓库：%s(%s)没有设置省或者市！' % (warehouse.name, warehouse.code))
+
+        consignee_state_id = sale_order.consignee_state_id.id  # 客户收货所在省
+        consignee_city_id = sale_order.consignee_state_id.id  # 客户收货所在市
+        if not consignee_state_id and not consignee_city_id:
+            raise ValidationError('订单：%s收货人信息没有省或者市！' % (sale_order.name, ))
+
+        carrier = None
+        for res in self.search([('partner_id.code', '=', logistics_code)]):
+            city_ids = res.city_ids.ids  # 始发市
+
+            if w_city_id:
+                if city_ids and w_city_id in city_ids:
+                    carrier = res
+                    break
+
+        if not carrier:
+            for res in self.search([('partner_id.code', '=', logistics_code)]):
+                state_ids = res.state_ids.ids  # 始发地省
+
+                if w_state_id:
+                    if state_ids and w_state_id in state_ids:
+                        carrier = res
+                        break
+
+        if not carrier:
+            carrier = self.search([('partner_id.code', '=', logistics_code)], limit=1)
+
+        if not carrier:
+            raise ValidationError('没有找到对应的快递运费设置！')
+
+        # 固定价格
+        if carrier.delivery_type == 'fixed':
+            return carrier.fixed_price
+
+        carrier_rules = self.env['delivery.price.rule']
+        for rule in carrier.price_rule_ids:
+            city_ids = rule.city_ids.ids  # 目的地市
+            if consignee_city_id:
+                if city_ids and consignee_city_id in city_ids:
+                    carrier_rules |= rule
+
+        if not carrier_rules:
+            for rule in carrier.price_rule_ids:
+                state_ids = rule.state_ids.ids  # 省份
+                if consignee_state_id:
+                    if state_ids and consignee_state_id in state_ids:
+                        carrier_rules |= rule
+
+        if not carrier_rules:
+            carrier_rules = carrier.price_rule_ids
+
+        if not carrier_rules:
+            raise ValidationError('没有找到对应的运费规则！')
+
+        weight = ceil(weight)  # 向上舍入 ceil(4.05) => 5
+        for rule in carrier_rules:
+            price_dict = {'price': 0, 'volume': 0, 'weight': weight, 'wv': 0 * weight, 'quantity': quantity}  # 此处计算不考虑订单总金额和体积(total设为0， volume设为0)
+            test = safe_eval(rule.variable + rule.operator + str(rule.max_value), price_dict)
+            total = weight
+            if rule.variable == 'quantity':
+                total = quantity
+
+            if test:
+                return rule.list_base_price + rule.list_price * (total - rule.list_base)
+
+        raise ValidationError('未能计算出运费！')
 
 
 class PriceRule(models.Model):

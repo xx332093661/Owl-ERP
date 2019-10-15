@@ -12,5 +12,17 @@
             <field name="doall" eval="False"/>
             <field name="active" eval="False"/>
         </record>
+
+        <record id="ir_cron_check_delivery_carrier" model="ir.cron">
+            <field name="name">API:验证快递运费</field>
+            <field name="model_id" ref="model_delivery_carrier"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_delivery_carrier(55, 2, 'YTO', 2, 2)</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">0</field>
+            <field name="doall" eval="False"/>
+            <field name="active" eval="False"/>
+        </record>
     </data>
 </odoo>

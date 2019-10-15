@@ -10,10 +10,13 @@
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="cj_id"/>
                 <field name="warehouse_type"/>
-                <field name="contact"/>
-                <field name="contact_phone"/>
-                <field name="charge_person"/>
-                <field name="charge_phone"/>
+                <!--<field name="contact"/>-->
+                <!--<field name="contact_phone"/>-->
+                <!--<field name="charge_person"/>-->
+                <!--<field name="charge_phone"/>-->
+                <field name="state_id"/>
+                <field name="city_id"/>
+                <field name="area_id"/>
                 <field name="status"/>
             </xpath>
 
