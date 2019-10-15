@@ -25,3 +25,4 @@ from . import stock_scrap
 from . import ir_property
 from . import product_category
 from . import account_account_balance
+from . import account_cost_group

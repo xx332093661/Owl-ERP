@@ -61,6 +61,9 @@ account_stock_across_move_diff_receipt_line_invoice,stock_across_move_diff_recei
 account_stock_inventory_diff_receipt_invoice,stock_inventory_diff_receipt invoice,cj_stock.model_stock_inventory_diff_receipt,account.group_account_invoice,1,1,0,0
 account_stock_inventory_diff_receipt_line_invoice,stock_inventory_diff_receipt_line invoice,cj_stock.model_stock_inventory_diff_receipt_line,account.group_account_invoice,1,0,0,0
 
+account_account_cost_group_user, account_cost_group user,model_account_cost_group,base.group_user,1,0,0,0
+account_account_cost_group_invoice, account_cost_group invoice,model_account_cost_group,account.group_account_invoice,1,1,1,1
+
 
 
 

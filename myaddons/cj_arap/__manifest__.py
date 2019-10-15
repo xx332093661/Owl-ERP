@@ -52,6 +52,7 @@
         'views/product_view.xml',
         'views/stock_across_move_diff_receipt_view.xml',
         'views/stock_inventory_diff_receipt_view.xml',
+        'views/account_cost_group_view.xml',
 
         'data/account_payment_term.xml',
         'data/ir_cron.xml',
