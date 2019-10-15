@@ -4,6 +4,7 @@ import json
 import xlwt
 import xlrd
 import os
+from itertools import groupby
 
 file_name = 'store_stock_update.xls'
 
@@ -70,27 +71,19 @@ def check_store_stock_update():
     lines = [sheet.row_values(row_index) for row_index in range(sheet.nrows) if row_index >= 1]
     print('总行数：', len(lines))  # 429
 
-    org_ids = []
-    for line in lines:
-        org_id = line[0]
-        if org_id not in org_ids:
-            org_ids.append(org_id)
-    print('组织总数有效数量：', len(org_ids))  # 429(ok)
+    for update_code, ls in groupby(sorted(lines, key=lambda x: x[0]), lambda x: x[0]):
+        types = []
+        for l in ls:
+            types.append(l[5])
 
-    no_exist = []
-    for line in lines:
-        parent_id = line[5]
-        if not parent_id:
-            continue
-
-        if parent_id not in ['-1', 'null'] and parent_id not in org_ids and parent_id not in no_exist:
-            no_exist.append(parent_id)
-
-    print('上级组织不存在数量：', len(no_exist), no_exist)  # 上级组织不存在： 1 ['556270392595976192']
+        types = list(set(types))
+        if len(types) > 1:
+            print(update_code, types)
 
 
-generate_store_stock_update_excel()
-# check_org()
+
+# generate_store_stock_update_excel()
+check_store_stock_update()
 
 
 

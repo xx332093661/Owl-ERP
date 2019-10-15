@@ -87,11 +87,11 @@ class DeliveryCarrier(models.Model):
         for rule in carrier_rules:
             price_dict = {'price': 0, 'volume': 0, 'weight': weight, 'wv': 0 * weight, 'quantity': quantity}  # 此处计算不考虑订单总金额和体积(total设为0， volume设为0)
             test = safe_eval(rule.variable + rule.operator + str(rule.max_value), price_dict)
-            total = weight
-            if rule.variable == 'quantity':
-                total = quantity
-
             if test:
+                total = weight
+                if rule.variable == 'quantity':
+                    total = quantity
+
                 return rule.list_base_price + rule.list_price * (total - rule.list_base)
 
         raise ValidationError('未能计算出运费！')
