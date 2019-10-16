@@ -815,7 +815,7 @@ class ApiMessage(models.Model):
         """全渠道订单处理"""
         def get_channel():
             """计算销售渠道"""
-            if not content['storeCode']:
+            if channel_code in ['jd', 'tmall', 'taobao', 'enomatic']:
                 code = ''.join(lazy_pinyin(store_name, style=Style.FIRST_LETTER), )
                 parent_channel = channels_obj.search([('code', '=', channel_code)])
                 if not parent_channel:
@@ -988,12 +988,17 @@ class ApiMessage(models.Model):
 
         content = json.loads(content)
 
-        store_code = content['storeCode'] or '02020'  # 订单数据的storeCode为空时，销售主体默认为02020（泸州电子商务发展有限责任公司）
-        store_name = content['storeName']  # 门店名称
         channel_code = content['channel']  # 销售渠道
-
-        if channel_code == 'enomatic':  # 销售渠道为售酒机，则销售主体是02014(四川省川酒集团信息科技有限公司)
+        if channel_code == 'pos':
+            store_code = content['storeCode']
+        elif channel_code == 'enomatic':  # 销售渠道为售酒机，则销售主体是02014(四川省川酒集团信息科技有限公司)
             store_code = '02014'
+        elif channel_code in ['jd', 'tmall', 'taobao']:  # 线上渠道，销售主体默认为02020（泸州电子商务发展有限责任公司）
+            store_code = '02020'
+        else:
+            store_code = content['storeCode']
+
+        store_name = content['storeName']  # 门店名称
 
         # 计算销售渠道
         channel_id = get_channel()
