@@ -1434,18 +1434,6 @@ class ApiMessage(models.Model):
             picking_obj.browse(new_picking_id).action_done()  # 确认入库
             return
 
-        if update_type == 'STOCK_01003':  # 销售退货冲销
-            raise MyValidationError('00', '未实现的处理')
-
-        if update_type == 'STOCK_01004':  # 销售出库冲销
-            raise MyValidationError('00', '未实现的处理')
-
-        if update_type == 'STOCK_02001':  # 采购入库
-            raise MyValidationError('00', '未实现的处理')
-
-        if update_type == 'STOCK_02002':  # 采购退货
-            raise MyValidationError('00', '未实现的处理')
-
         if update_type == 'STOCK_02003':  # 仓库配货入库
             # 公司下总仓->门店仓
             store_code = contents[0]['storeCode']  # 门店编号
@@ -1482,15 +1470,6 @@ class ApiMessage(models.Model):
             picking.button_validate()
 
             return
-
-        if update_type == 'STOCK_02004':  # 采购入库冲销
-            raise MyValidationError('00', '未实现的处理')
-
-        if update_type == 'STOCK_02005':  # 采购退货冲销
-            raise MyValidationError('00', '未实现的处理')
-
-        if update_type == 'STOCK_02006':  # 仓库配货入库冲销
-            raise MyValidationError('00', '未实现的处理')
 
         if update_type == 'STOCK_03001':  # 两步式调拨-出库
             store_code = contents[0]['storeCode']  # 门店编号
@@ -1644,6 +1623,27 @@ class ApiMessage(models.Model):
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
             picking.button_validate()  # 确认出库
+
+        if update_type == 'STOCK_01003':  # 销售退货冲销
+            raise MyValidationError('00', '未实现的处理')
+
+        if update_type == 'STOCK_01004':  # 销售出库冲销
+            raise MyValidationError('00', '未实现的处理')
+
+        if update_type == 'STOCK_02001':  # 采购入库
+            raise MyValidationError('00', '未实现的处理')
+
+        if update_type == 'STOCK_02002':  # 采购退货
+            raise MyValidationError('00', '未实现的处理')
+
+        if update_type == 'STOCK_02004':  # 采购入库冲销
+            raise MyValidationError('00', '未实现的处理')
+
+        if update_type == 'STOCK_02005':  # 采购退货冲销
+            raise MyValidationError('00', '未实现的处理')
+
+        if update_type == 'STOCK_02006':  # 仓库配货入库冲销
+            raise MyValidationError('00', '未实现的处理')
 
         if update_type == 'STOCK_03005':  # 返货总仓出库
             raise MyValidationError('00', '未实现的处理')
