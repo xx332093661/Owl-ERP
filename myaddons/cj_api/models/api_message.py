@@ -1570,10 +1570,80 @@ class ApiMessage(models.Model):
             return
 
         if update_type == 'STOCK_03003':  # 盘盈入库
-            raise MyValidationError('00', '未实现的处理')
+            store_code = contents[0]['storeCode']  # 门店编号
+
+            company = company_obj.search([('code', '=', store_code)])
+            warehouse = warehouse_obj.search([('company_id', '=', company.id)])
+            picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'incoming')])  # 作业类型
+
+            move_lines = []
+            for content in contents:
+                default_code = content['goodsCode']  # 商品编码
+
+                product = product_obj.search([('default_code', '=', default_code)])
+                if not product:
+                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
+                # TODO stock.move是否要加标识？
+                move_lines.append((0, 0, {
+                    'name': product.partner_ref,
+                    'product_uom': product.uom_id.id,
+                    'product_id': product.id,
+                    'product_uom_qty': abs(content['quantity']),
+                    'quantity_done': abs(content['quantity'])
+                }))
+            picking = picking_obj.create({
+                'location_id': location_obj.search([('usage', '=', 'inventory')], limit=1).id,  # 源库位(盘点库位)
+                'location_dest_id': picking_type.default_location_dest_id.id,  # 目的库位(库存库位)
+                'picking_type_id': picking_type.id,  # 作业类型
+                'origin': contents[0]['updateCode'],  # 关联单据
+                'company_id': company.id,
+                'move_lines': move_lines,
+                'note': '盘盈入库'
+            })
+            picking.action_confirm()
+            picking.button_validate()
+            return
 
         if update_type == 'STOCK_03004':  # 盘亏出库
-            raise MyValidationError('00', '未实现的处理')
+            store_code = contents[0]['storeCode']  # 门店编号
+
+            company = company_obj.search([('code', '=', store_code)])
+            warehouse = warehouse_obj.search([('company_id', '=', company.id)])
+            picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'outgoing')])  # 作业类型(客户)
+
+            move_lines = []
+            for content in contents:
+                default_code = content['goodsCode']  # 商品编码
+
+                product = product_obj.search([('default_code', '=', default_code)])
+                if not product:
+                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
+                # TODO stock.move是否要加标识？
+                move_lines.append((0, 0, {
+                    'name': product.partner_ref,
+                    'product_uom': product.uom_id.id,
+                    'product_id': product.id,
+                    'product_uom_qty': abs(content['quantity']),
+                    'quantity_done': abs(content['quantity'])
+                }))
+
+            picking = picking_obj.create({
+                'location_id': picking_type.default_location_src_id.id,  # 源库位(库存库位)
+                'location_dest_id': location_obj.search([('usage', '=', 'inventory')], limit=1).id,  # 目的库位(客户库位)
+                'picking_type_id': picking_type.id,  # 作业类型
+                'origin': contents[0]['updateCode'],  # 关联单据
+                'company_id': company.id,
+                'move_lines': move_lines,
+                'note': '盘亏出库'
+            })
+            picking.action_confirm()
+            if picking.state != 'assigned':
+                picking.action_assign()
+
+            if picking.state != 'assigned':
+                raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
+            picking.button_validate()  # 确认出库
 
         if update_type == 'STOCK_03005':  # 返货总仓出库
             raise MyValidationError('00', '未实现的处理')
@@ -1582,6 +1652,7 @@ class ApiMessage(models.Model):
             raise MyValidationError('00', '未实现的处理')
 
         if update_type == 'STOCK_03007':  # 两步式调拨-入库冲销
+
             raise MyValidationError('00', '未实现的处理')
 
         if update_type == 'STOCK_03008':  # 盘盈入库冲销
