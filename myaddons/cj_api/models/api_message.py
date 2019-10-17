@@ -1364,7 +1364,8 @@ class ApiMessage(models.Model):
                         'product_uom': product.uom_id.id,
                         'product_id': product.id,
                         'product_uom_qty': abs(content['quantity']),
-                        'quantity_done': abs(content['quantity'])
+                        'quantity_done': abs(content['quantity']),
+                        'store_stock_update_code': 'STOCK_01001',  # 门店库存变更类型
                     }))
                 store_code = contents[0]['storeCode']  # 门店编号
                 company = company_obj.search([('code', '=', store_code)])
@@ -1458,7 +1459,8 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity'])
+                    'quantity_done': abs(content['quantity']),
+                    'store_stock_update_code': 'STOCK_02003',  # 门店库存变更类型
                 }))
             picking = picking_obj.create({
                 'location_id': location_obj.search([('usage', '=', 'supplier')], limit=1).id,  # 源库位(供应商库位)
@@ -1495,7 +1497,8 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity'])
+                    'quantity_done': abs(content['quantity']),
+                    'store_stock_update_code': 'STOCK_03001',  # 门店库存变更类型
                 }))
 
             picking = picking_obj.create({
@@ -1538,7 +1541,8 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity'])
+                    'quantity_done': abs(content['quantity']),
+                    'store_stock_update_code': 'STOCK_03006',  # 门店库存变更类型
                 }))
 
             picking = picking_obj.create({
@@ -1575,7 +1579,8 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity'])
+                    'quantity_done': abs(content['quantity']),
+                    'store_stock_update_code': 'STOCK_03002',  # 门店库存变更类型
                 }))
             picking = picking_obj.create({
                 'location_id': location_obj.search([('usage', '=', 'supplier')], limit=1).id,  # 源库位(供应商库位)
@@ -1611,7 +1616,8 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity'])
+                    'quantity_done': abs(content['quantity']),
+                    'store_stock_update_code': 'STOCK_03007',  # 门店库存变更类型
                 }))
             picking = picking_obj.create({
                 'location_id': picking_type.default_location_src_id.id,  # 源库位(库存库位)
@@ -1653,7 +1659,8 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity'])
+                    'quantity_done': abs(content['quantity']),
+                    'store_stock_update_code': 'STOCK_03003',  # 门店库存变更类型
                 }))
             picking = picking_obj.create({
                 'location_id': location_obj.search([('usage', '=', 'inventory')], limit=1).id,  # 源库位(盘点库位)
@@ -1689,7 +1696,8 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity'])
+                    'quantity_done': abs(content['quantity']),
+                    'store_stock_update_code': 'STOCK_03004',  # 门店库存变更类型
                 }))
 
             picking = picking_obj.create({

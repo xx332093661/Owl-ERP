@@ -32,6 +32,9 @@ class StockMove(models.Model):
     inventory_diff = fields.Float('差异数量', compute='_compute_inventory', digits=dp.get_precision('Product Unit of Measure'))
     inventory_state = fields.Selection([('surplus', '盘盈'), ('deficit', '盘亏')], '盘点状态', compute='_compute_inventory')
 
+    # 门店库存变更
+    store_stock_update_code = fields.Char('门店库存变更类型')
+
     @api.multi
     def _compute_inventory(self):
         """计算与盘点相关"""
