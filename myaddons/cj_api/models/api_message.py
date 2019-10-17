@@ -45,6 +45,7 @@ PROCESS_ERROR = {
     '23': '门店库存变更同一单号对应多种变更类型',
     '24': '未完成出库不能退货',
     '25': '退货数量大于出库数量',
+    '26': '未实现的处理',
 }
 
 
@@ -1626,44 +1627,44 @@ class ApiMessage(models.Model):
             return
 
         if update_type == 'STOCK_01003':  # 销售退货冲销
-            raise MyValidationError('00', '未实现的处理')
+            raise MyValidationError('26', '未实现的处理')
 
         if update_type == 'STOCK_01004':  # 销售出库冲销
-            raise MyValidationError('00', '未实现的处理')
+            raise MyValidationError('26', '未实现的处理')
 
         if update_type == 'STOCK_02001':  # 采购入库
-            raise MyValidationError('00', '未实现的处理')
+            raise MyValidationError('26', '未实现的处理')
 
         if update_type == 'STOCK_02002':  # 采购退货
-            raise MyValidationError('00', '未实现的处理')
+            raise MyValidationError('26', '未实现的处理')
 
         if update_type == 'STOCK_02004':  # 采购入库冲销
             raise MyValidationError('00', '未实现的处理')
 
         if update_type == 'STOCK_02005':  # 采购退货冲销
-            raise MyValidationError('00', '未实现的处理')
+            raise MyValidationError('26', '未实现的处理')
 
         if update_type == 'STOCK_02006':  # 仓库配货入库冲销
-            raise MyValidationError('00', '未实现的处理')
+            raise MyValidationError('26', '未实现的处理')
 
         if update_type == 'STOCK_03005':  # 返货总仓出库
-            raise MyValidationError('00', '未实现的处理')
+            raise MyValidationError('26', '未实现的处理')
 
         if update_type == 'STOCK_03006':  # 两步式调拨-出库冲销
-            raise MyValidationError('00', '未实现的处理')
+            raise MyValidationError('26', '未实现的处理')
 
         if update_type == 'STOCK_03007':  # 两步式调拨-入库冲销
 
-            raise MyValidationError('00', '未实现的处理')
+            raise MyValidationError('26', '未实现的处理')
 
         if update_type == 'STOCK_03008':  # 盘盈入库冲销
-            raise MyValidationError('00', '未实现的处理')
+            raise MyValidationError('26', '未实现的处理')
 
         if update_type == 'STOCK_03009':  # 盘亏出库冲销
-            raise MyValidationError('00', '未实现的处理')
+            raise MyValidationError('26', '未实现的处理')
 
         if update_type == 'STOCK_03010':  # 返货总仓出库冲销
-            raise MyValidationError('00', '未实现的处理')
+            raise MyValidationError('26', '未实现的处理')
 
         raise MyValidationError('21', '未找到变更类型：%s' % update_type)
 
