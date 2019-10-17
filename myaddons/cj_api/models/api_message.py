@@ -1623,6 +1623,7 @@ class ApiMessage(models.Model):
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
             picking.button_validate()  # 确认出库
+            return
 
         if update_type == 'STOCK_01003':  # 销售退货冲销
             raise MyValidationError('00', '未实现的处理')
