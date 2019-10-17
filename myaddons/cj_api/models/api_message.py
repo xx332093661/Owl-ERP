@@ -45,7 +45,8 @@ PROCESS_ERROR = {
     '23': '门店库存变更同一单号对应多种变更类型',
     '24': '未完成出库不能退货',
     '25': '退货数量大于出库数量',
-    '26': '未实现的处理',
+    '26': '门店库存变更未实现的处理',
+    '27': '公司没有归属到任何成本核算分组中',
 }
 
 
@@ -1107,7 +1108,11 @@ class ApiMessage(models.Model):
         """
         def get_cost(pro):
             """计算跨公司调拨商品成本"""
-            domain = [('product_id', '=', pro.id), ('company_id', '=', warehouse.company_id.id), ('stock_type', '=', 'only')]
+            cost_group = cost_group_obj.search([('store_ids', '=', order.company_id.id)])
+            if not cost_group:
+                raise MyValidationError('27', '公司：%s没有归属到任何成本核算分组中' % order.company_id.name)
+
+            domain = [('product_id', '=', pro.id), ('cost_group_id', '=', cost_group.id)]
             valuation_move = valuation_move_obj.search(domain, order='id desc', limit=1)
             stock_cost = valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
             return stock_cost
@@ -1122,6 +1127,7 @@ class ApiMessage(models.Model):
         across_obj = self.env['stock.across.move']  # 跨公司调拨
         product_obj = self.env['product.product']
         valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值
+        cost_group_obj = self.env['account.cost.group']
 
         express_code = content.get('expressCode')  # 物流单号
         logistics_code = content.get('logisticsCode')
