@@ -308,9 +308,7 @@ class StockMove(models.Model):
                     if picking.company_id:
                         vals['company_id'] = picking.company_id.id
 
-        res = super(StockMove, self).create(vals)
-        print('stock.move.create,vals: ', vals, ', id:', res.id)
-        return res
+        return super(StockMove, self).create(vals)
 
     def write(self, vals):
         """
@@ -332,7 +330,6 @@ class StockMove(models.Model):
         return res
 
     def unlink(self):
-        print('stock.move, ids: %s', self.ids)
         return super(StockMove, self).unlink()
 
     def create_inventory_valuation(self):

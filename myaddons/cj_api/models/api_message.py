@@ -43,6 +43,8 @@ PROCESS_ERROR = {
     '21': '门店库存变更未找到相应的变更类型',
     '22':  'POS出库数量小于订单数量',  # pos订单有多条记录，只处理其中一条出库数据时，报此错
     '23': '门店库存变更同一单号对应多种变更类型',
+    '24': '未完成出库不能退货',
+    '25': '退货数量大于出库数量',
 }
 
 
@@ -1261,6 +1263,10 @@ class ApiMessage(models.Model):
         return_picking_obj = self.env['stock.return.picking']
         product_obj = self.env['product.product']
         picking_obj = self.env['stock.picking']
+        company_obj = self.env['res.company']
+        warehouse_obj = self.env['stock.warehouse']
+        picking_type_obj = self.env['stock.picking.type']  # 作业类型
+        location_obj = self.env['stock.location']
 
         if not isinstance(contents, list):
             contents = [contents]
@@ -1274,31 +1280,6 @@ class ApiMessage(models.Model):
 
         update_type = contents[0]['type']  # 变更类型
         order_name = contents[0]['updateCode']  # 变更单号（如果是订单产生的库存变化，那变更类型就是销售出库，变更单号就是订单号）
-
-        # default_code = content['goodsCode']  # 商品编码
-
-        # product = product_obj.search([('default_code', '=', default_code)])
-        # if not product:
-        #     raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
-
-        # if update_type == 'STOCK_01001':  # 销售退货(只有一次退货)
-        #     sale_order = sale_order_obj.search([('name', '=', order_name), ])
-        #     if not sale_order:
-        #         raise MyValidationError('14', '变更单号：%s未找到对应的销售订单！' % order_name)
-        #
-        #     picking = picking_obj.search([('sale_id', '=', sale_order.id)])
-        #     stock_move = picking.move_ids_without_package.filtered(lambda x: x.product_id.id == product.id)
-        #
-        #     return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create({
-        #         'product_return_moves': [(6, 0, {
-        #             'product_id': product.id,
-        #             'quantity': abs(content['quantity']),
-        #             'move_id': stock_move.id
-        #         })],
-        #     })
-        #     new_picking_id, pick_type_id = return_picking._create_returns()
-        #     picking_obj.browse(new_picking_id).action_done()  # 确认入库
-        #     return
 
         if update_type == 'STOCK_01002':  # 销售出库
             sale_order = sale_order_obj.search([('name', '=', order_name), ])
@@ -1365,7 +1346,61 @@ class ApiMessage(models.Model):
             return
 
         if update_type == 'STOCK_01001':  # 销售退货(只有一次退货)
-            raise MyValidationError('00', '未实现的处理')
+            sale_order = sale_order_obj.search([('name', '=', order_name), ])
+            if not sale_order:
+                raise MyValidationError('14', '变更单号：%s未找到对应的销售订单！' % order_name)
+
+            picking = picking_obj.search([('sale_id', '=', sale_order.id)])
+            if picking.state != 'done':
+                raise MyValidationError('24', '订单：%s未完成出库，不能退货！' % order_name)
+
+            stock_out_lines = []  # 出库商品
+            for product, ls in groupby(sorted(sale_order.order_line, key=lambda x: x.product_id), lambda x: x.product_id):  # 按商品分组
+                stock_out_lines.append({
+                    'product_id': product.id,
+                    'stock_out_qty': sum([line.qty_delivered for line in ls]),  # 出库数量
+                    'return_qty': 0  # 退货数量
+                })
+
+            # 退货数量
+            return_vals = []
+            for content in contents:
+                default_code = content['goodsCode']  # 商品编码
+
+                product = product_obj.search([('default_code', '=', default_code)])
+                if not product:
+                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
+
+                res = list(filter(lambda x: x['product_id'] == product.id, stock_out_lines))
+                if not res:
+                    stock_out_lines.append({
+                        'product_id': product.id,
+                        'stock_out_qty': 0,
+                        'return_qty': abs(content['quantity'])
+                    })
+                else:
+                    res[0]['return_qty'] += abs(content['quantity'])
+
+                stock_move = picking.move_ids_without_package.filtered(lambda x: x.product_id.id == product.id)
+                return_vals.append((6, 0, {
+                    'product_id': product.id,
+                    'quantity': abs(content['quantity']),
+                    'move_id': stock_move.id
+                }))
+
+            # 退货数量大于出库数量
+            res = list(filter(lambda x: float_compare(x['return_qty'], x['stock_out_qty'], precision_rounding=0.01) == 1, stock_out_lines))
+            if res:
+                pros = ['[%s]%s' % (product_obj.browse(r['product_id']).default_code, product_obj.browse(r['product_id']).name) for r in res]
+                raise MyValidationError('25', '商品：%s退货数量大于出库数量！' % ('、'.join(pros)))
+
+            # 创建退货单
+            return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create({
+                'product_return_moves': return_vals,
+            })
+            new_picking_id, pick_type_id = return_picking._create_returns()
+            picking_obj.browse(new_picking_id).action_done()  # 确认入库
+            return
 
         if update_type == 'STOCK_01003':  # 销售退货冲销
             raise MyValidationError('00', '未实现的处理')
@@ -1381,7 +1416,40 @@ class ApiMessage(models.Model):
 
         if update_type == 'STOCK_02003':  # 仓库配货入库
             # 公司下总仓->门店仓
-            raise MyValidationError('00', '未实现的处理')
+            store_code = contents[0]['storeCode']  # 门店编号
+
+            company = company_obj.search([('code', '=', store_code)])
+            warehouse = warehouse_obj.search([('company_id', '=', company.id)])
+            picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'incoming')])  # 作业类型
+
+            move_lines = []
+            for content in contents:
+                default_code = content['goodsCode']  # 商品编码
+
+                product = product_obj.search([('default_code', '=', default_code)])
+                if not product:
+                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
+
+                move_lines.append((0, 0, {
+                    'name': product.partner_ref,
+                    'product_uom': product.uom_id.id,
+                    'product_id': product.id,
+                    'product_uom_qty': abs(content['quantity']),
+                    'quantity_done': abs(content['quantity'])
+                }))
+            picking = picking_obj.create({
+                'location_id': location_obj.search([('usage', '=', 'supplier')], limit=1).id,  # 源库位(供应商库位)
+                'location_dest_id': picking_type.default_location_dest_id.id,  # 目的库位(库存库位)
+                'picking_type_id': picking_type.id,  # 作业类型
+                'origin': contents[0]['updateCode'],  # 关联单据
+                'company_id': company.id,
+                'move_lines': move_lines,
+                'note': '仓库配货入库'
+            })
+            picking.action_confirm()
+            picking.button_validate()
+
+            return
 
         if update_type == 'STOCK_02004':  # 采购入库冲销
             raise MyValidationError('00', '未实现的处理')
