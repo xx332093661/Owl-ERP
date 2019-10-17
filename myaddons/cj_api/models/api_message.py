@@ -1232,7 +1232,7 @@ class ApiMessage(models.Model):
 
         # 6、创建跨公司调拨单
         if warehouse.company_id.id != order.company_id.id:
-            if not across_obj.search([('origin_id', '=', order.id), ('origin_type', '=', 'sale')]):
+            if not across_obj.search([('origin_sale_order_id', '=', order.id)]):
                 across_obj.create({
                     'company_id': warehouse.company_id.id,  # 调出仓库的公司
                     'warehouse_out_id': warehouse.id,  # 调出仓库
@@ -1241,8 +1241,8 @@ class ApiMessage(models.Model):
                     'cost_type': 'increase',  # 成本方法(加价)
                     'cost_increase_rating': 0,  # 加价百分比
                     'line_ids': across_line_ids,
-                    'origin_id': order.id,  # 来源
-                    'origin_type': 'sale'  # 来源类型
+                    'origin_sale_order_id': order.id,  # 来源
+                    # 'origin_type': 'sale'  # 来源类型
                 })
             # 这里创建跨公司调拨后直接返回，待跨公司调拨完成后，执行对应的订单出库
             return

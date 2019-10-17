@@ -45,8 +45,9 @@ class StockAcrossMove(models.Model):
     picking_out_count = fields.Integer('调出分拣', related='purchase_order_id.picking_count')
     diff_ids = fields.One2many('stock.across.move.diff', 'move_id', '调入调出差异')
 
+    origin_sale_order_id = fields.Many2one('sale.order', '来源', readonly=1, track_visibility='always')
     origin_id = fields.Integer('来源')
-    origin_type = fields.Selection([('purchase', '采购'), ('sale', '销售')], '来源类型')
+    # origin_type = fields.Selection([('purchase', '采购'), ('sale', '销售')], '来源类型')
 
     @api.multi
     def action_view_picking(self):
