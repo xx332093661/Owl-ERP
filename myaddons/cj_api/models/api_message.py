@@ -1282,7 +1282,8 @@ class ApiMessage(models.Model):
         update_type = contents[0]['type']  # 变更类型
         order_name = contents[0]['updateCode']  # 变更单号（如果是订单产生的库存变化，那变更类型就是销售出库，变更单号就是订单号）
 
-        if update_type == 'STOCK_01002':  # 销售出库
+        # 销售出库
+        if update_type == 'STOCK_01002':
             sale_order = sale_order_obj.search([('name', '=', order_name), ])
             if not sale_order:
                 raise MyValidationError('14', '变更单号：%s未找到对应的销售订单！' % order_name)
@@ -1346,7 +1347,8 @@ class ApiMessage(models.Model):
             picking.button_validate()  # 确认出库
             return
 
-        if update_type == 'STOCK_01001':  # 销售退货(只有一次退货)
+        # 销售退货(只有一次退货)
+        if update_type == 'STOCK_01001':
             sale_order = sale_order_obj.search([('name', '=', order_name), ])
             if not sale_order:  # 没有找到对应订单 TODO 直接入库?
                 move_lines = []
@@ -1435,7 +1437,8 @@ class ApiMessage(models.Model):
             picking_obj.browse(new_picking_id).action_done()  # 确认入库
             return
 
-        if update_type == 'STOCK_02003':  # 仓库配货入库
+        # 仓库配货入库
+        if update_type == 'STOCK_02003':
             # 公司下总仓->门店仓
             store_code = contents[0]['storeCode']  # 门店编号
 
@@ -1472,7 +1475,8 @@ class ApiMessage(models.Model):
 
             return
 
-        if update_type == 'STOCK_03001':  # 两步式调拨-出库
+        # 两步式调拨-出库
+        if update_type == 'STOCK_03001':
             store_code = contents[0]['storeCode']  # 门店编号
 
             company = company_obj.search([('code', '=', store_code)])
@@ -1514,7 +1518,45 @@ class ApiMessage(models.Model):
             picking.button_validate()  # 确认出库
             return
 
-        if update_type == 'STOCK_03002':  # 两步式调拨-入库
+        # 两步式调拨-出库冲销
+        if update_type == 'STOCK_03006':
+            store_code = contents[0]['storeCode']  # 门店编号
+
+            company = company_obj.search([('code', '=', store_code)])
+            warehouse = warehouse_obj.search([('company_id', '=', company.id)])
+            picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'incoming')])  # 作业类型(供应商)
+
+            move_lines = []
+            for content in contents:
+                default_code = content['goodsCode']  # 商品编码
+
+                product = product_obj.search([('default_code', '=', default_code)])
+                if not product:
+                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
+                # TODO stock.move是否要加标识？
+                move_lines.append((0, 0, {
+                    'name': product.partner_ref,
+                    'product_uom': product.uom_id.id,
+                    'product_id': product.id,
+                    'product_uom_qty': abs(content['quantity']),
+                    'quantity_done': abs(content['quantity'])
+                }))
+
+            picking = picking_obj.create({
+                'location_id': location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 源库位(客户库位)
+                'location_dest_id': picking_type.default_location_dest_id.id,  # 目的库位(库存库位)
+                'picking_type_id': picking_type.id,  # 作业类型
+                'origin': contents[0]['updateCode'],  # 关联单据
+                'company_id': company.id,
+                'move_lines': move_lines,
+                'note': '两步式调拨-出库冲销'
+            })
+            picking.action_confirm()
+            picking.button_validate()  # 确认出库
+            return
+
+        # 两步式调拨-入库
+        if update_type == 'STOCK_03002':
             store_code = contents[0]['storeCode']  # 门店编号
 
             company = company_obj.search([('code', '=', store_code)])
@@ -1549,7 +1591,50 @@ class ApiMessage(models.Model):
             picking.button_validate()
             return
 
-        if update_type == 'STOCK_03003':  # 盘盈入库
+        # 两步式调拨-入库冲销
+        if update_type == 'STOCK_03007':
+            store_code = contents[0]['storeCode']  # 门店编号
+
+            company = company_obj.search([('code', '=', store_code)])
+            warehouse = warehouse_obj.search([('company_id', '=', company.id)])
+            picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'outgoing')])  # 作业类型(客户)
+
+            move_lines = []
+            for content in contents:
+                default_code = content['goodsCode']  # 商品编码
+
+                product = product_obj.search([('default_code', '=', default_code)])
+                if not product:
+                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
+                # TODO stock.move是否要加标识？
+                move_lines.append((0, 0, {
+                    'name': product.partner_ref,
+                    'product_uom': product.uom_id.id,
+                    'product_id': product.id,
+                    'product_uom_qty': abs(content['quantity']),
+                    'quantity_done': abs(content['quantity'])
+                }))
+            picking = picking_obj.create({
+                'location_id': picking_type.default_location_src_id.id,  # 源库位(库存库位)
+                'location_dest_id': location_obj.search([('usage', '=', 'supplier')], limit=1).id,  # 目的库位(供应商库位)
+                'picking_type_id': picking_type.id,  # 作业类型
+                'origin': contents[0]['updateCode'],  # 关联单据
+                'company_id': company.id,
+                'move_lines': move_lines,
+                'note': '两步式调拨-入库冲销'
+            })
+            picking.action_confirm()
+            if picking.state != 'assigned':
+                picking.action_assign()
+
+            if picking.state != 'assigned':
+                raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
+            picking.button_validate()  # 确认出库
+            return
+
+        # 盘盈入库
+        if update_type == 'STOCK_03003':
             store_code = contents[0]['storeCode']  # 门店编号
 
             company = company_obj.search([('code', '=', store_code)])
@@ -1584,7 +1669,8 @@ class ApiMessage(models.Model):
             picking.button_validate()
             return
 
-        if update_type == 'STOCK_03004':  # 盘亏出库
+        # 盘亏出库
+        if update_type == 'STOCK_03004':
             store_code = contents[0]['storeCode']  # 门店编号
 
             company = company_obj.search([('code', '=', store_code)])
@@ -1626,44 +1712,48 @@ class ApiMessage(models.Model):
             picking.button_validate()  # 确认出库
             return
 
-        if update_type == 'STOCK_01003':  # 销售退货冲销
+        # 销售退货冲销
+        if update_type == 'STOCK_01003':
             raise MyValidationError('26', '未实现的处理')
 
-        if update_type == 'STOCK_01004':  # 销售出库冲销
+        # 销售出库冲销
+        if update_type == 'STOCK_01004':
             raise MyValidationError('26', '未实现的处理')
 
-        if update_type == 'STOCK_02001':  # 采购入库
+        # 采购入库
+        if update_type == 'STOCK_02001':
             raise MyValidationError('26', '未实现的处理')
 
-        if update_type == 'STOCK_02002':  # 采购退货
+        # 采购退货
+        if update_type == 'STOCK_02002':
             raise MyValidationError('26', '未实现的处理')
 
-        if update_type == 'STOCK_02004':  # 采购入库冲销
+        # 采购入库冲销
+        if update_type == 'STOCK_02004':
             raise MyValidationError('00', '未实现的处理')
 
-        if update_type == 'STOCK_02005':  # 采购退货冲销
+        # 采购退货冲销
+        if update_type == 'STOCK_02005':
             raise MyValidationError('26', '未实现的处理')
 
-        if update_type == 'STOCK_02006':  # 仓库配货入库冲销
+        # 仓库配货入库冲销
+        if update_type == 'STOCK_02006':
             raise MyValidationError('26', '未实现的处理')
 
-        if update_type == 'STOCK_03005':  # 返货总仓出库
+        # 返货总仓出库
+        if update_type == 'STOCK_03005':
             raise MyValidationError('26', '未实现的处理')
 
-        if update_type == 'STOCK_03006':  # 两步式调拨-出库冲销
+        # 盘盈入库冲销
+        if update_type == 'STOCK_03008':
             raise MyValidationError('26', '未实现的处理')
 
-        if update_type == 'STOCK_03007':  # 两步式调拨-入库冲销
-
+        # 盘亏出库冲销
+        if update_type == 'STOCK_03009':
             raise MyValidationError('26', '未实现的处理')
 
-        if update_type == 'STOCK_03008':  # 盘盈入库冲销
-            raise MyValidationError('26', '未实现的处理')
-
-        if update_type == 'STOCK_03009':  # 盘亏出库冲销
-            raise MyValidationError('26', '未实现的处理')
-
-        if update_type == 'STOCK_03010':  # 返货总仓出库冲销
+        # 返货总仓出库冲销
+        if update_type == 'STOCK_03010':
             raise MyValidationError('26', '未实现的处理')
 
         raise MyValidationError('21', '未找到变更类型：%s' % update_type)
