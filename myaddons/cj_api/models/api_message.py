@@ -1439,7 +1439,6 @@ class ApiMessage(models.Model):
 
         # 仓库配货入库
         if update_type == 'STOCK_02003':
-            # 公司下总仓->门店仓
             store_code = contents[0]['storeCode']  # 门店编号
 
             company = company_obj.search([('code', '=', store_code)])
