@@ -718,7 +718,6 @@ class ApiMessage(models.Model):
         """门店初始化库存"""
         inventory_obj = self.env['stock.inventory']
         inventory_line_obj = self.env['stock.inventory.line']
-        product_obj = self.env['product.product']
         warehouse_obj = self.env['stock.warehouse']
 
         content, body = self._deal_content(content)
@@ -746,12 +745,10 @@ class ApiMessage(models.Model):
 
             inventory_id = inventory.id
 
-            for store_stock in list(store_stocks):
-                product = product_obj.search([('default_code', '=', store_stock['goodsCode'])], limit=1)  # goodsCode：商品编码
-                if not product:
-                    raise MyValidationError('09', '商品编码：%s 对应的商品未找到！' % store_stock['goodsCode'])
-
-                inventory_line_obj.with_context(company_id=company_id).create({
+            vals_list = []
+            for store_stock in store_stocks:
+                product = self.get_product(store_stock['goodsCode'])
+                vals_list.append({
                     'company_id': company_id,
                     'cost': random.randint(10, 100),  # TODO 单位成本
                     'inventory_id': inventory_id,
@@ -762,7 +759,7 @@ class ApiMessage(models.Model):
                     'product_uom_id': product.uom_id.id,
                     'product_qty': store_stock['quantity']
                 })
-
+            inventory_line_obj.with_context(company_id=company_id).create(vals_list)
             inventory.action_validate()
 
     # 9、WMS-ERP-STOCK-QUEUE 外部仓库库存
@@ -770,7 +767,6 @@ class ApiMessage(models.Model):
         """外部仓库库存数据队列"""
         warehouse_obj = self.env['stock.warehouse']
         inventory_obj = self.env['stock.inventory']
-        product_obj = self.env['product.product']
         inventory_line_obj = self.env['stock.inventory.line']
 
         body = json.loads(content)
@@ -793,14 +789,10 @@ class ApiMessage(models.Model):
             inventory.action_start()  # 开始盘点
 
             inventory_id = inventory.id
-            store_stocks = list(store_stocks)
+            vals_list = []
             for store_stock in store_stocks:
-                product = product_obj.search([('default_code', '=', store_stock['goodsNo'])], limit=1)  # goodsNo：商品编码
-                if not product:
-                    continue  # TODO 此处应raise
-                    # raise MyValidationError('09', '商品编码：%s 对应的商品未找到！' % store_stock['goodsNo'])
-
-                inventory_line_obj.with_context(company_id=company_id).create({
+                product = self.get_product(store_stock['goodsNo'])
+                vals_list.append({
                     'company_id': company_id,
                     'cost': random.randint(10, 100),  # TODO 单位成本
                     'inventory_id': inventory_id,
@@ -811,12 +803,23 @@ class ApiMessage(models.Model):
                     'product_uom_id': product.uom_id.id,
                     'product_qty': store_stock['totalNum']
                 })
-
+            inventory_line_obj.with_context(company_id=company_id).create(vals_list)
             inventory.action_validate()
 
     # 10、mustang-to-erp-order-push 订单
     def deal_mustang_to_erp_order_push(self, content):
         """全渠道订单处理"""
+        def get_store_code():
+            """计算销售主体代码"""
+            if channel_code == 'pos':
+                return content['storeCode']
+            if channel_code == 'enomatic':  # 销售渠道为售酒机，则销售主体是02014(四川省川酒集团信息科技有限公司)
+                return '02014'
+            if channel_code in ['jd', 'tmall', 'taobao']:  # 线上渠道，销售主体默认为02020（泸州电子商务发展有限责任公司）
+                return '02020'
+
+            return content['storeCode']
+
         def get_channel():
             """计算销售渠道"""
             if channel_code in ['jd', 'tmall', 'taobao', 'enomatic']:
@@ -987,21 +990,12 @@ class ApiMessage(models.Model):
         warehouse_obj = self.env['stock.warehouse']
         channels_obj = self.env['sale.channels']
         partner_obj = self.env['res.partner']
-        product_obj = self.env['product.product']
         journal_obj = self.env['account.journal']
 
         content = json.loads(content)
 
         channel_code = content['channel']  # 销售渠道
-        if channel_code == 'pos':
-            store_code = content['storeCode']
-        elif channel_code == 'enomatic':  # 销售渠道为售酒机，则销售主体是02014(四川省川酒集团信息科技有限公司)
-            store_code = '02014'
-        elif channel_code in ['jd', 'tmall', 'taobao']:  # 线上渠道，销售主体默认为02020（泸州电子商务发展有限责任公司）
-            store_code = '02020'
-        else:
-            store_code = content['storeCode']
-
+        store_code = get_store_code()
         store_name = content['storeName']  # 门店名称
 
         # 计算销售渠道
@@ -1031,10 +1025,7 @@ class ApiMessage(models.Model):
 
         # 创建订单行
         for line_index, item in enumerate(content['items']):
-            product = product_obj.search([('default_code', '=', item['code'])], limit=1)
-            if not product:
-                raise MyValidationError('09', '商品：%s未找到' % item['code'])
-
+            product = self.get_product(item['code'])
             product_id = product.id
             final_price = item['finalPrice']  # 最终收款
             quantity = item['quantity']
@@ -1148,9 +1139,7 @@ class ApiMessage(models.Model):
         delivery_line_ids = []  # 物流单明细
         across_line_ids = []  # 跨公司调拨明细
         for item in content['items']:
-            product = product_obj.search([('default_code', '=', item['goodsCode'])])
-            if not product:
-                raise MyValidationError('09', '物料编码：%s没有找到对应商品！' % item['goodsCode'])
+            product = self.get_product(item['goodsCode'])
 
             delivery_line_ids.append((0, 0, {
                 'name': product.name,
@@ -1303,12 +1292,7 @@ class ApiMessage(models.Model):
                 })
 
             for content in contents:
-                default_code = content['goodsCode']  # 商品编码
-
-                product = product_obj.search([('default_code', '=', default_code)])
-                if not product:
-                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
-
+                product = self.get_product(content['goodsCode'])
                 res = list(filter(lambda x: x['product_id'] == product.id, wait_out_lines))
                 if not res:
                     wait_out_lines.append({
@@ -1333,10 +1317,7 @@ class ApiMessage(models.Model):
 
             picking = picking_obj.search([('sale_id', '=', sale_order.id)])
             for content in contents:
-                default_code = content['goodsCode']  # 商品编码
-
-                product = product_obj.search([('default_code', '=', default_code)])
-
+                product = self.get_product(content['goodsCode'])
                 stock_move = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))[0]
                 stock_move.quantity_done = abs(content['quantity'])
 
@@ -1355,12 +1336,7 @@ class ApiMessage(models.Model):
             if not sale_order:  # 没有找到对应订单 TODO 直接入库?
                 move_lines = []
                 for content in contents:
-                    default_code = content['goodsCode']  # 商品编码
-
-                    product = product_obj.search([('default_code', '=', default_code)])
-                    if not product:
-                        raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
-                    # TODO stock.move是否要加标识？
+                    product = self.get_product(content['goodsCode'])
                     move_lines.append((0, 0, {
                         'name': product.partner_ref,
                         'product_uom': product.uom_id.id,
@@ -1403,12 +1379,7 @@ class ApiMessage(models.Model):
             # 退货数量
             return_vals = []
             for content in contents:
-                default_code = content['goodsCode']  # 商品编码
-
-                product = product_obj.search([('default_code', '=', default_code)])
-                if not product:
-                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
-
+                product = self.get_product(content['goodsCode'])
                 res = list(filter(lambda x: x['product_id'] == product.id, stock_out_lines))
                 if not res:
                     stock_out_lines.append({
@@ -1450,12 +1421,7 @@ class ApiMessage(models.Model):
 
             move_lines = []
             for content in contents:
-                default_code = content['goodsCode']  # 商品编码
-
-                product = product_obj.search([('default_code', '=', default_code)])
-                if not product:
-                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
-                # TODO stock.move是否要加标识？
+                product = self.get_product(content['goodsCode'])
                 move_lines.append((0, 0, {
                     'name': product.partner_ref,
                     'product_uom': product.uom_id.id,
@@ -1488,12 +1454,7 @@ class ApiMessage(models.Model):
 
             move_lines = []
             for content in contents:
-                default_code = content['goodsCode']  # 商品编码
-
-                product = product_obj.search([('default_code', '=', default_code)])
-                if not product:
-                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
-                # TODO stock.move是否要加标识？
+                product = self.get_product(content['goodsCode'])
                 move_lines.append((0, 0, {
                     'name': product.partner_ref,
                     'product_uom': product.uom_id.id,
@@ -1532,12 +1493,7 @@ class ApiMessage(models.Model):
 
             move_lines = []
             for content in contents:
-                default_code = content['goodsCode']  # 商品编码
-
-                product = product_obj.search([('default_code', '=', default_code)])
-                if not product:
-                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
-                # TODO stock.move是否要加标识？
+                product = self.get_product(content['goodsCode'])
                 move_lines.append((0, 0, {
                     'name': product.partner_ref,
                     'product_uom': product.uom_id.id,
@@ -1570,12 +1526,7 @@ class ApiMessage(models.Model):
 
             move_lines = []
             for content in contents:
-                default_code = content['goodsCode']  # 商品编码
-
-                product = product_obj.search([('default_code', '=', default_code)])
-                if not product:
-                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
-                # TODO stock.move是否要加标识？
+                product = self.get_product(content['goodsCode'])
                 move_lines.append((0, 0, {
                     'name': product.partner_ref,
                     'product_uom': product.uom_id.id,
@@ -1607,12 +1558,7 @@ class ApiMessage(models.Model):
 
             move_lines = []
             for content in contents:
-                default_code = content['goodsCode']  # 商品编码
-
-                product = product_obj.search([('default_code', '=', default_code)])
-                if not product:
-                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
-                # TODO stock.move是否要加标识？
+                product = self.get_product(content['goodsCode'])
                 move_lines.append((0, 0, {
                     'name': product.partner_ref,
                     'product_uom': product.uom_id.id,
@@ -1650,12 +1596,7 @@ class ApiMessage(models.Model):
 
             move_lines = []
             for content in contents:
-                default_code = content['goodsCode']  # 商品编码
-
-                product = product_obj.search([('default_code', '=', default_code)])
-                if not product:
-                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
-                # TODO stock.move是否要加标识？
+                product = self.get_product(content['goodsCode'])
                 move_lines.append((0, 0, {
                     'name': product.partner_ref,
                     'product_uom': product.uom_id.id,
@@ -1687,12 +1628,7 @@ class ApiMessage(models.Model):
 
             move_lines = []
             for content in contents:
-                default_code = content['goodsCode']  # 商品编码
-
-                product = product_obj.search([('default_code', '=', default_code)])
-                if not product:
-                    raise MyValidationError('09', '商品编码：%s未找到对应商品！' % default_code)
-                # TODO stock.move是否要加标识？
+                product = self.get_product(content['goodsCode'])
                 move_lines.append((0, 0, {
                     'name': product.partner_ref,
                     'product_uom': product.uom_id.id,
@@ -1930,6 +1866,15 @@ class ApiMessage(models.Model):
             })
 
         return state.id
+
+    def get_product(self, default_code):
+        """根据物料编码，获取商品"""
+        product_obj = self.env['product.product']
+        product = product_obj.search([('default_code', '=', default_code)])
+        if not product:
+            raise MyValidationError('09', '商品编码：%s 对应的商品未找到！' % default_code)
+
+        return product
 
 
 

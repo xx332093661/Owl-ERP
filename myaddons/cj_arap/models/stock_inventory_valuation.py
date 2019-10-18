@@ -425,7 +425,7 @@ class StockInventoryValuationMove(models.Model):
             'done_datetime': move.done_datetime,  # 完成时间
             'product_qty': move.product_qty,
             'uom_id': move.product_uom.id,
-            'unit_cost': self._compute_unit_cost(move, is_in, cost_group_id, product_id),  # 单位成本
+            'unit_cost': unit_cost,  # 单位成本
             # 'price_unit': price_unit,  # 单价
             'move_id': move.id,  # stock.move
             'qty_available': qty_available,  # 在手数量
