@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, models
+from odoo.exceptions import ValidationError
 
 
 class Company(models.Model):
@@ -64,6 +65,14 @@ class Company(models.Model):
         fields_id = fields_obj.search([('model', '=', 'product.category'), ('name', '=', 'property_account_expense_categ_id')]).id
         domain.extend([('fields_id', '=', fields_id)])
         create_property()
+
+    def get_cost_group_id(self):
+        cost_group = self.env['account.cost.group'].search([('store_ids', '=', self.id)])
+        if not cost_group:
+            raise ValidationError('公司：%s没有归并到任何成本核算组！' % self.name)
+
+        return cost_group, cost_group.id
+
 
 
 

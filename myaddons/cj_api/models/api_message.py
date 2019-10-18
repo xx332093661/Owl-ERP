@@ -1108,13 +1108,10 @@ class ApiMessage(models.Model):
         """
         def get_cost(pro):
             """计算跨公司调拨商品成本"""
-            cost_group = cost_group_obj.search([('store_ids', '=', order.company_id.id)])
-            if not cost_group:
-                raise MyValidationError('27', '公司：%s没有归属到任何成本核算分组中' % order.company_id.name)
-
-            domain = [('product_id', '=', pro.id), ('cost_group_id', '=', cost_group.id)]
-            valuation_move = valuation_move_obj.search(domain, order='id desc', limit=1)
-            stock_cost = valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
+            _, cost_group_id = order.company_id.get_cost_group_id()
+            stock_cost = valuation_move_obj.get_product_cost(pro.id, cost_group_id)
+            if not stock_cost:
+                _logger.warning('处理WMS-ERP-STOCKOUT-QUEUE创建跨公司调拨时，商品：%s的当前成本为0，运单号：%s，订单号：%s' % (pro.partner_ref, content['expressCode'], content['deliveryOrderCode']))
             return stock_cost
 
         content = json.loads(content)
@@ -1127,7 +1124,6 @@ class ApiMessage(models.Model):
         across_obj = self.env['stock.across.move']  # 跨公司调拨
         product_obj = self.env['product.product']
         valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值
-        cost_group_obj = self.env['account.cost.group']
 
         express_code = content.get('expressCode')  # 物流单号
         logistics_code = content.get('logisticsCode')

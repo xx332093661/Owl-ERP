@@ -240,22 +240,6 @@ class InventoryLine(models.Model):
     cost = fields.Float('单位成本', digits=dp.get_precision('Product Price'))
     is_init = fields.Selection([('yes', '是'), ('no', '否')], '是否是初始库存盘点', readonly=1, default='no')
 
-    # @api.model
-    # def create(self, vals):
-    #     """计算商品是否是初始化库存盘点"""
-    #     line = super(InventoryLine, self).create(vals)
-    #
-    #     valuation_obj = self.env['stock.inventory.valuation.move']
-    #     domain = [('product_id', '=', line.product_id.id),
-    #               ('company_id', '=', line.company_id.id),
-    #               ('type', '=', 'in'),
-    #               ('stock_type', '=', 'only')]
-    #     # res = valuation_obj.search(domain)
-    #     # if not res:
-    #     #     line.is_init = 'yes'
-    #
-    #     return line
-
     @api.constrains('cost', 'product_qty')
     def _check_cost_product_qty(self):
         for line in self:
@@ -371,24 +355,26 @@ class StockInventoryDiffReceipt(models.Model):
     @api.onchange('inventory_id', 'inventory_cost_type')
     def _onchange_inventory_id(self):
         def get_cost():
-            domain = [('product_id', '=', move.product_id.id), ('company_id', '=', self.inventory_id.company_id.id), ('stock_type', '=', 'only')]
+            domain = [('product_id', '=', move.product_id.id), ('cost_group_id', '=', cost_group_id)]
             # 盘点时成本
             if self.inventory_cost_type == 'inventory':
                 domain.append(('done_datetime', '<', move.done_datetime)) # 盘点单完成时的成本
 
             valuation_move = valuation_move_obj.search(domain, order='id desc', limit=1)
-            stock_cost = valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
-            return stock_cost
+            return valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
 
         self.line_ids = False
         self.company_id = False
         if not self.inventory_id:
             return
 
-        self.company_id = self.inventory_id.company_id.id
+        company = self.inventory_id.company_id
+        self.company_id = company.id
 
         if not self.inventory_cost_type:
             return
+
+        _, cost_group_id = company.get_cost_group_id()
 
         valuation_move_obj = self.env['stock.inventory.valuation.move']
 
@@ -431,7 +417,7 @@ class StockInventoryDiffReceipt(models.Model):
     @api.constrains('line_ids')
     def _check_line_ids(self):
         def get_cost():
-            domain = [('product_id', '=', move.product_id.id), ('company_id', '=', self.inventory_id.company_id.id), ('stock_type', '=', 'only')]
+            domain = [('product_id', '=', move.product_id.id), ('cost_group_id', '=', cost_group_id)]
             # 盘点时成本
             if self.inventory_cost_type == 'inventory':
                 domain.append(('done_datetime', '<', move.done_datetime)) # 盘点单完成时的成本
@@ -441,6 +427,8 @@ class StockInventoryDiffReceipt(models.Model):
             return stock_cost
 
         valuation_move_obj = self.env['stock.inventory.valuation.move']
+
+        _, cost_group_id = self.inventory_id.company_id.get_cost_group_id()
 
         # 计算盘亏明细
         diff_detail = []

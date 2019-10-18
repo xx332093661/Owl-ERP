@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from itertools import groupby
+import logging
 
 from odoo import models
 from odoo.tools import float_is_zero, float_round, float_compare
+
+_logger = logging.getLogger(__name__)
 
 
 class StockInventory(models.Model):
@@ -32,11 +35,16 @@ class StockInventory(models.Model):
 
     def _get_move_amount(self, line, qty):
         # 计算当前库存单位成本
-        company_id = self.company_id.id
-        product_id = line.product_id.id
-        stock_type = 'only'
-        res = self.env['stock.inventory.valuation.move'].search([('product_id', '=', product_id), ('company_id', '=', company_id), ('stock_type', '=', stock_type)], order='id desc', limit=1)
-        stock_cost = res and res.stock_cost or 0  # 库存单位成本
+        valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值
+
+        product = line.product_id
+        product_id = product.id
+
+        _, cost_group_id = self.company_id.get_cost_group_id()
+        stock_cost = valuation_move_obj.get_product_cost(product_id, cost_group_id)
+        if not stock_cost:
+            _logger.warning('盘点确认创建库存分录时，商品：%s的当前成本为0！盘点单(stock.inventory)ID：' % (product.pertner_ref, self.id))
+
         return float_round(stock_cost * qty, precision_rounding=0.01, rounding_method='HALF-UP')
 
     def generate_account_move(self):

@@ -13,130 +13,17 @@ from odoo.osv import expression
 _logger = logging.getLogger(__name__)
 
 
-class StockInventoryValuation(models.Model):
-    _name = 'stock.inventory.valuation'
-    _description = '存货估值'
-
-    company_id = fields.Many2one('res.company', '公司', index=True)
-    warehouse_id = fields.Many2one('stock.warehouse', '仓库')
-    product_id = fields.Many2one('product.product', '商品', index=True)
-    date = fields.Date('日期', index=True)
-    qty_available = fields.Float('在手数量', digits=dp.get_precision('Product Unit of Measure'))
-    stock_cost = fields.Float('库存单位成本', digits=dp.get_precision('Inventory valuation'))
-    stock_value = fields.Float('价值', compute='_compute_stock_value', store=1, digits=dp.get_precision('Inventory valuation'))
-
-    # @api.one
-    # @api.depends('qty_available', 'stock_cost')
-    # def _compute_stock_value(self):
-    #     """根据单位成本和在手数量，计算库存价值"""
-    #     precision = self.env['decimal.precision'].precision_get('Inventory valuation')  # 估值精度
-    #     if self.qty_available and self.stock_cost:
-    #         self.stock_value = float_round(
-    #             self.qty_available * self.stock_cost,
-    #             precision_digits=precision,
-    #             rounding_method='HALF-UP')
-    #
-    # @api.model
-    # def _cron_inventory_valuation(self, at_hours=None):
-    #     """计算前一天的存货估值
-    #     :param at_hours: 在几点执行计算，值为整形，默认凌晨1点计算前一天的估值
-    #     :return: bool
-    #     """
-    #     def _keys_sorted(v):
-    #         return v.company_id.id, v.product_id.id
-    #
-    #     at_hours = at_hours or '1'
-    #     try:
-    #         at_hours = int(at_hours)
-    #     except ValueError:
-    #         at_hours = 1
-    #
-    #     tz = self.env.user.tz or 'Asia/Shanghai'
-    #     now = datetime.now(tz=pytz.timezone(tz))
-    #     hour = now.hour
-    #     if hour != at_hours:
-    #         return True
-    #
-    #     valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
-    #
-    #     precision = self.env['decimal.precision'].precision_get('Inventory valuation')  # 估值精度
-    #
-    #     last_day = (now - timedelta(days=1)).date()  # 前一天日期
-    #     before_last_day = last_day - timedelta(days=1)  # 前前天
-    #
-    #     # 按公司分组，计算入库成本
-    #     keys_groupby = ['company_id', 'product_id']
-    #     moves = valuation_move_obj.search([('date', '=', last_day), ('type', '=', 'in'), ('unit_cost', '>', 0)])
-    #     company_cost = {}
-    #     for (company, product), ms in groupby(sorted(moves, key=_keys_sorted), key=itemgetter(*keys_groupby)):
-    #         company_cost.setdefault(company, {})
-    #
-    #         # 前一天的在手数量和库存金额
-    #         res = self.search([('company_id', '=', company.id), ('product_id', '=', product.id), ('date', '=', before_last_day)])
-    #         qty = res.qty_available
-    #         amount = res.stock_value
-    #
-    #         for m in ms:
-    #             qty += m.product_qty
-    #             amount += m.product_qty * m.unit_cost
-    #
-    #         cost = float_round(amount / qty, precision_digits=precision, rounding_method='HALF-UP')
-    #         company_cost[company][product] = cost
-    #
-    #     # 前前天的存货估值，如果当前没有涉及到，加入
-    #     for (company, product), ms in groupby(sorted(self.search([('date', '=', before_last_day)]), key=_keys_sorted), key=itemgetter(*keys_groupby)):
-    #         company_cost.setdefault(company, {})
-    #         if not company_cost[company].get(product):
-    #             company_cost[company][product] = list(ms)[0]['stock_cost']
-    #
-    #     # 创建存货估值记录
-    #     for company in company_cost:
-    #         # datetime.combine(last_day, datetime.min.time()): date-->datetime
-    #         to_date = datetime.combine(last_day, datetime.min.time()) + timedelta(days=1) - timedelta(seconds=1)
-    #         for product in company_cost[company]:
-    #             res = self.search([('company_id', '=', company.id), ('product_id', '=', product.id), ('date', '=', last_day)])
-    #             variants_available = product.with_context(to_date=to_date, owner_company_id=company.id)._product_available()
-    #             qty_available = variants_available[product.id]['qty_available']  # 在手数量
-    #             cost = company_cost[company][product]
-    #             if res:
-    #                 vals = {}
-    #                 if float_compare(res.stock_cost, cost, precision_digits=precision) != 0:
-    #                     vals['stock_cost'] = cost
-    #
-    #                 if float_compare(res.qty_available, qty_available, precision_rounding=product.uom_id.rounding) != 0:
-    #                     vals['qty_available'] = qty_available
-    #
-    #                 if vals:
-    #                     res.write(vals)
-    #             else:
-    #                 self.create([{
-    #                     'company_id': company.id,
-    #                     'product_id': product.id,
-    #                     'date': last_day,
-    #                     'stock_cost': cost,
-    #                     'qty_available': qty_available,
-    #                 }])
-    #
-    #     # 修改前一天出库成本为0的移动
-    #     for move in valuation_move_obj.search([('date', '=', last_day), ('unit_cost', '=', 0)]):
-    #         cost = company_cost[move.company_id][move.product_id]
-    #         move.unit_cost = cost
-    #
-    #     return True
-    #
-    # def open_valuation_move(self):
-    #     """查看估值明细"""
-    #     context = self._context
-    #     domain = [('company_id', '=', context['company_id'])]
-    #     domain = expression.AND([domain, [('product_id', '=', context['product_id'])]])
-    #     domain = expression.AND([domain, [('date', '<=', context['date'])]])
-    #     return {
-    #         'type': 'ir.actions.act_window',
-    #         'view_mode': 'tree',
-    #         'name': '存货估值',
-    #         'res_model': 'stock.inventory.valuation.move',
-    #         'domain': domain,
-    #     }
+# class StockInventoryValuation(models.Model):
+#     _name = 'stock.inventory.valuation'
+#     _description = '存货估值'
+#
+#     company_id = fields.Many2one('res.company', '公司', index=True)
+#     warehouse_id = fields.Many2one('stock.warehouse', '仓库')
+#     product_id = fields.Many2one('product.product', '商品', index=True)
+#     date = fields.Date('日期', index=True)
+#     qty_available = fields.Float('在手数量', digits=dp.get_precision('Product Unit of Measure'))
+#     stock_cost = fields.Float('库存单位成本', digits=dp.get_precision('Inventory valuation'))
+#     stock_value = fields.Float('价值', compute='_compute_stock_value', store=1, digits=dp.get_precision('Inventory valuation'))
 
 
 class StockInventoryValuationMoveType(models.Model):
