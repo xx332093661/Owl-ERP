@@ -43,16 +43,16 @@ class PosInterface(http.Controller):
         my_validation_error = module.MyValidationError
         errors = module.PROCESS_ERROR
 
-        db = config['db_name']
-        username = request.jsonrequest.get('username')
-        password = request.jsonrequest.get('password')
-
-        uid = request.session.authenticate(db, username, password)
-        if not uid:
-            return {
-                'state': 0,
-                'msg': '用户名或密码错误！'
-            }
+        # db = config['db_name']
+        # username = request.jsonrequest.get('username')
+        # password = request.jsonrequest.get('password')
+        #
+        # uid = request.session.authenticate(db, username, password)
+        # if not uid:
+        #     return {
+        #         'state': 0,
+        #         'msg': '用户名或密码错误！'
+        #     }
 
         try:
             inventory_data = json.loads(request.jsonrequest.get('data') or '[]')
@@ -102,7 +102,7 @@ class PosInterface(http.Controller):
                 })
 
         try:
-            request.env['api.message'].deal_mustang_to_erp_store_stock_push(json.dumps(body))
+            request.env['api.message'].sudo().deal_mustang_to_erp_store_stock_push(json.dumps(body))
         except my_validation_error as e:
             error_no = e.error_no
             error_msg = errors[error_no]
