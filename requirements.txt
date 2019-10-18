@@ -46,3 +46,4 @@ paramiko==2.6.0
 pika==1.0.0
 pycryptodomex=3.8.2
 pypinyin==0.35.4
+redis==3.3.11
