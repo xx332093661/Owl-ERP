@@ -2,13 +2,11 @@
 ###################################################################################
 # 与POS系统临时接口
 ###################################################################################
-# import importlib
 import json
 import logging
 import traceback
 
 from odoo import http
-# from odoo.tools import config
 from odoo.http import request
 from odoo.tools import float_compare
 
