@@ -299,10 +299,10 @@ class ApiMessage(models.Model):
                         'name': org.name,
                         'code': org.code
                     })
-                    company.partner_id.write({
-                        'customer': True,
-                        'supplier': True,
-                    })
+                    # company.partner_id.write({
+                    #     'customer': True,
+                    #     'supplier': True,
+                    # })
                     admin.company_ids = [(4, company.id)]
                 parent_id = company.id
 
@@ -335,11 +335,11 @@ class ApiMessage(models.Model):
                 if res:
                     raise MyValidationError('02', '公司名称：%s已经存在！' % store['storeName'])
 
-                company = company_obj.create(val)
-                company.partner_id.write({
-                    'customer': True,
-                    'supplier': True,
-                })
+                company_obj.create(val)
+                # company.partner_id.write({
+                #     'customer': True,
+                #     'supplier': True,
+                # })
             else:
                 if content['type'] == 'delete':
                     val.update({'active': False})
@@ -510,7 +510,7 @@ class ApiMessage(models.Model):
 
                 'active': True,
                 'member': True,  # 是否会员
-                'customer': True
+                # 'customer': True
             }
 
             partner = partner_obj.search([('code', '=', member['memberId']), ('member', '=', True)], limit=1)

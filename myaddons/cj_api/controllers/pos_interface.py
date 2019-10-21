@@ -202,4 +202,3 @@ class PosInterface(http.Controller):
         }
 
 
-
