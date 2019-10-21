@@ -39,8 +39,12 @@
                                 <!--class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
                         <!--<button name="new_purchase_order" string="新询价单" states="confirm" type="object"-->
                                 <!--class="oe_highlight"/>-->
-                         <button name="state_cancel" string="取消申请" states="draft,confirm1,confirm2" type="object"
+                        <button name="state_draft" string="驳回申请" states="confirm1,confirm2" type="object"
                                 groups="sales_team.group_sale_salesman"/>
+
+                        <button name="state_cancel" string="取消申请" states="draft,confirm1,confirm2" type="object"
+                                groups="sales_team.group_sale_salesman"/>
+
                         <!--<button name="check_attachment" type="object" string="导入明细" states="draft"/>-->
                         <!--<button name="export_template" type="object" string="模板下载" states="draft"/>-->
                         <field name="state" widget="statusbar" statusbar_visible="draft,confirm1,confirm2,pricing,tendering,confirm3,purchase,delivery,transport,done"

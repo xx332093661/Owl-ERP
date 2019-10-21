@@ -166,6 +166,12 @@ class PurchaseApply(models.Model):
         self.state = 'cancel'
 
     @api.one
+    def state_draft(self):
+        """取消申请"""
+
+        self.state = 'draft'
+
+    @api.one
     def state_confirm1(self):
         """运营确认"""
         if self.state == 'confirm1':
