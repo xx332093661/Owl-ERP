@@ -10,6 +10,7 @@ import traceback
 from odoo import http
 # from odoo.tools import config
 from odoo.http import request
+from odoo.tools import float_compare
 
 _logger = logging.getLogger(__name__)
 
@@ -41,7 +42,7 @@ class PosInterface(http.Controller):
         # my_validation_error = module.MyValidationError
         # errors = module.PROCESS_ERROR
 
-        ir_config = self.env['ir.config_parameter'].sudo()
+        ir_config = request.env['ir.config_parameter'].sudo()
         pos_interface_state = ir_config.get_param('pos_interface_state', default='off')  # POS接口状态
         if pos_interface_state == 'off':
             return {
@@ -56,7 +57,7 @@ class PosInterface(http.Controller):
         except ValueError:
             return {
                 'state': 0,
-                'msg': '处理盘点数据出错，请传json格式字符串！'
+                'msg': '处理数据出错，请传json格式字符串！'
             }
 
         if not inventory_data:
@@ -145,11 +146,56 @@ class PosInterface(http.Controller):
              'msg': 错误信息
         }
         """
-
-        ir_config = self.env['ir.config_parameter'].sudo()
+        ir_config = request.env['ir.config_parameter'].sudo()
         pos_interface_state = ir_config.get_param('pos_interface_state', default='off')  # POS接口状态
         if pos_interface_state == 'off':
             return {
                 'state': 0,
                 'msg': 'POS接口关闭'
             }
+
+        purchase_order_obj = request.env['purchase.order'].sudo()
+        product_obj = request.env['product.product'].sudo()
+
+        try:
+            data = request.jsonrequest.get('data') or {}
+        except ValueError:
+            return {
+                'state': 0,
+                'msg': '处理数据出错，请传json格式字符串！'
+            }
+
+        purchase_order = purchase_order_obj.browse(data['order_id'])
+        if not purchase_order:
+            return {
+                'state': 0,
+                'msg': '采购订单ID错误！'
+            }
+
+        picking = purchase_order.picking_ids[0]  # 入库单
+        if picking.state == 'draft':
+            picking.action_confirm()  # 确认
+
+        exist_diff = False  # 存在差异(采购数量大于收货数量)
+        for line in data['move_lines']:
+            product = product_obj.search([('default_code', '=', line['good_code'])])
+            if not product:
+                return {
+                    'state': 0,
+                    'msg': '物料编码：%s不能找到对应商品！' % line['good_code']
+                }
+            stock_move = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))[0]
+            stock_move.quantity_done = line['product_qty']
+
+            if float_compare(stock_move.product_uom_qty, line['product_qty'], precision_digits=2) == 1:  # 采购数量大于收货数量
+                exist_diff = True
+
+        picking.action_done()  # 确认出库
+
+        return {
+            'state': 1,
+            'msg': ''
+        }
+
+
+
