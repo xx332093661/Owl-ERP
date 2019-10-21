@@ -4,7 +4,6 @@ import traceback
 import threading
 import uuid
 from datetime import timedelta
-import random
 from pypinyin import lazy_pinyin, Style
 import json
 from itertools import groupby
