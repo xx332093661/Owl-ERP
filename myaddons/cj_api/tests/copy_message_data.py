@@ -6,8 +6,8 @@ import odoorpc
 odoo_8079 = odoorpc.ODOO(host='localhost', port=8079)
 odoo_8079.login('odoocjl3', login='admin', password='admin')
 
-# odoo_8069 = odoorpc.ODOO(host='localhost', port=8069)
-# odoo_8069.login('odoocj34', login='admin', password='admin')
+odoo_8069 = odoorpc.ODOO(host='localhost', port=8069)
+odoo_8069.login('odoocj35', login='admin', password='admin')
 
 # odoo_8069 = odoorpc.ODOO(host='42.121.2.58', port=8069)
 # odoo_8069.login('odoocj3', login='admin', password='admin')
@@ -15,8 +15,8 @@ odoo_8079.login('odoocjl3', login='admin', password='admin')
 # odoo_8069 = odoorpc.ODOO(host='10.16.0.35', port=8079)
 # odoo_8069.login('odoo_owl', login='admin', password='admin')
 
-odoo_8069 = odoorpc.ODOO(host='10.16.0.35', port=8080)
-odoo_8069.login('odooapi', login='admin', password='admin')
+# odoo_8069 = odoorpc.ODOO(host='10.16.0.35', port=8080)
+# odoo_8069.login('odooapi', login='admin', password='admin')
 
 
 def create(message_name):
@@ -35,43 +35,43 @@ def create(message_name):
     odoo_8069.env['api.message'].create(vals)
 
 # 1 组织机构(ok)
-create('MDM-ERP-ORG-QUEUE')
+# create('MDM-ERP-ORG-QUEUE')
 
 # 2 门店(ok)
-create('MDM-ERP-STORE-QUEUE')
+# create('MDM-ERP-STORE-QUEUE')
 
 # 3 供应商(ok)
-create('MDM-ERP-SUPPLIER-QUEUE')
+# create('MDM-ERP-SUPPLIER-QUEUE')
 
 # 4 经销商(ok)
-create('MDM-ERP-DISTRIBUTOR-QUEUE')
+# create('MDM-ERP-DISTRIBUTOR-QUEUE')
 
 # 5 会员(ok)
-create('MDM-ERP-MEMBER-QUEUE')
+# create('MDM-ERP-MEMBER-QUEUE')
 
 # 6 仓库(ok)
-create('MDM-ERP-WAREHOUSE-QUEUE')
+# create('MDM-ERP-WAREHOUSE-QUEUE')
 
 # 7 商品(ok)
 create('MDM-ERP-MATERIAL-QUEUE')
 
 # 8 门店库存(ok)
-create('mustang-to-erp-store-stock-push')
+# create('mustang-to-erp-store-stock-push')
 
 # 9 外部仓库库存(ok)
-create('WMS-ERP-STOCK-QUEUE')
+# create('WMS-ERP-STOCK-QUEUE')
 
 # 10 全渠道订单(ok)
-create('mustang-to-erp-order-push')
+# create('mustang-to-erp-order-push')
 
 # 11 物流信息
-create('mustang-to-erp-logistics-push')
+# create('mustang-to-erp-logistics-push')
 
 # 12 出库单
-create('WMS-ERP-STOCKOUT-QUEUE')
+# create('WMS-ERP-STOCKOUT-QUEUE')
 
 # 13 门店库存变动
-create('mustang-to-erp-store-stock-update-record-push')
+# create('mustang-to-erp-store-stock-update-record-push')
 
 # 14 订单状态
 # create('mustang-to-erp-order-status-push')

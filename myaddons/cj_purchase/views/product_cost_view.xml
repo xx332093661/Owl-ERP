@@ -5,7 +5,7 @@
             <field name="name">product.cost.tree</field>
             <field name="model">product.cost</field>
             <field name="arch" type="xml">
-                <tree create="0" edit="0">
+                <tree>
                     <field name="company_id"/>
                     <field name="product_id"/>
                     <field name="cost"/>
@@ -25,7 +25,6 @@
                             <field name="cost"/>
                         </group>
                     </sheet>
-
                 </form>
             </field>
         </record>
@@ -39,13 +38,16 @@
         </record>
 
 
-        <menuitem
-                id="menu_action_product_cost"
-                name="商品成本"
-                parent="stock.menu_stock_inventory_control"
-                groups="stock.group_stock_user"
-                action="action_product_cost"
-                sequence="200"/>
+        <!--<menuitem-->
+                <!--id="menu_action_product_cost"-->
+                <!--name="商品成本"-->
+                <!--parent="stock.menu_stock_inventory_control"-->
+                <!--groups="stock.group_stock_user"-->
+                <!--action="action_product_cost"-->
+                <!--sequence="200"/>-->
+
+        <menuitem name="商品成本" id="menu_action_product_cost" action="action_product_cost"
+                  parent="menu_purchase_main_data" sequence="250"/>
 
     </data>
 

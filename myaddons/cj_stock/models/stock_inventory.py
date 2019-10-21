@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from lxml import etree
 from itertools import groupby
+import importlib
 
 from odoo import models, fields, api, _
 from odoo.addons import decimal_precision as dp
@@ -289,6 +290,51 @@ class InventoryLine(models.Model):
             })],
             'price_unit': self.cost
         }
+
+    @api.model
+    def create(self, vals):
+        def get_is_init():
+            """计算商品是否是初次盘点"""
+            cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
+            if cost_group:
+                if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id)]):
+                    return 'no'
+                return 'yes'
+
+            raise my_validation_error('29', '%s没有成本核算分组' % company.name)
+
+        def get_cost():
+            """计算初次盘点成本"""
+            if is_init == 'no':
+                return 0
+            product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+            if product_cost:
+                return product_cost.cost
+
+            raise my_validation_error('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
+
+        module = importlib.import_module('odoo.addons.cj_api.models.api_message')
+        my_validation_error = module.MyValidationError
+
+        cost_group_obj = self.env['account.cost.group']  # 成本核算分组
+        valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
+        product_cost_obj = self.env['product.cost']  # 商品成本
+        company_obj = self.env['res.company']
+        product_obj = self.env['product.product']
+
+        company_id = vals['company_id']
+        product_id = vals['product_id']
+        company = company_obj.browse(company_id)
+        product = product_obj.browse(product_id)
+
+        is_init = get_is_init()
+        cost = get_cost()
+        vals.update({
+            'is_init': is_init,
+            'cost': cost
+        })
+        # 计算是否是初次盘点
+        return super(InventoryLine, self).create(vals)
 
 
 READONLY_STATES = {

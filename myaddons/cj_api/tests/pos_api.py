@@ -50,3 +50,19 @@ response = requests.post(url, data=data, headers=headers)
 result = response.json()
 
 print(result)
+
+
+# # 采购订单数据
+# payload = {
+#     data: [{
+#         'store_code': '510004',  # 门店代码
+#         'store_name': '酒仓双楠店',  # 门店名称
+#         'order_name': 'PO00001',  # 采购订单号
+#         'order_id': 2,  # 采购订单ID
+#         'order_line': [{
+#             'goods_code': '10010000001',  # 物料编码
+#             'goods_name': '中国品味限量版1号',  # 物料名称
+#             'product_qty': 100,  # 采购数量
+#         }]  # 采购明细
+#     }]
+# }

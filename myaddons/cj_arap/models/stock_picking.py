@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from operator import itemgetter
-
 import pytz
 from itertools import groupby
 

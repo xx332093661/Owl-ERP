@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from . import purchase_apply
 from . import purchase_order
 from . import supplier_contract
@@ -13,4 +12,6 @@ from . import purchase_order_return
 from . import product_supplier_model
 from . import purchase_order_line
 from . import purchase_rebate_line
+from . import product_cost
+from . import base_import
 

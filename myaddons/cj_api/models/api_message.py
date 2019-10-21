@@ -704,32 +704,32 @@ class ApiMessage(models.Model):
     # 8、mustang-to-erp-store-stock-push 门店库存
     def deal_mustang_to_erp_store_stock_push(self, content):
         """门店初始化库存"""
-        def get_is_init():
-            """计算商品是否是初次盘点"""
-            cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
-            if cost_group:
-                if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id)]):
-                    return 'no'
-                return 'yes'
-
-            raise MyValidationError('29', '%s没有成本核算分组' % company.name)
-
-        def get_cost():
-            """计算初次盘点成本"""
-            if is_init == 'no':
-                return 0
-            product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
-            if product_cost:
-                return product_cost.cost
-
-            raise MyValidationError('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
+        # def get_is_init():
+        #     """计算商品是否是初次盘点"""
+        #     cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
+        #     if cost_group:
+        #         if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id)]):
+        #             return 'no'
+        #         return 'yes'
+        #
+        #     raise MyValidationError('29', '%s没有成本核算分组' % company.name)
+        #
+        # def get_cost():
+        #     """计算初次盘点成本"""
+        #     if is_init == 'no':
+        #         return 0
+        #     product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+        #     if product_cost:
+        #         return product_cost.cost
+        #
+        #     raise MyValidationError('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
 
         inventory_obj = self.env['stock.inventory']
         inventory_line_obj = self.env['stock.inventory.line']
         warehouse_obj = self.env['stock.warehouse']
-        cost_group_obj = self.env['account.cost.group']  # 成本核算分组
-        valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
-        product_cost_obj = self.env['product.cost']  # 商品成本
+        # cost_group_obj = self.env['account.cost.group']  # 成本核算分组
+        # valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
+        # product_cost_obj = self.env['product.cost']  # 商品成本
 
         content, body = self._deal_content(content)
 
@@ -761,12 +761,12 @@ class ApiMessage(models.Model):
             for store_stock in store_stocks:
                 product = self.get_product(store_stock['goodsCode'])
                 product_id = product.id
-                is_init = get_is_init()  # 商品是否是初次盘点
+                # is_init = get_is_init()  # 商品是否是初次盘点
                 vals_list.append({
                     'company_id': company_id,
-                    'cost': get_cost(),
+                    # 'cost': get_cost(),
                     'inventory_id': inventory_id,
-                    'is_init': is_init,  # 商品是否是初次盘点
+                    # 'is_init': is_init,  # 商品是否是初次盘点
                     'location_id': location_id,
                     'prod_lot_id': False,  # 批次号
                     'product_id': product_id,
@@ -779,32 +779,32 @@ class ApiMessage(models.Model):
     # 9、WMS-ERP-STOCK-QUEUE 外部仓库库存
     def deal_wms_erp_stock_queue(self, content):
         """外部仓库库存数据队列"""
-        def get_is_init():
-            """计算商品是否是初次盘点"""
-            cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
-            if cost_group:
-                if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id)]):
-                    return 'no'
-                return 'yes'
-
-            raise MyValidationError('29', '%s没有成本核算分组' % company.name)
-
-        def get_cost():
-            """计算初次盘点成本"""
-            if is_init == 'no':
-                return 0
-            product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
-            if product_cost:
-                return product_cost.cost
-
-            raise MyValidationError('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
+        # def get_is_init():
+        #     """计算商品是否是初次盘点"""
+        #     cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
+        #     if cost_group:
+        #         if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id)]):
+        #             return 'no'
+        #         return 'yes'
+        #
+        #     raise MyValidationError('29', '%s没有成本核算分组' % company.name)
+        #
+        # def get_cost():
+        #     """计算初次盘点成本"""
+        #     if is_init == 'no':
+        #         return 0
+        #     product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+        #     if product_cost:
+        #         return product_cost.cost
+        #
+        #     raise MyValidationError('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
 
         warehouse_obj = self.env['stock.warehouse']
         inventory_obj = self.env['stock.inventory']
         inventory_line_obj = self.env['stock.inventory.line']
-        cost_group_obj = self.env['account.cost.group']  # 成本核算分组
-        valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
-        product_cost_obj = self.env['product.cost']  # 商品成本
+        # cost_group_obj = self.env['account.cost.group']  # 成本核算分组
+        # valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
+        # product_cost_obj = self.env['product.cost']  # 商品成本
 
         body = json.loads(content)
         if not isinstance(body, list):
@@ -830,13 +830,13 @@ class ApiMessage(models.Model):
             vals_list = []
             for store_stock in store_stocks:
                 product = self.get_product(store_stock['goodsNo'])
-                product_id = product.id
-                is_init = get_is_init()  # 商品是否是初次盘点
+                # product_id = product.id
+                # is_init = get_is_init()  # 商品是否是初次盘点
                 vals_list.append({
                     'company_id': company_id,
-                    'cost': get_cost(),  # TODO 单位成本
+                    # 'cost': get_cost(),  # TODO 单位成本
                     'inventory_id': inventory_id,
-                    'is_init': is_init,  # 是否是初始化盘点
+                    # 'is_init': is_init,  # 是否是初始化盘点
                     'location_id': location_id,
                     'prod_lot_id': False,  # 批次号
                     'product_id': product.id,
@@ -1121,6 +1121,7 @@ class ApiMessage(models.Model):
                     raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
                 picking.action_done()  # 确认出库
+                order.action_done()  # 完成订单
 
     # 11、mustang-to-erp-logistics-push 物流信息
     def deal_mustang_to_erp_logistics_push(self, content):
@@ -1368,6 +1369,7 @@ class ApiMessage(models.Model):
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
             picking.button_validate()  # 确认出库
+            sale_order.action_done()  # 完成订单
             return
 
         # 销售退货(只有一次退货)

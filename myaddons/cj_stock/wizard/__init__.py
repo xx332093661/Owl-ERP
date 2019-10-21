@@ -9,6 +9,6 @@ from . import import_across_move_line_wizard
 from . import import_scrap_line_wizard
 from . import across_move_diff_receipt_wizard
 from . import material_requisition_return_wizard
-from . import import_inventory_cost_wizard
+# from . import import_inventory_cost_wizard
 
 
