@@ -58,7 +58,7 @@
         </record>
 
         <record id="ir_cron_push_data_to_pos" model="ir.cron">
-            <field name="name">同步采购订单到POS</field>
+            <field name="name">采购：同步采购订单到POS</field>
             <field name="model_id" ref="purchase.model_purchase_order"/>
             <field name="state">code</field>
             <field name="code">model.push_data_to_pos()</field>
