@@ -34,12 +34,12 @@ url = 'http://localhost:8069/pos/receipt'
 
 payload = {
     'data': {
-        'order_id': 1,
-        'order_name': 'PO00001',
+        'order_id': 3,
+        'order_name': 'PO00003',
         'move_lines': [{
             'good_code': '10010000001',
-            'goods_name': '中国品味限量版1号',
-            'product_qty': 100
+            'goods_name': '中国品味限量版3号',
+            'product_qty': 85
         }]
     }
 }

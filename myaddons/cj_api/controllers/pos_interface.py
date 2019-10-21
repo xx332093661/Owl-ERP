@@ -2,13 +2,11 @@
 ###################################################################################
 # 与POS系统临时接口
 ###################################################################################
-# import importlib
 import json
 import logging
 import traceback
 
 from odoo import http
-# from odoo.tools import config
 from odoo.http import request
 from odoo.tools import float_compare
 
@@ -156,6 +154,7 @@ class PosInterface(http.Controller):
 
         purchase_order_obj = request.env['purchase.order'].sudo()
         product_obj = request.env['product.product'].sudo()
+        stock_backorder_obj = request.env['stock.backorder.confirmation'].sudo()
 
         try:
             data = request.jsonrequest.get('data') or {}
@@ -172,7 +171,7 @@ class PosInterface(http.Controller):
                 'msg': '采购订单ID错误！'
             }
 
-        picking = purchase_order.picking_ids[0]  # 入库单
+        picking = purchase_order.picking_ids.filtered(lambda x: x.state not in ['done', 'cancel'])[0]  # 入库单
         if picking.state == 'draft':
             picking.action_confirm()  # 确认
 
@@ -189,8 +188,13 @@ class PosInterface(http.Controller):
 
             if float_compare(stock_move.product_uom_qty, line['product_qty'], precision_digits=2) == 1:  # 采购数量大于收货数量
                 exist_diff = True
-
-        picking.action_done()  # 确认出库
+        if exist_diff:
+            stock_backorder = stock_backorder_obj.create({
+                'pick_ids': [(6, 0, picking.ids)]
+            })
+            stock_backorder.process()  # 确认入库
+        else:
+            picking.action_done()  # 确认入库
 
         return {
             'state': 1,
