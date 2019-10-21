@@ -40,6 +40,15 @@ class PosInterface(http.Controller):
         # module = importlib.import_module('odoo.addons.cj_api.models.api_message')
         # my_validation_error = module.MyValidationError
         # errors = module.PROCESS_ERROR
+
+        ir_config = self.env['ir.config_parameter'].sudo()
+        pos_interface_state = ir_config.get_param('pos_interface_state', default='off')  # POS接口状态
+        if pos_interface_state == 'off':
+            return {
+                'state': 0,
+                'msg': 'POS接口关闭'
+            }
+
         api_message_obj = request.env['api.message'].sudo()
 
         try:

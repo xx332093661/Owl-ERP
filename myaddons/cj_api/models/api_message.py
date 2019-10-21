@@ -226,6 +226,7 @@ class ApiMessage(models.Model):
                 'error_msg': False
             })
         except Exception as e:
+            error_trace = traceback.format_exc()
             error_no = '00'
             if isinstance(e, MyValidationError):
                 error_no = e.error_no
@@ -236,11 +237,11 @@ class ApiMessage(models.Model):
                 res.write({
                     'state': 'error',
                     'attempts': res.attempts + 1,
-                    'error': traceback.format_exc(),
+                    'error': error_trace,
                     'error_no': error_no,
                     'error_msg': error_msg
                 })
-            _logger.error(traceback.format_exc())
+            _logger.error(error_trace)
         finally:
             self._cr.execute('RELEASE SAVEPOINT "%s"' % name)
 
