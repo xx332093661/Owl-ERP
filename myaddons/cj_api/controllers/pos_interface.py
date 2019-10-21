@@ -20,17 +20,15 @@ class PosInterface(http.Controller):
         """pos盘点接口
         数据结构
         传入参数：{
-            'username': 用户名
-            'password': 密码
             'data': [{
                 'store_code': 门店编码,
                 'store_name': 门店名称
-                'pos_id': pos盘点单ID
+                'inventory_id': 盘点单ID
+                'inventory_date':  盘点日期
                 'lines': [{
-                    'default_code': 物料编码
+                    'goods_code': 物料编码
                     'goods_name': 商品名称
                     'product_qty': 在手数量
-                    'unit_cost': 单位成本
                 }]  盘点明细
             }] 盘点数据
         }
@@ -42,17 +40,6 @@ class PosInterface(http.Controller):
         module = importlib.import_module('odoo.addons.cj_api.models.api_message')
         my_validation_error = module.MyValidationError
         errors = module.PROCESS_ERROR
-
-        # db = config['db_name']
-        # username = request.jsonrequest.get('username')
-        # password = request.jsonrequest.get('password')
-        #
-        # uid = request.session.authenticate(db, username, password)
-        # if not uid:
-        #     return {
-        #         'state': 0,
-        #         'msg': '用户名或密码错误！'
-        #     }
 
         try:
             inventory_data = json.loads(request.jsonrequest.get('data') or '[]')
@@ -85,8 +72,8 @@ class PosInterface(http.Controller):
                 }
 
             for line in lines:
-                default_code = line.get('default_code')
-                if not default_code:
+                goods_code = line.get('goods_code')
+                if not goods_code:
                     return {
                         'state': 0,
                         'msg': '物料编码不能为空！'
@@ -97,7 +84,7 @@ class PosInterface(http.Controller):
                     "quantity": product_qty,
                     "storeName": store_name,
                     "updateTime": '',
-                    "goodsCode": default_code,
+                    "goodsCode": goods_code,
                     "storeCode": store_code
                 })
 
