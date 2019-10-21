@@ -2,13 +2,13 @@
 ###################################################################################
 # 与POS系统临时接口
 ###################################################################################
-import importlib
+# import importlib
 import json
 import logging
 import traceback
 
 from odoo import http
-from odoo.tools import config
+# from odoo.tools import config
 from odoo.http import request
 
 _logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ class PosInterface(http.Controller):
         # module = importlib.import_module('odoo.addons.cj_api.models.api_message')
         # my_validation_error = module.MyValidationError
         # errors = module.PROCESS_ERROR
-        api_message_obj = request.env['api.message']
+        api_message_obj = request.env['api.message'].sudo()
 
         try:
             inventory_data = request.jsonrequest.get('data') or []
@@ -115,8 +115,3 @@ class PosInterface(http.Controller):
             'state': 1,
             'msg': ''
         }
-
-
-
-
-
