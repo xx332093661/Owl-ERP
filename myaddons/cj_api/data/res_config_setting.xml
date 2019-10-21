@@ -85,5 +85,14 @@
         </record>
 
     </data>
+
+    <data noupdate="1">
+        <!--POS接口状态-->
+        <record id="icp_user_oa" model="ir.config_parameter">
+            <field name="key">pos_interface_state</field>
+            <field name="value">on</field>
+        </record>
+
+    </data>
 </openerp>
 
