@@ -89,7 +89,10 @@ class StockScrapMaster(models.Model):
     @api.multi
     def action_done(self):
         """完成"""
-        super(StockScrapMaster, self).action_done()
+        res = super(StockScrapMaster, self).action_done()
+        if res:
+            return res
+
         # 使用库存分录
         journal_id = self.env['account.journal'].search([('company_id', '=', self.company_id.id), ('code', '=', 'STJ')]).id
 

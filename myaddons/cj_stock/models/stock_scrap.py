@@ -135,7 +135,9 @@ class StockScrapMaster(models.Model):
         self.state = 'done'
         # 出库
         for scrap in self.line_ids:
-            scrap.action_validate()
+            res = scrap.action_validate()
+            if res:
+                return res
 
 
 class StockScrap(models.Model):
@@ -188,9 +190,10 @@ class StockScrap(models.Model):
         self.ensure_one()
         if self.product_id.type != 'product':
             return self.do_scrap()
-        ml_obj = self.env['stock.move.line']
+        # ml_obj = self.env['stock.move.line']
         precision = self.env['decimal.precision'].precision_get('Product Unit of Measure')
-        company_id = ml_obj.search([('lot_id', '=', self.lot_id.id)], limit=1).move_id.company_id.id
+        # company_id = ml_obj.search([('lot_id', '=', self.lot_id.id)], limit=1).move_id.company_id.id
+        company_id = self.master_id.company_id.id
         available_qty = sum(self.env['stock.quant']._gather(self.product_id,
                                                             self.location_id,
                                                             self.lot_id,

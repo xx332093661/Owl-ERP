@@ -63,6 +63,10 @@ class StockInventory(models.Model):
 
     communication = fields.Char(string='盘点差异说明')
 
+    @api.model
+    def create(self, vals_list):
+        return super(StockInventory, self).create(vals_list)
+
     @api.onchange('location_id')
     def _onchange_location_id(self):
         """屏蔽库位change"""
@@ -321,8 +325,12 @@ class InventoryLine(models.Model):
         product_cost_obj = self.env['product.cost']  # 商品成本
         company_obj = self.env['res.company']
         product_obj = self.env['product.product']
+        inventory_obj = self.env['stock.inventory']  # 盘点单
 
-        company_id = vals['company_id']
+        company_id = vals.get('company_id')
+        if not company_id:
+            company_id = inventory_obj.browse(vals['inventory_id']).company_id.id
+
         product_id = vals['product_id']
         company = company_obj.browse(company_id)
         product = product_obj.browse(product_id)
