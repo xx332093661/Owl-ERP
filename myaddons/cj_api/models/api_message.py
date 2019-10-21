@@ -750,7 +750,7 @@ class ApiMessage(models.Model):
                 product = self.get_product(store_stock['goodsCode'])
                 vals_list.append({
                     'company_id': company_id,
-                    'cost': random.randint(10, 100),  # TODO 单位成本
+                    'cost': 0,  # TODO 单位成本(导入处理)
                     'inventory_id': inventory_id,
                     'is_init': 'yes',  # 是否是初始化盘点
                     'location_id': location_id,
@@ -760,7 +760,7 @@ class ApiMessage(models.Model):
                     'product_qty': store_stock['quantity']
                 })
             inventory_line_obj.with_context(company_id=company_id).create(vals_list)
-            inventory.action_validate()
+            # inventory.action_validate()
 
     # 9、WMS-ERP-STOCK-QUEUE 外部仓库库存
     def deal_wms_erp_stock_queue(self, content):
