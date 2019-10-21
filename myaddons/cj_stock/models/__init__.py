@@ -21,3 +21,4 @@ from . import company
 from . import stock_across_move
 # from . import partner
 from . import material_requisition
+from . import product_cost

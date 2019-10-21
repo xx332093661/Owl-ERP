@@ -41,7 +41,8 @@
                 </xpath>
                 <!--4、增加仓管员确认按钮、仓库经理确认按钮、财务专员确认按钮、财务经理确认按钮、完成盘点按钮-->
                 <xpath expr="//button[@name='action_start']" position="before">
-                    <button name="%(action_import_inventory_detail_wizard)d" states="confirm" string="导入盘点明细" type="action" class="oe_highlight" groups="stock.group_stock_user"/>
+                    <!--<button name="%(action_import_inventory_detail_wizard)d" states="confirm" string="导入盘点明细" type="action" class="oe_highlight" groups="stock.group_stock_user"/>-->
+                    <button name="%(action_import_inventory_cost_wizard)d" states="confirm" string="导入盘点成本" type="action" class="oe_highlight" groups="stock.group_stock_user"/>
                     <button name="action_user_confirm" states="confirm" string="确认" type="object" class="oe_highlight" groups="stock.group_stock_user"/>
                     <button name="action_manager_confirm" states="user_confirm" string="确认" type="object" class="oe_highlight" groups="stock.group_stock_manager"/>
                     <button name="action_finance_confirm" states="manager_confirm" string="确认" type="object" class="oe_highlight" groups="account.group_account_invoice"/>
