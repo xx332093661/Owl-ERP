@@ -250,9 +250,9 @@ class InventoryLine(models.Model):
             if float_compare(line.product_qty, 0.0, precision_rounding=line.product_id.uom_id.rounding) == -1:
                 raise ValidationError('实际数量不能小于0！')
 
-            # 如果公司没有盘点过，则要求输入单位成本
-            if compare == 0 and line.is_init == 'yes':
-                raise ValidationError('%s首次盘点商品：%s，请输入单位成本！' % (line.company_id.name, line.product_id.name, ))
+            # # 如果公司没有盘点过，则要求输入单位成本
+            # if compare == 0 and line.is_init == 'yes':
+            #     raise ValidationError('%s首次盘点商品：%s，请输入单位成本！' % (line.company_id.name, line.product_id.name, ))
 
     def _get_move_values(self, qty, location_id, location_dest_id, out):
         """

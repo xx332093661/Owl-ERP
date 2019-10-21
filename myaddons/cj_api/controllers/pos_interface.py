@@ -42,7 +42,7 @@ class PosInterface(http.Controller):
         errors = module.PROCESS_ERROR
 
         try:
-            inventory_data = json.loads(request.jsonrequest.get('data') or '[]')
+            inventory_data = request.jsonrequest.get('data') or []
         except ValueError:
             return {
                 'state': 0,
@@ -89,7 +89,7 @@ class PosInterface(http.Controller):
                 })
 
         try:
-            request.env['api.message'].sudo().deal_mustang_to_erp_store_stock_push(json.dumps(body))
+            request.env['api.message'].sudo().deal_mustang_to_erp_store_stock_push(json.dumps({'body': body}))
         except my_validation_error as e:
             error_no = e.error_no
             error_msg = errors[error_no]
