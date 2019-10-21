@@ -90,7 +90,7 @@ class PosInterface(http.Controller):
                 })
 
         try:
-            content = json.dumps({'body': body})
+            content = json.dumps({'body': body, 'raw_data': json.dumps(inventory_data)})
             api_message_obj.create({
                 'message_type': 'rabbit_mq',
                 'message_name': 'mustang-to-erp-store-stock-push',
