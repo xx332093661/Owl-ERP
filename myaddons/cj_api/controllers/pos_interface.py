@@ -37,9 +37,10 @@ class PosInterface(http.Controller):
              'msg': 错误信息
         }
         """
-        module = importlib.import_module('odoo.addons.cj_api.models.api_message')
-        my_validation_error = module.MyValidationError
-        errors = module.PROCESS_ERROR
+        # module = importlib.import_module('odoo.addons.cj_api.models.api_message')
+        # my_validation_error = module.MyValidationError
+        # errors = module.PROCESS_ERROR
+        api_message_obj = request.env['api.message']
 
         try:
             inventory_data = request.jsonrequest.get('data') or []
@@ -89,19 +90,25 @@ class PosInterface(http.Controller):
                 })
 
         try:
-            request.env['api.message'].sudo().deal_mustang_to_erp_store_stock_push(json.dumps({'body': body}))
-        except my_validation_error as e:
-            error_no = e.error_no
-            error_msg = errors[error_no]
-            return {
-                'state': 0,
-                'msg': error_msg
-            }
+            content = json.dumps({'body': body})
+            api_message_obj.create({
+                'message_type': 'rabbit_mq',
+                'message_name': 'mustang-to-erp-store-stock-push',
+                'content': content
+            })
+            # request.env['api.message'].sudo().deal_mustang_to_erp_store_stock_push(content)
+        # except my_validation_error as e:
+        #     error_no = e.error_no
+        #     error_msg = errors[error_no]
+        #     return {
+        #         'state': 0,
+        #         'msg': error_msg
+        #     }
         except Exception:
             _logger.error(traceback.format_exc())
             return {
                 'state': 0,
-                'msg': '处理盘点数据发生未知错误'
+                'msg': '存储接口数据发生未知错误'
             }
 
         return {
