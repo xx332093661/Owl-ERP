@@ -124,3 +124,32 @@ class PosInterface(http.Controller):
             'state': 1,
             'msg': ''
         }
+
+    @http.route('/pos/receipt', type='json', auth="none", methods=['POST'], csrf=False)
+    def pos_receipt(self):
+        """POS收货后回调
+        传入参数：
+        {
+            'data': {
+                'order_id': ERP系统采购订单号
+                'order_name': 采购订单名称
+                'move_lines': [{
+                    'good_code': 物料编码
+                    'goods_name': 商品名称
+                    'product_qty': 收货数量
+                }]  收货明细
+            }
+        }
+        返回结果：{
+             'state': 1 处理状态(1-成功, 0-失败),
+             'msg': 错误信息
+        }
+        """
+
+        ir_config = self.env['ir.config_parameter'].sudo()
+        pos_interface_state = ir_config.get_param('pos_interface_state', default='off')  # POS接口状态
+        if pos_interface_state == 'off':
+            return {
+                'state': 0,
+                'msg': 'POS接口关闭'
+            }

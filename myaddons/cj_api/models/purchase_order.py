@@ -40,7 +40,26 @@ class PurchaseOrder(models.Model):
 
     @api.model
     def push_data_to_pos(self):
-        """将采购订单推送到门店"""
+        """将采购订单推送到门店
+        传入参数：{
+            data: [{
+                'store_code': 门店代码
+                'store_name': 门店名称
+                'order_name': 采购订单号
+                'order_id': 采购订单ID
+                'order_line': [{
+                    'goods_code': 物料编码
+                    'goods_name': 物料名称
+                    'product_qty': 采购数量
+                }]  # 采购明细
+            }]
+        }
+        返回参数：
+        {
+             'state': 1 处理状态(1-成功, 0-失败),
+             'msg': 错误信息
+        }
+        """
         ir_config = self.env['ir.config_parameter'].sudo()
         pos_interface_state = ir_config.get_param('pos_interface_state', default='off')  # POS接口状态
         if pos_interface_state != 'on':
