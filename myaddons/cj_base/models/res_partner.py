@@ -51,4 +51,13 @@ class Partner(models.Model):
         if 'email' not in val:
             val.update({'email': 'example@qq.com'})
 
+        if val.get('supplier_group'):
+            val['code'] = val['supplier_group'] + '-' + self.env['ir.sequence'].next_by_code('supplier.code')
+
         return super(Partner, self).create(val)
+
+    @api.multi
+    def write(self, val):
+        if val.get('supplier_group'):
+            val['code'] = val['supplier_group'] + '-' + self.env['ir.sequence'].next_by_code('supplier.code')
+        return super(Partner, self).write(val)
