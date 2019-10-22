@@ -398,7 +398,9 @@ class StockPicking(models.Model):
     def _generate_sale_joint_invoice(self):
         """联营商品处理(销售后结算)"""
         def filter_stock_move_line(x):
-            return supplier_model_obj.search([('product_id', '=', x.product_id.id), ('company_id', '=', company_id)]).payment_term_id.type == 'joint'
+            types = supplier_model_obj.search([('product_id', '=', x.product_id.id), ('company_id', '=', company_id)]).mapped('payment_term_id').mapped('type')
+            return 'joint' in types
+            # return supplier_model_obj.search([('product_id', '=', x.product_id.id), ('company_id', '=', company_id)]).payment_term_id.type == 'joint'
 
         def sort_key(x):
             return x['purchase'].id, x['payment_term'].id
