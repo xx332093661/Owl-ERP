@@ -6,7 +6,7 @@ import traceback
 from odoo import http
 from odoo.http import request
 from odoo.tools import config
-from .api import *
+# from .api import *
 
 
 _logger = logging.getLogger(__name__)
