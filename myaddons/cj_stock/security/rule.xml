@@ -53,25 +53,25 @@
             <field name="name">易耗品申请访问规则</field>
             <field name="model_id" ref="cj_stock.model_stock_consumable_apply"/>
             <field name="global" eval="True"/>
-            <field name="domain_force">[('company_id','child_of',[user.company_id.id])]</field>
+            <field name="domain_force">[('warehouse_id.company_id','child_of',[user.company_id.id])]</field>
         </record>
         <record model="ir.rule" id="stock_consumable_consu_rule">
             <field name="name">易耗品消耗访问规则</field>
             <field name="model_id" ref="cj_stock.model_stock_consumable_consu"/>
             <field name="global" eval="True"/>
-            <field name="domain_force">[('company_id','child_of',[user.company_id.id])]</field>
+            <field name="domain_force">[('warehouse_id.company_id','child_of',[user.company_id.id])]</field>
         </record>
         <record model="ir.rule" id="stock_material_requisition_rule">
             <field name="name">领料单访问规则</field>
             <field name="model_id" ref="cj_stock.model_stock_material_requisition"/>
             <field name="global" eval="True"/>
-            <field name="domain_force">[('company_id','child_of',[user.company_id.id])]</field>
+            <field name="domain_force">[('warehouse_id.company_id','child_of',[user.company_id.id])]</field>
         </record>
         <record model="ir.rule" id="stock_scrap_master_rule">
             <field name="name">商品报废访问规则</field>
             <field name="model_id" ref="cj_stock.model_stock_scrap_master"/>
             <field name="global" eval="True"/>
-            <field name="domain_force">[('company_id','child_of',[user.company_id.id])]</field>
+            <field name="domain_force">[('location_id.company_id','child_of',[user.company_id.id])]</field>
         </record>
     </data>
     <!--&lt;!&ndash;存货估值访问规则&ndash;&gt;-->
