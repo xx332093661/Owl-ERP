@@ -98,13 +98,15 @@ class PurchaseOrder(models.Model):
         result = response.json()['result']
         state = result['state']
         if state == '1':
-            state = 'done'
-            msg = ''
+            orders.write({
+                'send_pos_state': 'done',
+            })
         else:
-            state = 'error'
-            msg = result['msg']
+            orders.write({
+                'send_pos_state': 'error',
+                'send_pos_error': result['msg']
+            })
 
-        return state, msg
 
 
 
