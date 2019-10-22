@@ -32,24 +32,24 @@ class DeliveryOrder(models.Model):
 
     name = fields.Char(string='物流单号', required=True, index=True, readonly=1, states=READONLY_STATES)
     carrier_id = fields.Many2one('delivery.carrier', string="交货方式", help="请选择对应的快递方式")
-    sale_order_id = fields.Many2one('sale.order', string='销售单', track_visibility='always', required=0, readonly=1, states=READONLY_STATES)
+    sale_order_id = fields.Many2one('sale.order', string='销售单', track_visibility='onchange', required=0, readonly=1, states=READONLY_STATES)
     purchase_order_id = fields.Many2one('purchase.order', string='关联采购单')
-    warehouse_id = fields.Many2one('stock.warehouse', string='发货仓库', track_visibility='always', readonly=1, states=READONLY_STATES)
-    company_id = fields.Many2one('res.company', string='发货公司', track_visibility='always', readonly=1, required=1, states=READONLY_STATES)
+    warehouse_id = fields.Many2one('stock.warehouse', string='发货仓库', track_visibility='onchange', readonly=1, states=READONLY_STATES)
+    company_id = fields.Many2one('res.company', string='发货公司', track_visibility='onchange', readonly=1, required=1, states=READONLY_STATES)
     package_box_ids = fields.One2many('delivery.package.box', 'order_id', string='包装盒', readonly=1, states=READONLY_STATES)
 
     logistics_code = fields.Char('物流公司编号', index=1)
 
     delivery_type = fields.Selection(string='物流单方向', selection=DELIVERY_TYPE, default='send')
     line_ids = fields.One2many('delivery.order.line', 'order_id', string='信息详情', readonly=1)
-    cost_box = fields.Float(string="包装盒成本", default=0.0, track_visibility='always', readonly=1, states=READONLY_STATES)
-    cost_carrier = fields.Float(string="快递成本", default=0.0, track_visibility='always', readonly=1, states=READONLY_STATES)
-    cost_human = fields.Float(string='人工成本', default=0.0, track_visibility='always', readonly=1, states=READONLY_STATES)
-    cost = fields.Float(string='物流成本', default=0.0, track_visibility='always', readonly=1, states=READONLY_STATES)
-    # delivery_state = fields.Selection(string='物流单状态', selection=DELIVERY_STATUS, track_visibility='always', readonly=1)
+    cost_box = fields.Float(string="包装盒成本", default=0.0, track_visibility='onchange', readonly=1, states=READONLY_STATES)
+    cost_carrier = fields.Float(string="快递成本", default=0.0, track_visibility='onchange', readonly=1, states=READONLY_STATES)
+    cost_human = fields.Float(string='人工成本', default=0.0, track_visibility='onchange', readonly=1, states=READONLY_STATES)
+    cost = fields.Float(string='物流成本', default=0.0, track_visibility='onchange', readonly=1, states=READONLY_STATES)
+    # delivery_state = fields.Selection(string='物流单状态', selection=DELIVERY_STATUS, track_visibility='onchange', readonly=1)
     delivery_state = fields.Char('物流单状态')
 
-    state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('done', '仓库经理已审批')], string='状态', default='draft', track_visibility='always', readonly=1)
+    state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('done', '仓库经理已审批')], string='状态', default='draft', track_visibility='onchange', readonly=1)
 
     # 收货人信息
     consignee_name = fields.Char('收货人名字', compute='_compute_consignee_info', store=1)

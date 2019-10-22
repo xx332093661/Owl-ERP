@@ -21,19 +21,19 @@ class AccountCustomerInvoiceApply(models.Model):
     name = fields.Char('单号', readonly=1, default='New')
     partner_id = fields.Many2one('res.partner', '客户', required=1, readonly=1,
                                  domain="['|', ('customer', '=', True), ('supplier', '=', True)]",
-                                 states=STATES, track_visibility='always')
+                                 states=STATES, track_visibility='onchange')
     apply_date = fields.Date('申请日期',
                              readonly=1,
                              states=STATES,
                              default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')),
-                             required=1, track_visibility='always')
-    amount = fields.Float('开票金额', track_visibility='always', compute='_compute_amount', store=1)
-    state = fields.Selection(APPLY_STATES, '状态', default='draft', track_visibility='always')
-    sale_id = fields.Many2one('sale.order', '销售订单', required=1, readonly=1, states=STATES, track_visibility='always', domain="[('partner_id', '=', partner_id)]", ondelete="cascade")
+                             required=1, track_visibility='onchange')
+    amount = fields.Float('开票金额', track_visibility='onchange', compute='_compute_amount', store=1)
+    state = fields.Selection(APPLY_STATES, '状态', default='draft', track_visibility='onchange')
+    sale_id = fields.Many2one('sale.order', '销售订单', required=1, readonly=1, states=STATES, track_visibility='onchange', domain="[('partner_id', '=', partner_id)]", ondelete="cascade")
 
     payment_ids = fields.One2many('account.payment', 'customer_invoice_apply_id', '收款记录', readonly=1)
     invoice_split_ids = fields.One2many('account.invoice.split', 'customer_invoice_apply_id', '账单分期', readonly=1,
-                                        states=STATES, track_visibility='always', )
+                                        states=STATES, track_visibility='onchange', )
 
     invoice_register_ids = fields.One2many('account.invoice.register', 'customer_invoice_apply_id', '发票登记')
     company_id = fields.Many2one('res.company', related='sale_id.company_id', string='公司', store=1)

@@ -41,11 +41,11 @@ class StockConsumableConsu(models.Model):
 
     name = fields.Char('单号', readonly=1, default='New')
     company_id = fields.Many2one('res.company', '公司', related='warehouse_id.company_id', store=1)
-    warehouse_id = fields.Many2one('stock.warehouse', '仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='always', default=_get_default_warehouse_id, domain=lambda self: [('company_id', 'child_of', self.env.user.company_id.id)])
+    warehouse_id = fields.Many2one('stock.warehouse', '仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', default=_get_default_warehouse_id, domain=lambda self: [('company_id', 'child_of', self.env.user.company_id.id)])
 
-    state = fields.Selection(STATES, '状态', default='draft', readonly=1, track_visibility='always')
-    date_from = fields.Date('开始日期', required=1, readonly=1, states=READONLY_STATES, track_visibility='always', default=_default_date_from)
-    date_to = fields.Date('截止日期', required=1, readonly=1, states=READONLY_STATES, track_visibility='always', default=_default_date_to)
+    state = fields.Selection(STATES, '状态', default='draft', readonly=1, track_visibility='onchange')
+    date_from = fields.Date('开始日期', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', default=_default_date_from)
+    date_to = fields.Date('截止日期', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', default=_default_date_to)
 
     line_ids = fields.One2many('stock.consumable.consu.line', 'consumable_id', '消耗明细', required=1, readonly=1, states=READONLY_STATES)
 

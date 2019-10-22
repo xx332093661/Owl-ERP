@@ -31,7 +31,7 @@ class PurchaseOrderReturn(models.Model):
     partner_id = fields.Many2one('res.partner', related='purchase_order_id.partner_id', readonly=1)
     company_id = fields.Many2one('res.company', related='purchase_order_id.company_id', readonly=1)
     state = fields.Selection([('draft', '草稿'), ('confirm', '已确认'), ('done', '完成'), ('cancel', '取消')], '状态',
-                             default='draft', track_visibility='always')
+                             default='draft', track_visibility='onchange')
     line_ids = fields.One2many('purchase.order.return.line', 'order_return_id', '明细')
     return_picking_ids = fields.One2many('stock.picking', 'order_return_id', '出库单')
     return_picking_count = fields.Integer('出库单数量', compute='_cpt_return_picking_count')

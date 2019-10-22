@@ -23,20 +23,20 @@ class StockAcrossMove(models.Model):
     date = fields.Date('单据日期',
                              default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')),
                              readonly=1, states=READONLY_STATES)
-    state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('manager_confirm', '仓库经理审核'), ('out_in_confirm', '调出调入确认'), ('done', '完成')], '状态', default='draft', track_visibility='always')
-    company_id = fields.Many2one('res.company', '公司', required=1, readonly=1, states=READONLY_STATES, track_visibility='always', default=lambda self: self.env.user.company_id)
+    state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('manager_confirm', '仓库经理审核'), ('out_in_confirm', '调出调入确认'), ('done', '完成')], '状态', default='draft', track_visibility='onchange')
+    company_id = fields.Many2one('res.company', '公司', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', default=lambda self: self.env.user.company_id)
 
-    warehouse_in_id = fields.Many2one('stock.warehouse', '调入仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='always', domain="[('company_id', '!=', company_id)]")
-    warehouse_out_id = fields.Many2one('stock.warehouse', '调出仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='always',
+    warehouse_in_id = fields.Many2one('stock.warehouse', '调入仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('company_id', '!=', company_id)]")
+    warehouse_out_id = fields.Many2one('stock.warehouse', '调出仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange',
                                        domain="[('company_id', '=', company_id)]",
                                        default=lambda self: self.env['stock.warehouse'].search([('company_id', '=', self.env.user.company_id.id)], limit=1).id)
 
-    payment_term_id = fields.Many2one('account.payment.term', '收款条款', required=1, readonly=1, states=READONLY_STATES, track_visibility='always')
+    payment_term_id = fields.Many2one('account.payment.term', '收款条款', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
     cost_type = fields.Selection([('normal', '平调'), ('increase', '加价'), ('customize', '自定义')], '成本方法', required=1, readonly=1, states=READONLY_STATES, default='normal',
-                                 track_visibility='always', help='平调：按当前商品成本结算\n加价：按商品当前成本加价n%结算\n自定义：用户手动输入调拨成本，系统会提示当前成本')
+                                 track_visibility='onchange', help='平调：按当前商品成本结算\n加价：按商品当前成本加价n%结算\n自定义：用户手动输入调拨成本，系统会提示当前成本')
     cost_increase_rating = fields.Float('加价百分比')
-    sale_order_id = fields.Many2one('sale.order', '调拨关联销售单', track_visibility='always', readonly=1, auto_join=1)
-    purchase_order_id = fields.Many2one('purchase.order', '调拨关联的采购订单', track_visibility='always', readonly=1, auto_join=1)
+    sale_order_id = fields.Many2one('sale.order', '调拨关联销售单', track_visibility='onchange', readonly=1, auto_join=1)
+    purchase_order_id = fields.Many2one('purchase.order', '调拨关联的采购订单', track_visibility='onchange', readonly=1, auto_join=1)
 
     line_ids = fields.One2many('stock.across.move.line', 'move_id', '调拨明细', readonly=1, states=READONLY_STATES)
     # picking_in_ids = fields.One2many('stock.picking', '调入分拣', compute='_compute_stock_picking')
@@ -45,7 +45,7 @@ class StockAcrossMove(models.Model):
     picking_out_count = fields.Integer('调出分拣', related='purchase_order_id.picking_count')
     diff_ids = fields.One2many('stock.across.move.diff', 'move_id', '调入调出差异')
 
-    origin_sale_order_id = fields.Many2one('sale.order', '来源', readonly=1, track_visibility='always')
+    origin_sale_order_id = fields.Many2one('sale.order', '来源', readonly=1, track_visibility='onchange')
     # origin_type = fields.Selection([('purchase', '采购'), ('sale', '销售')], '来源类型')
 
     @api.multi
@@ -347,16 +347,16 @@ class StockAcrossMoveDiffReceipt(models.Model):
     date = fields.Date('单据日期',
                              default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')),
                              readonly=1, states=READONLY_STATES)
-    company_id = fields.Many2one('res.company', '公司', readonly=1, track_visibility='always')
-    move_id = fields.Many2one('stock.across.move', '跨公司调拨', ondelete='restrict', index=1, required=1, readonly=1, states=READONLY_STATES, track_visibility='always')
-    partner_id = fields.Many2one('res.partner', required=1, string='伙伴', readonly=1, states=READONLY_STATES, track_visibility='always')
-    payment_term_id = fields.Many2one('account.payment.term', '收款条款', required=1, readonly=1, states=READONLY_STATES, track_visibility='always')
-    amount = fields.Float('收款金额', compute='_compute_amount', store=1, track_visibility='always')
+    company_id = fields.Many2one('res.company', '公司', readonly=1, track_visibility='onchange')
+    move_id = fields.Many2one('stock.across.move', '跨公司调拨', ondelete='restrict', index=1, required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    partner_id = fields.Many2one('res.partner', required=1, string='伙伴', readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    payment_term_id = fields.Many2one('account.payment.term', '收款条款', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    amount = fields.Float('收款金额', compute='_compute_amount', store=1, track_visibility='onchange')
     line_ids = fields.One2many('stock.across.move.diff.receipt.line', 'receipt_id', '收款明细', readonly=1, states=READONLY_STATES)
     state = fields.Selection([('draft', '草稿'),
                               ('confirm', '确认'),
                               ('manager_confirm', '仓库经理确认'),
-                              ('finance_confirm', '财务确认')], '状态', default='draft', track_visibility='always')
+                              ('finance_confirm', '财务确认')], '状态', default='draft', track_visibility='onchange')
 
     @api.model
     def default_get(self, fields_list):

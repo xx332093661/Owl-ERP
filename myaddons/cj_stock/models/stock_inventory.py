@@ -40,24 +40,24 @@ class StockInventory(models.Model):
     _inherit = ['stock.inventory', 'mail.thread']
     _name = 'stock.inventory'
 
-    state = fields.Selection(string='Status', selection=INV_STATE, copy=False, index=True, readonly=True, default='draft', track_visibility='always')
+    state = fields.Selection(string='Status', selection=INV_STATE, copy=False, index=True, readonly=True, default='draft', track_visibility='onchange')
 
     filter = fields.Selection(
         string='盘点类型', selection='_selection_filter',
         required=1,
-        default='none', track_visibility='always')
+        default='none', track_visibility='onchange')
 
     location_id = fields.Many2one(
         'stock.location', '盘点库位',
         readonly=True, required=True,
         states={'draft': [('readonly', False)]},
-        default=Inventory._default_location_id, track_visibility='always')
+        default=Inventory._default_location_id, track_visibility='onchange')
 
     company_id = fields.Many2one(
         'res.company', '公司',
         readonly=True, index=True, required=True,
         states={'draft': [('readonly', False)]},
-        default=lambda self: self.env.user.company_id.id, track_visibility='always')
+        default=lambda self: self.env.user.company_id.id, track_visibility='onchange')
 
     exhausted = fields.Boolean('包含零库存产品', readonly=1, states={'draft': [('readonly', False)]}, default=True)
 
@@ -360,21 +360,21 @@ class StockInventoryDiffReceipt(models.Model):
     date = fields.Date('单据日期',
                              default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')),
                              readonly=1, states=READONLY_STATES)
-    company_id = fields.Many2one('res.company', '公司', readonly=1, track_visibility='always')
+    company_id = fields.Many2one('res.company', '公司', readonly=1, track_visibility='onchange')
     inventory_id = fields.Many2one('stock.inventory', '盘点单', ondelete='restrict', index=1, required=1, readonly=1,
-                                   states=READONLY_STATES, track_visibility='always')
-    partner_id = fields.Many2one('res.partner', required=1, string='伙伴', readonly=1, states=READONLY_STATES, track_visibility='always')
-    payment_term_id = fields.Many2one('account.payment.term', '收款条款', required=1, readonly=1, states=READONLY_STATES, track_visibility='always')
-    amount = fields.Float('收款金额', compute='_compute_amount', store=1, track_visibility='always')
+                                   states=READONLY_STATES, track_visibility='onchange')
+    partner_id = fields.Many2one('res.partner', required=1, string='伙伴', readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    payment_term_id = fields.Many2one('account.payment.term', '收款条款', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    amount = fields.Float('收款金额', compute='_compute_amount', store=1, track_visibility='onchange')
     line_ids = fields.One2many('stock.inventory.diff.receipt.line', 'receipt_id', '收款明细', readonly=1, states=READONLY_STATES)
     state = fields.Selection([('draft', '草稿'),
                               ('confirm', '确认'),
                               ('manager_confirm', '仓库经理确认'),
-                              ('finance_confirm', '财务确认')], '状态', default='draft', track_visibility='always')
+                              ('finance_confirm', '财务确认')], '状态', default='draft', track_visibility='onchange')
 
     inventory_cost_type = fields.Selection([('current', '开单时成本'),
                                             ('inventory', '盘点时成本')], '盘点收款成本计算方式',
-                                           default='current', required=1, readonly=1, states=READONLY_STATES, track_visibility='always')
+                                           default='current', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
 
     @api.model
     def default_get(self, fields_list):
