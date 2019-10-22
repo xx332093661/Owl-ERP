@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+        <record id="view_stock_inventory_valuation_move_tree" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.move.tree</field>
+            <field name="model">stock.inventory.valuation.move</field>
+            <field name="inherit_id" ref="cj_stock.view_stock_inventory_valuation_move_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="before">
+                    <field name="cost_group_id" invisible="context.get('hide_cost_group_id', False)"/>
+
+                </xpath>
+            </field>
+        </record>
+</odoo>

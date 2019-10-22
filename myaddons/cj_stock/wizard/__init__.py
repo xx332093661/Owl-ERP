@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from . import valuation_wizard
+# from . import valuation_wizard
 from . import import_delivery_order_package_wizard
 from . import confirm_empty_delivery_order_wizard
 from . import import_consumable_consu_line_wizard
