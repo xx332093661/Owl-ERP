@@ -88,6 +88,22 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">POS接口</span>
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label string="接口状态" for="pos_interface_state" class="col-lg-3 o_light_label"/>
+                                            <field name="pos_interface_state"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="采购订单调用地址" for="pos_purchase_call_url" class="col-lg-3 o_light_label"/>
+                                            <field name="pos_purchase_call_url"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </xpath>

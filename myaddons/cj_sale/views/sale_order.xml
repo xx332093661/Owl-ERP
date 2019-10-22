@@ -265,6 +265,9 @@
                                 <field name="consignee_name" string="收货人名字"/>
                                 <field name="consignee_mobile" string="收货人电话"/>
                                 <field name="address" string="收货人地址"/>
+                                <field name="consignee_state_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="consignee_city_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="consignee_district_id" options="{'no_create': 1, 'no_open': 1}"/>
                             </group>
                         </page>
                         <page string="优惠信息" name="discount_lines">
@@ -289,6 +292,9 @@
                                     <field name="total_amount" string="订单总金额"/>
                                     <field name="delivery_type" string="配送方式"/>
                                     <field name="sync_state"/>
+                                </group>
+                                <group string="Shipping Information" name="sale_shipping">
+                                    <field name="warehouse_id" options="{'no_create': True}" groups="stock.group_stock_multi_locations"/>
                                 </group>
                                 <group string="Sales Information" name="sales_person">
                                     <field name="user_id"/>

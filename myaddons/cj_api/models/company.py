@@ -7,15 +7,38 @@ class Company(models.Model):
 
     @api.model
     def create(self, vals):
-        res = super(Company, self).create(vals)
+        cost_group_obj = self.env['account.cost.group']  # 成本核算分组
+
+        company = super(Company, self).create(vals)
+
+        main_company_id = self.env.ref('base.main_company').id
+        company_id = company.id
+
+        self.env.ref('base.user_admin').company_ids = [(4, company_id)]  # admin赋所有会计权限
+        if not company.parent_id:
+            company.parent_id = main_company_id
+
         # 创建四川省川酒集团信息科技有限公司(02014)时，创建一个仓库专门管理售酒机库存
-        if res.code == '02014':
-            self.env['stock.warehouse'].sudo().create(
-                {
-                    'name': '售酒机',
-                    'code': 'enomatic',
-                    'company_id': res.id,
-                    'partner_id': res.partner_id.id
+        if company.code == '02014':
+            self.env['stock.warehouse'].sudo().create({
+                'name': '售酒机',
+                'code': 'enomatic',
+                'company_id': company_id,
+                'partner_id': company.partner_id.id
+            })
+
+        # 自动创建成本核算分组
+        if company.parent_id.id == main_company_id:
+            cost_group = cost_group_obj.search([('company_id', '=', company_id)])
+            if not cost_group:
+                cost_group_obj.create({
+                    'name': company.name,
+                    'company_id': company_id,
+                    'store_ids': [(4, company_id)]
                 })
-        return res
+        else:
+            cost_group = cost_group_obj.search([('company_id', '=', company.parent_id.id)])
+            cost_group.store_ids = [(4, company_id)]
+
+        return company
 

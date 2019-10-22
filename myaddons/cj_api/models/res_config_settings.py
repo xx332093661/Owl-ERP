@@ -24,6 +24,9 @@ class ResConfigSettings(models.TransientModel):
     icp_oa_token_username = fields.Char('获取token的用户名', required=1, config_parameter='icp_oa_token_username', help='获取访问OA的token的用户名')
     icp_oa_url = fields.Char('OA地址', required=1, config_parameter='icp_oa_url')
 
+    pos_interface_state = fields.Selection([('on', '启用'), ('off', '关闭')], 'POS接口状态', required=1, config_parameter='pos_interface_state', default='on')
+    pos_purchase_call_url = fields.Char('采购订单调用地址', required=1, config_parameter='pos_purchase_call_url')
+
     @api.model
     def get_values(self):
         def get_param_value(name):
@@ -48,6 +51,9 @@ class ResConfigSettings(models.TransientModel):
         icp_oa_token_username = get_param_value('icp_oa_token_username')
         icp_oa_url = get_param_value('icp_oa_url')
 
+        pos_interface_state = get_param_value('pos_interface_state')
+        pos_purchase_call_url = get_param_value('pos_purchase_call_url')
+
         res.update(
             cj_rabbit_mq_ip_id=cj_rabbit_mq_ip_id,
             cj_rabbit_mq_port_id=cj_rabbit_mq_port_id,
@@ -62,5 +68,7 @@ class ResConfigSettings(models.TransientModel):
             icp_oa_token_password=icp_oa_token_password,
             icp_oa_token_username=icp_oa_token_username,
             icp_oa_url=icp_oa_url,
+            pos_interface_state=pos_interface_state,
+            pos_purchase_call_url=pos_purchase_call_url,
         )
         return res

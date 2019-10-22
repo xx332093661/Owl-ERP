@@ -9,3 +9,4 @@ from . import res_config_settings
 from . import sync
 from . import company
 from . import stock_picking
+from . import purchase_order

@@ -10,7 +10,7 @@
     'website': "http://www.mypscloud.com",
     'category': 'CJ',
     'version': '0.1',
-    'depends': ['cj_api'],
+    'depends': ['cj_api', 'delivery'],
     'data': [
         'data/res_config_parameter.xml',
         'data/ir_cron.xml',

@@ -52,7 +52,7 @@ class ProductTemplate(models.Model):
         """
         res = super(ProductTemplate, self).default_get(fields_list)
         res.update({
-            'tracking': 'lot',
+            'tracking': 'none',
             'type': 'product',
         })
 

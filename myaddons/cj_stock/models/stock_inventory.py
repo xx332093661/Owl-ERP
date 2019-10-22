@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from lxml import etree
 from itertools import groupby
+import importlib
 
 from odoo import models, fields, api, _
 from odoo.addons import decimal_precision as dp
@@ -61,6 +62,10 @@ class StockInventory(models.Model):
     exhausted = fields.Boolean('包含零库存产品', readonly=1, states={'draft': [('readonly', False)]}, default=True)
 
     communication = fields.Char(string='盘点差异说明')
+
+    @api.model
+    def create(self, vals_list):
+        return super(StockInventory, self).create(vals_list)
 
     @api.onchange('location_id')
     def _onchange_location_id(self):
@@ -240,22 +245,6 @@ class InventoryLine(models.Model):
     cost = fields.Float('单位成本', digits=dp.get_precision('Product Price'))
     is_init = fields.Selection([('yes', '是'), ('no', '否')], '是否是初始库存盘点', readonly=1, default='no')
 
-    # @api.model
-    # def create(self, vals):
-    #     """计算商品是否是初始化库存盘点"""
-    #     line = super(InventoryLine, self).create(vals)
-    #
-    #     valuation_obj = self.env['stock.inventory.valuation.move']
-    #     domain = [('product_id', '=', line.product_id.id),
-    #               ('company_id', '=', line.company_id.id),
-    #               ('type', '=', 'in'),
-    #               ('stock_type', '=', 'only')]
-    #     # res = valuation_obj.search(domain)
-    #     # if not res:
-    #     #     line.is_init = 'yes'
-    #
-    #     return line
-
     @api.constrains('cost', 'product_qty')
     def _check_cost_product_qty(self):
         for line in self:
@@ -266,9 +255,9 @@ class InventoryLine(models.Model):
             if float_compare(line.product_qty, 0.0, precision_rounding=line.product_id.uom_id.rounding) == -1:
                 raise ValidationError('实际数量不能小于0！')
 
-            # 如果公司没有盘点过，则要求输入单位成本
-            if compare == 0 and line.is_init == 'yes':
-                raise ValidationError('%s首次盘点商品：%s，请输入单位成本！' % (line.company_id.name, line.product_id.name, ))
+            # # 如果公司没有盘点过，则要求输入单位成本
+            # if compare == 0 and line.is_init == 'yes':
+            #     raise ValidationError('%s首次盘点商品：%s，请输入单位成本！' % (line.company_id.name, line.product_id.name, ))
 
     def _get_move_values(self, qty, location_id, location_dest_id, out):
         """
@@ -305,6 +294,55 @@ class InventoryLine(models.Model):
             })],
             'price_unit': self.cost
         }
+
+    @api.model
+    def create(self, vals):
+        def get_is_init():
+            """计算商品是否是初次盘点"""
+            cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
+            if cost_group:
+                if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id)]):
+                    return 'no'
+                return 'yes'
+
+            raise my_validation_error('29', '%s没有成本核算分组' % company.name)
+
+        def get_cost():
+            """计算初次盘点成本"""
+            if is_init == 'no':
+                return 0
+            product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+            if product_cost:
+                return product_cost.cost
+
+            raise my_validation_error('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
+
+        module = importlib.import_module('odoo.addons.cj_api.models.api_message')
+        my_validation_error = module.MyValidationError
+
+        cost_group_obj = self.env['account.cost.group']  # 成本核算分组
+        valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
+        product_cost_obj = self.env['product.cost']  # 商品成本
+        company_obj = self.env['res.company']
+        product_obj = self.env['product.product']
+        inventory_obj = self.env['stock.inventory']  # 盘点单
+
+        company_id = vals.get('company_id')
+        if not company_id:
+            company_id = inventory_obj.browse(vals['inventory_id']).company_id.id
+
+        product_id = vals['product_id']
+        company = company_obj.browse(company_id)
+        product = product_obj.browse(product_id)
+
+        is_init = get_is_init()
+        cost = get_cost()
+        vals.update({
+            'is_init': is_init,
+            'cost': cost
+        })
+        # 计算是否是初次盘点
+        return super(InventoryLine, self).create(vals)
 
 
 READONLY_STATES = {
@@ -371,24 +409,26 @@ class StockInventoryDiffReceipt(models.Model):
     @api.onchange('inventory_id', 'inventory_cost_type')
     def _onchange_inventory_id(self):
         def get_cost():
-            domain = [('product_id', '=', move.product_id.id), ('company_id', '=', self.inventory_id.company_id.id), ('stock_type', '=', 'only')]
+            domain = [('product_id', '=', move.product_id.id), ('cost_group_id', '=', cost_group_id)]
             # 盘点时成本
             if self.inventory_cost_type == 'inventory':
                 domain.append(('done_datetime', '<', move.done_datetime)) # 盘点单完成时的成本
 
             valuation_move = valuation_move_obj.search(domain, order='id desc', limit=1)
-            stock_cost = valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
-            return stock_cost
+            return valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
 
         self.line_ids = False
         self.company_id = False
         if not self.inventory_id:
             return
 
-        self.company_id = self.inventory_id.company_id.id
+        company = self.inventory_id.company_id
+        self.company_id = company.id
 
         if not self.inventory_cost_type:
             return
+
+        _, cost_group_id = company.get_cost_group_id()
 
         valuation_move_obj = self.env['stock.inventory.valuation.move']
 
@@ -431,7 +471,7 @@ class StockInventoryDiffReceipt(models.Model):
     @api.constrains('line_ids')
     def _check_line_ids(self):
         def get_cost():
-            domain = [('product_id', '=', move.product_id.id), ('company_id', '=', self.inventory_id.company_id.id), ('stock_type', '=', 'only')]
+            domain = [('product_id', '=', move.product_id.id), ('cost_group_id', '=', cost_group_id)]
             # 盘点时成本
             if self.inventory_cost_type == 'inventory':
                 domain.append(('done_datetime', '<', move.done_datetime)) # 盘点单完成时的成本
@@ -441,6 +481,8 @@ class StockInventoryDiffReceipt(models.Model):
             return stock_cost
 
         valuation_move_obj = self.env['stock.inventory.valuation.move']
+
+        _, cost_group_id = self.inventory_id.company_id.get_cost_group_id()
 
         # 计算盘亏明细
         diff_detail = []

@@ -39,16 +39,16 @@ class Company(models.Model):
         parent_ids.append(self.id)
         self.parent_ids = parent_ids
 
-    @api.model
-    def create(self, vals):
-        """创建公司时，让admin可访问该公司"""
-        company = super(Company, self).create(vals)
-
-        self.env.ref('base.user_admin').company_ids = [(4, company.id)]  # admin赋所有会计权限
-        if not company.parent_id and company.id != self.env.ref('base.main_company').id:
-            company.parent_id = self.env.ref('base.main_company').id
-
-        return company
+    # @api.model
+    # def create(self, vals):
+    #     """创建公司时，让admin可访问该公司"""
+    #     company = super(Company, self).create(vals)
+    #
+    #     self.env.ref('base.user_admin').company_ids = [(4, company.id)]  # admin赋所有会计权限
+    #     if not company.parent_id and company.id != self.env.ref('base.main_company').id:
+    #         company.parent_id = self.env.ref('base.main_company').id
+    #
+    #     return company
 
     # @api.depends('partner_id', 'partner_id.image')
     # def _compute_logo_web(self):

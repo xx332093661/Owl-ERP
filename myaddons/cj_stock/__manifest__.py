@@ -25,6 +25,7 @@
         'wizard/import_scrap_line_wizard_view.xml',
         'wizard/across_move_diff_receipt_wizard_view.xml',
         'wizard/material_requisition_return_wizard_view.xml',
+        # 'wizard/import_inventory_cost_wizard_view.xml',
 
         'views/menu.xml',
 

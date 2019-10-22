@@ -25,3 +25,4 @@ account_stock_material_requisition_line_user,stock_material_requisition_line use
 account_stock_material_requisition_diff_line_user,stock_material_requisition_diff_line user,model_stock_material_requisition_diff_line,stock.group_stock_user,1,1,1,1
 
 
+

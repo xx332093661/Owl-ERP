@@ -34,6 +34,7 @@
         'views/partner_view.xml',
         'views/product_supplierinfo_view.xml',
         'views/purchase_order_return_view.xml',
+        'views/product_cost_view.xml',
 
 
         'wizard/purchase_scheduler_compute_views.xml',

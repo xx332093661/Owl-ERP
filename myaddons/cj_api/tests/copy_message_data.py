@@ -7,7 +7,7 @@ odoo_8079 = odoorpc.ODOO(host='localhost', port=8079)
 odoo_8079.login('odoocjl3', login='admin', password='admin')
 
 odoo_8069 = odoorpc.ODOO(host='localhost', port=8069)
-odoo_8069.login('odoocj33', login='admin', password='admin')
+odoo_8069.login('odoocj35', login='admin', password='admin')
 
 # odoo_8069 = odoorpc.ODOO(host='42.121.2.58', port=8069)
 # odoo_8069.login('odoocj3', login='admin', password='admin')
@@ -53,7 +53,7 @@ def create(message_name):
 # create('MDM-ERP-WAREHOUSE-QUEUE')
 
 # 7 商品(ok)
-# create('MDM-ERP-MATERIAL-QUEUE')
+create('MDM-ERP-MATERIAL-QUEUE')
 
 # 8 门店库存(ok)
 # create('mustang-to-erp-store-stock-push')
@@ -70,8 +70,8 @@ def create(message_name):
 # 12 出库单
 # create('WMS-ERP-STOCKOUT-QUEUE')
 
-# 10 门店库存变动
-create('mustang-to-erp-store-stock-update-record-push')
+# 13 门店库存变动
+# create('mustang-to-erp-store-stock-update-record-push')
 
 # 14 订单状态
 # create('mustang-to-erp-order-status-push')

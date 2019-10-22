@@ -51,7 +51,7 @@ class PurchaseOrder(models.Model):
                 if invoice_split.state == 'paid':
                     time_start = invoice_split.create_date
                     time_end = invoice_split.payment_ids[0].write_date
-                    payment_time = (time_end - time_start).hours
+                    payment_time = (time_end - time_start).total_seconds() / 3600
         return payment_time
 
     def _get_deliver_time(self):

@@ -45,8 +45,8 @@ class StockAcrossMove(models.Model):
     picking_out_count = fields.Integer('调出分拣', related='purchase_order_id.picking_count')
     diff_ids = fields.One2many('stock.across.move.diff', 'move_id', '调入调出差异')
 
-    origin_id = fields.Integer('来源')
-    origin_type = fields.Selection([('purchase', '采购'), ('sale', '销售')], '来源类型')
+    origin_sale_order_id = fields.Many2one('sale.order', '来源', readonly=1, track_visibility='always')
+    # origin_type = fields.Selection([('purchase', '采购'), ('sale', '销售')], '来源类型')
 
     @api.multi
     def action_view_picking(self):
@@ -85,10 +85,10 @@ class StockAcrossMove(models.Model):
 
         # 修改明细的当前成本字段值
         valuation_move_obj = self.env['stock.inventory.valuation.move']
-        company_id = res.warehouse_out_id.company_id.id
+
+        _, cost_group_id = res.warehouse_out_id.company_id.get_cost_group_id()
         for line in res.line_ids:
-            valuation_move = valuation_move_obj.search([('product_id', '=', line.product_id.id), ('company_id', '=', company_id), ('stock_type', '=', 'only')], order='id desc', limit=1)
-            stock_cost = valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
+            stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group_id)
             line.current_cost = stock_cost
 
         return res
@@ -298,10 +298,15 @@ class StockAcrossMoveLine(models.Model):
         if not self.product_id:
             return
 
+        valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值
+
         warehouse_out_id = self._context['warehouse_out_id']
-        company_id = self.env['stock.warehouse'].browse(warehouse_out_id).company_id.id
-        res = self.env['stock.inventory.valuation.move'].search([('product_id', '=', self.product_id.id), ('company_id', '=', company_id), ('stock_type', '=', 'only')], order='id desc', limit=1)
-        stock_cost = res and res.stock_cost or 0  # 库存单位成本
+        company = self.env['stock.warehouse'].browse(warehouse_out_id).company_id
+
+        _, cost_group_id = company.get_cost_group_id()
+
+        stock_cost = valuation_move_obj.get_product_cost(self.product_id.id, cost_group_id)
+
         self.current_cost = stock_cost
 
         cost_type = self._context.get('cost_type')  # 成本方法

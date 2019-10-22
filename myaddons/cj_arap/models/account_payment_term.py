@@ -20,7 +20,7 @@ class AccountPaymentTerm(models.Model):
     """
     _inherit = 'account.payment.term'
 
-    type = fields.Selection(PAYMENT_TERM_TYPE, '结算类型', default='normal')
+    type = fields.Selection(PAYMENT_TERM_TYPE, '结算类型', default='normal', required=1)
     fee_rate = fields.Float('扣率(%)', help='联营扣点')
 
     @api.multi

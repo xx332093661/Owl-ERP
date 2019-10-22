@@ -39,7 +39,8 @@ class PurchaseApply(models.Model):
                                  states=READONLY_STATES,
                                  track_visibility='onchange',
                                  default=lambda self: self.env['res.company']._company_default_get())
-    warehouse_id = fields.Many2one('stock.warehouse', '入库仓库', states=READONLY_STATES)
+    warehouse_id = fields.Many2one('stock.warehouse', '入库仓库', states=READONLY_STATES,
+                                   domain="[('company_id', '=', company_id)]")
     apply_type = fields.Selection(
         [('other', '其他需求补货'), ('stock', '安全库存补货'), ('group', '团购补货')], '申请类别',
         default='other', required=1, states=READONLY_STATES)
@@ -163,6 +164,12 @@ class PurchaseApply(models.Model):
         """取消申请"""
 
         self.state = 'cancel'
+
+    @api.one
+    def state_draft(self):
+        """取消申请"""
+
+        self.state = 'draft'
 
     @api.one
     def state_confirm1(self):

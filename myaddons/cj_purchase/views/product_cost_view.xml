@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_product_cost_tree" model="ir.ui.view">
+            <field name="name">product.cost.tree</field>
+            <field name="model">product.cost</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="company_id"/>
+                    <field name="product_id"/>
+                    <field name="cost"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_product_cost_form" model="ir.ui.view">
+            <field name="name">product.cost.form</field>
+            <field name="model">product.cost</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group col="4">
+                            <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
+                            <field name="product_id" options="{'no_create': 1, 'no_open': 1}"/>
+                            <field name="cost"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="action_product_cost" model="ir.actions.act_window">
+            <field name="name">商品成本</field>
+            <field name="res_model">product.cost</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <!--<menuitem-->
+                <!--id="menu_action_product_cost"-->
+                <!--name="商品成本"-->
+                <!--parent="stock.menu_stock_inventory_control"-->
+                <!--groups="stock.group_stock_user"-->
+                <!--action="action_product_cost"-->
+                <!--sequence="200"/>-->
+
+        <menuitem name="商品成本" id="menu_action_product_cost" action="action_product_cost"
+                  parent="menu_purchase_main_data" sequence="250"/>
+
+    </data>
+
+</odoo>
