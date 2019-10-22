@@ -249,6 +249,7 @@ class AppClearData(models.Model):
             ['stock.pack.operation', ],
             ['stock.picking', ],
             ['stock.scrap', ],
+            ['stock.scrap.master', ],
             ['stock.inventory.line', ],
             ['stock.inventory', ],
             ['stock.production.lot', ],

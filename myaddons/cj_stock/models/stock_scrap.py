@@ -34,7 +34,7 @@ class StockScrapMaster(models.Model):
     name = fields.Char('单号', default='New', readonly=True)
 
     location_id = fields.Many2one('stock.location', '报废库位',
-                                  domain="[('usage', '=', 'internal')]",
+                                  domain="[('usage', '=', 'internal'), ('company_id', '=', company_id)]",
                                   required=1, readonly=1, states=READONLY_STATES, track_visibility='always', default=_get_default_location_id)
     scrap_location_id = fields.Many2one(
         'stock.location', '废料库位', default=_get_default_scrap_location_id,
@@ -44,7 +44,7 @@ class StockScrapMaster(models.Model):
     communication = fields.Char(string='报废原因说明', readonly=1, states=READONLY_STATES, track_visibility='always')
     state = fields.Selection(STATES, '状态', default='draft', track_visibility='always')
 
-    company_id = fields.Many2one('res.company', '公司', default=lambda self: self.env.user.company_id.id, track_visibility='always', readonly=1, states=READONLY_STATES)
+    company_id = fields.Many2one('res.company', '公司', default=lambda self: self.env.user.company_id.id, track_visibility='always', readonly=1, states=READONLY_STATES, required=1)
 
     move_ids = fields.Many2many('stock.move', string='库存移动', compute='_compute_move_ids')
     line_ids = fields.One2many('stock.scrap', 'master_id', '报废明细', required=1, readonly=1, states=READONLY_STATES)
@@ -135,15 +135,24 @@ class StockScrapMaster(models.Model):
         self.state = 'done'
         # 出库
         for scrap in self.line_ids:
-            res = scrap.action_validate()
-            if res:
-                return res
+            scrap.action_validate()
 
 
 class StockScrap(models.Model):
     _inherit = 'stock.scrap'
+    _name = 'stock.scrap'
 
     master_id = fields.Many2one('stock.scrap.master', '主表', ondelete="cascade")
+    location_id = fields.Many2one(
+        'stock.location', '库位', domain="[('usage', '=', 'internal')]",
+        required=True, states={'done': [('readonly', True)]})
+    scrap_location_id = fields.Many2one(
+        'stock.location', '废料库位',
+        domain="[('scrap_location', '=', True)]", required=True, states={'done': [('readonly', True)]})
+
+    @api.model
+    def create(self, vals_list):
+        return super(StockScrap, self).create(vals_list)
 
     @api.multi
     @api.constrains('scrap_qty')
@@ -204,18 +213,19 @@ class StockScrap(models.Model):
         if float_compare(available_qty, scrap_qty, precision_digits=precision) >= 0:
             return self.do_scrap()
         else:
-            return {
-                'name': '不足数量',
-                'view_type': 'form',
-                'view_mode': 'form',
-                'res_model': 'stock.warn.insufficient.qty.scrap',
-                'view_id': self.env.ref('stock.stock_warn_insufficient_qty_scrap_form_view').id,
-                'type': 'ir.actions.act_window',
-                'context': {
-                    'default_product_id': self.product_id.id,
-                    'default_location_id': self.location_id.id,
-                    'default_scrap_id': self.id
-                },
-                'target': 'new'
-            }
+            raise ValidationError('商品：%s库存数量不足，不能完成报废！' % self.product_id.name)
+            # return {
+            #     'name': '不足数量',
+            #     'view_type': 'form',
+            #     'view_mode': 'form',
+            #     'res_model': 'stock.warn.insufficient.qty.scrap',
+            #     'view_id': self.env.ref('stock.stock_warn_insufficient_qty_scrap_form_view').id,
+            #     'type': 'ir.actions.act_window',
+            #     'context': {
+            #         'default_product_id': self.product_id.id,
+            #         'default_location_id': self.location_id.id,
+            #         'default_scrap_id': self.id
+            #     },
+            #     'target': 'new'
+            # }
 
