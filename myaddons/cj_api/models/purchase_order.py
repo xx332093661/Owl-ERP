@@ -70,7 +70,7 @@ class PurchaseOrder(models.Model):
             _logger.warning('同步采购订单到POS，采购订单调用地址调用POS地址未设置')
             return
 
-        orders = self.search([('company_id.code', '=', 'store'), ('state', 'in', ['purchase', 'done']), ('send_pos_state', 'in', ['draft', 'error'])])
+        orders = self.search([('company_id.type', '=', 'store'), ('state', 'in', ['purchase', 'done']), ('send_pos_state', 'in', ['draft', 'error'])])
 
         data = []
         for order in orders:
@@ -86,6 +86,9 @@ class PurchaseOrder(models.Model):
                     'product_qty': line.product_qty,  # 采购数量
                 } for line in order.order_line]  # 采购明细
             })
+        if not data:
+            return
+
         payload = {
             'data': data
         }
