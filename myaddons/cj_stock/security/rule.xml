@@ -3,33 +3,33 @@
 
     <data>
         <!--禁用访问规则：stock.stock_picking_type_rule(分拣类型)-->
-        <function model="ir.rule" name="rule_disable">
-            <value>stock.stock_picking_type_rule</value>
-        </function>
+        <!--<function model="ir.rule" name="rule_disable">-->
+            <!--<value>stock.stock_picking_type_rule</value>-->
+        <!--</function>-->
         <!--禁用访问规则：stock.stock_warehouse_orderpoint_rule(最小库存规则)-->
-        <function model="ir.rule" name="rule_disable">
-            <value>stock.stock_warehouse_orderpoint_rule</value>
-        </function>
+        <!--<function model="ir.rule" name="rule_disable">-->
+            <!--<value>stock.stock_warehouse_orderpoint_rule</value>-->
+        <!--</function>-->
         <!--禁用访问规则：stock.stock_location_comp_rule(库存库位)-->
-        <function model="ir.rule" name="rule_disable">
-            <value>stock.stock_location_comp_rule</value>
-        </function>
+        <!--<function model="ir.rule" name="rule_disable">-->
+            <!--<value>stock.stock_location_comp_rule</value>-->
+        <!--</function>-->
         <!--禁用访问规则：stock.stock_location_route_comp_rule(库存路线)-->
-        <function model="ir.rule" name="rule_disable">
-            <value>stock.stock_location_route_comp_rule</value>
-        </function>
+        <!--<function model="ir.rule" name="rule_disable">-->
+            <!--<value>stock.stock_location_route_comp_rule</value>-->
+        <!--</function>-->
         <!--禁用访问规则：stock.product_pulled_flow_comp_rule(库存规则)-->
-        <function model="ir.rule" name="rule_disable">
-            <value>stock.product_pulled_flow_comp_rule</value>
-        </function>
+        <!--<function model="ir.rule" name="rule_disable">-->
+            <!--<value>stock.product_pulled_flow_comp_rule</value>-->
+        <!--</function>-->
         <!--禁用访问规则：stock.stock_warehouse_comp_rule(仓库)-->
-        <function model="ir.rule" name="rule_disable">
-            <value>stock.stock_warehouse_comp_rule</value>
-        </function>
+        <!--<function model="ir.rule" name="rule_disable">-->
+            <!--<value>stock.stock_warehouse_comp_rule</value>-->
+        <!--</function>-->
         <!--禁用访问规则：base.res_company_rule_employee(公司)-->
-        <function model="ir.rule" name="rule_disable">
-            <value>base.res_company_rule_employee</value>
-        </function>
+        <!--<function model="ir.rule" name="rule_disable">-->
+            <!--<value>base.res_company_rule_employee</value>-->
+        <!--</function>-->
 
     </data>
     <data noupdate="1">
