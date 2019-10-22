@@ -71,8 +71,8 @@
                                 <field name="archive_code" string="统一社会信用代码" required="1"/>
                                 <field name="legal_entity" string="法人" required="1"/>
                                 <field name="status" string="状态" required="1"/>
-                                <field name="supplier"/>
-                                <field name="customer"/>
+                                <field name="supplier" invisible="1"/>
+                                <field name="customer" invisible="1"/>
                             </group>
                             <group>
                                 <field name="code" required="0" string="供应商编码" readonly="1"/>
@@ -94,7 +94,7 @@
 
                         <notebook>
                             <page string="联系人">
-                                <field name="child_ids" mode="kanban" context="{'default_parent_id': active_id, 'default_country_id': country_id, 'default_supplier': supplier, 'default_customer': customer, 'default_type': 'contact', 'cj_supplier_contact': 1}">
+                                <field name="child_ids" mode="kanban" context="{'default_parent_id': active_id, 'default_country_id': country_id, 'default_type': 'contact', 'cj_supplier_contact': 1}">
                                     <kanban>
                                         <field name="id"/>
                                         <field name="color"/>
