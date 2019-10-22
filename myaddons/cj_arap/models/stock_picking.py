@@ -256,7 +256,9 @@ class StockPicking(models.Model):
     def _generate_sale_sale_after_payment_invoice(self):
         """创建销售关联的销售后付款"""
         def filter_stock_move_line(x):
-            return supplier_model_obj.search([('product_id', '=', x.product_id.id), ('company_id', '=', company_id)]).payment_term_id.type == 'sale_after_payment'
+            types = supplier_model_obj.search([('product_id', '=', x.product_id.id), ('company_id', '=', company_id)]).mapped('payment_term_id').mapped('type')
+            return 'sale_after_payment' in types
+            # return supplier_model_obj.search([('product_id', '=', x.product_id.id), ('company_id', '=', company_id)]).payment_term_id.type == 'sale_after_payment'
 
         def sort_key(x):
             return x['purchase'].id, x['payment_term'].id
