@@ -17,12 +17,12 @@ class CjSend(models.Model):
     _description = u'发送数据'
 
     @api.model
-    def do_send(self):
-        self.send_product_cost()
+    def do_send(self, product_cost_date=None):
+        self.send_product_cost(product_cost_date)
 
-    def send_product_cost(self):
+    def send_product_cost(self, product_cost_date=None):
         """发送商品成本"""
-        res = self.get_product_cost()
+        res = self.get_product_cost(product_cost_date)
 
         if not res:
             return
@@ -35,10 +35,7 @@ class CjSend(models.Model):
 
     def get_product_cost(self, date=None):
         """获取前一天的成本价
-        :param company_id: 公司(中台)
-        :param stock_date: 成本日期
-        :param barcode: 商品条形码
-        :return: [{
+        返回值：[{
             'company_id': 公司ID(中台)
             'company_store_code': 公司编码
             'company_store_name': 公司名称
