@@ -104,6 +104,38 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-12 col-lg-6 o_setting_box">
+                                <div class="o_setting_left_pane"/>
+                                <div class="o_setting_right_pane">
+                                    <span class="o_form_label">全量接口配置</span>
+                                    <div class="content-group">
+                                        <div class="row mt16">
+                                            <label string="URL" for="main_data_api_url" class="col-lg-3 o_light_label"/>
+                                            <field name="main_data_api_url"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="物料Key" for="main_data_api_dms_material_info" class="col-lg-3 o_light_label"/>
+                                            <field name="main_data_api_dms_material_info"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="组织Key" for="main_data_api_auth_org" class="col-lg-3 o_light_label"/>
+                                            <field name="main_data_api_auth_org"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="仓库Key" for="main_data_api_dms_warehouse" class="col-lg-3 o_light_label"/>
+                                            <field name="main_data_api_dms_warehouse"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="门店Key" for="main_data_api_dms_store" class="col-lg-3 o_light_label"/>
+                                            <field name="main_data_api_dms_store"/>
+                                        </div>
+                                        <div class="row">
+                                            <label string="分销商Key" for="main_data_api_auth_distributor_member" class="col-lg-3 o_light_label"/>
+                                            <field name="main_data_api_auth_distributor_member"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </xpath>

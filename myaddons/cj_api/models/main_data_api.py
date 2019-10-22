@@ -2,117 +2,91 @@
 import logging
 import requests
 import json
-import traceback
-
-import hashlib
-
-from odoo import fields, models, api
 from datetime import datetime
 import random
 import pytz
+import hashlib
+
+from odoo import models
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
+from .rabbit_mq_receive import MQ_SEQUENCE  # mq消息处理顺序
 
 _logger = logging.getLogger(__name__)
 
 
 # mq消息处理顺序
-MQ_SEQUENCE = {
-    'MDM-ERP-ORG-QUEUE': 1,  # 组织机构
-    'MDM-ERP-STORE-QUEUE': 2,  # 门店信息
-    'MDM-ERP-SUPPLIER-QUEUE': 3,  # 供应商
-    'MDM-ERP-DISTRIBUTOR-QUEUE': 4,  # 经销商
-    'MDM-ERP-MEMBER-QUEUE': 5,  # 会员
-    'MDM-ERP-WAREHOUSE-QUEUE': 6,  # 仓库
-    'MDM-ERP-MATERIAL-QUEUE': 7,  # 商品
-    'mustang-to-erp-store-stock-push': 8,  # 门店库存
-    'WMS-ERP-STOCK-QUEUE': 9,  # 外部仓库库存
-    'mustang-to-erp-order-push': 10,  # 订单
-    'mustang-to-erp-logistics-push': 11,  # 物流信息
-    'WMS-ERP-STOCKOUT-QUEUE': 12,  # 订单出库
-    'mustang-to-erp-store-stock-update-record-push': 13,  # 门店库存变更记录
-    'mustang-to-erp-order-status-push': 14,  # 订单状态
-    'mustang-to-erp-service-list-push': 15,  # 售后服务单
-}
-# mq消息处理顺序
-QUENCE_NAME = {
-   "dms_material_info": "MDM-ERP-MATERIAL-QUEUE",  # 商品
-   "auth_org": "MDM-ERP-ORG-QUEUE",  # 组织机构
-   "dms_warehouse": "MDM-ERP-WAREHOUSE-QUEUE",  # 仓库
-   "dms_store": "MDM-ERP-STORE-QUEUE",  # 门店
-   "auth_distributor_member": "MDM-ERP-MEMBER-QUEUE",  # 门店
+QUEUE_NAME = {
+    "auth_org": "MDM-ERP-ORG-QUEUE",  # 组织机构
+    "dms_store": "MDM-ERP-STORE-QUEUE",  # 门店
+    "dms_material_info": "MDM-ERP-MATERIAL-QUEUE",  # 商品
+    "dms_warehouse": "MDM-ERP-WAREHOUSE-QUEUE",  # 仓库
+    "auth_distributor_member": "MDM-ERP-MEMBER-QUEUE",  # 会员
 }
 
 
-
-def rndstr():
+def random_str():
     alphabet = 'abcdefghijklmnopqrstuvwxyz!@#$%^&*()'
-    chars = random.sample(alphabet,16)
-    randomstr =''
-    for x in chars:
-        randomstr += x
-    return randomstr
+    return ''.join(random.sample(alphabet, 16))
 
-def signature(data,secretKey):
-    #数据签名：SHA256(系统唯一标识 + 公司唯一标识 + 数据源唯一标识 + 请求时间 + 随机串 + 数据加签秘钥
-    signstr= data['systemCode']
-    signstr += data['companyCodes']
-    signstr += data['sourceCode']
-    signstr += data['requestTime']
-    signstr += data['randomStr']
-    signstr += secretKey
+
+def signature(data, key):
+    # 数据签名：SHA256(系统唯一标识 + 公司唯一标识 + 数据源唯一标识 + 请求时间 + 随机串 + 数据加签秘钥
+    sign_str = data['systemCode']
+    sign_str += data['companyCodes']
+    sign_str += data['sourceCode']
+    sign_str += data['requestTime']
+    sign_str += data['randomStr']
+    sign_str += key
 
     sha256 = hashlib.sha256()
-    sha256.update(signstr.encode())
-    res = sha256.hexdigest()
-    print("sha256加密结果:", res)
-    return res
+    sha256.update(sign_str.encode())
+    return sha256.hexdigest()
 
 
 headers = {'Content-Type': 'application/json'}
-#url = 'http://10.16.0.19:8080/base/message'
 
-class MaindataApi(models.Model):
+
+class MainDataApi(models.Model):
     _name = 'main.data.api'
     _description = '全量接口数据'
 
+    def get_data_by_code(self, code):
+        if code not in QUEUE_NAME:
+            return
 
+        param_obj = self.env['ir.config_parameter'].sudo()
+        url = param_obj.get_param('main_data_api_url')  # 主数据全量接口URL
+        key = param_obj.get_param('main_data_api_' + code)  # KEY
+        if not url or not key:
+            _logger.warning('获取代码为%s的基础数据，全量接口url或对应key没有设置' % (code, ))
+            return
 
+        tz = self.env.user.tz or 'Asia/Shanghai'
+        date_now = datetime.now(tz=pytz.timezone(tz))
+        data = {
+            "systemCode": "Owl",
+            "companyCodes": "02014",
+            "sourceCode": code,
+            "requestTime": date_now.strftime(DATETIME_FORMAT),
+            "randomStr": random_str()
+        }
+        data['signature'] = signature(data, key)
 
-
-
-
-    def get_data_bysoucecode(self,sourcecode):
-         if sourcecode not in QUENCE_NAME.keys():
-             exit()
-         param_obj = self.env['ir.config_parameter'].sudo()
-         url = param_obj.get_param('main_data_api_url')
-         secretKey = param_obj.get_param('main_data_api_'+sourcecode)
-         print(secretKey)
-         tz = self.env.user.tz or 'Asia/Shanghai'
-         date_now = datetime.now(tz=pytz.timezone(tz))
-         data={
-                "systemCode": "Owl",
-                "companyCodes": "02014",
-                "sourceCode": sourcecode,
-                "requestTime":date_now.strftime('%Y-%m-%d %H:%M:%S'),
-                "randomStr": rndstr()
-               }
-         print(data)
-         data['signature'] = signature(data, secretKey)
-         resp = requests.post(url, json.dumps(data), headers=headers)
-         if resp.status_code == 200:
-             print("get status 200")
-             queue_name =  QUENCE_NAME.get(sourcecode)
-             vals = {
-                 'message_type': 'rabbit_mq',
-                 'message_name': queue_name,
-                 #'content': json.dumps(resp.json(), ensure_ascii=False, indent=4),
-                 'content': resp.text,
-                 'sequence': MQ_SEQUENCE.get(queue_name, 100)
-             }
-             self.env['api.message'].create(vals)
-         else:
-             print(resp.text)
+        resp = requests.post(url, json.dumps(data), headers=headers)
+        if resp.status_code == 200:
+            queue_name = QUEUE_NAME.get(code)
+            vals = {
+                'message_type': 'rabbit_mq',
+                'message_name': queue_name,
+                'content': json.dumps(resp.json(), ensure_ascii=False, indent=4),
+                'sequence': MQ_SEQUENCE.get(queue_name, 100)
+            }
+            self.env['api.message'].create(vals)
+        else:
+            _logger.error('同步基础数据接口错误')
+            raise Exception(resp.text)
 
     def get_data(self):
-        for key in QUENCE_NAME.keys():
-            self.get_data_bysoucecode(key)
+        """调用中台接口，获邓基础数据"""
+        for key in QUEUE_NAME.keys():
+            self.get_data_by_code(key)
