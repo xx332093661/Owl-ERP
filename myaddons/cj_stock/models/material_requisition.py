@@ -31,7 +31,8 @@ class MaterialRequisition(models.Model):
     partner_id = fields.Many2one('res.partner', '领料单位', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
     date = fields.Date('领料日期', default=fields.Date.today, required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
     commentary = fields.Text('备注', readonly=1, states=READONLY_STATES)
-    warehouse_id = fields.Many2one('stock.warehouse', '出货仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', default=_default_warehouse_id)
+    warehouse_id = fields.Many2one('stock.warehouse', '出货仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', default=_default_warehouse_id, domain=lambda self: [('company_id', 'child_of', self.env.user.company_id.id)])
+    company_id = fields.Many2one('res.company', '公司', related='warehouse_id.company_id', store=1)
 
     type = fields.Selection([('requisition', '领料'), ('return', '退料')], '类型', default='requisition', track_visibility='onchange')
     parent_id = fields.Many2one('stock.material.requisition', '领料单', track_visibility='onchange')
