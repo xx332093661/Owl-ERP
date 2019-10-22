@@ -92,9 +92,7 @@ class PurchaseOrder(models.Model):
         headers = {"Content-Type": "application/json"}
         data = json.dumps(payload)
         response = requests.post(pos_purchase_call_url, data=data, headers=headers)
-        result = response.json()
-        _logger.info('0' * 100)
-        _logger.info(result)
+        result = response.json()['result']
         state = result['state']
         if state == '1':
             state = 'done'
