@@ -125,7 +125,7 @@ class StockConsumableApply(models.Model):
         purchase_order = self.env['purchase.order'].sudo().create({
             'partner_id': self.partner_id.id,
             'picking_type_id': get_picking_type(),
-            'payment_term_id': self.payment_term_id.id,
+            # 'payment_term_id': self.payment_term_id.id,
             'company_id': self.company_id.id,
             'origin': self.name,
             'notes': '易耗品申请：%s，关联的采购订单' % self.name,
@@ -135,7 +135,8 @@ class StockConsumableApply(models.Model):
                 'date_planned': now,
                 'product_qty': line.product_qty,
                 'price_unit': line.price_unit,
-                'product_uom': line.product_id.uom_id.id
+                'product_uom': line.product_id.uom_id.id,
+                'payment_term_id': self.payment_term_id.id,
             }) for line in self.line_ids]
         })
         purchase_order.button_approve()  # 确认采购订单
@@ -143,6 +144,7 @@ class StockConsumableApply(models.Model):
             'state': 'done',
             'purchase_order_id': purchase_order.id
         })
+
 
 class StockConsumableApplyLine(models.Model):
     _name = 'stock.consumable.apply.line'
