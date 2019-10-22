@@ -67,6 +67,18 @@
             <field name="numbercall">-1</field>
             <field name="doall" eval="False"/>
         </record>
-
+   </data>
+     <data noupdate="0">
+         <record id="ir_cron_getdata_bymaindata_api" model="ir.cron">
+            <field name="name">获取全量数据(手动执行)</field>
+            <field name="model_id" ref="cj_api.model_main_data_api"/>
+            <field name="state">code</field>
+            <field name="code">model.get_data()</field>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="active" eval="False"/>
+        </record>
     </data>
 </odoo>
