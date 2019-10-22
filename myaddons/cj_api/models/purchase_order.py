@@ -97,7 +97,7 @@ class PurchaseOrder(models.Model):
         response = requests.post(pos_purchase_call_url, data=data, headers=headers)
         result = response.json()['result']
         state = result['state']
-        if state == '1':
+        if state == 1:
             orders.write({
                 'send_pos_state': 'done',
             })
