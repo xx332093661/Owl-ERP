@@ -8,3 +8,4 @@ class Partner(models.Model):
         1.增加供应商字段
     """
     _inherit = 'res.partner'
+
