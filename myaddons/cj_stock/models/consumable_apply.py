@@ -45,11 +45,11 @@ class StockConsumableApply(models.Model):
 
     line_ids = fields.One2many('stock.consumable.apply.line', 'consumable_id', '申请明细', required=1, readonly=1, states=READONLY_STATES)
 
-    @api.onchange('company_id')
-    def _onchange_company_id(self):
-        self.warehouse_id = False
-        if self.company_id:
-            self.warehouse_id = self.env['stock.warehouse'].search([('company_id', '=', self.company_id.id)], limit=1).id
+    # @api.onchange('company_id')
+    # def _onchange_company_id(self):
+    #     self.warehouse_id = False
+    #     if self.company_id:
+    #         self.warehouse_id = self.env['stock.warehouse'].search([('company_id', '=', self.company_id.id)], limit=1).id
 
     @api.model
     def create(self, vals):
