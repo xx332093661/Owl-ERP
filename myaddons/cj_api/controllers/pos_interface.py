@@ -133,7 +133,7 @@ class PosInterface(http.Controller):
                 'order_id': ERP系统采购订单号
                 'order_name': 采购订单名称
                 'move_lines': [{
-                    'good_code': 物料编码
+                    'goods_code': 物料编码
                     'goods_name': 商品名称
                     'product_qty': 收货数量
                 }]  收货明细
@@ -177,11 +177,11 @@ class PosInterface(http.Controller):
 
         exist_diff = False  # 存在差异(采购数量大于收货数量)
         for line in data['move_lines']:
-            product = product_obj.search([('default_code', '=', line['good_code'])])
+            product = product_obj.search([('default_code', '=', line['goods_code'])])
             if not product:
                 return {
                     'state': 0,
-                    'msg': '物料编码：%s不能找到对应商品！' % line['good_code']
+                    'msg': '物料编码：%s不能找到对应商品！' % line['goods_code']
                 }
             stock_move = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))[0]
             stock_move.quantity_done = line['product_qty']
