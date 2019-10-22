@@ -32,7 +32,7 @@
                     <field name="street2" string="区/县"/>
                     <field name="legal_entity" string="法人"/>
                     <field name="legal_entity_id_card" string="法人身份证号"/>
-                    <field name="enterprise_phone" string="企业联系方式"/>
+                    <field name="phone" string="企业联系方式"/>
                     <field name="status" string="状态"/>
                     <field name="state" string="审核状态"/>
                 </tree>
