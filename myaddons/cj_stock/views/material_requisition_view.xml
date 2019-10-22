@@ -58,7 +58,7 @@
 
                         <group>
                             <group>
-                                <field name="partner_id" domain="[('member', '=', False)]"/>
+                                <field name="partner_id" domain="[('member', '=', False)]" options="{'no_create': 1, 'no_open': 1}"/>
                                 <field name="warehouse_id" options="{'no_create': 1, 'no_open': 1}"/>
                             </group>
                             <group>
@@ -195,7 +195,7 @@
                         <group>
                             <group>
                                 <field name="parent_id" options="{'no_create': 1}" required="1" domain="[('type', '=', 'requisition'), ('state', '=', 'done')]"/>
-                                <field name="warehouse_id" options="{'no_create': 1, 'no_open': 1}" string="收货仓库"/>
+                                <field name="warehouse_id" options="{'no_create': 1, 'no_open': 1}" string="收货仓库" readonly="1"/>
                             </group>
                             <group>
                                 <field name="partner_id" string="退料单位" readonly="1"/>

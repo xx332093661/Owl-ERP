@@ -33,14 +33,15 @@ class StockConsumableApply(models.Model):
         return None
 
     name = fields.Char('单号', readonly=1, default='New')
-    partner_id = fields.Many2one('res.partner', '供应商', readonly=1, states=READONLY_STATES, track_visibility='always', required=1, domain="[('supplier', '=', True)]")
+    partner_id = fields.Many2one('res.partner', '供应商', readonly=1, states=READONLY_STATES, track_visibility='onchange', required=1, domain="[('supplier', '=', True)]")
     apply_date = fields.Date('申请日期', default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')), readonly=1, states=READONLY_STATES)
     validity_date = fields.Date('要求到货日期', default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')) + timedelta(days=3), readonly=1, states=READONLY_STATES)
-    company_id = fields.Many2one('res.company', '公司', readonly=1, states=READONLY_STATES, track_visibility='always', required=1, default=lambda self: self.env.user.company_id.id)
-    warehouse_id = fields.Many2one('stock.warehouse', '申请仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='always', domain="[('company_id', '=', company_id)]", default=_get_default_warehouse_id)
-    state = fields.Selection(STATES, '状态', default='draft', readonly=1, track_visibility='always')
-    purchase_order_id = fields.Many2one('purchase.order', '关联的采购订单', readonly=1, track_visibility='always')
-    payment_term_id = fields.Many2one('account.payment.term', '付款条款', required=1, readonly=1, states=READONLY_STATES, track_visibility='always')
+    # company_id = fields.Many2one('res.company', '公司', readonly=1, states=READONLY_STATES, track_visibility='onchange', required=1, default=lambda self: self.env.user.company_id.id)
+    company_id = fields.Many2one('res.company', '公司', related='warehouse_id.company_id', store=1)
+    warehouse_id = fields.Many2one('stock.warehouse', '申请仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', default=_get_default_warehouse_id, domain=lambda self: [('company_id', 'child_of', self.env.user.company_id.id)])
+    state = fields.Selection(STATES, '状态', default='draft', readonly=1, track_visibility='onchange')
+    purchase_order_id = fields.Many2one('purchase.order', '关联的采购订单', readonly=1, track_visibility='onchange')
+    payment_term_id = fields.Many2one('account.payment.term', '付款条款', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
 
     line_ids = fields.One2many('stock.consumable.apply.line', 'consumable_id', '申请明细', required=1, readonly=1, states=READONLY_STATES)
 
@@ -125,7 +126,7 @@ class StockConsumableApply(models.Model):
         purchase_order = self.env['purchase.order'].sudo().create({
             'partner_id': self.partner_id.id,
             'picking_type_id': get_picking_type(),
-            'payment_term_id': self.payment_term_id.id,
+            # 'payment_term_id': self.payment_term_id.id,
             'company_id': self.company_id.id,
             'origin': self.name,
             'notes': '易耗品申请：%s，关联的采购订单' % self.name,
@@ -135,7 +136,8 @@ class StockConsumableApply(models.Model):
                 'date_planned': now,
                 'product_qty': line.product_qty,
                 'price_unit': line.price_unit,
-                'product_uom': line.product_id.uom_id.id
+                'product_uom': line.product_id.uom_id.id,
+                'payment_term_id': self.payment_term_id.id,
             }) for line in self.line_ids]
         })
         purchase_order.button_approve()  # 确认采购订单
@@ -143,6 +145,7 @@ class StockConsumableApply(models.Model):
             'state': 'done',
             'purchase_order_id': purchase_order.id
         })
+
 
 class StockConsumableApplyLine(models.Model):
     _name = 'stock.consumable.apply.line'

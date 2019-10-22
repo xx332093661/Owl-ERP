@@ -1,2 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_cj_partner_grade_manage,cj.partner.grade.manage,model_cj_partner_grade_manage,base.group_user,1,1,1,1
+access_res_partner_area_all,res_partner_area all,model_res_partner_area,base.group_user,1,0,0,0
+access_res_partner_area_user,res_partner_area user,model_res_partner_area,purchase.group_purchase_user,1,1,1,1
+access_res_partner_group_all,res_partner_group all,model_res_partner_group,base.group_user,1,0,0,0
+access_res_partner_group_user,res_partner_group user,model_res_partner_group,purchase.group_purchase_user,1,1,1,1
+access_res_partner_group_sequence_user,res_partner_group_sequence user,model_res_partner_group_sequence,purchase.group_purchase_user,1,1,1,1

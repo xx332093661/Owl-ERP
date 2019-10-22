@@ -26,7 +26,7 @@
     'data': [
         # 更改main company名称为川酒集团
         'data/company.xml',
-        'data/ir_sequence.xml',
+        'data/partner_group.xml',
 
         'security/ir.model.access.csv',
 

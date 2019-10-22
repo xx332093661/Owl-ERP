@@ -22,7 +22,7 @@ class AccountCostGroup(models.Model):
     store_ids = fields.Many2many('res.company', 'account', 'cost_group_id', 'company_id', '包含门店', required=1, readonly=1,
                                  states=STATES, domain="[('id', '!=', 1)]")
 
-    state = fields.Selection(GROUP_STATES, '状态', default='draft', track_visibility='always')
+    state = fields.Selection(GROUP_STATES, '状态', default='draft', track_visibility='onchange')
 
     @api.multi
     def unlink(self):

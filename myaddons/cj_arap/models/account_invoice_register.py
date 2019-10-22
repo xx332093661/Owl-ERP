@@ -36,15 +36,15 @@ class AccountInvoiceRegister(models.Model):
             ('paid', '已收款')
         ]
 
-    name = fields.Char('发票号', required=1, readonly=1, states=READONLY_STATES, track_visibility='always')
-    partner_id = fields.Many2one('res.partner', '合作伙伴', required=1, readonly=1, states=READONLY_STATES, track_visibility='always', domain="['|', ('customer', '=', True), ('supplier', '=', True)]")
+    name = fields.Char('发票号', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    partner_id = fields.Many2one('res.partner', '合作伙伴', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="['|', ('customer', '=', True), ('supplier', '=', True)]")
     invoice_date = fields.Date('开票日期', required=1, default=fields.Date.context_today, readonly=1, states=READONLY_STATES)
-    amount = fields.Monetary('开票金额', required=1, readonly=1, states=READONLY_STATES, track_visibility='always')
+    amount = fields.Monetary('开票金额', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
     currency_id = fields.Many2one('res.currency', string='币种', default=lambda self: self.env.user.company_id.currency_id.id)
     type = fields.Selection([('in_invoice', '供应商发票'), ('out_invoice', '客户发票')], '类型')
     attached = fields.Binary('附件', readonly=1, states=READONLY_STATES)
     company_id = fields.Many2one('res.company', '公司', readonly=1, states=READONLY_STATES, default=lambda self: self.env.user.company_id.id)
-    state = fields.Selection(selection='_selection_filter', string='状态', track_visibility='always', default='draft')
+    state = fields.Selection(selection='_selection_filter', string='状态', track_visibility='onchange', default='draft')
 
     purchase_order_ids = fields.Many2many('purchase.order', compute='_compute_purchase_invoice', string='关联的采购订单')
     invoice_ids = fields.Many2many('account.invoice', compute='_compute_purchase_invoice', string='关联的账单')

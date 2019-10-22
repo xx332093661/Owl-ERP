@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+from odoo import models, fields
 # from odoo import tools
 # from odoo.exceptions import AccessError
 
@@ -11,8 +11,8 @@ class Company(models.Model):
     """
     _inherit = 'res.company'
 
-    parent_ids = fields.Many2many('res.company', string='上级公司',
-                                  compute='_compute_parent_ids', store=False)
+    # parent_ids = fields.Many2many('res.company', string='上级公司',
+    #                               compute='_compute_parent_ids', store=False)
 
     type = fields.Selection([('store', '门店'), ('company', '公司')], '类型', default='company')
     cj_id = fields.Char('川酒ID')
@@ -28,16 +28,16 @@ class Company(models.Model):
     status = fields.Selection([('0', '启用'), ('1', '停用')], '门店状态')
     active = fields.Boolean('有效', default=True)
 
-    @api.one
-    def _compute_parent_ids(self):
-        parent_ids = []
-        parent = self.parent_id
-        while parent:
-            parent_ids.append(parent.id)
-            parent = parent.parent_id
-
-        parent_ids.append(self.id)
-        self.parent_ids = parent_ids
+    # @api.one
+    # def _compute_parent_ids(self):
+    #     parent_ids = []
+    #     parent = self.parent_id
+    #     while parent:
+    #         parent_ids.append(parent.id)
+    #         parent = parent.parent_id
+    #
+    #     parent_ids.append(self.id)
+    #     self.parent_ids = parent_ids
 
     # @api.model
     # def create(self, vals):
@@ -60,5 +60,3 @@ class Company(models.Model):
     #             continue
     #
     #         company.logo_web = tools.image_resize_image(company.partner_id.image, (180, None))
-
-

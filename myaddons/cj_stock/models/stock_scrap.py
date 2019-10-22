@@ -34,17 +34,19 @@ class StockScrapMaster(models.Model):
     name = fields.Char('单号', default='New', readonly=True)
 
     location_id = fields.Many2one('stock.location', '报废库位',
-                                  domain="[('usage', '=', 'internal'), ('company_id', '=', company_id)]",
-                                  required=1, readonly=1, states=READONLY_STATES, track_visibility='always', default=_get_default_location_id)
+                                  domain=lambda self: [('usage', '=', 'internal'), ('company_id', 'child_of', self.env.user.company_id.id)],
+                                  required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange',
+
+                                  default=_get_default_location_id)
     scrap_location_id = fields.Many2one(
         'stock.location', '废料库位', default=_get_default_scrap_location_id,
-        domain="[('scrap_location', '=', True)]", required=1, readonly=1, states=READONLY_STATES, track_visibility='always')
+        domain="[('scrap_location', '=', True)]", required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
 
     date_expected = fields.Datetime('预计日期', default=fields.Datetime.now, readonly=1, states=READONLY_STATES)
-    communication = fields.Char(string='报废原因说明', readonly=1, states=READONLY_STATES, track_visibility='always')
-    state = fields.Selection(STATES, '状态', default='draft', track_visibility='always')
-
-    company_id = fields.Many2one('res.company', '公司', default=lambda self: self.env.user.company_id.id, track_visibility='always', readonly=1, states=READONLY_STATES, required=1)
+    communication = fields.Char(string='报废原因说明', readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    state = fields.Selection(STATES, '状态', default='draft', track_visibility='onchange')
+    company_id = fields.Many2one('res.company', '公司', related='location_id.company_id', store=1)
+    # company_id = fields.Many2one('res.company', '公司', default=lambda self: self.env.user.company_id.id, track_visibility='onchange', readonly=1, states=READONLY_STATES, required=1)
 
     move_ids = fields.Many2many('stock.move', string='库存移动', compute='_compute_move_ids')
     line_ids = fields.One2many('stock.scrap', 'master_id', '报废明细', required=1, readonly=1, states=READONLY_STATES)

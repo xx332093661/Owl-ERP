@@ -14,7 +14,7 @@ class AccountPayment(models.Model):
 
     invoice_split_ids = fields.Many2many('account.invoice.split', 'account_payment_split_payment_rel', 'payment_id', 'split_id', '账单分期', readonly=1)
     invoice_register_id = fields.Many2one('account.invoice.register', '发票登记', readonly=1, states={'draft': [('readonly', False)]})
-    apply_id = fields.Many2one('account.payment.apply', '付款申请', readonly=1, states={'draft': [('readonly', False)]}, track_visibility='always')
+    apply_id = fields.Many2one('account.payment.apply', '付款申请', readonly=1, states={'draft': [('readonly', False)]}, track_visibility='onchange')
     purchase_order_id = fields.Many2one('purchase.order', '采购订单')
     invoice_name = fields.Char('发票号', related='invoice_register_id.name', store=1)
     customer_invoice_apply_id = fields.Many2one('account.customer.invoice.apply', '客户发票申请',

@@ -10,7 +10,7 @@ class MaterialRequisitionReturnWizard(models.TransientModel):
 
     partner_id = fields.Many2one('res.partner', '退料单位', readonly=1)
     date = fields.Date('退料日期', default=fields.Date.today, required=1)
-    warehouse_id = fields.Many2one('stock.warehouse', '收货仓库', required=1)
+    warehouse_id = fields.Many2one('stock.warehouse', '收货仓库', readonly=1)
     commentary = fields.Text('备注')
 
     line_ids = fields.One2many('material.requisition.return.wizard.line', 'wizard_id', '退料明细', required=1)
@@ -57,7 +57,7 @@ class MaterialRequisitionReturnWizard(models.TransientModel):
             # 'partner_id': requisition.partner_id.id,
             'date': self.date,
             'commentary': self.commentary,
-            'warehouse_id': self.warehouse_id.id,
+            # 'warehouse_id': self.warehouse_id.id,
             # 'type': 'return',
             'parent_id': self._context['active_id'],
             'line_ids': [(0, 0, {

@@ -27,19 +27,19 @@ class AccountPaymentApply(models.Model):
     partner_id = fields.Many2one('res.partner', '供应商',
                                  readonly=1,
                                  states=STATES,
-                                 required=1, domain="[('supplier', '=', True)]", track_visibility='always')
-    company_id = fields.Many2one('res.company', '公司', readonly=1, track_visibility='always')
+                                 required=1, domain="[('supplier', '=', True)]", track_visibility='onchange')
+    company_id = fields.Many2one('res.company', '公司', readonly=1, track_visibility='onchange')
     apply_date = fields.Date('申请日期',
                              readonly=1,
                              states=STATES,
                              default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')),
-                             required=1, track_visibility='always')
+                             required=1, track_visibility='onchange')
     payment_date = fields.Date('要求付款日期',
                                default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')),
-                               required=1, track_visibility='always')
-    amount = fields.Float('申请付款金额', track_visibility='always')
+                               required=1, track_visibility='onchange')
+    amount = fields.Float('申请付款金额', track_visibility='onchange')
 
-    state = fields.Selection(PAYMENT_APPLY_STATE, '状态', default='draft', readonly=1, track_visibility='always')
+    state = fields.Selection(PAYMENT_APPLY_STATE, '状态', default='draft', readonly=1, track_visibility='onchange')
 
     invoice_split_ids = fields.One2many('account.invoice.split', 'apply_id', '账单分期', readonly=1, states=STATES, required=1)
     payment_ids = fields.One2many('account.payment', 'apply_id', '付款记录', readonly=1)
@@ -48,7 +48,7 @@ class AccountPaymentApply(models.Model):
     purchase_order_ids = fields.Many2many('purchase.order', compute='_compute_purchase_invoice', string='关联的采购订单')
     invoice_ids = fields.Many2many('account.invoice', compute='_compute_purchase_invoice', string='关联的账单')
 
-    flow_id = fields.Char('OA审批流ID', track_visibility='always')
+    flow_id = fields.Char('OA审批流ID', track_visibility='onchange')
 
     @api.multi
     def _compute_purchase_invoice(self):

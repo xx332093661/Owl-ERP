@@ -32,13 +32,20 @@ class StockConsumableConsu(models.Model):
         tz = self.env.user.tz or 'Asia/Shanghai'
         return datetime.now(tz=pytz.timezone(tz)).date().strftime(DATE_FORMAT)
 
+    def _get_default_warehouse_id(self):
+        company_user = self.env.user.company_id
+        warehouse = self.env['stock.warehouse'].search([('company_id', '=', company_user.id)], limit=1)
+        if warehouse:
+            return warehouse.id
+        return None
+
     name = fields.Char('单号', readonly=1, default='New')
     company_id = fields.Many2one('res.company', '公司', related='warehouse_id.company_id', store=1)
-    warehouse_id = fields.Many2one('stock.warehouse', '仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='always')
+    warehouse_id = fields.Many2one('stock.warehouse', '仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', default=_get_default_warehouse_id, domain=lambda self: [('company_id', 'child_of', self.env.user.company_id.id)])
 
-    state = fields.Selection(STATES, '状态', default='draft', readonly=1, track_visibility='always')
-    date_from = fields.Date('开始日期', required=1, readonly=1, states=READONLY_STATES, track_visibility='always', default=_default_date_from)
-    date_to = fields.Date('截止日期', required=1, readonly=1, states=READONLY_STATES, track_visibility='always', default=_default_date_to)
+    state = fields.Selection(STATES, '状态', default='draft', readonly=1, track_visibility='onchange')
+    date_from = fields.Date('开始日期', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', default=_default_date_from)
+    date_to = fields.Date('截止日期', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', default=_default_date_to)
 
     line_ids = fields.One2many('stock.consumable.consu.line', 'consumable_id', '消耗明细', required=1, readonly=1, states=READONLY_STATES)
 
@@ -133,7 +140,7 @@ class StockConsumableConsuLine(models.Model):
     _description = '低值易耗品消耗明细'
 
     product_id = fields.Many2one('product.product', '商品', required=1)
-    product_qty = fields.Float('数量', required=1)
+    product_qty = fields.Float('数量', required=1, default=1)
     consumable_id = fields.Many2one('stock.consumable.consu', '低值易耗品管理', ondelete="cascade")
 
     @api.multi

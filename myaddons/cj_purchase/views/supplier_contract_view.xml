@@ -93,9 +93,9 @@
                     <separator/>
                     <separator/>
 
-                    <group expand="0" string="分组">
-                        <filter name="supplier_group" string="供应商" domain="[]" context="{'group_by':'partner_id'}"/>
-                    </group>
+                    <!--<group expand="0" string="分组">-->
+                        <!--<filter name="supplier_group" string="供应商" domain="[]" context="{'group_by':'partner_id'}"/>-->
+                    <!--</group>-->
 
 
                 </search>

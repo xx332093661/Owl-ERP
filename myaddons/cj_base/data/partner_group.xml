@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="supplier_partner_group_10" model="res.partner.group">
+            <field name="code">10</field>
+            <field name="name">国内一般供应商</field>
+            <field name="type">supplier</field>
+        </record>
+        <record id="supplier_partner_group_11" model="res.partner.group">
+            <field name="code">11</field>
+            <field name="name">国内关联供应商</field>
+            <field name="type">supplier</field>
+        </record>
+        <record id="supplier_partner_group_12" model="res.partner.group">
+            <field name="code">12</field>
+            <field name="name">国外一般供应商</field>
+            <field name="type">supplier</field>
+        </record>
+        <record id="supplier_partner_group_13" model="res.partner.group">
+            <field name="code">13</field>
+            <field name="name">国外关联供应商</field>
+            <field name="type">supplier</field>
+        </record>
+        <record id="supplier_partner_group_14" model="res.partner.group">
+            <field name="code">14</field>
+            <field name="name">零时供应商</field>
+            <field name="type">supplier</field>
+        </record>
+        <record id="supplier_partner_group_15" model="res.partner.group">
+            <field name="code">15</field>
+            <field name="name">叙永农户</field>
+            <field name="type">supplier</field>
+        </record>
+        <record id="supplier_partner_group_99" model="res.partner.group">
+            <field name="code">99</field>
+            <field name="name">员工供应商</field>
+            <field name="type">supplier</field>
+        </record>
+    </data>
+</odoo>
