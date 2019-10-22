@@ -33,9 +33,9 @@
               <!--sequence="3"/>-->
 
 
-    <menuitem id="menu_purchase_gys" name="供应商"
-              parent="menu_purchase_main_data"
-              action="base.action_partner_supplier_form" sequence="1"/>
+    <!--<menuitem id="menu_purchase_gys" name="供应商"-->
+              <!--parent="menu_purchase_main_data"-->
+              <!--action="base.action_partner_supplier_form" sequence="1"/>-->
 
     <menuitem name="供应商价格明细"
               action="product.product_supplierinfo_type_action" id="menu_purchase_gysjgb"

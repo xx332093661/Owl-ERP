@@ -117,7 +117,7 @@ class Partner(models.Model):
         if val.get('supplier_group_id'):
             group_code = self.env['res.partner.group'].browse(val['supplier_group_id']).code
             sequence = self.env['res.partner.group.sequence'].get_group_sequence(group_code)
-            val['code'] = '%s-%s' % (group_code, str(sequence).zfill(5))
+            val['code'] = '%s%s' % (group_code, str(sequence).zfill(5))
 
         return super(Partner, self).create(val)
 
@@ -136,7 +136,7 @@ class Partner(models.Model):
                     sequence_obj.delete_not_used_sequence(code, int(seq))
 
                 sequence = sequence_obj.get_group_sequence(group_code)
-                val['code'] = '%s-%s' % (group_code, str(sequence).zfill(5))
+                val['code'] = '%s%s' % (group_code, str(sequence).zfill(5))
                 result = super(Partner, res).write(val)
         else:
             result = super(Partner, self).write(val)
