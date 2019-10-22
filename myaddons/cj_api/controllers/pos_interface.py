@@ -164,7 +164,7 @@ class PosInterface(http.Controller):
                 'msg': '处理数据出错，请传json格式字符串！'
             }
 
-        purchase_order = purchase_order_obj.browse(data['order_id'])
+        purchase_order = purchase_order_obj.search([('id', '=', int(data['order_id']))])
         if not purchase_order:
             return {
                 'state': 0,
