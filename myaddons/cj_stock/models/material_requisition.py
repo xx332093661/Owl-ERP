@@ -93,10 +93,12 @@ class MaterialRequisition(models.Model):
         """默认name字段"""
         # 退料时计算退料单位
         if 'requisition_return' in self._context:
+            parent = self.browse(vals['parent_id'])
             vals.update({
                 'type': 'return',
-                'partner_id': self.browse(vals['parent_id']).partner_id.id,
-                'name': self.env['ir.sequence'].next_by_code('stock.material.requisition.return')
+                'partner_id': parent.partner_id.id,
+                'name': self.env['ir.sequence'].next_by_code('stock.material.requisition.return'),
+                'warehouse_id': parent.warehouse_id.id
             })
         else:
             vals['name'] = self.env['ir.sequence'].next_by_code('stock.material.requisition')
@@ -196,6 +198,29 @@ class MaterialRequisition(models.Model):
         if self.type != 'return':
             raise ValidationError('只有退料单才能执行此操作！')
 
+        # 验证退货数量
+        requisition = [{
+            'product_id': line.product_id.id,
+            'request_qty': line.product_qty,
+            'return_qty': 0
+        }for line in self.parent_id.line_ids]  # 领料数量
+
+        # 退料数量
+        for line in self.search([('parent_id', '=', self.parent_id.id), ('type', '=', 'return')]).mapped('line_ids'):
+            res = list(filter(lambda x: x['product_id'] == line.product_id.id, requisition))
+            if res:
+                res[0]['return_qty'] += line.product_qty
+            else:
+                requisition.append({
+                    'product_id': line.product_id.id,
+                    'request_qty': 0,
+                    'return_qty': line.product_qty
+                })
+
+        # 退料数量大于领料数量
+        if list(filter(lambda x: float_compare(x['return_qty'], x['request_qty'], precision_rounding=0.01) == 1, requisition)):
+            raise ValidationError('退料数量大于领料数量')
+
         self.state = 'done'
 
         # 入库
@@ -206,6 +231,13 @@ class MaterialRequisition(models.Model):
         self.mapped('move_ids').unlink()  # 删除存在的stock.move
         self.line_ids._generate_return_moves()  # 创建stock.move
         self.post_inventory()  # 入库
+
+    def action_view_return(self):
+        """查看退料单"""
+        action = self.env.ref('cj_stock.action_stock_material_requisition_return').read()[0]
+        action['domain'] = [('parent_id', '=', self.id)]
+        return action
+
 
     @api.onchange('parent_id')
     def _onchange_parent_id(self):
