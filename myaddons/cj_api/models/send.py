@@ -47,7 +47,7 @@ class CjSend(models.Model):
             'stock_value': 库存价值
         }]
         """
-        valuation_obj = self.env['stock.inventory.valuation'].sudo()
+        valuation_obj = self.env['stock.inventory.valuation.move'].sudo()
 
         if not date:
             tz = 'Asia/Shanghai'
@@ -71,7 +71,7 @@ class CjSend(models.Model):
                 'company_store_code': company.code,
                 'company_store_name': company.name,
                 'product_material_code': product.default_code,
-                'product_barcode': product.bracode,
+                'product_barcode': product.barcode,
                 'date': date.strftime(DATE_FORMAT),
                 'stock_cost': res.stock_cost,
                 'qty_available': res.qty_available,
