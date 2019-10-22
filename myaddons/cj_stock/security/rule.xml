@@ -48,16 +48,42 @@
         <!--</record>-->
 
     </data>
-    <!--存货估值访问规则-->
     <data noupdate="1">
-        <record id="stock_inventory_valuation_rult" model="ir.rule">
-            <field name="name">stock_inventory_valuation rule</field>
-            <field name="model_id" ref="cj_stock.model_stock_inventory_valuation"/>
-            <field name="domain_force">['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]</field>
-            <field name="perm_create" eval="0"/>
-            <field name="perm_write" eval="0"/>
-            <field name="perm_unlink" eval="0"/>
-            <field name="perm_read" eval="1"/>
+        <record model="ir.rule" id="stock_consumable_apply_rule">
+            <field name="name">易耗品申请访问规则</field>
+            <field name="model_id" ref="cj_stock.model_stock_consumable_apply"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id','child_of',[user.company_id.id])]</field>
+        </record>
+        <record model="ir.rule" id="stock_consumable_consu_rule">
+            <field name="name">易耗品消耗访问规则</field>
+            <field name="model_id" ref="cj_stock.model_stock_consumable_consu"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id','child_of',[user.company_id.id])]</field>
+        </record>
+        <record model="ir.rule" id="stock_material_requisition_rule">
+            <field name="name">领料单访问规则</field>
+            <field name="model_id" ref="cj_stock.model_stock_material_requisition"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id','child_of',[user.company_id.id])]</field>
+        </record>
+        <record model="ir.rule" id="stock_scrap_master_rule">
+            <field name="name">商品报废访问规则</field>
+            <field name="model_id" ref="cj_stock.model_stock_scrap_master"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id','child_of',[user.company_id.id])]</field>
         </record>
     </data>
+    <!--&lt;!&ndash;存货估值访问规则&ndash;&gt;-->
+    <!--<data noupdate="1">-->
+        <!--<record id="stock_inventory_valuation_move_rult" model="ir.rule">-->
+            <!--<field name="name">存货估值访问规则</field>-->
+            <!--<field name="model_id" ref="cj_stock.model_stock_inventory_valuation_move"/>-->
+            <!--<field name="domain_force">['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]</field>-->
+            <!--<field name="perm_create" eval="0"/>-->
+            <!--<field name="perm_write" eval="0"/>-->
+            <!--<field name="perm_unlink" eval="0"/>-->
+            <!--<field name="perm_read" eval="1"/>-->
+        <!--</record>-->
+    <!--</data>-->
 </odoo>
