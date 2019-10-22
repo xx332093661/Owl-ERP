@@ -415,7 +415,7 @@ class StockInventoryValuationMove(models.Model):
         if not unit_cost:
             _logger.warning('计算商品库存成本时，商品：%s的成本为0，公司：%s 库存移动(stock.move)ID：%s 移库类型：%s' % (product.partner_ref, move.company_id.name, move.id, move_type_name))
 
-        vals = {
+        vals_list = [{
             'cost_group_id': cost_group_id,  # 成本组
             'company_id': company_id,
             'warehouse_id': warehouse_id,
@@ -430,10 +430,28 @@ class StockInventoryValuationMove(models.Model):
             'move_id': move.id,  # stock.move
             'qty_available': qty_available,  # 在手数量
             'type': 'in' if is_in else 'out',  # 出入类型
-            # 'stock_type': 'only'
-        }
-
-        self.sudo().create([vals])
+            'stock_type': 'all'
+        }]
+        variants_available = product.with_context(owner_company_id=company_id, compute_child1=False)._product_available()
+        qty_available += variants_available[product_id]['qty_available']  # 在手数量
+        vals_list.append({
+            'cost_group_id': cost_group_id,  # 成本组
+            'company_id': company_id,
+            'warehouse_id': warehouse_id,
+            'type_id': type_id,  # 移库类型
+            'product_id': product_id,
+            'date': move.done_date,
+            'done_datetime': move.done_datetime,  # 完成时间
+            'product_qty': move.product_qty,
+            'uom_id': move.product_uom.id,
+            'unit_cost': unit_cost,  # 单位成本
+            # 'price_unit': price_unit,  # 单价
+            'move_id': move.id,  # stock.move
+            'qty_available': qty_available,  # 在手数量
+            'type': 'in' if is_in else 'out',  # 出入类型
+            'stock_type': 'only'
+        })
+        self.sudo().create(vals_list)
 
     def get_product_cost(self, product_id, cost_group_id):
         """根据成本核算组，计算商品当前的库存成本"""

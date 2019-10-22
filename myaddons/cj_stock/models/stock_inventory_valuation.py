@@ -57,7 +57,7 @@ class StockInventoryValuationMove(models.Model):
 
     # gross_profit = fields.Float('毛利', digits=dp.get_precision('Product Price'), compute='_compute_gross_profit', store=1)
 
-    stock_type = fields.Selection([('all', '所有子公司'), ('only', '当前公司')], '存货估值类型', help='all：在手数据包括所有子公司的在手数量，only：在手数量仅仅是当前公司的在手数量', index=1)
+    stock_type = fields.Selection([('all', '成本核算组'), ('only', '当前公司')], '存货估值类型', index=1, default='all')
     qty_available = fields.Float('在手数量', digits=dp.get_precision('Product Unit of Measure'))
     stock_cost = fields.Float('库存单位成本', digits=dp.get_precision('Inventory valuation'), compute='_compute_stock_cost', store=1)
     stock_value = fields.Float('库存价值', digits=dp.get_precision('Product Price'), compute='_compute_stock_value', store=1)
