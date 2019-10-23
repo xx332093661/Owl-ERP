@@ -56,6 +56,7 @@
                                 <field name="partner_id" options="{'no_create': 1, 'no_open': 1}"/>
                                 <field name="payment_term_id"/>
                                 <field name="amount"/>
+                                <field name="invoice_id"/>
                             </group>
                             <group>
                                 <field name="inventory_id" options="{'no_create': 1}"/>
