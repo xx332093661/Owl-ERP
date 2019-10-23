@@ -31,10 +31,10 @@
         'views/purchase_order_view.xml',
         'views/supplier_contract_view.xml',
         'views/purchase_price_list_view.xml',
-        'views/partner_view.xml',
+
         'views/product_supplierinfo_view.xml',
         'views/purchase_order_return_view.xml',
-        'views/product_cost_view.xml',
+
 
 
         'wizard/purchase_scheduler_compute_views.xml',
@@ -44,9 +44,10 @@
         'views/res_config_setting_view.xml',
 
 
-
-
         'views/menu_view.xml',
+        'views/partner_view.xml',
+'views/product_cost_view.xml',
+
 
         'views/product_supplier_model_view.xml',
     ],

@@ -5,7 +5,6 @@ import logging
 import os
 from itertools import groupby
 from operator import itemgetter
-
 import xlrd
 from xlrd import XLRDError
 
