@@ -51,8 +51,8 @@ class SaleOrder(models.Model):
     channel_id = fields.Many2one(comodel_name='sale.channels', string=u'销售渠道')
     cj_activity_id = fields.Many2one(comodel_name='cj.sale.activity',
                                      string=u'营销活动')
-    payment_status = fields.Selection(string=u'支付状态', selection=PAYMENTSTATUS,
-                                      default='unpaid')
+    # payment_status = fields.Selection(string=u'支付状态', selection=PAYMENTSTATUS,
+    #                                   default='unpaid')
     aftersale_status = fields.Selection(string=u'售后状态',
                                         selection=AFTERSALESTATUS,
                                         default='none')
@@ -68,6 +68,7 @@ class SaleOrder(models.Model):
     payment_ids = fields.One2many('account.payment', 'sale_order_id', '收款记录')
 
     # 中台字段
+    user_level = fields.Char("用户等级")
     status = fields.Char('中台状态')
     payment_state = fields.Char('支付状态')
     liquidated = fields.Float('已支付金额')

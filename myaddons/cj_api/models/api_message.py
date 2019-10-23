@@ -929,7 +929,33 @@ class ApiMessage(models.Model):
             return pid
 
         def create_sale_order():
-            """创订销售订单"""
+            """创订销售订单
+            字段对应：
+            omsCreateTime: date_order
+            storeName: 忽略
+            storeName、storeCode: company_id
+            code: name,
+            status: status
+            paymentState: payment_state
+            channel: channel_id
+            channelText: 忽略
+            orderSource: origin
+            liquidated: liquidated
+            amount: order_amount
+            freightAmount: freight_amount
+            usePoint: use_point
+            discountAmount: discount_amount
+            discountPop: discount_pop
+            discountCoupon: discount_coupon
+            discountGrant: discount_grant
+            deliveryType: delivery_type
+            remark: remark
+            selfRemark: self_remark
+            memberId: partner_id,
+            userLevel:user_level
+            productAmount: product_amount
+            totalAmount; total_amount
+            """
             consignee = content['consignee']  # 收货人信息
             consignee_state_id = self.get_country_state_id(consignee.get('provinceText', False))
             consignee_city_id = self.get_city_area_id(consignee.get('cityText'), consignee_state_id)
@@ -942,7 +968,9 @@ class ApiMessage(models.Model):
                 'warehouse_id': warehouse_id,
                 'channel_id': channel_id,
                 'payment_term_id': self.env.ref('account.account_payment_term_immediate').id,  # 立即付款
+
                 'status': content['status'],
+                'origin': content['orderSource'],
                 'payment_state': content['paymentState'],
                 'liquidated': content['liquidated'] / 100,  # 已支付金额
                 'order_amount': content['amount'] / 100,  # 订单金额
@@ -955,7 +983,7 @@ class ApiMessage(models.Model):
                 'delivery_type': content.get('deliveryType'),  # 配送方式
                 'remark': content.get('remark'),  # 用户备注
                 'self_remark': content.get('selfRemark'),  # 客服备注
-                # 'user_level': content.get('userLevel'),    # 用户等级
+                'user_level': content.get('userLevel'),    # 用户等级
                 'product_amount': content.get('productAmount') / 100,  # 商品总金额
                 'total_amount': content.get('totalAmount') / 100,  # 订单总金额
 

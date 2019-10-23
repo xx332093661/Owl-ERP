@@ -51,8 +51,8 @@
                     <group>
                         <group>
                             <field name="partner_id" widget="res_partner_many2one" domain="[('customer','=',True)]" context="{'search_default_customer':1, 'show_address': 1, 'show_vat': True}" options="{'always_reload': True}"/>
-                            <field name="partner_invoice_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice'}" options="{'always_reload': True}"/>
-                            <field name="partner_shipping_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'delivery'}" options="{'always_reload': True}"/>
+                            <!--<field name="partner_invoice_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice'}" options="{'always_reload': True}"/>-->
+                            <!--<field name="partner_shipping_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'delivery'}" options="{'always_reload': True}"/>-->
                             <field name="channel_id" options="{'no_create_edit': True, 'no_create':True}"/>
                             <field name="client_order_ref" string="渠道单号"/>
                             <field name="cj_activity_id" options="{'no_create_edit': True, 'no_create':True}" string="营销活动"/>
@@ -63,7 +63,6 @@
                             <field name="pricelist_id" groups="product.group_sale_pricelist"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="payment_term_id" options="{'no_create': True}"/>
-                            <field name="flow_id" readonly="1"/>
                         </group>
                     </group>
 
@@ -249,34 +248,16 @@
                                 </group>
                             </group>
                         </page>
-                        <page string="优惠信息" name="discount_lines">
-                            <group>
-                                <field name="use_point" string="使用积分"/>
-                                <field name="discount_amount" string="优惠金额"/>
-                                <field name="discount_pop" string="促销活动优惠抵扣的金额"/>
-                                <field name="discount_coupon" string="优惠卷抵扣的金额"/>
-                                <field name="discount_grant" string="临时抵扣金额"/>
-                            </group>
-                        </page>
                         <page string="其他信息" name="other_information">
                             <group>
-                                <group string="同步信息">
-                                    <field name="aftersale_status" string="售后状态"/>
-                                    <field name="payment_state" string="支付状态"/>
-                                    <field name="liquidated" string="已支付金额"/>
-                                    <field name="remark" string="用户备注"/>
-                                    <field name="self_remark" string="客服备注"/>
-                                    <field name="product_amount" string="商品总金额"/>
-                                    <field name="total_amount" string="订单总金额"/>
-                                    <field name="delivery_type" string="配送方式"/>
-                                    <field name="sync_state"/>
-                                </group>
                                 <group string="销售" name="sales_person">
                                     <field name="user_id"/>
                                     <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+
                                 </group>
                                 <group string="Reporting" name="technical" groups="base.group_no_one">
                                     <field groups="base.group_no_one" name="origin"/>
+                                    <field name="flow_id" readonly="1"/>
                                 </group>
                                 <group name="utm_link" groups="base.group_no_one"/>
                             </group>
