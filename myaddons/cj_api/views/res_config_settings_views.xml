@@ -130,7 +130,7 @@
                                             <field name="main_data_api_dms_store"/>
                                         </div>
                                         <div class="row">
-                                            <label string="分销商Key" for="main_data_api_auth_distributor_member" class="col-lg-3 o_light_label"/>
+                                            <label string="会员Key" for="main_data_api_auth_distributor_member" class="col-lg-3 o_light_label"/>
                                             <field name="main_data_api_auth_distributor_member"/>
                                         </div>
                                     </div>

@@ -40,7 +40,7 @@ class StockInventoryValuationMove(models.Model):
             return
 
         # 上一条记录的stock_value（库存价值）
-        res = self.search([('cost_group_id', '=', cost_group_id), ('product_id', '=', product_id), ('id', '<', self.id)], order='id desc', limit=1)
+        res = self.search([('cost_group_id', '=', cost_group_id), ('product_id', '=', product_id), ('stock_type', '=', self.stock_type), ('id', '<', self.id)], order='id desc', limit=1)
         stock_value = res and res.stock_value or 0
 
         is_in = self.move_id._is_in()  # 是否是入库
@@ -220,8 +220,9 @@ class StockInventoryValuationMove(models.Model):
         across_move_obj = self.env['stock.across.move']  # 跨公司调拨
         consu_apply_obj = self.env['stock.consumable.apply']  # 耗材申请
 
-        res = self.search([('product_id', '=', product_id), ('cost_group_id', '=', cost_group_id)], order='id desc', limit=1)
-        stock_cost = res and res.stock_cost or 0  # 当前成本
+        # res = self.search([('product_id', '=', product_id), ('cost_group_id', '=', cost_group_id), ('stock_type', '=', 'all')], order='id desc', limit=1)
+        # stock_cost = res and res.stock_cost or 0  # 当前成本
+        stock_cost = self.get_product_cost(product_id, cost_group_id)  # 当前成本
 
         store_stock_update_code = move.store_stock_update_code  # 门店库存更新代码
 
@@ -433,7 +434,7 @@ class StockInventoryValuationMove(models.Model):
             'stock_type': 'all'
         }]
         variants_available = product.with_context(owner_company_id=company_id, compute_child1=False)._product_available()
-        qty_available += variants_available[product_id]['qty_available']  # 在手数量
+        qty_available = variants_available[product_id]['qty_available']  # 在手数量
         vals_list.append({
             'cost_group_id': cost_group_id,  # 成本组
             'company_id': company_id,
@@ -455,7 +456,7 @@ class StockInventoryValuationMove(models.Model):
 
     def get_product_cost(self, product_id, cost_group_id):
         """根据成本核算组，计算商品当前的库存成本"""
-        domain = [('product_id', '=', product_id), ('cost_group_id', '=', cost_group_id)]
+        domain = [('product_id', '=', product_id), ('cost_group_id', '=', cost_group_id), ('stock_type', '=', 'all')]
         valuation_move = self.search(domain, order='id desc', limit=1)
         stock_cost = valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
         return stock_cost

@@ -95,28 +95,34 @@
 
     </data>
 
+    <!--全量数据接口-->
 	<data noupdate="1">
-        <!--主数据接口-->
+        <!--url-->
         <record id="main_data_api_url" model="ir.config_parameter">
             <field name="key">main_data_api_url</field>
             <field name="value">http://10.16.0.19:8080/base/message</field>
         </record>
-		  <record id="main_data_api_dms_material_info" model="ir.config_parameter">
+        <!--物料-->
+        <record id="main_data_api_dms_material_info" model="ir.config_parameter">
             <field name="key">main_data_api_dms_material_info</field>
             <field name="value">I70aRj46mtGMSe60PXcEaDJkbELGnRXD</field>
         </record>
+        <!--组织机构-->
 		  <record id="main_data_api_auth_org" model="ir.config_parameter">
             <field name="key">main_data_api_auth_org</field>
-            <field name="value">PZJxqQoEZGKbGQkwjVc0faFvk1511EFI</field>
+            <field name="value">F6xN4G1SEIUnT7cgqPzQ8eMznjsjmsKS</field>
         </record>
+        <!--仓库-->
 		 <record id="main_data_api_dms_warehouse" model="ir.config_parameter">
             <field name="key">main_data_api_dms_warehouse</field>
             <field name="value">Li790zOlnHyutDeXEeNaS4Eh8oy7aHwM</field>
         </record>
+        <!--门店-->
 		 <record id="main_data_api_dms_store" model="ir.config_parameter">
             <field name="key">main_data_api_dms_store</field>
             <field name="value">au03Jg4NhWCBGhDMkK8A0Q9A70E3ki7C</field>
         </record>
+        <!--会员-->
 		 <record id="main_data_api_auth_distributor_member" model="ir.config_parameter">
             <field name="key">main_data_api_auth_distributor_member</field>
             <field name="value">KDRaLF56VY9tGfdPr5EFskby0zznXdZE</field>

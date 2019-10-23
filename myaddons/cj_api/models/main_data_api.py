@@ -79,7 +79,8 @@ class MainDataApi(models.Model):
                 'message_type': 'rabbit_mq',
                 'message_name': queue_name,
                 'content': json.dumps(resp.json(), ensure_ascii=False, indent=4),
-                'sequence': MQ_SEQUENCE.get(queue_name, 100)
+                'sequence': MQ_SEQUENCE.get(queue_name, 100),
+                'origin': 'full',  # 来源
             }
             self.env['api.message'].create(vals)
         else:

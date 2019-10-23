@@ -24,6 +24,8 @@ class AccountInvoice(models.Model):
     internal_settlement_scale = fields.Float('结算比例', help='内部结算比例', digits=(16, 4))
     sale_id = fields.Many2one('sale.order', '销售订单', help='内部结算时，关联销售订单')
 
+    inventory_diff_receipt_id = fields.Many2one('stock.inventory.diff.receipt', '盘亏收款单')
+
     @api.one
     def _invoice_outstanding_debits(self, purchase):
         """核销预付款"""
@@ -282,6 +284,8 @@ class AccountInvoiceLine(models.Model):
     purchase_line_price_unit = fields.Float(string='采购单价', digits=dp.get_precision('Product Price'))
     fee_rate = fields.Float('联营扣点', readonly=1)
     supplier_model_id = fields.Many2one('product.supplier.model', '商品供应商模式', readonly=1)
+
+    inventory_diff_receipt_line_id = fields.Many2one('stock.inventory.diff.receipt.line', '盘亏收款单明细')
 
     joint_fee = fields.Float('联营扣费', compute='_compute_price', store=1)
 

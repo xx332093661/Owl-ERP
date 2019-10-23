@@ -12,6 +12,7 @@
                     <field name="attempts"/>
                     <field name="error_no"/>
                     <field name="error_msg"/>
+                    <field name="origin"/>
 				</tree>
 			</field>
 		</record>
@@ -37,6 +38,7 @@
                                 <field name="message_name" readonly="1"/>
                                 <field name="interface_param" readonly="1"/>
                                 <field name="error_msg" readonly="1"/>
+                                <field name="origin" readonly="1"/>
 							</group>
                         </group>
 

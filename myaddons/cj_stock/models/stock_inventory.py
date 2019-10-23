@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+
+import pytz
 from lxml import etree
 from itertools import groupby
 import importlib
@@ -252,6 +255,27 @@ class InventoryLine(models.Model):
     cost = fields.Float('单位成本', digits=dp.get_precision('Product Price'))
     is_init = fields.Selection([('yes', '是'), ('no', '否')], '是否是初始库存盘点', readonly=1, default='no')
 
+    @api.onchange('product_id', 'company_id')
+    def _onchange_product_id(self):
+        if not self.company_id or not self.product_id:
+            return
+        cost_group_obj = self.env['account.cost.group']  # 成本核算分组
+        valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
+        product_cost_obj = self.env['product.cost']  # 商品成本
+
+        cost_group = cost_group_obj.search([('store_ids', '=', self.company_id.id)])
+        if cost_group:
+            if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', self.product_id.id), ('stock_type', '=', 'all')]):
+                self.is_init = 'no'
+            else:
+                self.is_init = 'yes'
+                product_cost = product_cost_obj.search([('company_id', '=', self.company_id.id), ('product_id', '=', self.product_id.id)], order='id desc', limit=1)
+                if product_cost:
+                    self.cost = product_cost.cost
+            return
+
+        raise ValidationError('公司：%s没有成本核算组！' % self.company_id.name)
+
     @api.constrains('cost', 'product_qty')
     def _check_cost_product_qty(self):
         for line in self:
@@ -382,6 +406,16 @@ class StockInventoryDiffReceipt(models.Model):
     inventory_cost_type = fields.Selection([('current', '开单时成本'),
                                             ('inventory', '盘点时成本')], '盘点收款成本计算方式',
                                            default='current', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
+
+    invoice_id = fields.Many2one('account.invoice', '结算单', compute='_compute_invoice_id')
+
+    @api.multi
+    def _compute_invoice_id(self):
+        invoice_obj = self.env['account.invoice']
+        for res in self:
+            invoice = invoice_obj.search([('inventory_diff_receipt_id', '=', res.id)])
+            if invoice:
+                res.invoice_id = invoice.id
 
     @api.model
     def default_get(self, fields_list):
@@ -569,27 +603,26 @@ class StockInventoryDiffReceipt(models.Model):
     def action_finance_confirm(self):
         """财务专员确认"""
         def prepare_invoice_line():
+            deficit_debit_account_id = config_obj.get_param('account.deficit_debit_account_id')  # 盘亏借方科目
+            code = account_obj.browse(int(deficit_debit_account_id)).code
+            account_id = account_obj.search([('company_id', '=', company_id), ('code', '=', code)]).id
+
             vals_list = []
             for line in self.line_ids:
-                s_line = sale.order_line.filtered(lambda x: x.product_id.id == line.product_id.id)
-
                 qty = line.product_qty
-                taxes = s_line.tax_id
-                invoice_line_tax_ids = s_line.order_id.fiscal_position_id.map_tax(taxes, s_line.product_id, s_line.order_id.partner_id)
-                invoice_line = self.env['account.invoice.line'].sudo()
                 vals_list.append((0, 0, {
-                    'sale_line_ids': [(6, 0, s_line.ids)],
-                    'name': sale.name + ': ' + s_line.name,
-                    'origin': sale.origin,
-                    'uom_id': s_line.product_uom.id,
-                    'product_id': s_line.product_id.id,
-                    'account_id': invoice_line.with_context(journal_id=journal.id, type='out_invoice')._default_account(), # stock.journal的对应科目
-                    'price_unit': s_line.order_id.currency_id._convert(s_line.price_unit, currency, s_line.company_id, date_invoice, round=False),
+                    'inventory_diff_receipt_line_id': line.id,
+                    'name': self.name + ': ' + line.product_id.name,
+                    'origin': self.name,
+                    'uom_id': line.product_id.uom_id.id,
+                    'product_id': line.product_id.id,
+                    'account_id': account_id,  # stock.journal的对应科目
+                    'price_unit': line.cost,
                     'quantity': qty,
                     'discount': 0.0,
                     'account_analytic_id': False,
-                    'analytic_tag_ids': [(6, 0, s_line.analytic_tag_ids.ids)],
-                    'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
+                    'analytic_tag_ids': False,
+                    'invoice_line_tax_ids': False
                 }))
 
             return vals_list
@@ -601,14 +634,17 @@ class StockInventoryDiffReceipt(models.Model):
         self.state = 'finance_confirm'
 
         # 创建结算单
-        sale = self.move_id.sale_order_id
+        config_obj = self.env['ir.config_parameter'].sudo()
+        account_obj = self.env['account.account'].sudo()
+
         partner = self.partner_id  # 客户
-        company = sale.company_id  # 公司
+        company = self.company_id  # 公司
         company_id = company.id
-        currency = sale.currency_id  # 币种
+        currency = company.currency_id  # 币种
         currency_id = currency.id
-        journal = self.env['stock.picking']._compute_invoice_journal(company_id, 'out_invoice', currency_id)  # 分录
-        payment_term = sale.payment_term_id  # 支付条款
+        # journal = self.env['stock.picking']._compute_invoice_journal(company_id, 'out_invoice', currency_id)  # 分录
+        journal = self.env['account.journal'].search([('code', '=', 'MISC'), ('company_id', '=', company_id)])  # 杂项
+        payment_term = self.payment_term_id  # 支付条款
 
         tz = self.env.user.tz or 'Asia/Shanghai'
         date_invoice = datetime.now(tz=pytz.timezone(tz)).date()
@@ -616,7 +652,7 @@ class StockInventoryDiffReceipt(models.Model):
         payment_term_list = payment_term.with_context(currency_id=currency_id).compute(value=1, date_ref=date_invoice)[0]
         vals = {
             'state': 'draft',  # 状态
-            'origin': sale.name,  # 源文档
+            'origin': self.name,  # 源文档
             'reference': False,  # 供应商单号
             'purchase_id': False,
             'currency_id': currency_id,  # 币种
@@ -637,7 +673,7 @@ class StockInventoryDiffReceipt(models.Model):
             'journal_id': journal.id,  # 分录
             # 'move_id': False,  # 会计凭证(稍后创建)
             # 'move_name': False,  # 会计凭证名称(稍后创建)
-            'name': '调拨差异：%s收款' % self.move_id.name,  # 参考/说明(自动产生)
+            'name': '盘亏：%s收款' % self.name,  # 参考/说明(自动产生)
             'partner_bank_id': False,  # 银行账户
             'partner_id': partner.id,  # 业务伙伴(供应商)
             'refund_invoice_id': False,  # 为红字发票开票(退款账单关联的账单) TODO 待计算退货
@@ -651,7 +687,7 @@ class StockInventoryDiffReceipt(models.Model):
             # 'team_id': False,  # 销售团队(默认)
             'user_id': self.env.user.id,  # 销售员(采购负责人)
 
-            'sale_id': sale.id,  # 内部结算时，关联销售订单
+            'inventory_diff_receipt_id': self.id,  # 盘亏收款单
             'stock_picking_id': False,
         }
         invoice = self.env['account.invoice'].sudo().create(vals)

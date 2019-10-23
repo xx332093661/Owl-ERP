@@ -86,10 +86,6 @@ class StockInventoryValuationWizard(models.TransientModel):
         if self.date_from:
             domain.append(('date', '>=', self.date_from))
 
-        context = {}
-        if self.stock_type == 'all':
-            context['hide_company_id'] = True
-
         if self.show_type == 'all':  # 显示所有细节
             return {
                 'type': 'ir.actions.act_window',

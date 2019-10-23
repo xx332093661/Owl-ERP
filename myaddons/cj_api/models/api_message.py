@@ -73,6 +73,7 @@ class ApiMessage(models.Model):
     sequence = fields.Integer('处理序号')
     state = fields.Selection([('draft', '未处理'), ('done', '已处理'), ('error', '处理失败')], '状态', default='draft')
     attempts = fields.Integer('失败次数', default=0)
+    origin = fields.Selection([('full', '全量'), ('increment', '增量')], '来源', default='increment')
 
     @api.model
     def start_mq_thread(self):
