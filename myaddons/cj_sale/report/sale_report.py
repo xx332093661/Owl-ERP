@@ -14,6 +14,6 @@ class SaleReport(models.Model):
     def _query(self, with_clause='', fields={}, groupby='', from_clause=''):
         fields['channel_id'] = ", s.channel_id as channel_id"
         fields['gross_profit'] = ", l.gross_profit as gross_profit"
-        fields['gross_rate'] = ", l.gross_rate as gross_rate"
-        groupby += ', s.channel_id, l.gross_profit, l.gross_rate'
+        fields['gross_rate'] = ", l.gross_profit_rate as gross_rate"
+        groupby += ', s.channel_id, l.gross_profit, l.gross_profit_rate'
         return super(SaleReport, self)._query(with_clause, fields, groupby, from_clause)

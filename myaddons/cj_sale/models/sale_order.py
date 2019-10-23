@@ -93,13 +93,13 @@ class SaleOrder(models.Model):
     arap_checked = fields.Boolean(string="商品核算", helps="是否完成了该订单的应收应付核算检查", default=False)
     cost_checked = fields.Boolean(string="物流核算", helps="是否完成了订单商品成本的计算", default=False)
 
-    goods_cost = fields.Float(string="商品成本", helps="T日商品成本，当日晚间对商品成本进行核算完成后更新到商品成本")
-    shipping_cost = fields.Float(string="物流成本", helps="与关联物流订单中的物流成本对应")
-    box_cost = fields.Float(string="纸箱成本", helps="与关联物流订单中的物流纸箱成本对应")
-    packing_cost = fields.Float(string="打包成本")
-    gross_profit = fields.Float(string="毛利额")
-    gross_rate = fields.Float(string="毛利率")
-    goods_cost_checked = fields.Boolean(string="是否成本核算", helps="是否完成了订单商品成本的计算", default=False)
+    # goods_cost = fields.Float(string="商品成本", helps="T日商品成本，当日晚间对商品成本进行核算完成后更新到商品成本")
+    # shipping_cost = fields.Float(string="物流成本", helps="与关联物流订单中的物流成本对应")
+    # box_cost = fields.Float(string="纸箱成本", helps="与关联物流订单中的物流纸箱成本对应")
+    # packing_cost = fields.Float(string="打包成本")
+    # gross_profit = fields.Float(string="毛利额")
+    # gross_rate = fields.Float(string="毛利率")
+    # goods_cost_checked = fields.Boolean(string="是否成本核算", helps="是否完成了订单商品成本的计算", default=False)
 
     flow_id = fields.Char('审批流程ID')
 

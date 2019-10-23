@@ -12,7 +12,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='order_line']/tree/field[@name='qty_invoiced']" position="after">
                     <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}"/>
-                    <field name="owner_id" placeholder="货主..." options="{'no_open': 1, 'no_create': 1}"/>
+                    <field name="owner_id" placeholder="货主..." options="{'no_open': 1, 'no_create': 1}" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']" position="attributes">
                     <attribute name="context">{'exist_line': order_line}</attribute>
@@ -30,7 +30,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='order_line']/tree/field[@name='qty_invoiced']" position="after">
                     <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}"/>
-                    <field name="owner_id" placeholder="货主..." options="{'no_open': 1, 'no_create': 1}"/>
+                    <field name="owner_id" placeholder="货主..." options="{'no_open': 1, 'no_create': 1}" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']" position="attributes">
                     <attribute name="context">{'exist_line': order_line}</attribute>
