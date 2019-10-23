@@ -46,7 +46,7 @@
 
         'views/menu_view.xml',
         'views/partner_view.xml',
-'views/product_cost_view.xml',
+        'views/product_cost_view.xml',
 
 
         'views/product_supplier_model_view.xml',
