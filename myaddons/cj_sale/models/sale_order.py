@@ -67,6 +67,7 @@ class SaleOrder(models.Model):
                                   '团购标记', default='not')
     payment_ids = fields.One2many('account.payment', 'sale_order_id', '收款记录')
 
+    # 中台字段
     status = fields.Char('中台状态')
     payment_state = fields.Char('支付状态')
     liquidated = fields.Float('已支付金额')

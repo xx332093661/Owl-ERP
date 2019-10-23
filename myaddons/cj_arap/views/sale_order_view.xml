@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!--销售订单搜索视图增加payment_term_id字段-->
+    <data>
+        <record id="view_sale_order_filter" model="ir.ui.view">
+            <field name="name">sale.order.search.inherit.sale</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="cj_sale.view_sale_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='channel_id']" position="after">
+                    <field name="payment_term_id"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
     <data>
         <!--修改全渠道销售订单form视图的付款条款-->
         <record id="view_order_form_chuanjiu" model="ir.ui.view">
