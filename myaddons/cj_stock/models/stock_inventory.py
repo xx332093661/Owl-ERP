@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-
 import pytz
 from lxml import etree
 from itertools import groupby
@@ -388,9 +387,7 @@ class StockInventoryDiffReceipt(models.Model):
     _order = 'id desc'
 
     name = fields.Char('单据号', readonly=1, default='New')
-    date = fields.Date('单据日期',
-                             default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')),
-                             readonly=1, states=READONLY_STATES)
+    date = fields.Date('单据日期', default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')), readonly=1, states=READONLY_STATES)
     company_id = fields.Many2one('res.company', '公司', readonly=1, track_visibility='onchange')
     inventory_id = fields.Many2one('stock.inventory', '盘点单', ondelete='restrict', index=1, required=1, readonly=1,
                                    states=READONLY_STATES, track_visibility='onchange')
@@ -453,7 +450,7 @@ class StockInventoryDiffReceipt(models.Model):
             domain = [('product_id', '=', move.product_id.id), ('cost_group_id', '=', cost_group_id)]
             # 盘点时成本
             if self.inventory_cost_type == 'inventory':
-                domain.append(('done_datetime', '<', move.done_datetime)) # 盘点单完成时的成本
+                domain.append(('done_datetime', '<', move.done_datetime))  # 盘点单完成时的成本
 
             valuation_move = valuation_move_obj.search(domain, order='id desc', limit=1)
             return valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
@@ -515,7 +512,7 @@ class StockInventoryDiffReceipt(models.Model):
             domain = [('product_id', '=', move.product_id.id), ('cost_group_id', '=', cost_group_id)]
             # 盘点时成本
             if self.inventory_cost_type == 'inventory':
-                domain.append(('done_datetime', '<', move.done_datetime)) # 盘点单完成时的成本
+                domain.append(('done_datetime', '<', move.done_datetime))  # 盘点单完成时的成本
 
             valuation_move = valuation_move_obj.search(domain, order='id desc', limit=1)
             stock_cost = valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
