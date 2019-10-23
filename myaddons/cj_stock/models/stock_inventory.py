@@ -63,6 +63,13 @@ class StockInventory(models.Model):
 
     communication = fields.Char(string='盘点差异说明')
 
+    @api.onchange('company_id')
+    def _onchange_company_id(self):
+        cost_group_obj = self.env['account.cost.group']  # 成本核算分组
+        if self.company_id:
+            if not cost_group_obj.search([('store_ids', '=', self.company_id.id)]):
+                raise ValidationError('公司%s没有成本核算分组！' % self.company_id.name)
+
     @api.model
     def create(self, vals_list):
         return super(StockInventory, self).create(vals_list)

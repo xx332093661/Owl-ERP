@@ -4,7 +4,7 @@
         <!--
         修改盘点单窗体视图：
         1、盘点明细增加company_id字段
-        2、盘点明细增加成本cost字段
+        2、盘点明细增加成本cost字段和is_init字段
         3、增加导入盘点明细按钮
         4、增加仓管员确认按钮、仓库经理确认按钮、财务专员确认按钮、财务经理确认按钮、盘点确认按钮
         5、增加跟踪
@@ -21,6 +21,7 @@
         16、增加盘点差导说明
         17、修改盘点结果(stock.move)
         18、库位(location_id)增加domain属性
+
         -->
         <record id="view_inventory_form_inherit" model="ir.ui.view">
             <field name="name">view_inventory_form inherit</field>
@@ -35,9 +36,10 @@
                     <field name="company_id" options="{'no_open': 1, 'no_create': 1}" required="1"/>
                 </xpath>
 
-                <!--2、盘点明细增加成本cost字段-->
+                <!--2、盘点明细增加成本cost字段和is_init字段-->
                 <xpath expr="//field[@name='line_ids']/tree/field[@name='product_qty']" position="after">
-                    <field name="cost"/>
+                    <field name="is_init" readonly="1"/>
+                    <field name="cost" attrs="{'readonly': [('is_init', '=', 'no')], 'required': [('is_init', '!=', 'no')]}"/>
                 </xpath>
                 <!--4、增加仓管员确认按钮、仓库经理确认按钮、财务专员确认按钮、财务经理确认按钮、完成盘点按钮-->
                 <xpath expr="//button[@name='action_start']" position="before">
@@ -139,6 +141,11 @@
                             </group>
                         </form>
                     </field>
+                </xpath>
+
+
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="attributes">
+
                 </xpath>
             </field>
         </record>
