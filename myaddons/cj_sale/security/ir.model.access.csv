@@ -11,3 +11,5 @@ access_delivery_package_box_stock_user,delivery_package_box stock_user,model_del
 access_delivery_order_line_user,delivery_order_line user,model_delivery_order_line,base.group_user,1,0,0,0
 access_delivery_order_line_stock_user,delivery_order_line stock_user,model_delivery_order_line,stock.group_stock_user,1,1,1,0
 
+access_sale_order_line_cost,sale.channels,model_sale_order_line_cost,base.group_user,1,1,1,0
+

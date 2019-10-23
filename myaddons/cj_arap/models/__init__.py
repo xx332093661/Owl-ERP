@@ -27,3 +27,4 @@ from . import product_category
 from . import account_account_balance
 from . import account_cost_group
 from . import stock_inventory_valuation
+from . import sale_order_line_cost

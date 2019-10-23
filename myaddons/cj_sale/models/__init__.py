@@ -8,4 +8,5 @@ from . import aftersale_order
 from . import account_payment
 from . import stock_move
 from . import delivery_carrier
+from . import sale_order_line_cost
 
