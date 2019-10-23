@@ -43,10 +43,7 @@ def signature(data, key):
     return sha256.hexdigest()
 
 
-headers = {'Content-Type': 'application/json'}
-
-
-class MainDataApi(models.Model):
+class MainDataApi(models.TransientModel):
     _name = 'main.data.api'
     _description = '全量接口数据'
 
@@ -72,9 +69,15 @@ class MainDataApi(models.Model):
         }
         data['signature'] = signature(data, key)
 
+        headers = {'Content-Type': 'application/json'}
         resp = requests.post(url, json.dumps(data), headers=headers)
         if resp.status_code == 200:
             queue_name = QUEUE_NAME.get(code)
+            content = resp.json()
+            if content.get('code') and content.get('msg'):
+                _logger.error(content['msg'])
+                return
+
             vals = {
                 'message_type': 'rabbit_mq',
                 'message_name': queue_name,
