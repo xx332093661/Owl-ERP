@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import pytz
+from datetimerange import DateTimeRange
 from datetime import datetime
 from odoo import fields, models, api
-from odoo.exceptions import UserError,ValidationError
+from odoo.exceptions import UserError
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 import logging
 
@@ -93,24 +95,26 @@ class SupplierContract(models.Model):
     @api.depends('date_to', 'date_from')
     def _compute_valid(self):
         """促销是否有效"""
-        for contract in self:
-            if contract.date_from and contract.date_to and \
-                    contract.date_to >= datetime.now().date() >= contract.date_from \
-                    and contract.state == 'done' and contract.purchase_sate == 'normal':
-                contract.valid = True
-            else:
-                contract.valid = False
+        tz = 'Asia/Shanghai'
+        date = datetime.now(tz=pytz.timezone(tz)).date()
 
+        for contract in self:
+            time_range = DateTimeRange(contract.date_from, contract.date_to)
+            if date not in time_range or contract.state != 'done' or contract.purchase_sate != 'normal':
+                contract.valid = False
+            else:
+                contract.valid = True
 
     @api.model
     def _search_valid(self, operator, value):
         if operator != '=' or not isinstance(value, bool):
             return []
 
-        today = datetime.now().strftime(DATE_FORMAT)
+        tz = 'Asia/Shanghai'
+        date = datetime.now(tz=pytz.timezone(tz)).date()
         contract_ids = self.search(
-            [('date_to', '>=', today),
-             ('date_from', '<=', today),
+            [('date_to', '>=', date),
+             ('date_from', '<=', date),
              ('state', '=', 'done'),
              ('purchase_sate', '=', 'normal')]).ids
         # 有效
