@@ -111,7 +111,7 @@ class AccountPaymentApply(models.Model):
                 '付款金额大写': digital_to_chinese(self.amount),
                 '申请单位': '',
                 '公司名称': self.company_id.name,
-                '付款内容': '供应商付款',
+                '付款内容': '采购订单编号： 供应商：  ，对应采购的内容，到货了多少，发票是否已经提供，付款方式，付款的内容',
                 '姓名': self.create_uid.name,
                 '部门': '',
                 '付款金额小写': self.amount

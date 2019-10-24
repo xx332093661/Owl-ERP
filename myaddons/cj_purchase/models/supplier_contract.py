@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytz
-from datetime import datetime
+from datetime import timedelta, datetime
 from odoo import fields, models, api
 from odoo.exceptions import UserError
 
@@ -53,7 +53,7 @@ class SupplierContract(models.Model):
                           states=READONLY_STATES,
                           required=True,
                           track_visibility='onchange',
-                          copy=False, help='合同停止执行日期')
+                          copy=False, help='合同停止执行日期',default=lambda self: fields.Date.context_today(self)+timedelta(days=365))
     note = fields.Text('备注', help='单据备注', track_visibility='onchange',)
     state = fields.Selection([('draft', '未审核'), ('done', '审核')],
                              '审核状态',
@@ -92,9 +92,10 @@ class SupplierContract(models.Model):
         """促销是否有效"""
         tz = 'Asia/Shanghai'
         date = datetime.now(tz=pytz.timezone(tz)).date()
-
+        if not self:
+            return
         for contract in self:
-            if not (contract.date_from <= date <= contract.date_to) or contract.state != 'done' or contract.purchase_sate != 'normal':
+            if not (contract.date_from <= date  <= contract.date_to) or contract.state != 'done' or contract.purchase_sate != 'normal':
                 contract.valid = False
             else:
                 contract.valid = True

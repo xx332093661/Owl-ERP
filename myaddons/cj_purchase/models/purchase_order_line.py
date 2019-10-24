@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import fields, models, api
 from odoo.exceptions import UserError
-
+from odoo.exceptions import ValidationError
 
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
@@ -53,5 +53,31 @@ class PurchaseOrderLine(models.Model):
         return result
 
 
+    @api.onchange('product_qty', 'product_uom')
+    def onchange_product_id(self):
+        result = super(PurchaseOrderLine, self)._onchange_quantity()
 
+        if not self.product_id:
+            return result
+
+        # 计算支付条款
+        partner_id = self._context.get('partner_id')
+        company_id = self._context.get('company_id')
+        if partner_id:
+            domain = [('product_id', '=', self.product_id.id)]
+            if company_id:
+                domain += [('company_id', '=', company_id)]
+            res = self.env['purchase.order.point'].search(domain, limit=1, order='id desc')
+            if res:
+                ##必须大于最小库存
+                if res.purchase_min_qty > self.product_qty:
+                    self.product_qty = res.purchase_min_qty
+                    raise ValidationError('最小库存限制，该商品：%s 单次最小采购库存为： %s！' %(self.product_id.name,res.purchase_min_qty))
+
+                ###最大库存限制
+                if res.product_max_qty < self.product_id.qty_available +  self.product_qty:
+                    raise ValidationError('本次采购库存导致超出最大采购库存限制，该商品当前库存：%s  总库存不能超过： %s！' % (self.product_id.qty_available, res.product_max_qty))
+
+
+        return result
 
