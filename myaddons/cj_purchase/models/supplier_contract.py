@@ -99,8 +99,7 @@ class SupplierContract(models.Model):
         date = datetime.now(tz=pytz.timezone(tz)).date()
 
         for contract in self:
-            time_range = DateTimeRange(contract.date_from, contract.date_to)
-            if date not in time_range or contract.state != 'done' or contract.purchase_sate != 'normal':
+            if not (contract.date_from <= date <= contract.date_to) or contract.state != 'done' or contract.purchase_sate != 'normal':
                 contract.valid = False
             else:
                 contract.valid = True
