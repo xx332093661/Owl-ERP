@@ -132,8 +132,9 @@ class Partner(models.Model):
             for res in self:
                 code = res.code
                 if code:
-                    code, seq = code.split('-')
-                    sequence_obj.delete_not_used_sequence(code, int(seq))
+                    old_group_code = res.supplier_group_id.code
+                    seq = code.replace(old_group_code, '')
+                    sequence_obj.delete_not_used_sequence(old_group_code, int(seq))
 
                 sequence = sequence_obj.get_group_sequence(group_code)
                 val['code'] = '%s%s' % (group_code, str(sequence).zfill(5))
