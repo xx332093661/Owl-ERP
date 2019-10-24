@@ -47,6 +47,7 @@
 
         'views/menu_view.xml',
         'views/member_view.xml',
+        'views/partner_view.xml',
     ],
     'auto_install': True,
 }

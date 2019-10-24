@@ -71,7 +71,7 @@ class Partner(models.Model):
     legal_entity_id_card = fields.Char('法人身份证号')
     enterprise_phone = fields.Char('企业联系方式')
     status = fields.Selection([('0', '正常'), ('1', '冻结'), ('2', '废弃')], '川酒状态')
-    # large_area = fields.Char('供应商大区')
+    large_area = fields.Char('经销商大区')
     large_area_id = fields.Many2one('res.partner.area', '供应商大区')
     office = fields.Char('供应商办事处')
     docking_company = fields.Char('对接公司')

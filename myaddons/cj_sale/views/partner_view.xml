@@ -1,0 +1,138 @@
+<odoo>
+    <!--客户-->
+    <data>
+        <record id="view_partner_distributor_tree" model="ir.ui.view">
+            <field name="name">res.partner.distributor.tree</field>
+            <field name="model">res.partner</field>
+            <field eval="1000" name="priority"/>
+            <field name="arch" type="xml">
+                <tree string="经销商" create="0" delete="0" edit="0">
+                    <field name="code" string="经销商编码"/>
+                    <field name="customer_group" string="经销商分组"/>
+                    <field name="name" string="经销商公司名称"/>
+                    <field name="archive_code" string="档案统一社会信用代码"/>
+                    <field name="legal_entity" string="法人"/>
+                    <field name="phone" string="企业联系方式"/>
+                    <field name="state_id" string="省份"/>
+                    <field name="city_id" string="市"/>
+                    <field name="status" string="状态"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_partner_distributor_form" model="ir.ui.view">
+            <field name="name">res.partner.distributor.form</field>
+            <field name="model">res.partner</field>
+            <field name="priority" eval="1"/>
+            <field name="arch" type="xml">
+                <form string="经销商" create="0" delete="0" edit="0">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                        </div>
+                        <field name="image" widget='image' class="oe_avatar" options='{"preview_image": "image_medium", "size": [90, 90]}'/>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" default_focus="1" placeholder="经销商公司名称..." required="1"/>
+                            </h1>
+                            <field name="company_type"/>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="code" string="经销商编码"/>
+                                <field name="archive_code" string="档案统一社会信用代码"/>
+                                <field name="licence_begin_time" string="营业执照开始日期"/>
+                                <field name="legal_entity" string="法人"/>
+                                <field name="create_time" string="创建时间"/>
+                                <field name="phone" string="企业联系方式"/>
+                                <field name="status" string="状态"/>
+                                <field name="supplier" invisible="1"/>
+                                <field name="customer" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="customer_group" string="经销商分组"/>
+                                <field name="credit_code" string="统一社会信用代码"/>
+                                <field name="licence_end_time" string="营业执照到期时间"/>
+                                <field name="legal_entity_id_card" string="法人身份证号"/>
+                                <field name="update_time" string="更新时间"/>
+                                <field name="cj_id" string="ID"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="country_id" string="国家" options="{'no_create': 1, 'no_open': 1}" required="1"/>
+                                <field name="city_id" string="市" required="1"/>
+                                <field name="street" string="地址"/>
+                            </group>
+                            <group>
+                                <field name="state_id" string="省" options="{'no_create': 1, 'no_open': 1}" domain="[('country_id', '=', country_id)]" required="1"/>
+                                <field name="street2" string="区/县" required="1"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="联系人">
+                                <field name="child_ids" mode="kanban" context="{'default_parent_id': active_id, 'default_country_id': country_id, 'default_type': 'contact', 'cj_supplier_contact': 1}">
+                                    <kanban>
+                                        <field name="id"/>
+                                        <field name="large_area" string="经销商大区"/>
+                                        <field name="credit_code" string="统一社会信用代码"/>
+                                        <field name="business_post" string="对接人岗位"/>
+                                        <field name="name" string="经销人联系人"/>
+                                        <field name="office" string="经销商办事处"/>
+                                        <field name="phone" string="经销商联系人电话"/>
+                                        <field name="customer_level" string="客户层级"/>
+                                        <templates>
+                                            <t t-name="kanban-box">
+                                                <div class="oe_kanban_global_click">
+                                                    <div class="oe_kanban_details">
+                                                        <div>联系人：<field name="name"/></div>
+                                                        <div>联系人电话：<field name="phone"/></div>
+                                                        <div t-if="record.phone.large_area">大区: <field name="large_area"/></div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                    <form>
+                                        <sheet>
+                                            <group>
+                                                <group>
+                                                    <field name="name" string="经销人联系人"/>
+                                                    <field name="large_area" string="经销商大区"/>
+                                                    <field name="credit_code" string="统一社会信用代码"/>
+                                                    <field name="business_post" string="对接人岗位"/>
+                                                </group>
+                                                <group>
+                                                    <field name="phone" string="经销商联系人电话"/>
+                                                    <field name="office" string="经销商办事处"/>
+                                                    <field name="customer_level" string="客户层级"/>
+                                                </group>
+                                            </group>
+                                            <field name="type" required="1" widget="radio" options="{'horizontal': true}" invisible="1"/>
+                                            <field name="parent_id" invisible="1"/>
+                                            <field name="supplier" invisible="True"/>
+                                            <field name="customer" invisible="True"/>
+                                            <field name="lang" invisible="True"/>
+                                            <field name="image" invisible="True"/>
+                                            <field name="user_id" invisible="True"/>
+                                        </sheet>
+                                    </form>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="base.action_partner_form" model="ir.actions.act_window">
+            <field name="domain">[('customer', '=', True)]</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="view_ids" eval="[(5,0,0),
+                              (0,0,{'view_mode':'tree', 'view_id': ref('view_partner_distributor_tree')}),
+                              (0,0,{'view_mode':'form', 'view_id': ref('view_partner_distributor_form')})]"/>
+        </record>
+
+    </data>
+</odoo>

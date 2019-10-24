@@ -417,31 +417,65 @@ class ApiMessage(models.Model):
 
     # 4、MDM-ERP-DISTRIBUTOR-QUEUE 经销商
     def deal_mdm_erp_distributor_queue(self, content):
-        """处理经销商数据"""
+        """处理经销商数据
+        字货对应：
+        customerCode: code
+        customerGroup: customer_group
+        companyName: name
+        archiveCode: archive_code
+        address: street
+        status: status
+        creditCode: credit_code
+        licenceBeginTime: licence_begin_time
+        licenceEndTime: licence_end_time
+        country: country_id
+        province: state_id
+        city: city_id
+        area: street2,
+        createTime: create_time
+        updateTime: update_time
+        enterprisePhone: phone
+        legalEntityId : legal_entity_id_card
+        legalEntity: legal_entity
+        id: cj_id,
+        contacts: child_ids
+            id: cj_id
+            area: large_area
+            creditCode: credit_code
+            dockingPost: business_post
+            contact: name
+            dockingPerson: docking_person(未传此字段)
+            office: office
+            contactPhone: phone
+            customerLevel: customer_level
+        """
         partner_obj = self.env['res.partner']
 
         content, body = self._deal_content(content)
         for distributor in body:
+            state_id = self.get_country_state_id(distributor.get('province'))
+            city_id = self.get_city_area_id(distributor['city'], state_id)
+
             val = {
                 'name': distributor['companyName'],
                 'archive_code': distributor['archiveCode'],  # 档案-统一社会信用代码
                 'code': distributor['customerCode'],
                 'customer_group': distributor['customerGroup'],  # 客户组
                 'street': distributor['address'],
-                'update_time': distributor['updateTime'],
+                'update_time': (fields.Datetime.to_datetime(distributor['updateTime']) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
                 'status': str(distributor['status']),  # [('0', '正常'), ('1', '冻结'), ('2', '废弃')]
                 'credit_code': distributor['creditCode'],  # 统一社会信用编码
                 'licence_end_time': distributor['licenceEndTime'],  # 营业执照到期日期
-                'city': distributor['city'],
+                'city_id': city_id,
                 'street2': distributor['area'],
-                # 'create_time': distributor['createTime'],  # 创建时间
+                'create_time': (fields.Datetime.to_datetime(distributor['createTime']) - timedelta(hours=8)).strftime(DATETIME_FORMAT),  # 创建时间
                 'phone': distributor['enterprisePhone'],
                 'legal_entity_id_card': distributor['legalEntityId'],  # 法人身份证号
                 'legal_entity': distributor['legalEntity'],  # 法人
                 'country_id': self.get_country_id(distributor['country']),
                 'cj_id': distributor['id'],
                 'licence_begin_time': distributor['licenceBeginTime'],  # 营业执照开始时间
-                'state_id': self.get_country_state_id(distributor['province']),
+                'state_id': state_id,
 
                 'active': True,
                 'distributor': True,
@@ -467,11 +501,13 @@ class ApiMessage(models.Model):
                     'name': contact['contact'],
                     'large_area': contact['area'],  # 供应商大区
                     'docking_person': contact['contact'],  # 对接人
-                    'code': contact['customerCode'],
+                    # 'code': contact['customerCode'],
                     'office': contact['office'],  # 供应商办事处
                     'phone': contact['contactPhone'],
                     'customer_level': contact['customerLevel'],
-                    'type': 'contact'
+                    'type': 'contact',
+                    'customer': False,
+                    'supplier': False
                 }
 
                 ct = partner_obj.search([('cj_id', '=', contact['id']), ('type', '=', 'contact')])
@@ -547,7 +583,7 @@ class ApiMessage(models.Model):
                     'code': org.code,
                 })
 
-            state_id = self.compute_province_id(wh.get('province'))
+            state_id = self.get_country_state_id(wh.get('province'))
             city_id = self.get_city_area_id(wh.get('city'), state_id)
             area_id = self.get_city_area_id(wh.get('area'), state_id, city_id)
             val = {
@@ -1865,16 +1901,6 @@ class ApiMessage(models.Model):
 
         return country.id or False
 
-    def get_country_state_id(self, state_name):
-        country_state_obj = self.env['res.country.state']
-        if not state_name:
-            return False
-
-        country_state = country_state_obj.search(
-            [('name', 'like', state_name)], limit=1)
-
-        return country_state.id or False
-
     @staticmethod
     def _deal_content(content):
         # content = eval(content.replace('null', 'None').replace('false', 'False').replace('true', 'True'))
@@ -1883,7 +1909,7 @@ class ApiMessage(models.Model):
         body = content['body'] if isinstance(content['body'], list) else [content['body']]
         return content, body
 
-    def compute_province_id(self, name):
+    def get_country_state_id(self, name):
         """计算省id"""
         if not name:
             return False
@@ -1927,7 +1953,8 @@ class ApiMessage(models.Model):
         if name.index('澳门') != -1:
             return state_obj.search([('name', '=', '澳门特别行政区'), ('country_id', '=', country_id)]).id
 
-        raise MyValidationError('20', '%s未找到对应的省！' % name)
+        _logger.warning('没有找到%s对应的省！' % name)
+        return False
 
     def get_city_area_id(self, name, province_id, parent_id=None):
         """计算市、区id"""
