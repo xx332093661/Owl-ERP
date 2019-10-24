@@ -57,7 +57,7 @@ QUEUE_NAME = [
     },
     {
         'company_code': '02014',
-        'source_code': 'dms_warehouse',
+        'source_code': 'auth_distributor_member',
         'system_code': 'Owl',
         'secret_key': 'KDRaLF56VY9tGfdPr5EFskby0zznXdZE',
         'message_name': 'MDM-ERP-MEMBER-QUEUE',
