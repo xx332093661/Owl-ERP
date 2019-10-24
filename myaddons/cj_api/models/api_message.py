@@ -501,7 +501,7 @@ class ApiMessage(models.Model):
 
                 'active': True,
                 'member': True,  # 是否会员
-                # 'customer': True
+                'customer': False
             }
 
             partner = partner_obj.search([('code', '=', member['memberId']), ('member', '=', True)], limit=1)
