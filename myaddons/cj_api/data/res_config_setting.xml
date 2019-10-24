@@ -68,26 +68,26 @@
 		</record>
     </data>
 
-    <!--oa-->
+    <!--OA-->
     <data noupdate="1">
         <record id="icp_oa_url" model="ir.config_parameter">
             <field name="key">icp_oa_url</field>
-            <field name="value">0</field>
+            <field name="value">10.16.0.31</field>
         </record>
 
         <record id="icp_oa_token_username" model="ir.config_parameter">
             <field name="key">icp_oa_token_username</field>
-            <field name="value">0</field>
+            <field name="value">ERP</field>
         </record>
 
         <record id="icp_oa_token_password" model="ir.config_parameter">
             <field name="key">icp_oa_token_password</field>
-            <field name="value">0</field>
+            <field name="value">123456</field>
         </record>
 
         <record id="icp_oa_sender_login_name" model="ir.config_parameter">
             <field name="key">icp_oa_sender_login_name</field>
-            <field name="value">0</field>
+            <field name="value">100364</field>
         </record>
 
     </data>
