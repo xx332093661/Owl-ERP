@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 import pytz
-from datetimerange import DateTimeRange
 from datetime import datetime
 from odoo import fields, models, api
 from odoo.exceptions import UserError
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
-import logging
 
-
-_logger = logging.getLogger(__name__)
 
 READONLY_STATES = {
     'done': [('readonly', True)],
