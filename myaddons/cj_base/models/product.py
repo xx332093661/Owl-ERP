@@ -5,12 +5,16 @@ from odoo.osv import expression
 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
+    # _name = 'product.template'
+
+    taxes_id = fields.Many2many('account.tax', 'product_taxes_rel', 'prod_id', 'tax_id', string='销项税', domain=[('type_tax_use', '=', 'sale')], default=False)
+    supplier_taxes_id = fields.Many2many('account.tax', 'product_supplier_taxes_rel', 'prod_id', 'tax_id', string='进项税', domain=[('type_tax_use', '=', 'purchase')], default=False)
 
     cj_id = fields.Char('川酒ID')
     full_name = fields.Char('全称')
     spec = fields.Char('规格')
     status = fields.Selection([('1', '在用'), ('2', '禁止采购'), ('3', '禁止调拨'), ('4', '淘汰')], '业务状态')
-    supplier_ids = fields.Many2many('res.partner', 'product_supplier_res', 'product_temp_id', 'supplier_id', '供应商')
+    # supplier_ids = fields.Many2many('res.partner', 'product_supplier_res', 'product_temp_id', 'supplier_id', '供应商')
 
     @api.model
     def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
@@ -24,6 +28,13 @@ class ProductTemplate(models.Model):
                 domain.append(arg)
 
         return super(ProductTemplate, self)._search(domain, offset=offset, limit=limit, order=order, count=False, access_rights_uid=access_rights_uid)
+
+    # @api.model
+    # def default_get(self, fields_list):
+    #     res = super(ProductTemplate, self).default_get(fields_list)
+    #     res.pop('taxes_id', None)
+    #     res.pop('supplier_taxes_id', None)
+    #     return res
 
 
 class ProductProduct(models.Model):

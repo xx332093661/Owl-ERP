@@ -733,7 +733,7 @@ class ApiMessage(models.Model):
                 'taxes_id': False,
                 'supplier_taxes_id': False,
                 'active': True,
-                'supplier_ids': get_supplier(),  # 供应商
+                'seller_ids': get_supplier(),  # 供应商
                 'type': 'product',  # 产品类型
                 'tracking': 'none',  # 追溯
             }
