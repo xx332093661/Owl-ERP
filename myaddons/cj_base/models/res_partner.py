@@ -132,7 +132,6 @@ class Partner(models.Model):
             for res in self:
                 code = res.code
                 if code:
-                    _logger.info(res.supplier_group_id.code)
                     old_group_code = res.supplier_group_id.code
                     seq = code.replace(old_group_code, '')
                     sequence_obj.delete_not_used_sequence(old_group_code, int(seq))
