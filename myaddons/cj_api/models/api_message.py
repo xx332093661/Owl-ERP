@@ -482,7 +482,17 @@ class ApiMessage(models.Model):
 
     # 5、MDM-ERP-MEMBER-QUEUE 会员
     def deal_mdm_erp_member_queue(self, content):
-        """处理会员数据"""
+        """处理会员数据
+        字段对应：
+        memberId: code
+        memberName: name,
+        mobile: phone,
+        growthValue: growth_value,
+        level: member_level
+        email: email
+        registerChannel: register_channel
+        registerTime: create_time
+        """
         partner_obj = self.env['res.partner']
 
         content, body = self._deal_content(content)
@@ -497,11 +507,12 @@ class ApiMessage(models.Model):
                 'member_level': member['level'],
                 'email': member['email'],
                 'register_channel': member['registerChannel'],
-                'create_time': member['registerTime'],
+                'create_time': (fields.Datetime.to_datetime(member['registerTime']) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
 
                 'active': True,
                 'member': True,  # 是否会员
-                'customer': False
+                'customer': False,
+                'supplier': False
             }
 
             partner = partner_obj.search([('code', '=', member['memberId']), ('member', '=', True)], limit=1)

@@ -1,0 +1,43 @@
+<odoo>
+    <!--会员-->
+    <data>
+        <record id="view_partner_member_tree" model="ir.ui.view">
+            <field name="name">res.partner.member.tree</field>
+            <field name="model">res.partner</field>
+            <field eval="1000" name="priority"/>
+            <field name="arch" type="xml">
+                <tree string="会员" create="0" delete="0" edit="0">
+                    <field name="name" string="会员姓名"/>
+                    <field name="code" string="会员编码"/>
+                    <field name="phone" string="手机号"/>
+                    <field name="growth_value" string="成长值"/>
+                    <field name="member_level" string="等级"/>
+                    <field name="email" string="邮箱"/>
+                    <field name="register_channel" string="注册渠道"/>
+                    <field name="create_time" string="注册时间"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <record id="action_partner_member" model="ir.actions.act_window">
+            <field name="name">会员</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="domain">[('member', '=', True)]</field>
+            <field name="filter" eval="True"/>
+        </record>
+        <record id="action_partner_member_tree" model="ir.actions.act_window.view">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_partner_member_tree"/>
+            <field name="act_window_id" ref="action_partner_member"/>
+        </record>
+
+        <menuitem id="menu_action_partner_member" name="会员"
+                  parent="menu_sale_main_data"
+                  action="action_partner_member" sequence="15"/>
+    </data>
+</odoo>
