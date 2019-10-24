@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
+    <!--上传中台-->
     <data noupdate="1">
         <record id='cj_sync_url_id' model='ir.config_parameter'>
 		   <field name="key">cj_sync_url_id</field>
@@ -15,7 +16,9 @@
 		   <field name="key">cj_sync_password_id</field>
 		   <field name="value">0</field>
 		</record>
+    </data>
 
+    <data noupdate="1">
         <record id='shop_api_upload_url_id' model='ir.config_parameter'>
 		   <field name="key">shop_api_upload_url_id</field>
 		   <field name="value">0</field>
@@ -30,39 +33,42 @@
 		   <field name="key">shop_api_upload_key_id</field>
 		   <field name="value">0</field>
 		</record>
+    </data>
 
-		<!--rabbit_mq-->
-		<record id='cj_rabbit_mq_username_id' model='ir.config_parameter'>
+    <!--RabbitMQ-->
+    <data noupdate="1">
+        <record id='cj_rabbit_mq_username_id' model='ir.config_parameter'>
 		   <field name="key">cj_rabbit_mq_username_id</field>
-		   <field name="value">0</field>
+		   <field name="value">admin</field>
 		</record>
 
 		<record id='cj_rabbit_mq_password_id' model='ir.config_parameter'>
 		   <field name="key">cj_rabbit_mq_password_id</field>
-		   <field name="value">0</field>
+		   <field name="value">colorful*2018</field>
 		</record>
 
 		<record id='cj_rabbit_mq_ip_id' model='ir.config_parameter'>
 		   <field name="key">cj_rabbit_mq_ip_id</field>
-		   <field name="value">0</field>
+		   <field name="value">10.16.0.10</field>
 		</record>
 
 		<record id='cj_rabbit_mq_port_id' model='ir.config_parameter'>
 		   <field name="key">cj_rabbit_mq_port_id</field>
-		   <field name="value">0</field>
+		   <field name="value">15672</field>
 		</record>
 
 		<record id='cj_rabbit_mq_send_exchange_id' model='ir.config_parameter'>
 		   <field name="key">cj_rabbit_mq_send_exchange_id</field>
-		   <field name="value">0</field>
+		   <field name="value">MDM-EXCHANGE-MUSTANG</field>
 		</record>
 
 		<record id='cj_rabbit_mq_receive_exchange_id' model='ir.config_parameter'>
 		   <field name="key">cj_rabbit_mq_receive_exchange_id</field>
-		   <field name="value">0</field>
+		   <field name="value">MDM-EXCHANGE-MUSTANG1</field>
 		</record>
     </data>
 
+    <!--oa-->
     <data noupdate="1">
         <record id="icp_oa_url" model="ir.config_parameter">
             <field name="key">icp_oa_url</field>
@@ -86,6 +92,7 @@
 
     </data>
 
+    <!--POS接口-->
     <data noupdate="1">
         <!--POS接口状态-->
         <record id="icp_user_oa" model="ir.config_parameter">

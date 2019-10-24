@@ -543,7 +543,7 @@ class ApiMessage(models.Model):
                 'member_level': member['level'],
                 'email': member['email'],
                 'register_channel': member['registerChannel'],
-                'create_time': (fields.Datetime.to_datetime(member['registerTime']) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
+                'create_time': (fields.Datetime.to_datetime(member['registerTime']) - timedelta(hours=8)).strftime(DATETIME_FORMAT) if member['registerTime'] else False,
 
                 'active': True,
                 'member': True,  # 是否会员
