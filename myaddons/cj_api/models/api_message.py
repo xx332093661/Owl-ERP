@@ -21,7 +21,7 @@ PROCESS_ERROR = {
     '00': '系统错误',
     '01': '未找到上级组织',
     '02': '公司名称重复',
-    '03': '公司ID为空',
+    '03': '公司编码为空',
     '04': '公司ID找不到对应的组织',
     '05':  '商品大类(bigClass)为空',
     '06': '计量单位为空',
@@ -47,7 +47,8 @@ PROCESS_ERROR = {
     '26': '门店库存变更未实现的处理',
     '27': '公司没有归属到任何成本核算分组中',
     '28': '商品没有成本',
-    '29': '公司没有成本核算分组'
+    '29': '公司没有成本核算分组',
+    '30': '公司编码找不到对应的公司'
 }
 
 
@@ -569,19 +570,12 @@ class ApiMessage(models.Model):
 
         content, body = self._deal_content(content)
         for wh in body:
-            if not wh['companyId']:
-                raise MyValidationError('03', '公司ID不能为空')
+            if not wh['companyCode']:
+                raise MyValidationError('03', '公司编码不能为空！')
 
-            org = org_obj.search([('cj_id', '=', wh['companyId'])])
-            if not org:
-                raise MyValidationError('04', '公司ID：%s没有找到对应的组织记录！' % wh['companyId'])
-
-            company = company_obj.search([('name', '=', org.name)])
+            company = company_obj.search([('code', '=', wh['companyCode'])])
             if not company:
-                company = company_obj.create({
-                    'name': org.name,
-                    'code': org.code,
-                })
+                raise MyValidationError('30', '公司编码：%s找不到对应的公司' % wh['companyCode'])
 
             state_id = self.get_country_state_id(wh.get('province'))
             city_id = self.get_city_area_id(wh.get('city'), state_id)
