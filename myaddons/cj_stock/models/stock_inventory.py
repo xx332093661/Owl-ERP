@@ -366,11 +366,11 @@ class InventoryLine(models.Model):
         product = product_obj.browse(product_id)
 
         is_init = get_is_init()
-        cost = get_cost()
         vals.update({
             'is_init': is_init,
-            'cost': cost
         })
+        if not vals.get('cost'):
+            vals['cost'] = get_cost()
         # 计算是否是初次盘点
         return super(InventoryLine, self).create(vals)
 

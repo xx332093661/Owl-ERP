@@ -6,6 +6,7 @@ import uuid
 from datetime import timedelta
 from pypinyin import lazy_pinyin, Style
 import json
+import random
 from itertools import groupby
 
 from odoo import fields, models, api
@@ -806,7 +807,7 @@ class ApiMessage(models.Model):
                 # is_init = get_is_init()  # 商品是否是初次盘点
                 vals_list.append({
                     'company_id': company_id,
-                    # 'cost': get_cost(),
+                    'cost': random.randint(10, 20),  # TODO 测试时，随机初始一个成本
                     'inventory_id': inventory_id,
                     # 'is_init': is_init,  # 商品是否是初次盘点
                     'location_id': location_id,
@@ -876,7 +877,7 @@ class ApiMessage(models.Model):
                 # is_init = get_is_init()  # 商品是否是初次盘点
                 vals_list.append({
                     'company_id': company_id,
-                    # 'cost': get_cost(),  # TODO 单位成本
+                    'cost': random.randint(10, 20),  # TODO 测试时，随机初始一个成本
                     'inventory_id': inventory_id,
                     # 'is_init': is_init,  # 是否是初始化盘点
                     'location_id': location_id,
@@ -1207,6 +1208,27 @@ class ApiMessage(models.Model):
         5、根据出库明细，修改订单对应的stock.picking明细的完成数量
         6、创建跨公司调拨单
         7、出库
+        示例数据：
+            {
+                "consignee": {
+                    "detailAddress": "四川省成都市成华区双水碾街道羊子山西路88号兴元华盛3期",
+                    "mobile": "13908180820",
+                    "name": "nickName"
+                },
+                "deliveryOrderCode": "56138243360504436",
+                "expressCode": "73115074431455",
+                "items": [
+                    {
+                        "goodsCode": "10120000377",
+                        "goodsName": "52度500ml七彩天香（淡雅红）",
+                        "planQty": 2.0
+                    }
+                ],
+                "logisticsCode": "ZTO",
+                "omsCreateTime": "2019-10-10 22:42:49",
+                "status": "已出库",
+                "warehouseNo": "51001"
+            }
         """
         def get_cost(pro):
             """计算跨公司调拨商品成本"""
