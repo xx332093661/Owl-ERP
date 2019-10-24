@@ -10,7 +10,7 @@
                     <field name="name"/>
                     <field name="date_from"/>
                     <field name="date_to"/>
-					<field name="create_uid" string="制单人"/>
+					<!--<field name="create_uid" string="制单人"/>-->
                     <field name="valid"/>
 					<field name="state"/>
               </tree>
@@ -23,11 +23,9 @@
             <field name="arch" type="xml">
                 <form string="供应商合同">
 					<header>
-						<button name="supplier_contract_done" states="draft" string="审核" type="object" class="oe_highlight"/>
+						<button name="supplier_contract_done" states="draft" string="审核" type="object" class="oe_highlight" groups=""/>
 						<button name="supplier_contract_draft" states="done" string="反审核" type="object"/>
-                        <!--<button name="check_attachment" type="object" string="导入明细" states="draft"/>-->
-                        <!--<button name="export_template" type="object" string="模板下载" />-->
-						<field name="state" widget="statusbar" statusbar_visible="draft,done" statusbar_colors="{&quot;done&quot;:&quot;blue&quot;}" readonly="1"/>
+						<field name="state" widget="statusbar" statusbar_visible="draft,done" statusbar_colors="{'done':'blue'}" readonly="1"/>
                     </header>
 
                     <sheet>
@@ -39,7 +37,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="partner_id" context="{'form_view_ref': 'core.supplier_address_form'}" options="{'no_create': 1}"/>
+                                <field name="partner_id" context="{'form_view_ref': 'cj_purchase.view_partner_supplier_form', 'tree_view_ref': 'cj_purchase.view_partner_supplier_tree'}" options="{'no_create': 1}"/>
                                 <field name="payment_term_id" options="{'no_create': 1}" required="1"/>
                                 <field name="returns_sate"/>
                                 <field name="date_from"/>
@@ -59,19 +57,17 @@
                                 <field name="paper" widget="pdf_viewer" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             </page>
                         </notebook>
-
-
                         <field name="note" placeholder="暂无备注信息"/>
 
-						<group>
-							<group>
-								<field name="create_uid" readonly="1" string="制单人" options="{'no_open': 1}"/>
-							</group>
-							<group>
-								<field name="create_date" readonly="1" string="录单时间"/>
-								<field name="write_date" readonly="1" string="最后修改时间"/>
-							</group>
-                        </group>
+						<!--<group>-->
+							<!--<group>-->
+								<!--<field name="create_uid" readonly="1" string="制单人" options="{'no_open': 1}"/>-->
+							<!--</group>-->
+							<!--<group>-->
+								<!--<field name="create_date" readonly="1" string="录单时间"/>-->
+								<!--<field name="write_date" readonly="1" string="最后修改时间"/>-->
+							<!--</group>-->
+                        <!--</group>-->
                     </sheet>
 					<div class="oe_chatter">
 	                    <field name="message_follower_ids" widget="mail_followers"/>
@@ -90,14 +86,9 @@
                     <field name="name"/>
                     <field name="date_from"/>
                     <field name="date_to"/>
-                    <separator/>
-                    <separator/>
-
-                    <!--<group expand="0" string="分组">-->
-                        <!--<filter name="supplier_group" string="供应商" domain="[]" context="{'group_by':'partner_id'}"/>-->
-                    <!--</group>-->
-
-
+                    <group expand="0" string="分组">
+                        <filter name="supplier_group" string="供应商" domain="[]" context="{'group_by':'partner_id'}"/>
+                    </group>
                 </search>
             </field>
         </record>
@@ -110,8 +101,5 @@
             <field name="view_mode">tree,form</field>
             <field name="context">{'search_default_valid_true': 1}</field>
         </record>
-
-
-
     </data>
 </odoo>

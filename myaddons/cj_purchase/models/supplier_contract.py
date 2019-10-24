@@ -30,7 +30,7 @@ class SupplierContract(models.Model):
                                  states=READONLY_STATES,
                                  ondelete='restrict',
                                  track_visibility='onchange',
-                                 domain="[('supplier','=',True)]")
+                                 domain="[('supplier','=',True), ('state', '=', 'finance_manager_confirm')]")
     payment_term_id = fields.Many2one('account.payment.term', '付款方式',
                                       states=READONLY_STATES)
     purchase_sate = fields.Selection([('normal', '正常进货'), ('pause', '暂停进货')], '进货状态',
@@ -73,11 +73,11 @@ class SupplierContract(models.Model):
                                   retuired=True,
                                   track_visibility='onchange',
                                   help='外币币别')
-    user_id = fields.Many2one('res.users', '经办人',
-                              ondelete='restrict',
-                              states=READONLY_STATES,
-                              # default=lambda self: self.env.user,
-                              help='单据经办人',)
+    # user_id = fields.Many2one('res.users', '经办人',
+    #                           ondelete='restrict',
+    #                           states=READONLY_STATES,
+    #                           # default=lambda self: self.env.user,
+    #                           help='单据经办人',)
     need_invoice = fields.Selection([('yes', '需要开票'), ('no', '不需要开票')], '是否开票',
                                     states=READONLY_STATES,
                                     track_visibility='onchange',
