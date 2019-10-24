@@ -100,7 +100,7 @@ class PurchaseOrder(models.Model):
     @api.one
     def _cpt_explain(self):
         pol_obj = self.env['purchase.order.line']
-        pupplier_model_obj = self.env['product.supplier.model']
+        supplier_model_obj = self.env['product.supplier.model']
 
         purchase_explain = ''   # 商品之前采购信息
         time_price_products = []   # 时价商品
@@ -113,7 +113,7 @@ class PurchaseOrder(models.Model):
             if pol:
                 purchase_explain += '商品:%s 上次向 %s 采购价格为 %s\n' % (line.product_id.name, self.partner_id.name, line.price_unit)
 
-            if pupplier_model_obj.search([('product_id', '=', line.product_id.id), ('partner_id', '=', self.partner_id.id), ('time_price', '=', True)]):
+            if supplier_model_obj.search([('product_id', '=', line.product_id.id), ('partner_id', '=', self.partner_id.id), ('time_price', '=', True)]):
                 time_price_products.append(line.product_id.name)
 
         self.explain = purchase_explain
