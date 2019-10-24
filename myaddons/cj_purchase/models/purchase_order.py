@@ -5,6 +5,7 @@ import logging
 from odoo.addons.cj_api.models.tools import digital_to_chinese
 from datetime import datetime, timedelta
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -333,6 +334,7 @@ class PurchaseOrder(models.Model):
     @api.onchange('partner_id', 'company_id')
     def onchange_partner_id(self):
         picking_type_obj = self.env['stock.picking.type']
+        contact_obj = self.env['supplier.contract']
 
         if not self.partner_id:
             self.fiscal_position_id = False
@@ -344,9 +346,15 @@ class PurchaseOrder(models.Model):
             self.payment_term_id = self.partner_id.property_supplier_payment_term_id.id
             self.currency_id = self.partner_id.property_purchase_currency_id.id or self.env.user.company_id.currency_id.id
 
+            # 验证供应商是否有有效合同
+            if not contact_obj.search([('partner_id', '=', self.partner_id.id), ('valid', '=', True)]):
+                raise ValidationError('供应商当前没有有效的合同！')
+
+
         if not self.company_id:
             self.picking_type_id = False
         else:
             picking_type = picking_type_obj.search([('warehouse_id.company_id', '=', self.company_id.id), ('code', '=', 'incoming')], limit=1)
             self.picking_type_id = picking_type.id
         return {}
+
