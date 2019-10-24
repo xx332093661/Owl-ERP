@@ -605,7 +605,7 @@ class ApiMessage(models.Model):
         def get_uom_id():
             uom_name = material['measureUnit']
             if not uom_name:
-                return MyValidationError('06', '计量单位不能为空')
+                raise MyValidationError('06', '计量单位不能为空')
 
             uom_name = uom_name.strip()
             uom = uom_obj.search([('name', '=', uom_name)])
