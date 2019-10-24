@@ -31,7 +31,7 @@ class SaleOrder(models.Model):
 
     cost_ids = fields.One2many('sale.order.line.cost', 'order_id', '销售订单明细成本')
     goods_cost = fields.Float('商品成本', compute='_compute_goods_cost', store=1, digits=(16, DIGITS))
-    shipping_cost = fields.Float(string="物流成本")
+    shipping_cost = fields.Float(string="物流成本", compute='_compute_shipping_cost', store=1, digits=(16, DIGITS))
     box_cost = fields.Float(string="纸箱成本")
     packing_cost = fields.Float(string="打包成本")
     total_cost = fields.Float('总成本', compute='_compute_total_cost', store=1, digits=(16, DIGITS))
@@ -43,11 +43,21 @@ class SaleOrder(models.Model):
     @api.depends('cost_ids')
     def _compute_goods_cost(self):
         """计算订单总成本"""
-        cost_obj = self.env['sale.order.line.cost']
+        # cost_obj = self.env['sale.order.line.cost']
         for order in self:
-            goods_cost = sum([cost.cost * cost.product_qty for cost in cost_obj.search([('order_id', '=', order.id)])])
+            goods_cost = sum(order.cost_ids.mapped('total_cost'))
+            # goods_cost = sum([cost.cost * cost.product_qty for cost in cost_obj.search([('order_id', '=', order.id)])])
             if float_compare(goods_cost, order.goods_cost, precision_rounding=0.001) != 0:
                 order.goods_cost = goods_cost
+
+    @api.multi
+    @api.depends('delivery_ids')
+    def _compute_shipping_cost(self):
+        """计算订单物流成本"""
+        for order in self:
+            shipping_cost = sum(order.delivery_ids.mapped('shipping_cost'))
+            if float_compare(shipping_cost, order.shipping_cost, precision_rounding=0.001) != 0:
+                order.shipping_cost = shipping_cost
 
     @api.multi
     @api.depends('goods_cost', 'shipping_cost', 'box_cost', 'packing_cost')

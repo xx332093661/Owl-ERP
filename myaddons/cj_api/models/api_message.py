@@ -49,7 +49,9 @@ PROCESS_ERROR = {
     '27': '公司没有归属到任何成本核算分组中',
     '28': '商品没有成本',
     '29': '公司没有成本核算分组',
-    '30': '公司编码找不到对应的公司'
+    '30': '公司编码找不到对应的公司',
+    '31': '物流公司编号对应的物流公司没有打到',
+    '32': '未能计算出快递费'
 }
 
 
@@ -1194,11 +1196,7 @@ class ApiMessage(models.Model):
                 picking.action_done()  # 确认出库
                 order.action_done()  # 完成订单
 
-    # 11、mustang-to-erp-logistics-push 物流信息
-    def deal_mustang_to_erp_logistics_push(self, content):
-        """物流单处理"""
-
-    # 12、WMS-ERP-STOCKOUT-QUEUE 订单出库
+    # 11、WMS-ERP-STOCKOUT-QUEUE 订单出库
     def deal_wms_erp_stockout_queue(self, content):
         """出库单处理
         1、验证物流单是否重复、订单和仓库是否存在
@@ -1252,7 +1250,7 @@ class ApiMessage(models.Model):
         express_code = content.get('expressCode')  # 物流单号
         logistics_code = content.get('logisticsCode')
 
-        # 1、验证物流单是否重复、订单和仓库是否存在(express_code为空的情况上为自提)
+        # 1、验证出货单是否重复、订单和仓库是否存在(express_code为空的情况上为自提)
         if express_code:
             if delivery_obj.search([('name', '=', express_code), ('logistics_code', '=', logistics_code)]):
                 raise MyValidationError('17', '物流单号：%s-%s重复' % (logistics_code, express_code, ))
@@ -1268,8 +1266,8 @@ class ApiMessage(models.Model):
         if not warehouse:
             raise MyValidationError('11', '仓库：%s 未找到' % warehouse_code)
 
-        # 2、创建物流单
-        delivery_line_ids = []  # 物流单明细
+        # 2、创建出货单
+        delivery_line_ids = []  # 出货单明细
         across_line_ids = []  # 跨公司调拨明细
         for item in content['items']:
             product = self.get_product(item['goodsCode'])
@@ -1288,8 +1286,9 @@ class ApiMessage(models.Model):
                 'current_cost': cost
             }))
 
-        if express_code:
-            delivery_obj.create({
+        delivery_id = None
+        if express_code:  # 有自提情况，所以出货单可能为空
+            delivery = delivery_obj.create({
                 'name': content['expressCode'],  # 快递单号
                 'logistics_code': content['logisticsCode'],  # 快递公司编号
                 'sale_order_id': order.id,
@@ -1297,8 +1296,9 @@ class ApiMessage(models.Model):
                 'delivery_type': 'send',  # 物流单方向
                 'line_ids': delivery_line_ids,
                 'delivery_state': content['status'],  # 物流单状态
-                'state': 'draft',  # TODO 暂时为draft，具体状态待商讨
+                'state': 'done'
             })
+            delivery_id = delivery.id
 
         # 3、订单确认
         if order.state == 'draft':
@@ -1380,6 +1380,84 @@ class ApiMessage(models.Model):
             raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
         picking.action_done()  # 确认出库
+        picking.delivery_id = delivery_id
+
+    # 12、mustang-to-erp-logistics-push 物流信息
+    def deal_mustang_to_erp_logistics_push(self, content, quantity=0):
+        """物流单处理"""
+        def get_shipping_cost(weight):
+            """计算快递费"""
+            if logistics_code in 'ZTO' and weight:
+                return carrier_obj.get_delivery_fee_by_weight(order, warehouse, logistics_code, weight, quantity)
+
+            raise MyValidationError('32', '未能计算出快递费，目前只计算ZTO的')
+
+        partner_obj = self.env['res.partner']
+        logistics_obj = self.env['delivery.logistics']
+        warehouse_obj = self.env['stock.warehouse']
+        order_obj = self.env['sale.order']
+        delivery_obj = self.env['delivery.order']
+        product_obj = self.env['product.product']
+        carrier_obj = self.env['delivery.carrier']
+
+        content = json.loads(content)
+        logistics_data = content['logistics']  # 运单信息
+        express_code = logistics_data['expressCode']  # 物流单号
+        logistics_code = logistics_data['logisticsCode']  # 物流公司编号
+        warehouse_code = logistics_data['warehouseCode']  # 仓库编码
+        delivery_order_code = logistics_data['deliveryOrderCode']  # 出库单号(订单编号)
+        partner = partner_obj.search([('code', '=', logistics_code)])
+        if not partner:
+            raise MyValidationError('31', '物流公司编号：%s对应的物流公司没有找到(res.partner)' % (logistics_code, ))
+
+        if logistics_obj.search([('partner_id', '=', partner.id), ('name', '=', express_code)]):
+            raise MyValidationError('17', '物流单号：%s-%s重复' % (logistics_code, express_code,))
+
+        warehouse = warehouse_obj.search([('code', '=', warehouse_code)])
+        if not warehouse:
+            raise MyValidationError('11', '仓库编码：%s未能找到对应的仓库' % warehouse_code)
+
+        order = order_obj.search([('name', '=', delivery_order_code)])
+        if not order:
+            raise MyValidationError('14', '出库单号：%s对应的销售订单未找到' % delivery_order_code)
+
+        state_id = self.get_country_state_id(logistics_data['province']) # 省
+        city_id = self.get_city_area_id(logistics_data['city'], state_id)# 市
+        area_id = self.get_city_area_id(logistics_data['district'], state_id, city_id) # 县
+        delivery_id = delivery_obj.search([('name', '=', express_code)]).id
+
+        package_ids = []
+        total_shipping_cost = 0
+        for package in logistics_data['packages']:
+            item_ids = []
+            for item in package['item']:
+                product = product_obj.search([('default_code', '=', item['itemCode'])])
+                if not product:
+                    raise MyValidationError('09', '商品编码：%s未找到商品' % item['itemCode'])
+                item_ids.append((0, 0, {'product_id': product.id, 'quantity': item['quantity']}))
+
+            package_ids.append((0, 0, {
+                'length': package['length'],
+                'height': package['height'],
+                'width': package['width'],
+                'volume': package['volume'],
+                'weight': package['weight'],
+                'item_ids': item_ids,
+            }))
+            total_shipping_cost += get_shipping_cost(package['weight'])
+
+        logistics_obj.cerate({
+            'delivery_id': delivery_id,
+            'order_id': order.id,
+            'warehouse_id': warehouse.id,
+            'partner_id': partner.id,
+            'name': express_code,
+            'state_id': state_id,
+            'city_id': city_id,
+            'area_id': area_id,
+            'package_ids': package_ids,
+            'shipping_cost': total_shipping_cost
+        })
 
     # 13、mustang-to-erp-store-stock-update-record-push 门店库存变更记录
     def deal_mustang_to_erp_store_stock_update_record_push(self, contents):

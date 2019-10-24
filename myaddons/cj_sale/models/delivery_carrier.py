@@ -23,8 +23,8 @@ class DeliveryCarrier(models.Model):
         res['product_id'] = self.env.ref('cj_delivery.product_product_delivery').id
         return res
 
-    def get_delivery_fee(self, sale_order, warehouse, logistics_code, weight, quantity):
-        """计算快递费"""
+    def get_delivery_fee_by_weight(self, sale_order, warehouse, logistics_code, weight, quantity):
+        """根据重量计算快递费"""
         w_state_id = warehouse.state_id.id  # 仓库所在省
         w_city_id = warehouse.city_id.id  # 仓库所在市
         if not w_state_id and not w_city_id:

@@ -13,3 +13,7 @@ access_delivery_order_line_stock_user,delivery_order_line stock_user,model_deliv
 
 access_sale_order_line_cost,sale.channels,model_sale_order_line_cost,base.group_user,1,1,1,0
 
+access_delivery_logistics,delivery_logistics all,model_delivery_logistics,base.group_user,1,0,0,0
+access_delivery_logistics_package,delivery_logistics_package all,model_delivery_logistics_package,base.group_user,1,0,0,0
+access_delivery_logistics_package_product,delivery_logistics_package_product all,model_delivery_logistics_package_product,base.group_user,1,0,0,0
+

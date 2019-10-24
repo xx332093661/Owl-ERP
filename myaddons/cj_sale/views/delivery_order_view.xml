@@ -82,16 +82,16 @@
                                     </form>
                                 </field>
                             </page>
-                            <page string="收货人信息">
-                                <group col="4">
-                                    <field name="consignee_name"/>
-                                    <field name="consignee_mobile"/>
-                                    <field name="address"/>
-                                    <field name="province_text"/>
-                                    <field name="city_text"/>
-                                    <field name="district_text"/>
-                                </group>
-                            </page>
+                            <!--<page string="收货人信息">-->
+                                <!--<group col="4">-->
+                                    <!--<field name="consignee_name"/>-->
+                                    <!--<field name="consignee_mobile"/>-->
+                                    <!--<field name="address"/>-->
+                                    <!--<field name="province_text"/>-->
+                                    <!--<field name="city_text"/>-->
+                                    <!--<field name="district_text"/>-->
+                                <!--</group>-->
+                            <!--</page>-->
                         </notebook>
                     </sheet>
                 <div class="oe_chatter">

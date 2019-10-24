@@ -19,6 +19,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='company_id']" position="replace">
                     <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
+                    <field name="delivery_id" readonly="1"/>
                     <field name="sale_id" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='product_id']" position="before">
@@ -28,21 +29,21 @@
                     <attribute name="domain">[]</attribute>
                 </xpath>
                 <!--在其他信息标签页前加收货人信息标签页、物流信息标签页-->
-                <xpath expr="//page[@name='extra']" position="before">
-                    <page string="收货人信息" name="consignee">
-                        <group col="4">
-                            <field name="consignee_name"/>
-                            <field name="consignee_mobile"/>
-                            <field name="address"/>
-                            <field name="province_text"/>
-                            <field name="city_text"/>
-                            <field name="district_text"/>
-                        </group>
-                    </page>
-                    <page string="物流单" name="delivery">
-                        <field name="delivery_ids" readonly="1"/>
-                    </page>
-                </xpath>
+                <!--<xpath expr="//page[@name='extra']" position="before">-->
+                    <!--<page string="收货人信息" name="consignee">-->
+                        <!--<group col="4">-->
+                            <!--<field name="consignee_name"/>-->
+                            <!--<field name="consignee_mobile"/>-->
+                            <!--<field name="address"/>-->
+                            <!--<field name="province_text"/>-->
+                            <!--<field name="city_text"/>-->
+                            <!--<field name="district_text"/>-->
+                        <!--</group>-->
+                    <!--</page>-->
+                    <!--<page string="物流单" name="delivery">-->
+                        <!--<field name="delivery_ids" readonly="1"/>-->
+                    <!--</page>-->
+                <!--</xpath>-->
             </field>
         </record>
 

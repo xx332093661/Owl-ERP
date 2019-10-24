@@ -23,8 +23,8 @@ MQ_SEQUENCE = {
     'mustang-to-erp-store-stock-push': 8,  # 门店库存
     'WMS-ERP-STOCK-QUEUE': 9,  # 外部仓库库存
     'mustang-to-erp-order-push': 10,  # 订单
-    'mustang-to-erp-logistics-push': 11,  # 物流信息
     'WMS-ERP-STOCKOUT-QUEUE': 12,  # 订单出库
+    'mustang-to-erp-logistics-push': 11,  # 物流信息
     'mustang-to-erp-store-stock-update-record-push': 13,  # 门店库存变更记录
     'mustang-to-erp-order-status-push': 14,  # 订单状态
     'mustang-to-erp-service-list-push': 15,  # 售后服务单
