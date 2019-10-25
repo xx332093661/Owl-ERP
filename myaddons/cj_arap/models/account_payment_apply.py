@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+import logging
+import traceback
+
 from odoo import fields, models, api
-from odoo.osv import expression
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.cj_api.models.tools import digital_to_chinese
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 from .account_payment_term import PAYMENT_TERM_TYPE
+
+_logger = logging.getLogger(__name__)
 
 PAYMENT_APPLY_STATE = [
     ('draft', '草稿'),
@@ -146,6 +150,8 @@ class AccountPaymentApply(models.Model):
             model = self._name
             flow_id = self.env['cj.oa.api'].oa_start_process(code, subject, data, model)
         except Exception:
+            _logger.error('付款申请提交OA审批出错！')
+            _logger.error(traceback.format_exc())
             raise UserError('提交OA审批出错！')
 
         self.write({
