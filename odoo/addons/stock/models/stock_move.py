@@ -772,8 +772,8 @@ class StockMove(models.Model):
         for moves in to_assign.values():
             moves._assign_picking()
         self._push_apply()
-        if merge:
-            return self._merge_moves(merge_into=merge_into)
+        # if merge:
+        #     return self._merge_moves(merge_into=merge_into)
         return self
 
     def _prepare_procurement_values(self):

@@ -14,7 +14,7 @@ from odoo.exceptions import ValidationError
 from .rabbit_mq_receive import RabbitMQReceiveThread
 from .rabbit_mq_send import RabbitMQSendThread
 from .rabbit_mq_receive import MQ_SEQUENCE
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare, float_is_zero
 
 _logger = logging.getLogger(__name__)
 
@@ -51,7 +51,8 @@ PROCESS_ERROR = {
     '29': '公司没有成本核算分组',
     '30': '公司编码找不到对应的公司',
     '31': '物流公司编号对应的物流公司没有打到',
-    '32': '未能计算出快递费'
+    '32': '未能计算出快递费',
+    '33': '公司不一致'
 }
 
 
@@ -1211,7 +1212,7 @@ class ApiMessage(models.Model):
         3、订单确认
         4、出库商品和数量验证
         5、根据出库明细，修改订单对应的stock.picking明细的完成数量
-        6、创建跨公司调拨单
+        6、创建跨公司调拨单(直接报错)
         7、出库
         示例数据：
             {
@@ -1235,13 +1236,13 @@ class ApiMessage(models.Model):
                 "warehouseNo": "51001"
             }
         """
-        def get_cost(pro):
-            """计算跨公司调拨商品成本"""
-            _, cost_group_id = order.company_id.get_cost_group_id()
-            stock_cost = valuation_move_obj.get_product_cost(pro.id, cost_group_id)
-            if not stock_cost:
-                _logger.warning('处理WMS-ERP-STOCKOUT-QUEUE创建跨公司调拨时，商品：%s的当前成本为0，运单号：%s，订单号：%s' % (pro.partner_ref, content['expressCode'], content['deliveryOrderCode']))
-            return stock_cost
+        # def get_cost(pro):
+        #     """计算跨公司调拨商品成本"""
+        #     _, cost_group_id = order.company_id.get_cost_group_id()
+        #     stock_cost = valuation_move_obj.get_product_cost(pro.id, cost_group_id)
+        #     if not stock_cost:
+        #         _logger.warning('处理WMS-ERP-STOCKOUT-QUEUE创建跨公司调拨时，商品：%s的当前成本为0，运单号：%s，订单号：%s' % (pro.partner_ref, content['expressCode'], content['deliveryOrderCode']))
+        #     return stock_cost
 
         content = json.loads(content)
         if content['status'] != '已出库':
@@ -1250,9 +1251,9 @@ class ApiMessage(models.Model):
         order_obj = self.env['sale.order'].sudo()
         warehouse_obj = self.env['stock.warehouse'].sudo()
         delivery_obj = self.env['delivery.order']  # 物流单
-        across_obj = self.env['stock.across.move']  # 跨公司调拨
+        # across_obj = self.env['stock.across.move']  # 跨公司调拨
         product_obj = self.env['product.product']
-        valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值
+        # valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值
 
         express_code = content.get('expressCode')  # 物流单号
         logistics_code = content.get('logisticsCode')
@@ -1273,9 +1274,12 @@ class ApiMessage(models.Model):
         if not warehouse:
             raise MyValidationError('11', '仓库：%s 未找到' % warehouse_code)
 
+        if warehouse.company_id.id != order.company_id.id:
+            raise MyValidationError('33', '出库仓库的公司%s与订单公司%s不一致!' % (warehouse.company_id.name, order.company_id.name))
+
         # 2、创建出货单
         delivery_line_ids = []  # 出货单明细
-        across_line_ids = []  # 跨公司调拨明细
+        # across_line_ids = []  # 跨公司调拨明细
         for item in content['items']:
             product = self.get_product(item['goodsCode'])
 
@@ -1285,13 +1289,13 @@ class ApiMessage(models.Model):
                 'product_uom_qty': item['planQty']
             }))
 
-            cost = get_cost(product)
-            across_line_ids.append((0, 0, {
-                'product_id': product.id,
-                'move_qty': item['planQty'],
-                'cost': cost,
-                'current_cost': cost
-            }))
+            # cost = get_cost(product)
+            # across_line_ids.append((0, 0, {
+            #     'product_id': product.id,
+            #     'move_qty': item['planQty'],
+            #     'cost': cost,
+            #     'current_cost': cost
+            # }))
 
         delivery_id = None
         if express_code:  # 有自提情况，所以出货单可能为空
@@ -1322,13 +1326,10 @@ class ApiMessage(models.Model):
         # 4、出库商品和数量验证
         wait_out_lines = []  # 待出库
         for product, ls in groupby(sorted(order.order_line, key=lambda x: x.product_id), lambda x: x.product_id):  # 按商品分组
+            ls = list(ls)
             wait_qty = sum([line.product_uom_qty for line in ls]) - sum([line.qty_delivered for line in ls])
-            # if float_is_zero(wait_qty, precision_rounding=0.001):
-            #     continue
-
             wait_out_lines.append({
                 'product_id': product.id,
-                # 'default_code': product.default_code,
                 'wait_qty': wait_qty,  # 待出库数量
                 'deliver_qty': 0  # 出库数量
             })
@@ -1358,26 +1359,17 @@ class ApiMessage(models.Model):
 
         for delivery in delivery_line_ids:
             line = delivery[2]
-            stock_move = list(filter(lambda x: x.product_id.id == line['product_id'], picking.move_lines))[0]
-            stock_move.quantity_done = line['product_uom_qty']
+            product_uom_qty = line['product_uom_qty']
 
-        # 6、创建跨公司调拨单
-        if warehouse.company_id.id != order.company_id.id:
-            if not across_obj.search([('origin_sale_order_id', '=', order.id)]):
-                across_obj.create({
-                    'company_id': warehouse.company_id.id,  # 调出仓库的公司
-                    'warehouse_out_id': warehouse.id,  # 调出仓库
-                    'warehouse_in_id': order.warehouse_id.id,  # 调入仓库
-                    'payment_term_id': self.env.ref('account.account_payment_term_immediate').id,  # 引用立即支付支付条款,  # 收款条款
-                    'cost_type': 'increase',  # 成本方法(加价)
-                    'cost_increase_rating': 0,  # 加价百分比
-                    'line_ids': across_line_ids,
-                    'origin_sale_order_id': order.id,  # 来源
-                    # 'origin_type': 'sale'  # 来源类型
-                })
-            # 这里创建跨公司调拨后直接返回，待跨公司调拨完成后，执行对应的订单出库
-            return
+            for move in filter(lambda x: x.product_id.id == line['product_id'], picking.move_lines):
+                qty = min(move.product_uom_qty, product_uom_qty)
+                if float_is_zero(qty, precision_rounding=0.001):
+                    continue
 
+                move.quantity_done = qty
+                product_uom_qty -= qty
+                if float_is_zero(product_uom_qty, precision_rounding=0.001):
+                    break
         # 7、出库
         # 检查可用状态
         if picking.state != 'assigned':

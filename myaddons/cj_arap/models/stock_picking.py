@@ -17,13 +17,21 @@ class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
     @api.multi
-    def write(self, vals):
-        res = super(StockPicking, self).write(vals)
+    def action_done(self):
+        res = super(StockPicking, self).action_done()
         for picking in self:
             if picking.state == 'done':
                 picking._generate_account_invoice()
-
         return res
+
+    # @api.multi
+    # def write(self, vals):
+    #     res = super(StockPicking, self).write(vals)
+    #     for picking in self:
+    #         if 'state' in vals and picking.state == 'done':
+    #             picking._generate_account_invoice()
+    #
+    #     return res
 
     def _generate_account_invoice(self):
         """stock.move的装态为done时自动创建account.invoice(结算单)"""
@@ -540,6 +548,8 @@ class StockPicking(models.Model):
 
     def _generate_sale_invoice_create(self, sale):
         """创建销售订单对应的结算单"""
+        def get_picking_amount():
+            """根据订单计算本次出库的金额"""
 
         def prepare_invoice_line():
             vals_list = []
