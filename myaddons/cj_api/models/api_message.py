@@ -961,7 +961,7 @@ class ApiMessage(models.Model):
 
         def get_partner():
             """计算客户"""
-            if content.get('memberId') and channel_code == 'pos':
+            if content.get('memberId'):
                 member = partner_obj.search([('code', '=', content['memberId']), ('member', '=', True)], limit=1)
                 if not member:
                     raise MyValidationError('12', '会员：%s未找到' % content['memberId'])
