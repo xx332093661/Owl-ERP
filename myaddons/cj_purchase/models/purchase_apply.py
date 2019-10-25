@@ -16,6 +16,19 @@ READONLY_STATES = {
     'draft': [('readonly', False)],
 }
 
+STATES = [
+    ('draft', '草稿'),
+    ('cancel', '取消'),
+    ('confirm1', '已确认'),
+    ('confirm2', '销售经理已审核'),
+    ('pricing', '采购收集报价'),
+    ('confirm3', '采购单等待审批'),
+    ('tendering', '通知供应商发货'),
+    ('delivery', '已发货'),
+    ('part_done', '部分收货'),
+    ('done', '收货完成')
+]
+
 
 class PurchaseApply(models.Model):
     """采购申请"""
@@ -24,48 +37,30 @@ class PurchaseApply(models.Model):
     _description = '采购申请'
     _order = 'id desc'
 
-    name = fields.Char('单据号', required=1, default='NEW', states=READONLY_STATES)
-    apply_uid = fields.Many2one('res.users', '采购申请人', default=lambda self: self.env.user.id, states=READONLY_STATES, required=1)
-    company_id = fields.Many2one('res.company',
-                                 string='采购主体',
-                                 states=READONLY_STATES,
-                                 track_visibility='onchange',
-                                 default=lambda self: self.env['res.company']._company_default_get())
-    warehouse_id = fields.Many2one('stock.warehouse', '入库仓库', states=READONLY_STATES,
-                                   domain="[('company_id', '=', company_id)]")
-    apply_type = fields.Selection(
-        [('other', '其他需求补货'), ('stock', '安全库存补货'), ('group', '团购补货')], '申请类别',
-        default='other', required=1, states=READONLY_STATES)
-    apply_reason = fields.Char('申请原因', states=READONLY_STATES)
-    apply_date = fields.Date('申请日期',
-                             default=lambda self: datetime.now().strftime(
-                                 DATE_FORMAT), states=READONLY_STATES)
-    state = fields.Selection(
-        [('draft', '草稿'),
-         ('cancel', '取消'),
-         ('confirm1', '已确认'),
-         ('confirm2', '销售经理已审核'),
-         ('pricing', '采购收集报价'),
-         ('confirm3', '采购单等待审批'),
-         ('tendering', '通知供应商发货'),
-         ('delivery', '已发货'),
-         ('part_done', '部分收货'),
-         ('done', '收货完成')],
-        '审核状态',
-        track_visibility='onchange',
-        default='draft')
+    name = fields.Char('单据号', required=1, default='NEW', readonly=1, track_visibility='onchange')
+    apply_uid = fields.Many2one('res.users', '采购申请人', default=lambda self: self.env.user.id, readonly=1, states=READONLY_STATES, required=1, track_visibility='onchange')
+    company_id = fields.Many2one('res.company', '采购主体', readonly=1, states=READONLY_STATES, track_visibility='onchange', default=lambda self: self.env.user.company_id.id, domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
+    warehouse_id = fields.Many2one('stock.warehouse', '入库仓库', readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('company_id', '=', company_id)]")
+    apply_type = fields.Selection([('other', '其他需求补货'), ('stock', '安全库存补货'), ('group', '团购补货')], '申请类别', default='other', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    apply_reason = fields.Char('申请原因', readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    apply_date = fields.Date('申请日期', track_visibility='onchange', default=lambda self: datetime.now().strftime(DATE_FORMAT), readonly=1, states=READONLY_STATES)
+    state = fields.Selection(STATES, '审核状态', track_visibility='onchange', default='draft')
     consume_time = fields.Char('消耗时间', compute='_compute_consume_time')
     delay_days = fields.Integer('延期天数', compute='_compute_delay_days')
-    planned_date = fields.Date('要求交货日期', states=READONLY_STATES, )
-    line_ids = fields.One2many('purchase.apply.line', 'apply_id', '申请明细',
-                               states=READONLY_STATES)
-    order_ids = fields.One2many('purchase.order', 'apply_id', '采购订单',
-                                states=READONLY_STATES)
-    order_count = fields.Integer(compute='_compute_order',
-                                 string='订单数量', default=0,
-                                 store=True)
-    attached = fields.Binary('原始单据',states=READONLY_STATES)
+    planned_date = fields.Date('要求交货日期', readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    line_ids = fields.One2many('purchase.apply.line', 'apply_id', '申请明细', readonly=1, states=READONLY_STATES)
+    order_ids = fields.One2many('purchase.order', 'apply_id', '采购订单', readonly=1, states=READONLY_STATES)
+    order_count = fields.Integer(compute='_compute_order', string='订单数量', default=0, store=True)
+    attached = fields.Binary('原始单据',readonly=1, states=READONLY_STATES)
     amount = fields.Float('预计成本', compute='_compute_amount')
+
+    @api.onchange('company_id')
+    def _onchange_company_id(self):
+        self.warehouse_id = False
+        if self.company_id:
+            warehouses = self.env['stock.warehouse'].search([('company_id', '=', self.company_id.id)])
+            if len(warehouses) == 1:
+                self.warehouse_id = warehouses.id
 
     @api.depends('order_ids')
     def _compute_order(self):
@@ -458,6 +453,13 @@ class PurchaseApply(models.Model):
             order_ids.append(order.id)
 
         return order_ids
+
+    @api.model
+    def create(self, vals):
+        if not vals.get('name'):
+            vals['name'] = self.env['ir.sequence'].next_by_code('purchase.apply')
+
+        return super(PurchaseApply, self).create(vals)
 
 
 class PurchaseApplyLine(models.Model):

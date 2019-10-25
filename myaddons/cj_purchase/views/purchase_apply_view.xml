@@ -63,7 +63,7 @@
                         <div class="oe_title">
                             <span class="o_form_label">采购申请</span>
                             <h1>
-                                <field name="name" readonly="0"/>
+                                <field name="name"/>
                             </h1>
                         </div>
                         <group>
