@@ -804,7 +804,12 @@ class ApiMessage(models.Model):
 
             vals_list = []
             for store_stock in store_stocks:
-                product = self.get_product(store_stock['goodsCode'])
+                # TODO 临时处理方案
+                product = self.env['product.product'].search([('default_code', '=', store_stock['goodsCode'])])
+                if not product:
+                    continue
+
+                # product = self.get_product(store_stock['goodsCode'])   # 临时注销
                 product_id = product.id
                 # is_init = get_is_init()  # 商品是否是初次盘点
                 vals_list.append({
@@ -818,8 +823,10 @@ class ApiMessage(models.Model):
                     'product_uom_id': product.uom_id.id,
                     'product_qty': store_stock['quantity']
                 })
-            inventory_line_obj.with_context(company_id=company_id).create(vals_list)
-            inventory.action_validate()
+
+            if vals_list:  # TODO 临时加的
+                inventory_line_obj.with_context(company_id=company_id).create(vals_list)
+                inventory.action_validate()
 
     # 9、WMS-ERP-STOCK-QUEUE 外部仓库库存
     def deal_wms_erp_stock_queue(self, content):
