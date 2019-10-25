@@ -164,7 +164,7 @@ class StockInventory(models.Model):
                             'payment_id': False,
                             'journal_id': journal_id,
                             'name': '盘盈:%s' % product.name,
-                            'account_id': product.product_tmpl_id._get_product_accounts()['expense'].id,
+                            'account_id': product.with_context(force_company=company_id).product_tmpl_id._get_product_accounts()['expense'].id,
                             'currency_id': currency_id,
                             'product_id': product.id,
                             'product_uom_id': product.uom_id.id
@@ -216,7 +216,7 @@ class StockInventory(models.Model):
                             'payment_id': False,
                             'journal_id': journal_id,
                             'name': '盘亏:%s' % product.name,
-                            'account_id': product.product_tmpl_id._get_product_accounts()['expense'].id,
+                            'account_id': product.with_context(force_company=company_id).product_tmpl_id._get_product_accounts()['expense'].id,
                             'currency_id': currency_id,
                             'product_id': product.id,
                             'product_uom_id': product.uom_id.id
