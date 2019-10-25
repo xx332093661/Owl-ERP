@@ -173,16 +173,16 @@
         修改盘点详情视图：
         增加company_id字段
         -->
-        <record id="stock_inventory_line_tree2_inherit" model="ir.ui.view">
-            <field name="name">stock_inventory_line_tree2 inherit</field>
-            <field name="model">stock.inventory.line</field>
-            <field name="inherit_id" ref="stock.stock_inventory_line_tree2"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='state']" position="before">
-                    <field name="company_id" options="{'no_open': 1, 'no_create': 1}"/>
-                </xpath>
-            </field>
-        </record>
+        <!--<record id="stock_inventory_line_tree2_inherit" model="ir.ui.view">-->
+            <!--<field name="name">stock_inventory_line_tree2 inherit</field>-->
+            <!--<field name="model">stock.inventory.line</field>-->
+            <!--<field name="inherit_id" ref="stock.stock_inventory_line_tree2"/>-->
+            <!--<field name="arch" type="xml">-->
+                <!--<xpath expr="//field[@name='state']" position="before">-->
+                    <!--<field name="company_id" options="{'no_open': 1, 'no_create': 1}"/>-->
+                <!--</xpath>-->
+            <!--</field>-->
+        <!--</record>-->
 
 
 
