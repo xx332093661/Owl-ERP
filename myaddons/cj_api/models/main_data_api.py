@@ -63,6 +63,14 @@ QUEUE_NAME = [
         'message_name': 'MDM-ERP-MEMBER-QUEUE',
         'queue_name': '会员'
     },
+    {
+        'company_code': '02014,02020',
+        'source_code': 'auth_distributor',
+        'system_code': 'Owl',
+        'secret_key': 'Vc4hRNwaTYjrHSL0dFzue7bXMpnc170x',
+        'message_name': 'MDM-ERP-DISTRIBUTOR-QUEUE',
+        'queue_name': '经销商'
+    }
 ]
 
 
