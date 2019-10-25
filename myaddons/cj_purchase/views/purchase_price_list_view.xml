@@ -8,6 +8,7 @@
                     <field name="name"/>
                     <field name="order_time"/>
                     <field name="company_id"/>
+                    <field name="state"/>
                 </tree>
             </field>
         </record>
