@@ -4,6 +4,7 @@ from odoo.osv import expression
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.cj_api.models.tools import digital_to_chinese
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+from .account_payment_term import PAYMENT_TERM_TYPE
 
 PAYMENT_APPLY_STATE = [
     ('draft', '草稿'),
@@ -103,18 +104,44 @@ class AccountPaymentApply(models.Model):
             raise ValidationError('只有审核的付款申请才可以提交OA审批！')
 
         try:
+            purchase_orders = self.invoice_split_ids.mapped('purchase_order_id')
+            order_lines = purchase_orders.mapped('order_line')
             code = 'Payment_request'
             subject = '付款申请审核'
+            #  采购订单：%s，订单总额%s，开票金额%s 已付款%s，未付款%s，本次付款:%s
+
+            payment_content = []
+            for order in purchase_orders:
+                order_amount_total = order.amount_total
+                invoice_amount_total = sum(order.invoice_ids.mapped('amount_total'))  # 开票金额
+                invoice_residual_amount = sum(order.invoice_ids.mapped('residual'))  # 开票未付金额
+                invoice_paid_amount = invoice_amount_total - invoice_residual_amount  # 开票已付金额
+                invoice_splits = self.invoice_split_ids.filtered(lambda x: x.invoice_id.id in order.invoice_ids.ids)
+                apply_amount = sum(invoice_splits.mapped('amount')) - sum(invoice_splits.mapped('paid_amount'))  # 本次付款金额
+                payment_content.append('采购订单%s 订单总额%s 开票金额%s 已付款%s 未付款%s 本次付款%s' % (order.name, order_amount_total, invoice_amount_total, invoice_paid_amount, invoice_residual_amount, apply_amount))
+
+            content = [
+                '采购订单编号：%s' % ('，'.join(purchase_orders.mapped('name')), ),
+                '供应商：%s' % self.partner_id.name,
+                '采购的内容：%s' % ('；'.join(['商品：%s 采购数量：%s 采购价：%s' % (line.product_id.partner_ref, line.product_qty, line.price_unit, ) for line in order_lines])),
+                '收货数：%s' % ('；'.join(['商品：%s 收货数量：%s' % (line.product_id.partner_ref, line.qty_received) for line in order_lines if line.qty_received > 0])),
+                '发票是否已经提供：是，发票号：%s' % (self.invoice_register_id.name, ),
+                '付款方式：%s' % ('、'.join([PAYMENT_TERM_TYPE[payment_type] for payment_type in list(set(order_lines.mapped('payment_term_id').mapped('type')))]), ),
+                '付款内容：%s' % ('；'.join(payment_content), )
+            ]
+
+            content = r'\n'.join(content)
+
             data = {
                 '日期': self.apply_date.strftime(DATE_FORMAT),
                 '编号': self.name,
                 '付款金额大写': digital_to_chinese(self.amount),
                 '申请单位': '',
                 '公司名称': self.company_id.name,
-                '付款内容': '采购订单编号： 供应商：  ，对应采购的内容，到货了多少，发票是否已经提供，付款方式，付款的内容',
+                '付款内容': content,
                 '姓名': self.create_uid.name,
                 '部门': '',
-                '付款金额小写': self.amount
+                '付款金额小写': self.amount,
             }
             model = self._name
             flow_id = self.env['cj.oa.api'].oa_start_process(code, subject, data, model)
@@ -153,9 +180,13 @@ class AccountPaymentApply(models.Model):
             'domain': [('id', 'in', self.invoice_ids.ids)]
         }
 
-    def _update_oa_approval_state(self, flow_id):
+    def _update_oa_approval_state(self, flow_id, refuse=False):
         """OA审批通过回调"""
-        self.search([('flow_id', '=', flow_id)]).state = 'oa_accept'  # TODO OA拒绝未处理
+        apply = self.search([('flow_id', '=', flow_id)])
+        if refuse:
+            apply.state = 'oa_accept'  # 审批通过
+        else:
+            apply.state = 'oa_refuse'  # 审批拒绝
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):

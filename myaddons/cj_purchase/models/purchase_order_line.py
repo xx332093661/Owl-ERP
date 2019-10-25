@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import fields, models, api
-from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError
+
 
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
@@ -52,9 +52,8 @@ class PurchaseOrderLine(models.Model):
 
         return result
 
-
     @api.onchange('product_qty', 'product_uom')
-    def onchange_product_id(self):
+    def _onchange_quantity(self):
         result = super(PurchaseOrderLine, self)._onchange_quantity()
 
         if not self.product_id:
