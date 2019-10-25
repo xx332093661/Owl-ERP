@@ -13,6 +13,7 @@
                     <field name="product_min_qty"/>
                     <field name="product_max_qty"/>
                     <field name="purchase_min_qty"/>
+                    <field name="state"/>
                 </tree>
             </field>
         </record>
@@ -22,21 +23,31 @@
             <field name="model">purchase.order.point</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <button name="action_draft" type="object" states="confirm,done" string="设为草稿"
+                                groups="purchase.group_purchase_user"/>
+                        <button name="action_confirm" type="object" states="draft" string="确认" class="oe_highlight"
+                                groups="purchase.group_purchase_user"/>
+                        <button name="action_manager_confirm" type="object" states="confirm" string="采购经理审核" class="oe_highlight"
+                                groups="purchase.group_purchase_manager"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,done"/>
+                    </header>
                     <sheet>
-                        <group>
-                            <div class="alert alert-info" role="alert">
-                                <a style="cursor: pointer" class="alert-link o_form_uri" type="action" name="%(cj_purchase.action_procurement_compute)d">运行订货规则</a> 现在手动触发订货规则。
-                            </div>
-                        </group>
+                        <!--<group>-->
+                            <!--<div class="alert alert-info" role="alert">-->
+                                <!--<a style="cursor: pointer" class="alert-link o_form_uri" type="action" name="%(cj_purchase.action_procurement_compute)d">运行订货规则</a> 现在手动触发订货规则。-->
+                            <!--</div>-->
+                        <!--</group>-->
                         <group>
                             <group>
                                 <field name="name"/>
                                 <field name="product_id" options="{'no_create': 1}"/>
                             </group>
                             <group>
-                                <field name="warehouse_id" widget="selection" groups="stock.group_stock_multi_locations"/>
-                                <field name="location_id" groups="stock.group_stock_multi_locations" options="{'no_create': True}"/>
-                                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                                <field name="company_id" options="{'no_create': True}"/>
+                                <field name="warehouse_id" widget="selection"/>
+                                <field name="location_id" groups="stock.group_stock_multi_locations" options="{'no_create': True, 'no_open': 1}"/>
                             </group>
                         </group>
                         <group>
@@ -45,11 +56,12 @@
                                 <field name="product_max_qty"/>
                                 <field name="purchase_min_qty"/>
                             </group>
-                            <group>
-
-                            </group>
+                            <group/>
                         </group>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
                 </form>
             </field>
         </record>
