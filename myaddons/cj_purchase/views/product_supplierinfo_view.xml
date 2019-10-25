@@ -6,9 +6,19 @@
             <field name="inherit_id" ref="product.product_supplierinfo_tree_view"/>
             <field name="arch" type="xml">
                 <field name="date_end" position="after">
-                    <field name="active"/>
+                    <field name="state"/>
                 </field>
-
+                <field name="product_tmpl_id" position="replace">
+                    <field name="product_id" required="1" string="商品"/>
+                </field>
+                <field name="name" position="before">
+                    <field name="price_list_id" string="报价单号"/>
+                </field>
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="create">0</attribute>
+                    <attribute name="edit">0</attribute>
+                    <attribute name="delete">0</attribute>
+                </xpath>
             </field>
         </record>
 
@@ -17,14 +27,42 @@
             <field name="model">product.supplierinfo</field>
             <field name="inherit_id" ref="product.product_supplierinfo_form_view"/>
             <field name="arch" type="xml">
+                <!--<xpath expr="//group[1]" position="before">-->
+                    <!--<div class="oe_button_box" name="button_box">-->
+                        <!--<button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">-->
+                            <!--<field name="active" widget="boolean_button"/>-->
+                        <!--</button>-->
+                    <!--</div>-->
+                <!--</xpath>-->
                 <xpath expr="//group[1]" position="before">
-                    <div class="oe_button_box" name="button_box">
-                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
-                            <field name="active" widget="boolean_button"/>
-                        </button>
-                    </div>
+                    <group>
+                        <group>
+                            <field name="price_list_id" string="报价单号"/>
+                        </group>
+                        <group>
+                            <field name="state"/>
+                        </group>
+                    </group>
                 </xpath>
+                <field name="product_tmpl_id" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
 
+                <field name="product_id" position="replace">
+                    <!--<field name="product_id" required="1" string="商品" options="{'no_create': 1}"/>-->
+                </field>
+                <field name="product_tmpl_id" position="after">
+                    <field name="product_id" required="1" string="商品" options="{'no_create': 1}"/>
+                </field>
+                <field name="name" position="replace">
+                    <field name="name" context="{'form_view_ref': 'cj_purchase.view_partner_supplier_form', 'tree_view_ref': 'cj_purchase.view_partner_supplier_tree'}"
+                           domain="[('state', '=', 'finance_manager_confirm'), ('supplier', '=', True), ('parent_id', '=', False)]" options="{'no_create': 1}"/>
+                </field>
+                <xpath expr="//form" position="attributes">
+                    <attribute name="create">0</attribute>
+                    <attribute name="edit">0</attribute>
+                    <attribute name="delete">0</attribute>
+                </xpath>
             </field>
         </record>
 

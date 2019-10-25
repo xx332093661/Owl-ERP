@@ -8,6 +8,7 @@ READONLY_STATES = {
     'draft': [('readonly', False)]
 }
 
+STATES = [('draft', '草稿'), ('confirm', '确认'), ('purchase_manager_confirm', '采购经理审核'), ('done', '财务经理审核')]
 
 class PurchasePriceList(models.Model):
     _name = 'purchase.price.list'
@@ -21,7 +22,7 @@ class PurchasePriceList(models.Model):
     supplierinfo_ids = fields.One2many('product.supplierinfo', 'price_list_id', '供应商价格表', readonly=1, states=READONLY_STATES, track_visibility='onchange')
     paper = fields.Binary('纸质文件', readonly=1, states=READONLY_STATES, track_visibility='onchange')
 
-    state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('purchase_manager_confirm', '采购经理审核'), ('done', '财务经理审核')], track_visibility='onchange', default='draft', string='状态')
+    state = fields.Selection(STATES, track_visibility='onchange', default='draft', string='状态')
 
     @api.multi
     def action_confirm(self):

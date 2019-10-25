@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import fields, models, api
+from .purchase_price_list import STATES
 
 
 class SupplierInfo(models.Model):
@@ -13,6 +14,7 @@ class SupplierInfo(models.Model):
     active = fields.Boolean('有效', default=True)
     price_list_id = fields.Many2one('purchase.price.list')
     company_id = fields.Many2one('res.company', 'Company', default=False, index=1)
+    state = fields.Selection(STATES, related='price_list_id.state', string='状态')
 
     @api.multi
     def name_get(self):
