@@ -7,7 +7,7 @@ from odoo import fields, models
 class SaleReport(models.Model):
     _inherit = "sale.report"
 
-    channel_id = fields.Many2one('sale.channels', string=u'销售渠道', readonly=True)
+    channel_id = fields.Many2one('sale.channels', string='销售渠道', readonly=True)
     gross_profit = fields.Float('毛利额', readonly=True)
     gross_rate = fields.Float('毛利率', readonly=True)
 

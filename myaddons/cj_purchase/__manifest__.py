@@ -26,6 +26,7 @@
 
         'data/purchase_data.xml',
         'data/oa_approval_callback.xml',
+        'data/ir_sequence.xml',
 
         'views/purchase_apply_view.xml',
         'views/purchase_order_view.xml',

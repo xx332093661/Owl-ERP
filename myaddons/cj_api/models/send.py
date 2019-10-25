@@ -14,7 +14,7 @@ _logger = logging.getLogger(__name__)
 
 class CjSend(models.Model):
     _name = 'cj.send'
-    _description = u'发送数据'
+    _description = '发送数据'
 
     @api.model
     def do_send(self, product_cost_date=None):

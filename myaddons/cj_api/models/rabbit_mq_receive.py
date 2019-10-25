@@ -57,7 +57,7 @@ class RabbitMQReceiveThread(threading.Thread):
 
     def run(self):
         if not all((self.username, self.password, self.ip, self.port, self.exchange)):
-            _logger.error(u'MQ服务器配置不完整！')
+            _logger.error('MQ服务器配置不完整！')
             return
 
         try:
@@ -76,12 +76,12 @@ class RabbitMQReceiveThread(threading.Thread):
             channel.start_consuming()
 
         except Exception:
-            _logger.error(u'连接MQ服务器出错！')
+            _logger.error('连接MQ服务器出错！')
             _logger.error(traceback.format_exc())
 
     def callback(self, ch, method, properties, body):
         """回调"""
-        _logger.info(u'队列：%s收到数据:%s' % (self.queue_name, body))
+        _logger.info('队列：%s收到数据:%s' % (self.queue_name, body))
         try:
             body_json = json.loads(body, encoding='utf-8')
             vals = {
@@ -105,10 +105,10 @@ class RabbitMQReceiveThread(threading.Thread):
                 obj = api.Environment(mq_cr, 1, {})['api.message']
                 obj.create(vals)
                 mq_cr.commit()
-                _logger.info(u'存储MQ数据结束！')
+                _logger.info('存储MQ数据结束！')
             except Exception:
                 mq_cr.rollback()
-                _logger.error(u'存储MQ数据出错！')
+                _logger.error('存储MQ数据出错！')
                 _logger.error(traceback.format_exc())
             finally:
                 mq_cr.close()

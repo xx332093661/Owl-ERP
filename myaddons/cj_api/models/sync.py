@@ -16,7 +16,7 @@ _logger = logging.getLogger(__name__)
 
 class CjSync(models.Model):
     _name = 'cj.sync'
-    _description = u'同步数据'
+    _description = '同步数据'
 
     @api.model
     def do_sync(self):
@@ -59,10 +59,10 @@ class CjSync(models.Model):
             }
         }
 
-        _logger.info(u'要同步数据:%s' % param)
+        _logger.info('要同步数据:%s' % param)
 
         data = json.dumps(data)
-        # _logger.info(u'上传数据（加密后）:%s' % data)
+        # _logger.info('上传数据（加密后）:%s' % data)
 
         return data
 
@@ -70,14 +70,14 @@ class CjSync(models.Model):
         config_parameter_obj = self.env['ir.config_parameter']
         url = config_parameter_obj.get_param(url_type, '')
         if not url or url == '0':
-            _logger.error(u'上传地址未配置')
+            _logger.error('上传地址未配置')
             return
         return url + suffix
 
     @api.model
     def sync_order(self, orders=None):
         """上传订单"""
-        _logger.info(u'开始同步订单')
+        _logger.info('开始同步订单')
         order_obj = self.env['sale.order'].sudo()
 
         url = self._get_config_url(
@@ -97,16 +97,16 @@ class CjSync(models.Model):
 
             res = requests.post(url, data=data, headers={
                 'Content-Type': 'application/json'}, timeout=10)
-            _logger.info(u'%s响应结果:%s,%s' % (url, res, res.text))
+            _logger.info('%s响应结果:%s,%s' % (url, res, res.text))
             res = json.loads(res.text)
 
             order.sync_state = 'error'
-            if res.get('code') == 'success' or u'已存在' in res.get('msg'):
+            if res.get('code') == 'success' or '已存在' in res.get('msg'):
                 order.sync_state = 'success'
 
             self.env.cr.commit()
 
-        _logger.info(u'结束同步订单')
+        _logger.info('结束同步订单')
         return
 
     def _get_order_info(self, order):

@@ -128,7 +128,7 @@ class PurchaseOrder(models.Model):
     # payment_term_id = fields.Many2one('account.payment.term', '付款方式', states=READONLY)
     flow_id = fields.Char('审批流程ID')
     transport_ids = fields.One2many('purchase.transport', 'order_id', '物流单')
-    state = fields.Selection(string=u'物流状态',
+    state = fields.Selection(string='物流状态',
                              selection=ORDERSTATUS,
                              default='draft')
 

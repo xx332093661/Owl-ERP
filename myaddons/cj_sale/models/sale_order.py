@@ -48,11 +48,11 @@ class SaleOrder(models.Model):
         ('purchase', '采购中')
     ], string='状态', readonly=True, copy=False, index=True, track_visibility='onchange', track_sequence=3, default='draft')
     channel_id = fields.Many2one(comodel_name='sale.channels', string='销售渠道')
-    cj_activity_id = fields.Many2one(comodel_name='cj.sale.activity', string=u'营销活动')
-    # payment_status = fields.Selection(string=u'支付状态', selection=PAYMENTSTATUS,
+    cj_activity_id = fields.Many2one(comodel_name='cj.sale.activity', string='营销活动')
+    # payment_status = fields.Selection(string='支付状态', selection=PAYMENTSTATUS,
     #                                   default='unpaid')
-    aftersale_status = fields.Selection(string=u'售后状态', selection=AFTERSALESTATUS, default='none')
-    logistics_status = fields.Selection(string=u'物流状态', selection=LOGISTICSSTATUS, default='delivered')
+    aftersale_status = fields.Selection(string='售后状态', selection=AFTERSALESTATUS, default='none')
+    logistics_status = fields.Selection(string='物流状态', selection=LOGISTICSSTATUS, default='delivered')
     delivery_ids = fields.One2many('delivery.order', 'sale_order_id', string='出货单', copy=False, readonly=False)
     logistics_ids = fields.One2many('delivery.logistics', 'order_id', '运单')
     # state = fields.Selection(selection_add=[('purchase', '采购中')])

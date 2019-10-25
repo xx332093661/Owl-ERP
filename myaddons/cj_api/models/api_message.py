@@ -63,7 +63,7 @@ class MyValidationError(ValidationError):
 
 class ApiMessage(models.Model):
     _name = 'api.message'
-    _description = u'api消息'
+    _description = 'api消息'
     _order = 'id desc'
 
     message_type = fields.Selection([('interface', '接口返回'), ('rabbit_mq', 'mq接收消息')], '消息类型')
@@ -138,7 +138,7 @@ class ApiMessage(models.Model):
             messages = self.search([('id', 'in', messages.ids)], order='sequence asc, id asc')
 
         total_count = len(messages)
-        _logger.info(u'开始处理{0}条数据'.format(total_count))
+        _logger.info('开始处理{0}条数据'.format(total_count))
 
         sequence_dict = {v: k for k, v in MQ_SEQUENCE.items()}
         res = {}
@@ -179,7 +179,7 @@ class ApiMessage(models.Model):
                     if total_count > 100 and index % 10 == 9:
                         self.env.cr.commit()
 
-        _logger.info(u'数据处理完毕')
+        _logger.info('数据处理完毕')
 
     @api.multi
     def do_proc_content(self):
