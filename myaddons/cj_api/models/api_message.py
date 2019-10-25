@@ -1383,9 +1383,9 @@ class ApiMessage(models.Model):
         picking.delivery_id = delivery_id
 
     # 12、mustang-to-erp-logistics-push 物流信息
-    def deal_mustang_to_erp_logistics_push(self, content, quantity=0):
+    def deal_mustang_to_erp_logistics_push(self, content):
         """物流单处理"""
-        def get_shipping_cost(weight):
+        def get_shipping_cost(weight, quantity=0):
             """计算快递费"""
             if logistics_code in 'ZTO' and weight:
                 return carrier_obj.get_delivery_fee_by_weight(order, warehouse, logistics_code, weight, quantity)
@@ -1401,7 +1401,7 @@ class ApiMessage(models.Model):
         carrier_obj = self.env['delivery.carrier']
 
         content = json.loads(content)
-        logistics_data = content['logistics']  # 运单信息
+        logistics_data = content['body']  # 运单信息
         express_code = logistics_data['expressCode']  # 物流单号
         logistics_code = logistics_data['logisticsCode']  # 物流公司编号
         warehouse_code = logistics_data['warehouseCode']  # 仓库编码
