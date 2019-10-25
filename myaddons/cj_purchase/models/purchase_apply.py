@@ -1,41 +1,33 @@
 # -*- coding: utf-8 -*-
-from odoo import fields, models, api
+import xlrd
+import logging
+import json
 from datetime import datetime, timedelta
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, \
-    DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+
+from odoo import fields, models, api
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 from odoo.tools.float_utils import float_is_zero, float_compare
 from odoo.exceptions import UserError, ValidationError
 
-import logging
-import json
-
 _logger = logging.getLogger(__name__)
 
-try:
-    import xlrd
-except (ImportError, IOError) as err:
-    _logger.debug(err)
 
 READONLY_STATES = {
-    'confirm1': [('readonly', True)],
-    'confirm2': [('readonly', True)],
-    'receive': [('readonly', True)],
-    'done': [('readonly', True)],
+    'draft': [('readonly', False)],
 }
 
 
 class PurchaseApply(models.Model):
     """采购申请"""
-
     _name = 'purchase.apply'
     _inherit = ['mail.thread']
-    _description = u'采购申请'
+    _description = '采购申请'
     _order = 'id desc'
 
-    name = fields.Char('单据号', required=1, default='/', states=READONLY_STATES)
+    name = fields.Char('单据号', required=1, default='NEW', states=READONLY_STATES)
     apply_uid = fields.Many2one('res.users', '采购申请人', default=lambda self: self.env.user.id, states=READONLY_STATES, required=1)
     company_id = fields.Many2one('res.company',
-                                 string=u'采购主体',
+                                 string='采购主体',
                                  states=READONLY_STATES,
                                  track_visibility='onchange',
                                  default=lambda self: self.env['res.company']._company_default_get())
@@ -175,10 +167,10 @@ class PurchaseApply(models.Model):
     def state_confirm1(self):
         """运营确认"""
         if self.state == 'confirm1':
-            raise UserError(u'请不要重复审核')
+            raise UserError('请不要重复审核')
 
         if not self.line_ids:
-            raise UserError(u'请输入申请商品明细!')
+            raise UserError('请输入申请商品明细!')
 
         self.state = 'confirm1'
 
@@ -186,7 +178,7 @@ class PurchaseApply(models.Model):
     def state_confirm2(self):
         """销售经理确认"""
         if self.state == 'confirm2':
-            raise UserError(u'请不要重复审核')
+            raise UserError('请不要重复审核')
 
         self.state = 'confirm2'
 
@@ -194,7 +186,7 @@ class PurchaseApply(models.Model):
     def state_pricing(self):
         """采购确认"""
         if self.state == 'pricing':
-            raise UserError(u'请不要重复审核')
+            raise UserError('请不要重复审核')
 
         self.state = 'pricing'
 
@@ -230,10 +222,10 @@ class PurchaseApply(models.Model):
     def state_confirm3(self):
         """采购经理确认"""
         if self.state == 'confirm3':
-            raise UserError(u'请不要重复审核')
+            raise UserError('请不要重复审核')
 
         if not self.line_ids:
-            raise UserError(u'请输入申请商品明细!')
+            raise UserError('请输入申请商品明细!')
 
         # 创建采购询价单
         self.create_purchase_orders()
@@ -279,7 +271,7 @@ class PurchaseApply(models.Model):
             goods = goods_obj.search([('barcode', '=', barcode)], limit=1)
 
             if not goods:
-                _logger.info(u'产品:%s未找到' % barcode)
+                _logger.info('产品:%s未找到' % barcode)
                 continue
 
             if qty <= 0:
@@ -304,7 +296,7 @@ class PurchaseApply(models.Model):
              ('res_id', '=', self.id),
              ('done', '=', False)])
         if not attachments:
-            raise ValidationError(u'请上传要导入的excel')
+            raise ValidationError('请上传要导入的excel')
 
         for attachment in attachments:
             data = xlrd.open_workbook(
@@ -318,7 +310,7 @@ class PurchaseApply(models.Model):
             self.goods_not_find(not_find, table, nrows)
 
             if not_find:
-                raise ValidationError(u'条码：%s 未找到商品' % ','.join(not_find))
+                raise ValidationError('条码：%s 未找到商品' % ','.join(not_find))
 
             # 创建明细
             self.create_apply_line(nrows, table)
@@ -440,7 +432,7 @@ class PurchaseApply(models.Model):
                 if line.supplierinfo_id != supplierinfo:
                     continue
                 if float_is_zero(line.product_qty, precision_digits=2):
-                    raise ValidationError(u'申请数量不能为0')
+                    raise ValidationError('申请数量不能为0')
 
                 new_order_line = order_line_obj.new({
                     'order_id': order.id,
@@ -470,7 +462,7 @@ class PurchaseApply(models.Model):
 
 class PurchaseApplyLine(models.Model):
     _name = 'purchase.apply.line'
-    _description = u'采购申请明细'
+    _description = '采购申请明细'
 
     apply_id = fields.Many2one('purchase.apply', '采购申请', ondelete='cascade', )
     product_id = fields.Many2one('product.product', '商品')

@@ -43,7 +43,7 @@ class RabbitMQSendThread(threading.Thread):
 
     def run(self):
         if not all((self.username, self.password, self.ip, self.port, self.exchange)):
-            _logger.error(u'MQ服务器配置不完整！')
+            _logger.error('MQ服务器配置不完整！')
             return
 
         try:
@@ -63,7 +63,7 @@ class RabbitMQSendThread(threading.Thread):
             self.send_msg()
 
         except Exception:
-            _logger.error(u'连接MQ服务器出错！')
+            _logger.error('连接MQ服务器出错！')
             _logger.error(traceback.format_exc())
 
     def send_msg(self):

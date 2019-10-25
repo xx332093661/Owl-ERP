@@ -28,7 +28,7 @@ class PurchasePriceListImport(models.TransientModel):
             [('res_model', '=', 'purchase.price.list.import'), ('res_field', '=', 'attachment'), ('res_id', '=', self.id), ])
 
         if not attachment:
-            raise ValidationError(u'请上传要导入的excel')
+            raise ValidationError('请上传要导入的excel')
 
         data = xlrd.open_workbook(
             attachment_obj._full_path(attachment.store_fname))

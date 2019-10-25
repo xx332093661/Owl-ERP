@@ -15,7 +15,7 @@ class AfterSaleOrder(models.Model):
 
     '''
     _name = 'aftersale.order'
-    _description = u'售后服务单'
+    _description = '售后服务单'
     _order = 'id desc'
     _rec_name = 'name'
 
@@ -40,13 +40,13 @@ class AfterSaleOrder(models.Model):
         'done': [('readonly', True)],
     }
     name = fields.Char(string="售后服务单", states=STATES)
-    sale_order_id = fields.Many2one('sale.order', string=u'关联销售单', states=STATES)
+    sale_order_id = fields.Many2one('sale.order', string='关联销售单', states=STATES)
     company_id = fields.Many2one('res.company', related='sale_order_id.company_id')
     date = fields.Date('售后日期', default=lambda self: datetime.now().strftime(DATE_FORMAT))
-    channel_id = fields.Many2one('sale.channels', string=u'销售渠道', states=STATES)
-    aftersale_type = fields.Selection(string=u'售后类型', selection=AFTERSALETYPE, default='reback', states=STATES)
-    amount = fields.Float(string=u'退款金额', states=STATES)
-    pay_no = fields.Char(string=u'退款单号', states=STATES)
+    channel_id = fields.Many2one('sale.channels', string='销售渠道', states=STATES)
+    aftersale_type = fields.Selection(string='售后类型', selection=AFTERSALETYPE, default='reback', states=STATES)
+    amount = fields.Float(string='退款金额', states=STATES)
+    pay_no = fields.Char(string='退款单号', states=STATES)
     note = fields.Text("退货说明")
     in_ids = fields.One2many('aftersale.order.line', 'after_order_id', string='退货信息',
                              domain=[('stock_type', '=', 'in')], states=STATES)
@@ -54,7 +54,7 @@ class AfterSaleOrder(models.Model):
                               domain=[('stock_type', '=', 'out')], states=STATES)
     in_picking_id = fields.Many2one('stock.picking', '入库')
     out_picking_id = fields.Many2one('stock.picking', '入库')
-    state = fields.Selection(string=u'订单状态', selection=ORDERSTATUS, default='draft')
+    state = fields.Selection(string='订单状态', selection=ORDERSTATUS, default='draft')
 
     @api.one
     def action_confirm(self):
@@ -142,7 +142,7 @@ class AfterSaleOrderLine(models.Model):
            -记录对应数量
     '''
     _name = 'aftersale.order.line'
-    _description = u'售后服务单订单行'
+    _description = '售后服务单订单行'
     _order = 'id desc'
     _rec_name = 'name'
 
@@ -153,9 +153,9 @@ class AfterSaleOrderLine(models.Model):
 
     name = fields.Char(string="售后服务单数据行")
     after_order_id = fields.Many2one('aftersale.order', string='售后服务单', required=True, ondelete='cascade', index=True, copy=False)
-    sale_order_id = fields.Many2one('sale.order', related='after_order_id.sale_order_id',string=u'关联销售单')
+    sale_order_id = fields.Many2one('sale.order', related='after_order_id.sale_order_id',string='关联销售单')
     sale_order_line_id = fields.Many2one('sale.order.line', string='销售单行')
-    stock_type = fields.Selection(string=u'售后类型', selection=AFTERSALETYPE, default='in')
+    stock_type = fields.Selection(string='售后类型', selection=AFTERSALETYPE, default='in')
     product_id = fields.Many2one('product.product', string='商品', domain=[('sale_ok', '=', True)],
                                  change_default=True, ondelete='restrict')
     product_qty = fields.Float(string='售后数量', required=True, default=1.0)

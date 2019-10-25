@@ -7,21 +7,21 @@ _logger = logging.getLogger(__name__)
 
 class SaleChannels(models.Model):
     _name = 'sale.channels'
-    _description = u'销售渠道'
+    _description = '销售渠道'
     _order = 'id desc'
     _rec_name = 'complete_name'
 
-    active = fields.Boolean(string=u'active', default=True)
+    active = fields.Boolean(string='active', default=True)
     name = fields.Char(string='渠道名称', required=True, index=True)
     complete_name = fields.Char(
         '完整名称', compute='_compute_complete_name',
         store=True)
-    principal = fields.Many2one(comodel_name='res.users', string=u'负责人')
+    principal = fields.Many2one(comodel_name='res.users', string='负责人')
     description = fields.Text(string='渠道描述')
     code = fields.Char(string='渠道标识', required=True, index=True, copy=False)
     parent_id = fields.Many2one('sale.channels', '上级渠道')
     child_ids = fields.One2many('sale.channels', 'parent_id', '下级渠道')
-    company_id = fields.Many2one('res.company', string=u'公司', default=lambda self: self.env.user.company_id.id)
+    company_id = fields.Many2one('res.company', string='公司', default=lambda self: self.env.user.company_id.id)
 
     _sql_constraints = [
         ('code_unique', 'UNIQUE(parent_id, code)', '渠道标识不允许出现重复!'),

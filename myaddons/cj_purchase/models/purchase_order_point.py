@@ -14,7 +14,7 @@ READONLY_STATES = {
 class PurchaseOrderPoint(models.Model):
     """采购订货规则"""
     _name = 'purchase.order.point'
-    _description = u'采购订货规则'
+    _description = '采购订货规则'
     _inherit = ['mail.thread']
 
     name = fields.Char('名称', readonly=1, states=READONLY_STATES, track_visibility='onchange')

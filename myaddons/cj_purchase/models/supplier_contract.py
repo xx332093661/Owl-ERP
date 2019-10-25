@@ -12,7 +12,7 @@ READONLY_STATES = {
 
 class SupplierContract(models.Model):
     _name = 'supplier.contract'
-    _description = u'供应商合同'
+    _description = '供应商合同'
     _inherit = ['mail.thread']
     _order = 'id desc'
 
