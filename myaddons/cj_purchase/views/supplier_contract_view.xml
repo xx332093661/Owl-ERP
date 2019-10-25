@@ -23,9 +23,14 @@
             <field name="arch" type="xml">
                 <form string="供应商合同">
 					<header>
-						<button name="supplier_contract_done" states="draft" string="审核" type="object" class="oe_highlight" groups=""/>
-						<button name="supplier_contract_draft" states="done" string="反审核" type="object"/>
-						<field name="state" widget="statusbar" statusbar_visible="draft,done" statusbar_colors="{'done':'blue'}" readonly="1"/>
+						<button name="action_confirm" states="draft" string="确认" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/>
+                        <button name="action_draft" type="object" states="confirm" string="设为草稿"
+                                groups="purchase.group_purchase_user"/>
+
+                        <button name="action_manager_confirm" type="object" states="confirm" string="采购经理审核" class="oe_highlight"
+                                groups="purchase.group_purchase_manager"/>
+
+						<field name="state" widget="statusbar" statusbar_visible="draft,confirm,done" statusbar_colors="{'done':'blue'}"/>
                     </header>
 
                     <sheet>
