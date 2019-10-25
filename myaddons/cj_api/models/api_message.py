@@ -900,7 +900,7 @@ class ApiMessage(models.Model):
                 return content['storeCode']
             if channel_code == 'enomatic':  # 销售渠道为售酒机，则销售主体是02014(四川省川酒集团信息科技有限公司)
                 return '02014'
-            if channel_code in ['jd', 'tmall', 'taobao']:  # 线上渠道，销售主体默认为02020（泸州电子商务发展有限责任公司）
+            if channel_code in ['jd', 'tmall', 'taobao', 'jxw']:  # 线上渠道，销售主体默认为02020（泸州电子商务发展有限责任公司）
                 return '02020'
 
             return content['storeCode']
@@ -961,7 +961,7 @@ class ApiMessage(models.Model):
 
         def get_partner():
             """计算客户"""
-            if content.get('memberId'):
+            if content.get('memberId') and channel_code == 'pos':
                 member = partner_obj.search([('code', '=', content['memberId']), ('member', '=', True)], limit=1)
                 if not member:
                     raise MyValidationError('12', '会员：%s未找到' % content['memberId'])

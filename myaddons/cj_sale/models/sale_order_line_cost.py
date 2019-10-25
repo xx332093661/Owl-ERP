@@ -51,11 +51,11 @@ class SaleOrder(models.Model):
                 order.goods_cost = goods_cost
 
     @api.multi
-    @api.depends('delivery_ids')
+    @api.depends('logistics_ids')
     def _compute_shipping_cost(self):
         """计算订单物流成本"""
         for order in self:
-            shipping_cost = sum(order.delivery_ids.mapped('shipping_cost'))
+            shipping_cost = sum(order.logistics_ids.mapped('shipping_cost'))
             if float_compare(shipping_cost, order.shipping_cost, precision_rounding=0.001) != 0:
                 order.shipping_cost = shipping_cost
 
