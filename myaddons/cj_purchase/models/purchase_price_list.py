@@ -21,12 +21,40 @@ class PurchasePriceList(models.Model):
     supplierinfo_ids = fields.One2many('product.supplierinfo', 'price_list_id', '供应商价格表', readonly=1, states=READONLY_STATES, track_visibility='onchange')
     paper = fields.Binary('纸质文件', readonly=1, states=READONLY_STATES, track_visibility='onchange')
 
-    state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('purchase_manager_confirm', '采购经理审核'), ('done', '财务经理审核')], track_visibility='onchange')
+    state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('purchase_manager_confirm', '采购经理审核'), ('done', '财务经理审核')], track_visibility='onchange', default='draft', string='状态')
 
+    @api.multi
+    def action_confirm(self):
+        """确认"""
+        if self.state != 'draft':
+            raise ValidationError('只有草稿单据才能确认！')
 
-class ProductSupplierinfo(models.Model):
-    """供应商价格表"""
+        if not self.supplierinfo_ids:
+            raise ValidationError('请输入报价明细！')
 
-    _inherit = 'product.supplierinfo'
+        self.state = 'confirm'
 
-    price_list_id = fields.Many2one('purchase.price.list')
+    @api.multi
+    def action_draft(self):
+        """设为草稿"""
+        if self.state != 'confirm':
+            raise ValidationError('只有确认的单据才能设为草稿！')
+
+        self.state = 'draft'
+
+    @api.multi
+    def action_manager_confirm(self):
+        """采购经理审核"""
+        if self.state != 'confirm':
+            raise ValidationError('只有确认的单据才能采购经理审核！')
+
+        self.state = 'purchase_manager_confirm'
+
+    @api.multi
+    def action_finance_manager_confirm(self):
+        """财务经理审核"""
+        if self.state != 'purchase_manager_confirm':
+            raise ValidationError('只有采购经理审核的单据才能财务经理审核！')
+
+        self.state = 'done'
+

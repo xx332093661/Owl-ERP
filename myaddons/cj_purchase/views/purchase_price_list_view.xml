@@ -17,6 +17,22 @@
             <field name="model">purchase.price.list</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <button name="action_confirm" type="object" states="draft" string="确认" class="oe_highlight"
+                                groups="purchase.group_purchase_user"/>
+
+                        <button name="action_draft" type="object" states="confirm" string="设为草稿"
+                                groups="purchase.group_purchase_user"/>
+
+                        <button name="action_manager_confirm" type="object" states="confirm" string="采购经理审核" class="oe_highlight"
+                                groups="purchase.group_purchase_manager"/>
+
+                        <button name="action_finance_manager_confirm" type="object" states="purchase_manager_confirm" string="财务经理审核" class="oe_highlight"
+                                groups="account.group_account_manager"/>
+
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,purchase_manager_confirm,done"/>
+                    </header>
                     <sheet>
 
                         <div class="oe_title">
@@ -36,16 +52,35 @@
                         <notebook>
                             <page string="明细">
                                 <field name="supplierinfo_ids" context="{'visible_product_tmpl_id':False}">
-                                    <!--<tree>-->
-                                        <!--<field name="product_id" required="1" options="{'no_create': 1}"/>-->
-                                        <!--<field name="product_uom" options="{'no_open': 1, 'no_create': 1}"-->
-                                               <!--required="1"/>-->
-                                        <!--<field name="supplierinfo_id" options="{'no_create': 1}" context="{'purchase_price_list_line': 1}"/>-->
-                                        <!--<field name="price"/>-->
-                                        <!--<field name="product_qty" required="1" string="申请数量"/>-->
-                                        <!--<field name="amount"/>-->
-
-                                    <!--</tree>-->
+                                    <tree>
+                                        <field name="name"/>
+                                        <field name="product_id" required="1" options="{'no_create': 1}"/>
+                                        <field name="price"/>
+                                        <field name="min_qty" required="1"/>
+                                        <field name="date_start"/>
+                                        <field name="date_end"/>
+                                    </tree>
+                                    <form>
+                                        <group>
+                                            <group string="供应商">
+                                                <field name="name" context="{'form_view_ref': 'cj_purchase.view_partner_supplier_form', 'tree_view_ref': 'cj_purchase.view_partner_supplier_tree'}"
+                                                       domain="[('state', '=', 'finance_manager_confirm'), ('supplier', '=', True), ('parent_id', '=', False)]" options="{'no_create': 1}"/>
+                                                <field name="product_name"/>
+                                                <field name="product_code"/>
+                                                <field name="delay"/>
+                                            </group>
+                                            <group string="价格表">
+                                                <field name="product_id" options="{'no_create': 1}" required="1"/>
+                                                <field name="min_qty"/>
+                                                <field name="price"/>
+                                                <label for="date_start" string="有效期"/>
+                                                <div><field name="date_start" class="oe_inline"/> 至 <field name="date_end" class="oe_inline"/></div>
+                                            </group>
+                                            <group string="其他信息" groups="base.group_multi_company">
+                                                <field name="company_id" options="{'no_create': True}"/>
+                                            </group>
+                                        </group>
+                                    </form>
                                 </field>
                             </page>
                             <page string="纸质单据">

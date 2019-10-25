@@ -8,8 +8,11 @@ class SupplierInfo(models.Model):
         1.修改采购申请下拉显示内容
     """
     _inherit = 'product.supplierinfo'
+    _name = 'product.supplierinfo'
 
     active = fields.Boolean('有效', default=True)
+    price_list_id = fields.Many2one('purchase.price.list')
+    company_id = fields.Many2one('res.company', 'Company', default=False, index=1)
 
     @api.multi
     def name_get(self):
