@@ -1194,6 +1194,9 @@ class ApiMessage(models.Model):
                 order.action_confirm()
                 order.picking_ids.filtered(lambda x: x.state == 'draft').action_confirm()  # 确认草稿状态的stock.picking
                 picking = order.picking_ids[0]
+                for move in picking.move_lines:
+                    move.quantity_done = move.product_uom_qty
+
                 # 检查可用状态
                 if picking.state != 'assigned':
                     picking.action_assign()
