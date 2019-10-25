@@ -124,6 +124,8 @@ class AccountPaymentApply(models.Model):
                 apply_amount = sum(invoice_splits.mapped('amount')) - sum(invoice_splits.mapped('paid_amount'))  # 本次付款金额
                 payment_content.append('采购订单%s 订单总额%s 开票金额%s 已付款%s 未付款%s 本次付款%s' % (order.name, order_amount_total, invoice_amount_total, invoice_paid_amount, invoice_residual_amount, apply_amount))
 
+            _logger.info('0' * 100)
+            _logger.info([PAYMENT_TERM_TYPE[payment_type] for payment_type in list(set(order_lines.mapped('payment_term_id').mapped('type')))])
             content = [
                 '采购订单编号：%s' % ('，'.join(purchase_orders.mapped('name')), ),
                 '供应商：%s' % self.partner_id.name,
