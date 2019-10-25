@@ -1491,6 +1491,10 @@ class ApiMessage(models.Model):
         update_type = contents[0]['type']  # 变更类型
         order_name = contents[0]['updateCode']  # 变更单号（如果是订单产生的库存变化，那变更类型就是销售出库，变更单号就是订单号）
 
+        ##兼容包含STOCK_的类型
+        if  not 'STOCK_' in update_type:
+            update_type = 'STOCK_'+update_type
+
         # 销售出库
         if update_type == 'STOCK_01002':
             sale_order = sale_order_obj.search([('name', '=', order_name), ])
@@ -1876,8 +1880,7 @@ class ApiMessage(models.Model):
             picking.button_validate()  # 确认出库
             return
 
-        if  not 'STOCK_' in update_type:
-            update_type = 'STOCK_'+update_type
+
         # 销售退货冲销
         if update_type == 'STOCK_01003':
             raise MyValidationError('26', '未实现的处理')
