@@ -140,11 +140,11 @@ class AccountPaymentApply(models.Model):
                 '日期': self.apply_date.strftime(DATE_FORMAT),
                 '编号': self.name,
                 '付款金额大写': digital_to_chinese(self.amount),
-                '申请单位': '',
-                '公司名称': self.company_id.name,
+                '申请单位': self.company_id.name,
+                '公司名称': self.partner_id.name,
                 '付款内容': content,
                 '姓名': self.create_uid.name,
-                '部门': '',
+                '部门': '业务',
                 '付款金额小写': self.amount,
             }
             model = self._name

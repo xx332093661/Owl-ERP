@@ -77,6 +77,5 @@ class PurchaseOrderLine(models.Model):
                 if res.product_max_qty < self.product_id.qty_available +  self.product_qty:
                     raise ValidationError('本次采购库存导致超出最大采购库存限制，该商品当前库存：%s  总库存不能超过： %s！' % (self.product_id.qty_available, res.product_max_qty))
 
-
         return result
 
