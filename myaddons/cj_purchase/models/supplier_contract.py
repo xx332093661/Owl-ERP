@@ -6,7 +6,7 @@ from odoo.exceptions import UserError, ValidationError
 
 
 READONLY_STATES = {
-    'done': [('readonly', True)],
+    'draft': [('readonly', False)],
 }
 
 
@@ -23,7 +23,7 @@ class SupplierContract(models.Model):
     returns_sate = fields.Selection([('normal', '可退货'), ('prohibit', '禁止退货')], '退货状态', readonly=1, states=READONLY_STATES, track_visibility='onchange', default='normal')
     settlement_sate = fields.Selection([('normal', '正常结算'), ('pause', '暂停结算')], '结算状态', readonly=1, states=READONLY_STATES, track_visibility='onchange', default='normal')
     billing_period = fields.Integer('账期', readonly=1, states=READONLY_STATES, track_visibility='onchange', default=30)
-    date_from = fields.Date('开始日期', states=READONLY_STATES, required=1, track_visibility='onchange', default=lambda self: fields.Date.context_today(self), copy=0, help='合同开始执行日期')
+    date_from = fields.Date('开始日期', readonly=1, states=READONLY_STATES, required=1, track_visibility='onchange', default=lambda self: fields.Date.context_today(self), copy=0, help='合同开始执行日期')
     date_to = fields.Date('截止日期', readonly=1, states=READONLY_STATES, required=1, track_visibility='onchange', copy=0, default=lambda self: fields.Date.context_today(self) + timedelta(days=365))
     note = fields.Text('备注', track_visibility='onchange', readonly=1, states=READONLY_STATES)
     state = fields.Selection([('draft', '未审核'), ('confirm', '确认'), ('done', '采购经理审核')], '审核状态', readonly=1, index=1, copy=0, track_visibility='onchange', default='draft')
@@ -41,7 +41,7 @@ class SupplierContract(models.Model):
         if not self:
             return
         for contract in self:
-            if not (contract.date_from <= date  <= contract.date_to) or contract.state != 'done' or contract.purchase_sate != 'normal':
+            if not (contract.date_from <= date <= contract.date_to) or contract.state != 'done' or contract.purchase_sate != 'normal':
                 contract.valid = False
             else:
                 contract.valid = True
@@ -66,7 +66,7 @@ class SupplierContract(models.Model):
         return [('id', 'not in', contract_ids)]
 
     @api.multi
-    @api.constrains()
+    @api.constrains('date_from', 'date_to')
     def _check_date_from_date_to(self):
         for res in self:
             if res.date_to <= res.date_from:
