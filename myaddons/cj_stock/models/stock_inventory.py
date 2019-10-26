@@ -361,6 +361,7 @@ class InventoryLine(models.Model):
         company_id = vals.get('company_id')
         if not company_id:
             company_id = inventory_obj.browse(vals['inventory_id']).company_id.id
+            vals['company_id'] = company_id
 
         product_id = vals['product_id']
         company = company_obj.browse(company_id)
