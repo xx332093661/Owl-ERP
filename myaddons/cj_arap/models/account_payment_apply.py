@@ -19,6 +19,12 @@ PAYMENT_APPLY_STATE = [
     ('paying', '付款中'),
     ('done', '付款完成')
 ]
+PAYMENT_TYPE = [
+    ('cash','现金'),
+    ('bank','转账'),
+    ('other','其它'),
+
+]
 
 STATES = {'draft': [('readonly', False)]}
 
@@ -33,12 +39,14 @@ class AccountPaymentApply(models.Model):
                                  readonly=1,
                                  states=STATES,
                                  required=1, domain="[('supplier', '=', True)]", track_visibility='onchange')
-    company_id = fields.Many2one('res.company', '公司', readonly=1, track_visibility='onchange')
+    company_id = fields.Many2one('res.company', '公司',default=lambda self : self.env.user.company_id.id,  readonly=1, track_visibility='onchange')
     apply_date = fields.Date('申请日期',
                              readonly=1,
                              states=STATES,
                              default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')),
                              required=1, track_visibility='onchange')
+
+
     payment_date = fields.Date('要求付款日期',
                                default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')),
                                required=1, track_visibility='onchange')
@@ -49,6 +57,11 @@ class AccountPaymentApply(models.Model):
     invoice_split_ids = fields.One2many('account.invoice.split', 'apply_id', '账单分期', readonly=1, states=STATES, required=1)
     payment_ids = fields.One2many('account.payment', 'apply_id', '付款记录', readonly=1)
     invoice_register_id = fields.Many2one('account.invoice.register', '登记的发票')
+
+    pay_type =  fields.Selection(PAYMENT_TYPE, '支付方式', default='bank',  track_visibility='onchange')
+    pay_name =  fields.Char('收款账户名')
+    pay_bank =  fields.Char('开户行')
+    pay_account =  fields.Char('收款账号')
 
     purchase_order_ids = fields.Many2many('purchase.order', compute='_compute_purchase_invoice', string='关联的采购订单')
     invoice_ids = fields.Many2many('account.invoice', compute='_compute_purchase_invoice', string='关联的账单')
@@ -111,42 +124,52 @@ class AccountPaymentApply(models.Model):
             purchase_orders = self.invoice_split_ids.mapped('purchase_order_id')
             order_lines = purchase_orders.mapped('order_line')
             code = 'Payment_request'
-            subject = '付款申请审核'
+            subject = '供应商付款申请审核[%s]' %(self.partner_id.name)
             #  采购订单：%s，订单总额%s，开票金额%s 已付款%s，未付款%s，本次付款:%s
 
             payment_content = []
             for order in purchase_orders:
                 order_amount_total = order.amount_total
                 invoice_amount_total = sum(order.invoice_ids.mapped('amount_total'))  # 开票金额
-                invoice_residual_amount = sum(order.invoice_ids.mapped('residual'))  # 开票未付金额
-                invoice_paid_amount = invoice_amount_total - invoice_residual_amount  # 开票已付金额
-                invoice_splits = self.invoice_split_ids.filtered(lambda x: x.invoice_id.id in order.invoice_ids.ids)
+
+                invoice_splits = self.invoice_split_ids.filtered(lambda x: x.purchase_order_id.id == order.id)
+                invoice_paid_amount = sum(invoice_splits.mapped('paid_amount'))  # 开票已付金额
+                invoice_residual_amount = order_amount_total - invoice_paid_amount  # 开票未付金额
+
                 apply_amount = sum(invoice_splits.mapped('amount')) - sum(invoice_splits.mapped('paid_amount'))  # 本次付款金额
-                payment_content.append('采购订单%s 订单总额%s 开票金额%s 已付款%s 未付款%s 本次付款%s' % (order.name, order_amount_total, invoice_amount_total, invoice_paid_amount, invoice_residual_amount, apply_amount))
+                payment_content.append('采购订单%s  订单总额：%s  已付款：%s 未付款：%s 本次付款：%s' % (order.name, order_amount_total, invoice_paid_amount, invoice_residual_amount, apply_amount))
 
             content = [
                 '采购订单编号：%s' % ('，'.join(purchase_orders.mapped('name')), ),
                 '供应商：%s' % self.partner_id.name,
-                '采购的内容：%s' % ('；'.join(['商品：%s 采购数量：%s 采购价：%s' % (line.product_id.partner_ref, line.product_qty, line.price_unit, ) for line in order_lines])),
-                '收货数：%s' % ('；'.join(['商品：%s 收货数量：%s' % (line.product_id.partner_ref, line.qty_received) for line in order_lines if line.qty_received > 0])),
-                '发票是否已经提供：是，发票号：%s' % (self.invoice_register_id.name, ),
-                '付款方式：%s' % ('、'.join([dict(PAYMENT_TERM_TYPE)[payment_type] for payment_type in list(set(order_lines.mapped('payment_term_id').mapped('type')))]), ),
-                '付款内容：%s' % ('；'.join(payment_content), )
+                '发票是否已经提供：是，发票号：%s ,金额：%s' % (self.invoice_register_id.name, self.invoice_register_id.amount),
+                '付款方式：%s' % ('、'.join([dict(PAYMENT_TERM_TYPE)[payment_type] for payment_type in
+                                       list(set(order_lines.mapped('payment_term_id').mapped('type')))]),),
+                '付款内容：\n %s' % ('；'.join(payment_content),),
+                '\n采购的内容：\n %s' % ('；'.join(['商品：%s 采购数量：%s 采购价：%s' % (line.product_id.partner_ref, line.product_qty, line.price_unit, ) for line in order_lines])),
+                '收货数：\n %s' % ('；'.join(['商品：%s 收货数量：%s' % (line.product_id.partner_ref, line.qty_received) for line in order_lines if line.qty_received > 0])),
+
             ]
 
-            content = r'\n'.join(content)
+            content = '\n'.join(content)
 
             data = {
                 '日期': self.apply_date.strftime(DATE_FORMAT),
                 '编号': self.name,
                 '付款金额大写': digital_to_chinese(self.amount),
+                '收款单位': self.pay_name or '',
+                '开户银行': self.pay_bank or '',
+                '账户': self.pay_account or '',
+                '结算方式': dict(PAYMENT_TYPE)[self.pay_type] or '转账',
                 '申请单位': self.company_id.name,
-                '公司名称': self.partner_id.name,
+                '公司名称': self.company_id.name,
                 '付款内容': content,
                 '姓名': self.create_uid.name,
                 '部门': '业务',
                 '付款金额小写': self.amount,
             }
+
+
             model = self._name
             flow_id = self.env['cj.oa.api'].oa_start_process(code, subject, data, model)
         except Exception:

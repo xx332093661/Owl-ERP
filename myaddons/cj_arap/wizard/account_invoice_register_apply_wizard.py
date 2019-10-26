@@ -3,6 +3,7 @@ from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 
 
+
 class AccountInvoiceRegisterApplyWizard(models.TransientModel):
     _name = 'account.invoice.register.apply.wizard'
     _description = '发票登记申请付款向导'
@@ -13,6 +14,7 @@ class AccountInvoiceRegisterApplyWizard(models.TransientModel):
     payment_date = fields.Date('要求付款日期', default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')), required=1)
     invoice_name = fields.Char('发票号', readonly=1)
     invoice_split_ids = fields.Many2many('account.invoice.split', string='账单分期', readonly=1)
+
 
     @api.model
     def default_get(self, fields_list):

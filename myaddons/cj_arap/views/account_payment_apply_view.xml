@@ -80,6 +80,10 @@
                                     <button name="action_view_account_invoice" type="object" string="查看" class="oe_link"/>
                                 </div>
                                <!--<field name="payment_id"/>-->
+                               <field name="pay_type"/>
+                               <field name="pay_name"/>
+                               <field name="pay_bank"/>
+                               <field name="pay_account"/>
                            </group>
                        </group>
                        <notebook>

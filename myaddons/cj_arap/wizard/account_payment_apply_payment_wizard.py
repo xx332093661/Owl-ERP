@@ -3,7 +3,12 @@ from odoo import fields, models, api
 from odoo.exceptions import UserError
 from odoo.tools import float_compare
 from odoo.exceptions import ValidationError
+PAYMENT_TYPE = [
+    ('cash','现金'),
+    ('bank','转账'),
+    ('other','其它'),
 
+]
 
 class AccountPaymentApplyPaymentWizard(models.TransientModel):
     _name = 'account.payment.apply.payment.wizard'
@@ -18,6 +23,11 @@ class AccountPaymentApplyPaymentWizard(models.TransientModel):
     payment_date = fields.Date(string='付款日期', default=fields.Date.context_today, required=1, copy=False)
     payment_method_id = fields.Many2one('account.payment.method', string='付款方法类型', required=1)
     hide_payment_method = fields.Boolean(compute='_compute_hide_payment_method', string="隐藏付款方式")
+
+    pay_type =  fields.Selection(PAYMENT_TYPE, '支付方式', default='bank', track_visibility='onchange')
+    pay_name =  fields.Char('收款账户名')
+    pay_bank =  fields.Char('开户行')
+    pay_account =  fields.Char('收款账号')
 
     @api.multi
     @api.depends('journal_id')

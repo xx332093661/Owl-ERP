@@ -39,7 +39,7 @@
 
     <menuitem name="供应商价格明细"
               action="product.product_supplierinfo_type_action" id="menu_purchase_gysjgb"
-              parent="menu_purchase_main_data" sequence="2"/>
+              parent="menu_purchase_main_data" sequence="6"/>
 
     <menuitem name="供应商合同" id="menu_action_supplier_contract_admin" action="action_supplier_contract_admin"
               parent="menu_purchase_main_data" sequence="3"/>
