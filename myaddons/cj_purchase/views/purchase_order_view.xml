@@ -40,7 +40,7 @@
                     <button name="action_finance_manager_confirm" states="Purchase_Review" string="财务经理确认" type="object" class="oe_highlight" groups="account.group_account_manager"/>
                     <button name="action_general_manager_confirm" states="Finance_Review" string="总经理确认" type="object" class="oe_highlight" groups="cj_sale.role_general_manage"/>
 
-                    <button name="action_supplier_send" states="Master_Review" string="通知发货" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>
+                    <button name="action_supplier_send" states="Master_Review" string="下载打印发货单" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>
                     <button name="action_supplier_comfirm" states="Master_Review" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>
 
                     <button name="button_return" type="object" states="done" string="退货"/>
