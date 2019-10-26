@@ -122,7 +122,7 @@ class DeliveryLogistics(models.Model):
     _name = 'delivery.logistics'
     _description = '运单信息'
 
-    delivery_id = fields.Many2one('delivery.order', string='出货单', required=True, ondelete='cascade', index=True, copy=False)
+    delivery_id = fields.Many2one('delivery.order', string='出货单', required=False, ondelete='cascade', index=True, copy=False)
     order_id = fields.Many2one('sale.order', '销售订单', index=1)
     warehouse_id = fields.Many2one('stock.house', '发货仓库')
     partner_id = fields.Many2one('res.partner', '快递公司', index=1)

@@ -10,6 +10,7 @@ import hashlib
 from odoo import models
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
 from .rabbit_mq_receive import MQ_SEQUENCE  # mq消息处理顺序
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -132,7 +133,14 @@ class MainDataApi(models.TransientModel):
             _logger.error('同步基础数据接口错误')
             raise Exception(resp.text)
 
-    def get_data(self):
+    def get_data(self, source_code=None):
         """调用中台接口，获邓基础数据"""
-        for queue in QUEUE_NAME:
-            self.get_data_by_code(queue)
+        if source_code:
+            queue = list(filter(lambda x: x['source_code'] == source_code, QUEUE_NAME))
+            if queue:
+                self.get_data_by_code(queue[0])
+            else:
+                raise ValidationError('队列不存在！')
+        else:
+            for queue in QUEUE_NAME:
+                self.get_data_by_code(queue)

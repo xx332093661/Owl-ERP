@@ -1450,7 +1450,7 @@ class ApiMessage(models.Model):
             }))
             total_shipping_cost += get_shipping_cost(package['weight'])
 
-        logistics_obj.cerate({
+        logistics_obj.create({
             'delivery_id': delivery_id,
             'order_id': order.id,
             'warehouse_id': warehouse.id,
@@ -2077,7 +2077,7 @@ class ApiMessage(models.Model):
                 'parent_id': parent_id
             })
 
-        return state.id
+        return state[0].id
 
     def get_product(self, default_code):
         """根据物料编码，获取商品"""
