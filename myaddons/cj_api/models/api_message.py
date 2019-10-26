@@ -1389,11 +1389,13 @@ class ApiMessage(models.Model):
         """物流单处理"""
         def get_shipping_cost(weight, quantity=0):
             """计算快递费"""
-            if logistics_code in 'ZTO' and weight:
-                return carrier_obj.get_delivery_fee_by_weight(order, warehouse, logistics_code, weight, quantity)
-            """没传重量将暂时不计费用"""
-            if logistics_code in 'ZTO' and not weight:
-                return 0
+            if logistics_code in 'ZTO':
+                if weight:
+                    return carrier_obj.get_delivery_fee_by_weight(order, warehouse, logistics_code, weight, quantity)
+                else:
+                    _logger.warning('ZTO的物流单：%s没有重量！' % express_code)
+                    return 0
+
             raise MyValidationError('32', '未能计算出快递费，目前只计算ZTO的')
 
         partner_obj = self.env['res.partner']
