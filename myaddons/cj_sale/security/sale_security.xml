@@ -31,4 +31,12 @@
 		]"/>
     </record>
 
+     <record id="role_general_manage" model="res.groups">
+        <field name="name">总经理</field>
+        <field name="category_id" ref="cj_sale_user_groups"/>
+        <field name="users" eval="[
+        (4, ref('base.user_admin')),
+		]"/>
+    </record>
+
 </odoo>
