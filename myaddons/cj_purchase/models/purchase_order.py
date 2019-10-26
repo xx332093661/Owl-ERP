@@ -383,4 +383,5 @@ class PurchaseOrder(models.Model):
 
     def action_supplier_send(self):
         #todo:通知发货调用
-        pass
+        #return self.env.ref('purchase.report_purchase_quotation').report_action(self)
+        return self.env.ref('cj_purchase.report_purchase_send').report_action(self)
