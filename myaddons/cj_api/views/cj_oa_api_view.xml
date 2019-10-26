@@ -32,6 +32,7 @@
                             <field name="flow_id" readonly="1"/>
                             <field name="approval_result" readonly="1"/>
                             <field name="create_date" string="提交时间"/>
+                            <field name="approval_text" string="OA返回结果"/>
                         </group>
                         <notebook>
                             <page string="数据">
