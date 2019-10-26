@@ -1,165 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data noupdate="1">
-        <record id='uom_ge' model='uom.uom'>
-            <field name="name">个</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_fu' model='uom.uom'>
-            <field name="name">副</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_ping' model='uom.uom'>
-            <field name="name">瓶</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_bao' model='uom.uom'>
-            <field name="name">包</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
         <record id='uom_ba' model='uom.uom'>
             <field name="name">把</field>
             <field name="category_id" ref="uom.product_uom_categ_unit"/>
             <field name="uom_type">bigger</field>
             <field name="factor_inv">1</field>
         </record>
-
-        <record id='uom_kuai' model='uom.uom'>
-            <field name="name">块</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_tai' model='uom.uom'>
-            <field name="name">台</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_dui' model='uom.uom'>
-            <field name="name">对</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_tao' model='uom.uom'>
-            <field name="name">套</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_pian' model='uom.uom'>
-            <field name="name">片</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_zhi' model='uom.uom'>
-            <field name="name">只</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_gen' model='uom.uom'>
-            <field name="name">根</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_quan' model='uom.uom'>
-            <field name="name">圈</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_he' model='uom.uom'>
-            <field name="name">盒</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_zhang' model='uom.uom'>
-            <field name="name">张</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_zhi' model='uom.uom'>
-            <field name="name">支</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_fu2' model='uom.uom'>
-            <field name="name">付</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_tan' model='uom.uom'>
-            <field name="name">坛</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
-        <record id='uom_juan' model='uom.uom'>
-            <field name="name">卷</field>
-            <field name="category_id" ref="uom.product_uom_categ_unit"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
-
         <record id='uom_ben' model='uom.uom'>
             <field name="name">本</field>
             <field name="category_id" ref="uom.product_uom_categ_unit"/>
             <field name="uom_type">bigger</field>
             <field name="factor_inv">1</field>
         </record>
-
+        <record id='uom_dui' model='uom.uom'>
+            <field name="name">对</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_fu' model='uom.uom'>
+            <field name="name">副</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_fu2' model='uom.uom'>
+            <field name="name">付</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_bao' model='uom.uom'>
+            <field name="name">包</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_ge' model='uom.uom'>
+            <field name="name">个</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_gen' model='uom.uom'>
+            <field name="name">根</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_he' model='uom.uom'>
+            <field name="name">盒</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_juan' model='uom.uom'>
+            <field name="name">卷</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_kuai' model='uom.uom'>
+            <field name="name">块</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_pian' model='uom.uom'>
+            <field name="name">片</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_ping' model='uom.uom'>
+            <field name="name">瓶</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_quan' model='uom.uom'>
+            <field name="name">圈</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_tai' model='uom.uom'>
+            <field name="name">台</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_tan' model='uom.uom'>
+            <field name="name">坛</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_tao' model='uom.uom'>
+            <field name="name">套</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_zhi' model='uom.uom'>
+            <field name="name">只</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_zhang' model='uom.uom'>
+            <field name="name">张</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_zhi' model='uom.uom'>
+            <field name="name">支</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
         <record id='uom_ting' model='uom.uom'>
             <field name="name">听</field>
             <field name="category_id" ref="uom.product_uom_categ_unit"/>
             <field name="uom_type">bigger</field>
             <field name="factor_inv">1</field>
         </record>
-
-        <record id='uom_kg' model='uom.uom'>
-            <field name="name">kg</field>
-            <field name="category_id" ref="uom.product_uom_categ_kgm"/>
+        <record id='uom_tong' model='uom.uom'>
+            <field name="name">桶</field>
+            <field name="category_id" ref="uom.product_uom_categ_unit"/>
             <field name="uom_type">bigger</field>
-            <field name="factor_inv">1000</field>
-        </record>
-
-        <record id='uom_qianke' model='uom.uom'>
-            <field name="name">千克</field>
-            <field name="category_id" ref="uom.product_uom_categ_kgm"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1000</field>
+            <field name="factor_inv">1</field>
         </record>
 
         <record id='uom_mi' model='uom.uom'>
@@ -167,6 +139,26 @@
             <field name="category_id" ref="uom.uom_categ_length"/>
             <field name="uom_type">bigger</field>
             <field name="factor_inv">1</field>
+        </record>
+
+        <record id='uom_qianke' model='uom.uom'>
+            <field name="name">千克</field>
+            <field name="category_id" ref="uom.product_uom_categ_kgm"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+        <record id='uom_kg' model='uom.uom'>
+            <field name="name">kg</field>
+            <field name="category_id" ref="uom.product_uom_categ_kgm"/>
+            <field name="uom_type">bigger</field>
+            <field name="factor_inv">1</field>
+        </record>
+
+        <record id='uom_kg' model='uom.uom'>
+            <field name="name">毫升</field>
+            <field name="category_id" ref="uom.product_uom_categ_kgm"/>
+            <field name="uom_type">smaller</field>
+            <field name="factor_inv">1000</field>
         </record>
 
     </data>
