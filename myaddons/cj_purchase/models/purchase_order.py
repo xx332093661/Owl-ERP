@@ -21,6 +21,9 @@ ORDERSTATUS = [
     ('oa_sent', '提交OA审批'),
     ('purchase', 'OA审批通过'),
     ('oa_refuse', 'OA审批未通过'),
+    ('Purchase_Review', '采购经理审核'),
+    ('Finance_Review', '财务经理审核'),
+    ('Master_Review', '总经理审核'),
     ('done', '完成'),
     ('cancel', '取消'),
 ]
@@ -358,3 +361,26 @@ class PurchaseOrder(models.Model):
             self.picking_type_id = picking_type.id
         return {}
 
+    '''采购经理确认->财务经理确认'''
+    def action_purchase_confirm(self):
+        self.write({'state': 'Purchase_Review'})
+
+    '''财务经理确认->总经理'''
+    def action_finance_manager_confirm(self):
+        self.write({'state': 'Finance_Review'})
+
+    '''总经理审核'''
+    def action_general_manager_confirm(self):
+        self.write({'state': 'Master_Review'})
+
+
+
+    '''确认供应商发货'''
+    def action_supplier_comfirm(self):
+        self._add_supplier_to_product()
+        self.button_approve()
+        self.write({'state': 'done'})
+
+    def action_supplier_send(self):
+        #todo:通知发货调用
+        pass
