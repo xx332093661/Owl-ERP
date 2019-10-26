@@ -17,6 +17,18 @@ OA_CODES_LIST = [
     'Payment_request',  # 付款单
 ]
 
+OA_STATUS =[
+    ('1', '未发出'),
+    ('2', '未知'),
+    ('3', '待处理'),
+    ('4', '处理中'),
+    ('5', '撤销'),
+    ('6', '回退'),
+    ('7', '取回'),
+    ('15', '被终止'),
+    ('0', '审批通过'),
+
+]
 
 class CjOaApi(models.Model):
     _name = 'cj.oa.api'
@@ -153,7 +165,10 @@ class CjOaApi(models.Model):
             callback = self.env['oa.approval.callback'].search([('model', '=', obj.model)]).callback
 
             res = self.oa_get_flow_state_by_id(obj.flow_id)
-            obj.approval_text = str(res)
+            if str(res) in ['0','1','2','3','4','5','6','7','15']:
+                obj.approval_text = dict(OA_STATUS)[str(res)]
+            else:
+                obj.approval_text = str(res)
             if res == 0:
                 obj.approval_result = 'done'  # 更新审批状态，不再查询OA
 
