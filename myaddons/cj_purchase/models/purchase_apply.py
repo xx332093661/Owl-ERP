@@ -2,7 +2,8 @@
 import xlrd
 import logging
 import json
-from datetime import datetime, timedelta
+import pytz
+from datetime import datetime
 
 from odoo import fields, models, api
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
@@ -18,11 +19,14 @@ READONLY_STATES = {
 
 STATES = [
     ('draft', '草稿'),
+    ('confirm', '确认'),
     ('cancel', '取消'),
-    ('confirm1', '已确认'),
-    ('confirm2', '销售经理已审核'),
-    ('pricing', '采购收集报价'),
-    ('confirm3', '采购单等待审批'),
+    ('sale_user_refuse', '销售专员驳回'),
+    ('sale_user_confirm', '销售专员确认'),
+    ('sale_manager_confirm', '销售经理审核'),
+
+    # ('pricing', '采购收集报价'),
+    ('purchase_manager_confirm', '采购经理审批'),
     ('tendering', '通知供应商发货'),
     ('delivery', '已发货'),
     ('part_done', '部分收货'),
@@ -146,86 +150,96 @@ class PurchaseApply(models.Model):
     def purchase_apply_done(self):
         self.state = 'done'
 
-    @api.one
-    def state_cancel(self):
-        """取消申请"""
-
-        self.state = 'cancel'
-
-    @api.one
-    def state_draft(self):
-        """取消申请"""
-
-        self.state = 'draft'
-
-    @api.one
-    def state_confirm1(self):
-        """运营确认"""
-        if self.state == 'confirm1':
-            raise UserError('请不要重复审核')
+    @api.multi
+    def action_confirm(self):
+        """采购专员确认"""
+        if self.state != 'draft':
+            raise ValidationError('只有草稿单据才能由采购专员确认！')
 
         if not self.line_ids:
             raise UserError('请输入申请商品明细!')
 
-        self.state = 'confirm1'
+        self.state = 'confirm'
+
+    @api.multi
+    def action_sale_user_confirm(self):
+        """销售专员确认"""
+        if self.state != 'confirm':
+            raise ValidationError('只有采购专员确认的单据才能由销售专员确认！')
+
+        self.state = 'sale_user_confirm'
+
+    @api.multi
+    def action_sale_user_refuse(self):
+        """销售专员驳回采购申请"""
+        if self.state != 'confirm':
+            raise ValidationError('只有采购专员确认的单据才能由销售专员驳回！')
+
+        self.state = 'sale_user_refuse'
+
+    @api.multi
+    def action_sale_manager_confirm(self):
+        """销售经理审核"""
+        if self.state != 'sale_user_confirm':
+            raise ValidationError('只有销售专员确认的单据才能由销售经理审核！')
+
+        self.state = 'sale_manager_confirm'
+
+    @api.multi
+    def action_purchase_manager_confirm(self):
+        """采购经理审批，生成采购订单"""
+        if self.state != 'sale_manager_confirm':
+            raise ValidationError('只有销售经理审核的单据才能由采购经理审批！')
+        # 创建采购询价单
+        self.create_purchase_orders()
+        self.state = 'purchase_manager_confirm'
 
     @api.one
-    def state_confirm2(self):
-        """销售经理确认"""
-        if self.state == 'confirm2':
-            raise UserError('请不要重复审核')
-
-        self.state = 'confirm2'
-
-    @api.one
-    def state_pricing(self):
-        """采购确认"""
-        if self.state == 'pricing':
-            raise UserError('请不要重复审核')
-
-        self.state = 'pricing'
-
-    @api.one
-    def update_price1(self):
+    def action_update_price(self):
         """更新最优价
            供应商最小采购数量要求
            报价时间有效性要求
         """
         supplierinfo_obj = self.env['product.supplierinfo']
 
-        date_now = (datetime.now() + timedelta(hours=8)).strftime(DATE_FORMAT)
-        checked =False
+        tz = 'Asia/Shanghai'
+        date = datetime.now(tz=pytz.timezone(tz)).date()
+
+        checked = False
         for line in self.line_ids:
 
             supplierinfo = supplierinfo_obj.search(
-                [('min_qty', '<=', line.product_qty),('product_tmpl_id', '=', line.product_id.product_tmpl_id.id),
-                 '|', ('date_start', '<=', date_now),
-                 ('date_start', '=', False),
-                 '|', ('date_end', '>=', date_now), ('date_end', '=', False)],
+                [('min_qty', '<=', line.product_qty), ('product_id', '=', line.product_id.id), '&',
+                 '|', ('date_start', '<=', date), ('date_start', '=', False),
+                 '|', ('date_end', '>=', date), ('date_end', '=', False)],
                 order='price', limit=1)
             if not supplierinfo:
                 continue
+
             line.write({
                 'supplierinfo_id': supplierinfo.id,
                 'price': supplierinfo.price
             })
-            checked =True
+            checked = True
+
         if not checked:
             raise UserError("请确认已经有申请的供应商报价。请先提交供应商报价信息。")
 
-    @api.one
-    def state_confirm3(self):
-        """采购经理确认"""
-        if self.state == 'confirm3':
-            raise UserError('请不要重复审核')
+    @api.multi
+    def action_cancel(self):
+        """采购专员取消申请"""
+        if self.state not in ['confirm', 'sale_user_refuse']:
+            raise ValidationError('只有采购专员确认或销售专员驳回的单据才能取消！')
 
-        if not self.line_ids:
-            raise UserError('请输入申请商品明细!')
+        self.state = 'cancel'
 
-        # 创建采购询价单
-        self.create_purchase_orders()
+    @api.multi
+    def action_draft(self):
+        """设为草稿"""
+        if self.state not in ['confirm', 'cancel', 'sale_user_refuse']:
+            raise ValidationError('只有采购专员确认、销售专员驳回或取消的单据才能重置为草稿！')
 
-        self.state = 'confirm3'
+        self.state = 'draft'
 
     def goods_not_find(self, not_find, table, nrows):
         goods_obj = self.env['goods']
@@ -468,33 +482,22 @@ class PurchaseApplyLine(models.Model):
 
     apply_id = fields.Many2one('purchase.apply', '采购申请', ondelete='cascade', )
     product_id = fields.Many2one('product.product', '商品')
-    product_uom = fields.Many2one('uom.uom', string='单位')
-    partner_id = fields.Many2one('res.partner', '供应商',
-                                 required=0,
-                                 domain=[('supplier', '=', True),
-                                         ('parent_id', '=', False)],
-                                 ondelete='cascade')
-    supplierinfo_id = fields.Many2one('product.supplierinfo', '供应商', domain="[('product_tmpl_id.product_variant_ids', 'in', [product_id or 0])]")
+    product_uom = fields.Many2one('uom.uom', string='单位', related='product_id.uom_id')
+    partner_id = fields.Many2one('res.partner', '供应商', required=0, domain=[('supplier', '=', True), ('parent_id', '=', False)], ondelete='cascade')
+    supplierinfo_id = fields.Many2one('product.supplierinfo', '供应商', domain="[('product_id', '=', product_id), ('price_list_id.state', '=', 'done')]")
     product_qty = fields.Float('申请数量', default=1)
     price = fields.Float('预计单价')
-    amount = fields.Float('预计成本', compute='_compute_amount')
-    receive_qty = fields.Float('已收货数量', compute='_compute_qty')
-    time_price = fields.Boolean('时价商品', compute='_cpt_time_price', store=1)
-
-    @api.multi
-    @api.depends('product_id', 'supplierinfo_id')
-    def _cpt_time_price(self):
-        supplier_model_obj = self.env['product.supplier.model']
-        for obj in self:
-            supplier_model = supplier_model_obj.search([('product_id', '=', obj.product_id.id), ('partner_id', '=', obj.supplierinfo_id.name.id)], limit=1)
-            obj.time_price = supplier_model.time_price if supplier_model else False
+    amount = fields.Float('预计成本', compute='_compute_amount', store=1)
+    receive_qty = fields.Float('已收货数量', compute='_compute_receive_qty')
+    time_price = fields.Boolean('时价商品', default=False)
 
     @api.one
+    @api.depends('price', 'product_qty')
     def _compute_amount(self):
         self.amount = self.price * self.product_qty
 
     @api.one
-    def _compute_qty(self):
+    def _compute_receive_qty(self):
         receive_qty = 0
         for order in self.apply_id.order_ids:
             if order.partner_id != self.supplierinfo_id.name:
@@ -508,28 +511,22 @@ class PurchaseApplyLine(models.Model):
 
         self.receive_qty = receive_qty
 
-    @api.onchange('product_id')
-    def onchange_product_id(self):
-        self.product_uom = self.product_id.uom_po_id or self.product_id.uom_id
+    @api.onchange('supplierinfo_id', 'product_id')
+    def _onchange_supplierinfo_id(self):
+        supplier_model_obj = self.env['product.supplier.model']
 
-    @api.onchange('supplierinfo_id')
-    def onchange_supplierinfo_id(self):
         self.price = self.supplierinfo_id.price if self.supplierinfo_id else 0
-
-    @api.multi
-    def write(self, val):
-        supplierinfo_obj = self.env['product.supplierinfo']
-        if 'supplierinfo_id' in val and 'price' not in val:
-            val.update({'price': supplierinfo_obj.browse(val.get('supplierinfo_id', 0)).price})
-
-        res = super(PurchaseApplyLine, self).write(val)
-        return res
+        if self.product_id and self.supplierinfo_id:
+            supplier_model = supplier_model_obj.search([('product_id', '=', self.product_id.id), ('partner_id', '=', self.supplierinfo_id.name.id)], limit=1)
+            if supplier_model:
+                self.time_price = supplier_model.time_price
 
 
-class PurchaseApplyAttach(models.Model):
-    _name = 'purchase.apply.attach'
-    _description = '原始单据'
 
-    apply_id = fields.Many2one('purchase.apply', '采购申请')
-    attach = fields.Binary("原始单据", attachment=True, help="纸质附件")
+# class PurchaseApplyAttach(models.Model):
+#     _name = 'purchase.apply.attach'
+#     _description = '原始单据'
+#
+#     apply_id = fields.Many2one('purchase.apply', '采购申请')
+#     attach = fields.Binary("原始单据", attachment=True, help="纸质附件")
 

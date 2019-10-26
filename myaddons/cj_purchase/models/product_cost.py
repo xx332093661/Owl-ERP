@@ -8,7 +8,7 @@ class ProductCost(models.Model):
     _description = '商品成本'
     _order = 'id desc'
 
-    company_id = fields.Many2one('res.company', '公司', required=1, default=lambda self: self.env.user.company_id.id)
+    company_id = fields.Many2one('res.company', '公司', required=0, domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
     product_id = fields.Many2one('product.product', '商品', required=1)
     cost = fields.Float('成本', required=1)
 
@@ -31,10 +31,13 @@ class ProductCost(models.Model):
                 company_obj = self.env['res.company']
                 product_obj = self.env['product.product']
 
-                company_code = vals.pop('company_code')
-                company = company_obj.search([('code', '=', company_code)])
-                if not company:
-                    raise ValidationError('公司编码：%s对应的公司没有找到！' % company_code)
+                company_id = False
+                company_code = vals.pop('company_code', False)
+                if company_code:
+                    company = company_obj.search([('code', '=', company_code)])
+                    if not company:
+                        raise ValidationError('公司编码：%s对应的公司没有找到！' % company_code)
+                    company_id = company.id
 
                 product_code = vals.pop('product_code')
                 product = product_obj.search([('default_code', '=', product_code)])
@@ -42,7 +45,7 @@ class ProductCost(models.Model):
                     raise ValidationError('物料编码：%s没有找到对应的商品！' % product_code)
 
                 vals.upate({
-                    'company_id': company.id,
+                    'company_id': company_id,
                     'product_id': product.id
                 })
 

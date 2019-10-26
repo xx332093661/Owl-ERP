@@ -95,7 +95,7 @@
                 <tree editable="top">
                     <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
                     <field name="product_id" options="{'no_create': 1}"/>
-                    <field name="partner_id" options="{'no_create': 1}"/>
+                    <field name="partner_id" options="{'no_create': 1}" context="{'form_view_ref': 'cj_purchase.view_partner_supplier_form', 'tree_view_ref': 'cj_purchase.view_partner_supplier_tree'}"/>
                     <field name="payment_term_id"/>
                     <!--<field name="commerce_model_id"/>-->
                     <field name="is_stock"/>
@@ -147,7 +147,7 @@
         </record>
 
         <menuitem name="商品供应商模式" id="menu_action_product_supplier_model" action="action_product_supplier_model"
-                  parent="menu_purchase_main_data" sequence="10"/>
+                  parent="menu_purchase_main_data" sequence="40"/>
 
     </data>
 </odoo>

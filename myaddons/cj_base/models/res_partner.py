@@ -63,37 +63,37 @@ class Partner(models.Model):
     #                                    ('14', '零时供应商'),
     #                                    ('15', '叙永农户'),
     #                                    ('99', '员工供应商')], '供应商组')
-    supplier_group_id = fields.Many2one('res.partner.group', '供应商组')
-    customer_group = fields.Char(string="客户组")
+    supplier_group_id = fields.Many2one('res.partner.group', '供应商组', track_visibility='onchange')
+    customer_group = fields.Char(string="客户组", track_visibility='onchange')
 
-    credit_code = fields.Char('统一社会信用编码')
-    legal_entity = fields.Char('法人')
-    legal_entity_id_card = fields.Char('法人身份证号')
-    enterprise_phone = fields.Char('企业联系方式')
-    status = fields.Selection([('0', '正常'), ('1', '冻结'), ('2', '废弃')], '川酒状态')
-    large_area = fields.Char('经销商大区')
-    large_area_id = fields.Many2one('res.partner.area', '供应商大区')
-    office = fields.Char('供应商办事处')
-    docking_company = fields.Char('对接公司')
-    docking_person = fields.Char('对接人')
-    docking_person_phone = fields.Char('对接人电话')
+    credit_code = fields.Char('统一社会信用编码', track_visibility='onchange')
+    legal_entity = fields.Char('法人', track_visibility='onchange')
+    legal_entity_id_card = fields.Char('法人身份证号', track_visibility='onchange')
+    enterprise_phone = fields.Char('企业联系方式', track_visibility='onchange')
+    status = fields.Selection([('0', '正常'), ('1', '冻结'), ('2', '废弃')], '川酒状态', track_visibility='onchange')
+    large_area = fields.Char('经销商大区', track_visibility='onchange')
+    large_area_id = fields.Many2one('res.partner.area', '供应商大区', track_visibility='onchange')
+    office = fields.Char('供应商办事处', track_visibility='onchange')
+    docking_company = fields.Char('对接公司', track_visibility='onchange')
+    docking_person = fields.Char('对接人', track_visibility='onchange')
+    docking_person_phone = fields.Char('对接人电话', track_visibility='onchange')
 
-    member = fields.Boolean("是否会员", index=1)
-    member_level = fields.Char('会员等级')
-    growth_value = fields.Char('成长值')
-    register_channel = fields.Char('注册渠道')
+    member = fields.Boolean("是否会员", index=1, track_visibility='onchange')
+    member_level = fields.Char('会员等级', track_visibility='onchange')
+    growth_value = fields.Char('成长值', track_visibility='onchange')
+    register_channel = fields.Char('注册渠道', track_visibility='onchange')
 
-    update_time = fields.Datetime(sting="修改时间")
+    update_time = fields.Datetime(sting="修改时间", track_visibility='onchange')
 
-    archive_code = fields.Char(string="档案-统一社会信用代码")
-    licence_end_time = fields.Char(string="营业执照到期日期")
-    create_time = fields.Datetime(string="创建时间")
-    licence_begin_time = fields.Char(string="营业执照开始时间")
-    business_post = fields.Char(string="对接人岗位")
-    customer_level = fields.Char(sting="客户层级")
-    distributor = fields.Boolean("是否经销商", index=1)
+    archive_code = fields.Char(string="档案-统一社会信用代码", track_visibility='onchange')
+    licence_end_time = fields.Char(string="营业执照到期日期", track_visibility='onchange')
+    create_time = fields.Datetime(string="创建时间", track_visibility='onchange')
+    licence_begin_time = fields.Char(string="营业执照开始时间", track_visibility='onchange')
+    business_post = fields.Char(string="对接人岗位", track_visibility='onchange')
+    customer_level = fields.Char(sting="客户层级", track_visibility='onchange')
+    distributor = fields.Boolean("是否经销商", index=1, track_visibility='onchange')
 
-    state = fields.Selection([('draft', '草稿'), ('purchase_manager_confirm', '采购经理审核'), ('finance_manager_confirm', '财务经理审核')], '审核状态', default='draft')
+    state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('purchase_manager_confirm', '采购经理审核'), ('finance_manager_confirm', '财务经理审核')], '审核状态', default='draft', track_visibility='onchange')
 
     @api.model
     def default_get(self, fields_list):
@@ -143,6 +143,16 @@ class Partner(models.Model):
             result = super(Partner, self).write(val)
 
         return result
+
+    @api.multi
+    def action_confirm(self):
+        """确认"""
+        self.state = 'confirm'
+
+    @api.multi
+    def action_draft(self):
+        """设为草稿"""
+        self.state = 'draft'
 
     @api.multi
     def purchase_manager_confirm(self):

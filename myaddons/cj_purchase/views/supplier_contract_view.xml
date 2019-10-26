@@ -12,6 +12,7 @@
                     <field name="date_to"/>
 					<!--<field name="create_uid" string="制单人"/>-->
                     <field name="valid"/>
+                    <field name="company_id"/>
 					<field name="state"/>
               </tree>
             </field>
@@ -43,10 +44,11 @@
                         <group>
                             <group>
                                 <field name="partner_id" context="{'form_view_ref': 'cj_purchase.view_partner_supplier_form', 'tree_view_ref': 'cj_purchase.view_partner_supplier_tree'}" options="{'no_create': 1}"/>
-                                <field name="payment_term_id" options="{'no_create': 1}" required="1"/>
+                                <field name="payment_term_id" required="1"/>
                                 <field name="returns_sate"/>
                                 <field name="date_from"/>
                                 <field name="need_invoice" required="1"/>
+                                <field name="company_id" options="{'no_create': 1, 'no_create': 1}"/>
                             </group>
                             <group>
                                 <field name="currency_id" options="{'no_open': 1}"/>

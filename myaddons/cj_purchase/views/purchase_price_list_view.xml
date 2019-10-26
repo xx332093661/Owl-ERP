@@ -47,7 +47,7 @@
                                 <field name="order_time" required="1"/>
                             </group>
                             <group>
-                                <field name="company_id" readonly="1"/>
+                                <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
                             </group>
                         </group>
                         <notebook>

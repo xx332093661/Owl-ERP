@@ -46,14 +46,21 @@
             <field name="arch" type="xml">
                 <form string="供应商">
                     <header>
+                        <button name="action_confirm" type="object" states="draft" string="确认" class="oe_highlight"
+                                groups="purchase.group_purchase_user"/>
+
+                        <button name="action_draft" type="object" states="confirm,purchase_manager_confirm,finance_manager_confirm" string="设为草稿"
+                                groups="purchase.group_purchase_user"/>
+
                         <button name="purchase_manager_confirm" string="采购经理审核" type="object"
-                                states="draft"
+                                states="confirm"
                                 class="oe_highlight" groups="purchase.group_purchase_manager"/>
 
                         <button name="finance_manager_confirm" type="object"
+                                class="oe_highlight"
                                 states="purchase_manager_confirm" string="财务经理审核" groups="account.group_account_manager"/>
 
-                        <field name="state" widget="statusbar" statusbar_visible="draft,purchase_manager_confirm,finance_manager_confirm" readonly="1"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,purchase_manager_confirm,finance_manager_confirm" readonly="1"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -61,40 +68,40 @@
                         <field name="image" widget='image' class="oe_avatar" options='{"preview_image": "image_medium", "size": [90, 90]}'/>
                         <div class="oe_title">
                             <h1>
-                                <field name="name" default_focus="1" placeholder="供应商公司全称..." required="1"/>
+                                <field name="name" default_focus="1" placeholder="供应商公司全称..." required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             </h1>
-                            <field name="company_type"/>
+                            <field name="company_type" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                         </div>
                         <group>
                             <group>
-                                <field name="supplier_group_id" string="供应商分组" context="{'default_type': 'supplier'}" required="1"/>
-                                <field name="archive_code" string="统一社会信用代码" required="1"/>
-                                <field name="legal_entity" string="法人" required="1"/>
-                                <field name="status" string="状态" required="1"/>
+                                <field name="supplier_group_id" string="供应商分组" context="{'default_type': 'supplier'}" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="archive_code" string="统一社会信用代码" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="legal_entity" string="法人" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="status" string="状态" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                                 <field name="supplier" invisible="1"/>
                                 <field name="customer" invisible="1"/>
                             </group>
                             <group>
                                 <field name="code" required="0" string="供应商编码" readonly="1"/>
-                                <field name="phone" string="企业联系方式" required="1"/>
-                                <field name="legal_entity_id_card" string="法人身份证号" required="1"/>
+                                <field name="phone" string="企业联系方式" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="legal_entity_id_card" string="法人身份证号" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             </group>
                         </group>
                         <group>
                             <group>
-                                <field name="country_id" string="国家" options="{'no_create': 1, 'no_open': 1}" required="1"/>
-                                <field name="city_id" string="市" required="1"/>
-                                <field name="street" string="街道地址" required="1"/>
+                                <field name="country_id" string="国家" options="{'no_create': 1, 'no_open': 1}" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="city_id" string="市" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="street" string="街道地址" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             </group>
                             <group>
-                                <field name="state_id" string="省" options="{'no_create': 1, 'no_open': 1}" domain="[('country_id', '=', country_id)]" required="1"/>
-                                <field name="street2" string="区/县" required="1"/>
+                                <field name="state_id" string="省" options="{'no_create': 1, 'no_open': 1}" domain="[('country_id', '=', country_id)]" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="street2" string="区/县" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             </group>
                         </group>
 
                         <notebook>
                             <page string="联系人">
-                                <field name="child_ids" mode="kanban" context="{'default_parent_id': active_id, 'default_country_id': country_id, 'default_type': 'contact', 'cj_supplier_contact': 1}">
+                                <field name="child_ids" mode="kanban" context="{'default_parent_id': active_id, 'default_country_id': country_id, 'default_type': 'contact', 'cj_supplier_contact': 1}" attrs="{'readonly': [('state', '!=', 'draft')]}">
                                     <kanban>
                                         <field name="id"/>
                                         <field name="color"/>
@@ -168,6 +175,9 @@
                             </page>
                         </notebook>
                     </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
                 </form>
             </field>
         </record>
