@@ -34,7 +34,7 @@ class ProductSupplierModel(models.Model):
     _name = 'product.supplier.model'
     _description = '商品供应商模式'
 
-    company_id = fields.Many2one('res.company', '公司', required=1, index=1, default=lambda self: self.env.user.company_id.id)
+    company_id = fields.Many2one('res.company', '公司', required=1, index=1, default=lambda self: self.env.user.company_id.id, domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
     product_id = fields.Many2one('product.product', '商品', required=1, index=1)
     partner_id = fields.Many2one('res.partner', '供应商', required=1, index=1, domain="[('supplier', '=', True)]")
     payment_term_id = fields.Many2one('account.payment.term', '支付条款', required=1, index=1)

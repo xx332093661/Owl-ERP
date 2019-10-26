@@ -10,19 +10,21 @@ READONLY_STATES = {
 
 STATES = [('draft', '草稿'), ('confirm', '确认'), ('purchase_manager_confirm', '采购经理审核'), ('done', '财务经理审核')]
 
+
 class PurchasePriceList(models.Model):
     _name = 'purchase.price.list'
     _inherit = ['mail.thread']
     _description = '报价单'
     _order = 'id desc'
 
-    company_id = fields.Many2one('res.company', '公司', default=lambda self: self.env.user.company_id, readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    company_id = fields.Many2one('res.company', '公司', readonly=1, states=READONLY_STATES, track_visibility='onchange', domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
     name = fields.Char('标题', readonly=1, states=READONLY_STATES, track_visibility='onchange')
     order_time = fields.Datetime('报价时间', default=lambda self: datetime.now().strftime(DATETIME_FORMAT), readonly=1, states=READONLY_STATES, track_visibility='onchange')
     supplierinfo_ids = fields.One2many('product.supplierinfo', 'price_list_id', '供应商价格表', readonly=1, states=READONLY_STATES, track_visibility='onchange')
     paper = fields.Binary('纸质文件', readonly=1, states=READONLY_STATES, track_visibility='onchange')
 
     state = fields.Selection(STATES, track_visibility='onchange', default='draft', string='状态')
+    active = fields.Boolean('有效', default=True)
 
     @api.multi
     def action_confirm(self):

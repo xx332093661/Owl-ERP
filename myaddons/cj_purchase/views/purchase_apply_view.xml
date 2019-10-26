@@ -6,8 +6,8 @@
             <field name="arch" type="xml">
                 <tree decoration-info="state == 'draft'" decoration-muted="state == 'cancel'">
                     <field name="company_id" groups="base.group_multi_company"/>
-                    <field name="apply_uid"/>
                     <field name="name"/>
+                    <field name="apply_uid"/>
                     <field name="apply_date"/>
                     <field name="apply_type"/>
                     <field name="apply_reason"/>
@@ -25,37 +25,21 @@
             <field name="arch" type="xml">
                 <form>
                     <header>
-                        <button name="state_confirm1" string="确认申请" states="draft" type="object"
-                                class="oe_highlight" groups="sales_team.group_sale_salesman"/>  <!--销售员确认-->
-                        <button name="state_confirm2" string="确认申请" states="confirm1" type="object"
-                                class="oe_highlight" groups="sales_team.group_sale_manager"/> <!--销售经理确认-->
-                        <button name="state_pricing" string="采购确认" states="confirm2" type="object"
-                                class="oe_highlight" groups="purchase.group_purchase_user"/> <!--采购确认-->
-                        <button name="state_confirm3" string="生成采购单" states="pricing" type="object"
-                                class="oe_highlight" groups="purchase.group_purchase_manager"/> <!--经理确认-采购单等待审批-->
-                        <button name="update_price1" string="按最优价选择供应商" states="pricing" type="object"
-                                class="oe_highlight" groups="purchase.group_purchase_manager"/>
-                        <!--<button name="state_confirm3" string="物流最优" states="confirm" type="object"-->
-                                <!--class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
-                        <!--<button name="new_purchase_order" string="新询价单" states="confirm" type="object"-->
-                                <!--class="oe_highlight"/>-->
-                        <button name="state_draft" string="驳回申请" states="confirm1,confirm2" type="object"
-                                groups="sales_team.group_sale_salesman"/>
-
-                        <button name="state_cancel" string="取消申请" states="draft,confirm1,confirm2" type="object"
-                                groups="sales_team.group_sale_salesman"/>
-
-                        <!--<button name="check_attachment" type="object" string="导入明细" states="draft"/>-->
-                        <!--<button name="export_template" type="object" string="模板下载" states="draft"/>-->
-                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm1,confirm2,pricing,tendering,confirm3,purchase,delivery,transport,done"
-                               statusbar_colors="{'done':'blue'}" readonly="1"/>
+                        <button name="action_confirm" string="确认" states="draft" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/> <!--采购专员确认-->
+                        <button name="action_sale_user_refuse" string="驳回" states="confirm" type="object" groups="sales_team.group_sale_salesman"/>
+                        <button name="action_sale_user_confirm" string="销售专员确认" states="confirm" type="object" class="oe_highlight" groups="sales_team.group_sale_salesman"/>  <!--销售专员确认-->
+                        <button name="action_sale_manager_confirm" string="销售经理审核" states="sale_user_confirm" type="object" class="oe_highlight" groups="sales_team.group_sale_manager"/> <!--销售经理确认-->
+                        <button name="action_purchase_manager_confirm" string="生成采购单" states="sale_manager_confirm" type="object" class="oe_highlight" groups="purchase.group_purchase_manager" help="采购经理审批，生成采购订单"/> <!--经理确认-采购单等待审批-->
+                        <button name="action_update_price" string="按最优价选择供应商" states="sale_manager_confirm" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>
+                        <button name="action_cancel" string="取消申请" states="confirm,sale_user_refuse" type="object" groups="purchase.group_purchase_user"/>
+                        <button name="action_draft" string="设为草稿" states="confirm" type="object" groups="purchase.group_purchase_user"/>
+                        <button name="action_draft" string="设为草稿" states="sale_user_refuse,cancel" class="oe_highlight" type="object" groups="purchase.group_purchase_user"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,sale_user_confirm,sale_manager_confirm,purchase_manager_confirm,done"/>
                     </header>
 
                     <sheet>
                         <div class="oe_button_box" name="button_box">
-                            <button type="object" name="action_view_purchase_order" class="oe_stat_button"
-                                    icon="fa-pencil-square-o"
-                                    attrs="{'invisible':['|', ('order_count', '=', 0), ('state', 'in', ('draft'))]}">
+                            <button type="object" name="action_view_purchase_order" class="oe_stat_button" icon="fa-pencil-square-o" attrs="{'invisible':['|', ('order_count', '=', 0), ('state', 'in', ('draft'))]}">
                                 <field name="order_count" widget="statinfo" string="采购订单"/>
                                 <field name="order_ids" invisible="1"/>
                             </button>
@@ -68,43 +52,40 @@
                         </div>
                         <group>
                             <group>
-                                <field name="apply_date" readonly="1"/>
+                                <field name="company_id" groups="base.group_multi_company" options="{'no_open': 1, 'no_create': 1}"/>
                                 <field name="apply_type"/>
-                                <field name="apply_reason"/>
+                                <field name="planned_date"/>
                                 <field name="consume_time"/>
                                 <field name="delay_days"/>
                             </group>
                             <group>
-                                <field name="apply_uid" options="{'no_open': 1, 'no_create': 1}"/>
-                                <field name="planned_date"/>
-                                <field name="amount"/>
-                                <field name="company_id" groups="base.group_multi_company" options="{'no_open': 1, 'no_create': 1}"/>
                                 <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}"/>
+                                 <field name="apply_reason"/>
+                                <field name="apply_date" readonly="1"/>
+                                <field name="apply_uid" options="{'no_open': 1, 'no_create': 1}"/>
+                                <field name="amount"/>
                             </group>
                         </group>
                         <notebook>
                             <page string="申请明细">
-                                <field name="line_ids" context="{'disable_open': 1}">
+                                <field name="line_ids" context="{'purchase_apply_line': 1}">
                                     <tree editable="bottom">
                                         <field name="product_id" required="1" options="{'no_create': 1}"/>
-                                        <field name="product_uom" options="{'no_open': 1, 'no_create': 1}"
-                                               required="1"/>
-                                        <field name="supplierinfo_id" options="{'no_create': 1}" context="{'purchase_apply_line': 1}"/>
-                                        <field name="price" attrs="{'readonly': [('time_price', '=', False)]}"/>
+                                        <field name="product_uom" options="{'no_open': 1, 'no_create': 1}" required="1"/>
+                                        <field name="supplierinfo_id" options="{'no_create': 1}" context="{'product_id': product_id,'purchase_apply_line': 1}"/>
+                                        <field name="price" attrs="{'readonly': [('time_price', '=', True)]}"/>
                                         <field name="product_qty" required="1" string="申请数量"/>
                                         <field name="amount"/>
                                         <field name="time_price" invisible="1"/>
-
                                     </tree>
                                 </field>
                             </page>
                             <page string="原始单据">
-                                <field name="attached" widget="pdf_viewer" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="attached" widget="pdf_viewer"/>
                             </page>
                         </notebook>
                     </sheet>
                     <div class="oe_chatter">
-                        <field name="message_follower_ids" widget="mail_followers"/>
                         <field name="message_ids" widget="mail_thread"/>
                     </div>
                 </form>
@@ -129,7 +110,5 @@
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
-
-
     </data>
 </odoo>

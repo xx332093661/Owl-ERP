@@ -147,12 +147,12 @@
             <field name="uom_type">bigger</field>
             <field name="factor_inv">1</field>
         </record>
-        <record id='uom_kg' model='uom.uom'>
-            <field name="name">kg</field>
-            <field name="category_id" ref="uom.product_uom_categ_kgm"/>
-            <field name="uom_type">bigger</field>
-            <field name="factor_inv">1</field>
-        </record>
+        <!--<record id='uom_kg' model='uom.uom'>-->
+            <!--<field name="name">kg</field>-->
+            <!--<field name="category_id" ref="uom.product_uom_categ_kgm"/>-->
+            <!--<field name="uom_type">bigger</field>-->
+            <!--<field name="factor_inv">1</field>-->
+        <!--</record>-->
 
         <record id='uom_kg' model='uom.uom'>
             <field name="name">毫升</field>

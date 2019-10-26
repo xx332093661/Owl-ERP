@@ -25,16 +25,16 @@
                 <form string="付款申请">
                     <header>
                         <button name="action_confirm" type="object" states="draft" string="确认" class="oe_highlight"
-                                groups="purchase.group_purchase_user,cj_purchase.group_purchase_business"/>
+                                groups="purchase.group_purchase_user"/>
                         <button name="action_confirm_commit_approval" type="object" states="draft" string="确认并提交OA审批"
-                                groups="purchase.group_purchase_user,cj_purchase.group_purchase_business"/>
+                                groups="purchase.group_purchase_user"/>
 
                         <button name="action_commit_approval" type="object" states="confirm" string="提交OA审批" class="oe_highlight"
-                                groups="purchase.group_purchase_user,cj_purchase.group_purchase_business"/>
+                                groups="purchase.group_purchase_user"/>
                         <button name="action_draft" type="object" states="confirm" string="设为草稿"
-                                groups="purchase.group_purchase_user,cj_purchase.group_purchase_business"/>
+                                groups="purchase.group_purchase_user"/>
                         <button name="action_draft" type="object" states="oa_refuse" string="设为草稿" class="oe_highlight"
-                                groups="purchase.group_purchase_user,cj_purchase.group_purchase_business"/>
+                                groups="purchase.group_purchase_user"/>
 
                         <button name="%(action_account_payment_apply_payment_wizard)d" type="action" states="oa_accept,paying" string="登记付款" class="oe_highlight"
                                 groups="account.group_account_invoice"/>
@@ -142,7 +142,7 @@
         <!--在采购/操作/采购订单菜单后增加付款申请菜单-->
         <menuitem action="action_account_payment_apply"
                   id="menu_action_account_payment_apply_purchase"
-                  groups="purchase.group_purchase_user,cj_purchase.group_purchase_business"
+                  groups="purchase.group_purchase_user"
                   parent="cj_purchase.menu_purchase_operation"
                   sequence="5"/>
     </data>

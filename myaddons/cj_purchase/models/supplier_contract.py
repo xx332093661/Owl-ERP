@@ -29,7 +29,7 @@ class SupplierContract(models.Model):
     state = fields.Selection([('draft', '未审核'), ('confirm', '确认'), ('done', '采购经理审核')], '审核状态', readonly=1, index=1, copy=0, track_visibility='onchange', default='draft')
     currency_id = fields.Many2one('res.currency', '结算币种', readonly=1, states=READONLY_STATES, default=lambda self: self.env.ref('base.CNY').id, retuired=1, track_visibility='onchange', help='外币币别')
     need_invoice = fields.Selection([('yes', '需要开票'), ('no', '不需要开票')], '是否开票', readonly=1, states=READONLY_STATES, track_visibility='onchange', required=1, default='yes')
-    company_id = fields.Many2one('res.company', string='公司', readonly=1, states=READONLY_STATES, default=lambda self: self.env['res.company']._company_default_get())
+    company_id = fields.Many2one('res.company', string='公司', readonly=1, states=READONLY_STATES, default=lambda self: self.env['res.company']._company_default_get(), domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
     paper = fields.Binary('纸质合同', readonly=1, states=READONLY_STATES, help='点击上传纸质合同，PDF格式')
     valid = fields.Boolean('有效', compute='_compute_valid', search='_search_valid')
 

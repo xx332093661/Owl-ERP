@@ -1,22 +1,18 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "cj_data",
-    'summary': """临时数据""",
+    'name': "cj_user_data",
+    'summary': """临时用户数据""",
 
     'description': """
-        临时数据
+        临时用户数据
     """,
     'author': "",
     'website': "http://www.mypscloud.com",
     'category': 'CJ',
     'version': '0.1',
-    'depends': ['cj_base', 'cj_api', 'cj_arap'],
+    'depends': ['base'],
     'data': [
-        'data/company.xml',
         'data/users.xml',
-        'data/product.xml',
-        'data/account_payment_term.xml',
-        'data/ir_filters.xml',
     ],
     'demo': [
     ],

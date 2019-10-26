@@ -31,7 +31,7 @@
                         <button name="%(action_account_invoice_register_apply_wizard)d" type="action"
                                 attrs="{'invisible': ['|', ('has_payment_apply', '=', True), '|', ('state', '!=', 'manager_confirm'), ('invoice_split_ids', '=', [])]}"
                                 string="付款申请" class="oe_highlight"
-                                groups="purchase.group_purchase_user,cj_purchase.group_purchase_business,account.group_account_invoice"/>
+                                groups="purchase.group_purchase_user,account.group_account_invoice"/>
                         <!--先付款给供应商，后开具发票过来，此时发票应关联付款记录-->
                         <!--<button name="%(action_account_invoice_register_associate_payment_wizard)d" type="action"-->
                                 <!--attrs="{'invisible': ['|', ('invoice_split_ids', '!=', []), ('payment_ids', '!=', [])]}"-->
