@@ -66,7 +66,7 @@ class PurchaseOrder(models.Model):
             return
 
         pos_purchase_call_url = ir_config.get_param('pos_purchase_call_url', default='')  # 采购订单调用地址
-        if not pos_purchase_call_url:
+        if not pos_purchase_call_url or pos_purchase_call_url == '0':
             _logger.warning('同步采购订单到POS，采购订单调用地址调用POS地址未设置')
             return
 
