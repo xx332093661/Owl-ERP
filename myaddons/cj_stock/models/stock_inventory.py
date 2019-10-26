@@ -59,6 +59,7 @@ class StockInventory(models.Model):
         'res.company', '公司',
         readonly=True, index=True, required=True,
         states={'draft': [('readonly', False)]},
+        domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])],
         default=lambda self: self.env.user.company_id.id, track_visibility='onchange')
 
     exhausted = fields.Boolean('包含零库存产品', readonly=1, states={'draft': [('readonly', False)]}, default=True)
@@ -250,7 +251,7 @@ class InventoryLine(models.Model):
     """
     _inherit = 'stock.inventory.line'
 
-    company_id = fields.Many2one('res.company', '公司', index=1, readonly=0, related=False, required=0, default=lambda self: self.env['res.company']._company_default_get('stock.inventory'))  # 删除与主表的关联
+    company_id = fields.Many2one('res.company', '公司', index=1, readonly=0, related=False, required=0)  # 删除与主表的关联
     cost = fields.Float('单位成本', digits=dp.get_precision('Product Price'))
     is_init = fields.Selection([('yes', '是'), ('no', '否')], '是否是初始库存盘点', readonly=1, default='no')
 
@@ -360,6 +361,7 @@ class InventoryLine(models.Model):
         company_id = vals.get('company_id')
         if not company_id:
             company_id = inventory_obj.browse(vals['inventory_id']).company_id.id
+            vals['company_id'] = company_id
 
         product_id = vals['product_id']
         company = company_obj.browse(company_id)
