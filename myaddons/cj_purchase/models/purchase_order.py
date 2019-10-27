@@ -148,6 +148,8 @@ class PurchaseOrder(models.Model):
     delay_days = fields.Integer('延时天数', default=0, readonly=1, states=READONLY_STATES, track_visibility='onchange')
     rebate_line_ids = fields.One2many('purchase.rebate.line', 'purchase_order_id', '返利明细', readonly=1, states=READONLY_STATES)
 
+    purchase_order_count = fields.Integer('供应商采购订单数', readonly=1)
+
     explain = fields.Text('说明', compute='_cpt_explain')
     flow_id = fields.Char('审批流程ID', readonly=1)
 
@@ -244,6 +246,12 @@ class PurchaseOrder(models.Model):
         action = self.env.ref('cj_purchase.action_purchase_order_return').read()[0]
         action['domain'] = [('purchase_order_id', '=', self.id)]
         return action
+
+    @api.multi
+    def button_approve(self):
+        res = super(PurchaseOrder, self).button_approve()
+        self.purchase_order_count = len(self.search([('partner_id', '=', self.partner_id.id), ('state', 'in', ['purchase', 'done'])]))
+        return res
 
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):

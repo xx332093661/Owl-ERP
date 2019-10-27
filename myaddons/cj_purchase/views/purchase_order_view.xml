@@ -83,6 +83,7 @@
 
                 <field name="partner_ref" position="after">
                     <field name="rebate"/>
+                    <field name="purchase_order_count"/>
                 </field>
 
                 <xpath expr="//page[@name='purchase_delivery_invoice']/group" position="after">
