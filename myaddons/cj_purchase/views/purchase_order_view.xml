@@ -135,7 +135,8 @@
 
                 <!--采购明细增加partner_id的上下文，以方便默认payment_term_id字段值-->
                 <xpath expr="//field[@name='order_line']" position="attributes">
-                    <attribute name="context">{'partner_id': partner_id}</attribute>
+                    <attribute name="context">{'partner_id': partner_id, 'company_id': company_id}</attribute>
+                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
                 </xpath>
 
 
@@ -151,9 +152,6 @@
                     <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
                 </field>
                 <field name="company_id" position="attributes">
-                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
-                </field>
-                <field name="order_line" position="attributes">
                     <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
                 </field>
                 <field name="user_id" position="attributes">

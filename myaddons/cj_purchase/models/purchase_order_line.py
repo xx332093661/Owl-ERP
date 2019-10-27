@@ -50,6 +50,17 @@ class PurchaseOrderLine(models.Model):
         if not self.payment_term_id and self._context.get('payment_term_id'):
             self.payment_term_id = self._context['payment_term_id']
 
+        # 计算最小订购量
+        partner_id = self._context.get('partner_id')
+        company_id = self._context.get('company_id')
+        if partner_id:
+            domain = [('product_id', '=', self.product_id.id)]
+            if company_id:
+                domain += [('company_id', '=', company_id)]
+            res = self.env['purchase.order.point'].search(domain, limit=1, order='id desc')
+            if res:
+                self.product_qty = res.purchase_min_qty
+
         return result
 
     @api.onchange('product_qty', 'product_uom')
@@ -59,7 +70,6 @@ class PurchaseOrderLine(models.Model):
         if not self.product_id:
             return result
 
-        # 计算支付条款
         partner_id = self._context.get('partner_id')
         company_id = self._context.get('company_id')
         if partner_id:

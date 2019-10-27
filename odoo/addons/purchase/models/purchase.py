@@ -586,8 +586,8 @@ class PurchaseOrderLine(models.Model):
         else:
             self.taxes_id = fpos.map_tax(self.product_id.supplier_taxes_id)
 
-        self._suggest_quantity()
-        self._onchange_quantity()
+        # self._suggest_quantity()
+        # self._onchange_quantity()
 
         return result
 
