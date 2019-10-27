@@ -1,6 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_sale_channels,sale.channels,model_sale_channels,base.group_user,1,1,1,0
 access_cj_sale_activity,cj.sale.activity,model_cj_sale_activity,base.group_user,1,1,1,0
+access_cj_sale_activity_line,cj.sale.activity.line,model_cj_sale_activity_line,base.group_user,1,1,1,0
 access_aftersale_order,access_aftersale_order,model_aftersale_order,base.group_user,1,1,1,0
 access_aftersale_order_line,access_aftersale_order_line,model_aftersale_order_line,base.group_user,1,1,1,1
 access_delivery_order_user,delivery_order user,model_delivery_order,base.group_user,1,0,0,0
