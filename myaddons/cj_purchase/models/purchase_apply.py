@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from lxml import etree
-
 import xlrd
 import logging
 import json
 import pytz
 from datetime import datetime
+from itertools import groupby
 
 from odoo import fields, models, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 from odoo.tools.float_utils import float_is_zero, float_compare
 from odoo.exceptions import UserError, ValidationError
 
@@ -415,49 +415,40 @@ class PurchaseApply(models.Model):
     @api.multi
     def create_purchase_orders(self):
         """创建采购询价单"""
+        self.ensure_one()
+
         order_obj = self.env['purchase.order']
         order_line_obj = self.env['purchase.order.line']
         contract_obj = self.env['supplier.contract']
         supplier_model_obj = self.env['product.supplier.model']
 
-        self.ensure_one()
-
-        supplierinfos = []
         order_ids = []
+        # 校验是否选择了供应商价表
+        if any([not line.supplierinfo_id for line in self.line_ids]):
+            raise ValidationError('请完善需要采购的产品的供应商信息： \n1、 供应商是否创建且具备有效的合同  \n2、 供应商有本采购申请的产品的报价。（通过 采购-操作-供应商报价单进行录入）')
 
-        for line in self.line_ids:
-            if not line.supplierinfo_id:
-                raise ValidationError('请完善需要采购的产品的供应商信息： \n1、 供应商是否创建且具备有效的合同  \n2、 供应商有本采购申请的产品的报价。（通过 采购-操作-供应商报价单进行录入）')
-
-            if line.supplierinfo_id not in supplierinfos:
-                supplierinfos.append(line.supplierinfo_id)
-
-        for supplierinfo in supplierinfos:
-            contract = contract_obj.get_contract_by_partner(supplierinfo.name.id)
+        # 按供应商分组
+        for partner, ls in groupby(sorted(self.line_ids, key=lambda x: x.supplierinfo_id.name), lambda x: x.supplierinfo_id.name):
+            partner_id = partner.id
+            contract = contract_obj.get_contract_by_partner(partner_id)
             if contract:
                 payment_term = contract.payment_term_id
             else:
                 payment_term = self.env.ref('account.account_payment_term_immediate')
 
             val = {
-                'partner_id': supplierinfo.name.id,
+                'partner_id': partner_id,
                 'apply_id': self.id,
-                'date_order': datetime.now().strftime(DATETIME_FORMAT),
+                'date_order': datetime.now(),
                 # 'settlement_method': 'at once',
                 'payment_term_id': payment_term.id,  # 根据供应商合同获取
                 'company_id': self.company_id.id,
-                'order_line': []
+                'picking_type_id': self.warehouse_id.in_type_id.id,
             }
-            if self.warehouse_id:
-                val.update({
-                    'picking_type_id': self.warehouse_id.in_type_id.id
-                })
-
             order = order_obj.create(val)
+            order_ids.append(order.id)
 
-            for line in self.line_ids:
-                if line.supplierinfo_id != supplierinfo:
-                    continue
+            for line in ls:
                 if float_is_zero(line.product_qty, precision_digits=2):
                     raise ValidationError('申请数量不能为0')
 
@@ -466,15 +457,14 @@ class PurchaseApply(models.Model):
                     'product_id': line.product_id.id,
                 })
                 new_order_line.onchange_product_id()
-
-                supplier_model = supplier_model_obj.search([('product_id', '=', new_order_line.product_id.id), ('partner_id', '=', supplierinfo.name.id)], limit=1)
+                supplier_model = supplier_model_obj.search([('product_id', '=', new_order_line.product_id.id), ('partner_id', '=', partner_id), ('company_id', '=', self.company_id.id)], limit=1)
                 if supplier_model:
                     payment_term = supplier_model.payment_term_id
 
                 order_line_obj.create({
                     'order_id': order.id,
                     'name': new_order_line.name,
-                    'product_id': new_order_line.product_id.id,
+                    'product_id': line.product_id.id,
                     'price_unit': line.price if payment_term.type not in ['joint'] else 0,
                     'product_qty': line.product_qty,
                     'date_planned': new_order_line.date_planned,
@@ -482,9 +472,69 @@ class PurchaseApply(models.Model):
                     'payment_term_id': payment_term.id,
                 })
 
-            order_ids.append(order.id)
-
         return order_ids
+        #
+        # for line in self.line_ids:
+        #     if not line.supplierinfo_id:
+        #         raise ValidationError('请完善需要采购的产品的供应商信息： \n1、 供应商是否创建且具备有效的合同  \n2、 供应商有本采购申请的产品的报价。（通过 采购-操作-供应商报价单进行录入）')
+        #
+        #     if line.supplierinfo_id not in supplierinfos:
+        #         supplierinfos.append(line.supplierinfo_id)
+        #
+        # for supplierinfo in supplierinfos:
+        #     contract = contract_obj.get_contract_by_partner(supplierinfo.name.id)
+        #     if contract:
+        #         payment_term = contract.payment_term_id
+        #     else:
+        #         payment_term = self.env.ref('account.account_payment_term_immediate')
+        #
+        #     val = {
+        #         'partner_id': supplierinfo.name.id,
+        #         'apply_id': self.id,
+        #         'date_order': datetime.now().strftime(DATETIME_FORMAT),
+        #         # 'settlement_method': 'at once',
+        #         'payment_term_id': payment_term.id,  # 根据供应商合同获取
+        #         'company_id': self.company_id.id,
+        #         'order_line': []
+        #     }
+        #     if self.warehouse_id:
+        #         val.update({
+        #             'picking_type_id': self.warehouse_id.in_type_id.id
+        #         })
+        #
+        #     order = order_obj.create(val)
+        #
+        #     for line in self.line_ids:
+        #         if line.supplierinfo_id != supplierinfo:
+        #             continue
+        #
+        #         if float_is_zero(line.product_qty, precision_digits=2):
+        #             raise ValidationError('申请数量不能为0')
+        #
+        #         new_order_line = order_line_obj.new({
+        #             'order_id': order.id,
+        #             'product_id': line.product_id.id,
+        #         })
+        #         new_order_line.onchange_product_id()
+        #
+        #         supplier_model = supplier_model_obj.search([('product_id', '=', new_order_line.product_id.id), ('partner_id', '=', supplierinfo.name.id)], limit=1)
+        #         if supplier_model:
+        #             payment_term = supplier_model.payment_term_id
+        #
+        #         order_line_obj.create({
+        #             'order_id': order.id,
+        #             'name': new_order_line.name,
+        #             'product_id': new_order_line.product_id.id,
+        #             'price_unit': line.price if payment_term.type not in ['joint'] else 0,
+        #             'product_qty': line.product_qty,
+        #             'date_planned': new_order_line.date_planned,
+        #             'product_uom': new_order_line.product_uom.id,
+        #             'payment_term_id': payment_term.id,
+        #         })
+        #
+        #     order_ids.append(order.id)
+        #
+        # return order_ids
 
     @api.model
     def create(self, vals):
