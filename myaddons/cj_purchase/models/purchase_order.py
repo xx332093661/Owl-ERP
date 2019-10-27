@@ -1,32 +1,33 @@
 # -*- coding: utf-8 -*-
+from lxml import etree
+import logging
+from datetime import timedelta
+
 from odoo import fields, models, api
 from odoo.exceptions import UserError
-import logging
-from odoo.addons.cj_api.models.tools import digital_to_chinese
-from datetime import datetime, timedelta
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
-READONLY = {
-        'purchase': [('readonly', True)],
-        'done': [('readonly', True)],
-        'cancel': [('readonly', True)],
-    }
-
-ORDERSTATUS = [
+STATES = [
     ('draft', '草稿'),
     ('confirm', '确认'),
-    ('oa_sent', '提交OA审批'),
-    ('purchase', 'OA审批通过'),
-    ('oa_refuse', 'OA审批未通过'),
-    ('Purchase_Review', '采购经理审核'),
-    ('Finance_Review', '财务经理审核'),
-    ('Master_Review', '总经理审核'),
+    # ('oa_sent', '提交OA审批'),
+    # ('purchase', 'OA审批通过'),
+    # ('oa_refuse', 'OA审批未通过'),
+    ('manager_confirm', '采购经理审核'),
+    ('finance_manager_confirm', '财务经理审核'),
+
+    ('general_manager_confirm', '采购总经理审批'),
+    ('general_manager_refuse', '采购总经理拒绝'),
+    ('purchase', '供应商发货'),
     ('done', '完成'),
     ('cancel', '取消'),
 ]
+
+READONLY_STATES = {
+    'draft': [('readonly', False)]
+}
 
 
 class PurchaseOrder(models.Model):
@@ -127,13 +128,11 @@ class PurchaseOrder(models.Model):
     def _cpt_order_return_count(self):
         self.order_return_count = len(self.order_return_ids)
 
-    apply_id = fields.Many2one('purchase.apply', '采购申请', states=READONLY)
+    apply_id = fields.Many2one('purchase.apply', '采购申请', readonly=1, states=READONLY_STATES, track_visibility='onchange')
     # payment_term_id = fields.Many2one('account.payment.term', '付款方式', states=READONLY)
-    flow_id = fields.Char('审批流程ID')
-    transport_ids = fields.One2many('purchase.transport', 'order_id', '物流单')
-    state = fields.Selection(string='物流状态',
-                             selection=ORDERSTATUS,
-                             default='draft')
+
+    transport_ids = fields.One2many('purchase.transport', 'order_id', '物流单', readonly=1, states=READONLY_STATES)
+    state = fields.Selection(string='状态', selection=STATES, default='draft', track_visibility='onchange')
 
     payment_time = fields.Float('付款时间', compute='_compute_time', help='付款单生成到完成的时间')
     deliver_time = fields.Float('发货时间', compute='_compute_time', help='通知发货到产生物流单的时间')
@@ -142,14 +141,125 @@ class PurchaseOrder(models.Model):
     order_return_ids = fields.One2many('purchase.order.return', 'purchase_order_id', '退货单')
     order_return_count = fields.Integer('退货单数量', compute='_cpt_order_return_count')
 
-    rebate = fields.Boolean('返利')
-    rebate_type = fields.Selection([('money', '金额'), ('product', '物品')], '返利方式', default='money')
-    rebate_amount = fields.Float('返利金额')
-    rebate_time = fields.Selection([('immediately', '立即返利'), ('delay', '延时返利'), ('next', '下次订单返利')], '返利时间', default='immediately')
-    delay_days = fields.Integer('延时天数', default=0)
-    rebate_line_ids = fields.One2many('purchase.rebate.line', 'purchase_order_id', '返利明细')
+    rebate = fields.Boolean('返利', readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    rebate_type = fields.Selection([('money', '金额'), ('product', '物品')], '返利方式', default='money', readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    rebate_amount = fields.Float('返利金额', readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    rebate_time = fields.Selection([('immediately', '立即返利'), ('delay', '延时返利'), ('next', '下次订单返利')], '返利时间', default='immediately', readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    delay_days = fields.Integer('延时天数', default=0, readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    rebate_line_ids = fields.One2many('purchase.rebate.line', 'purchase_order_id', '返利明细', readonly=1, states=READONLY_STATES)
 
     explain = fields.Text('说明', compute='_cpt_explain')
+    flow_id = fields.Char('审批流程ID', readonly=1)
+
+    @api.multi
+    def action_confirm(self):
+        """采购专员确认"""
+        if self.state != 'draft':
+            raise ValidationError('只有草稿单据才能被确认！')
+
+        if not self.order_line:
+            raise ValidationError('请输入要采购的商品！')
+
+        self.state = 'confirm'
+
+    @api.multi
+    def action_cancel(self):
+        """取消订单"""
+        for order in self:
+            for inv in order.invoice_ids:
+                if inv and inv.state not in ('cancel', 'draft', 'general_manager_refuse'):
+                    raise UserError('不能取消这个采购单，你必须首先取消相关的供应商账单。')
+
+        return super(PurchaseOrder, self).button_cancel()
+
+    @api.multi
+    def action_draft(self):
+        """设为草稿"""
+        if self.state not in ['confirm', 'cancel', 'general_manager_refuse']:
+            raise ValidationError("")
+
+        self.state = 'draft'
+
+    @api.multi
+    def action_manager_confirm(self):
+        """采购经理审核"""
+        if self.state != 'confirm':
+            raise ValidationError('只有采购专员确认的单据才能由采购经理审核！')
+
+        self.state = 'manager_confirm'
+
+    @api.multi
+    def action_finance_manager_confirm(self):
+        """财务经理审核"""
+        if self.state != 'manager_confirm':
+            raise ValidationError('只有采购经理审核的单据才能由财务经理审核！')
+
+        self.state = 'finance_manager_confirm'
+
+    @api.multi
+    def action_general_manager_confirm(self):
+        """采购总经理审批"""
+        if self.state != 'finance_manager_confirm':
+            raise ValidationError('只有财务经理审核的单据才能由采购总经理审批！')
+
+        self.state = 'general_manager_confirm'
+
+    @api.multi
+    def action_general_manager_refuse(self):
+        """采购总经理拒绝"""
+        if self.state != 'finance_manager_confirm':
+            raise ValidationError('只有财务经理审核的单据才能由采购总经理拒绝！')
+
+        self.state = 'general_manager_refuse'
+
+    @api.multi
+    def action_return(self):
+        """退货"""
+        order_return_obj = self.env['purchase.order.return']
+        order_return_line_obj = self.env['purchase.order.return.line']
+
+        self.ensure_one()
+
+        if order_return_obj.search([('purchase_order_id', '=', self.id), ('state', '!=', 'cancel')]):
+            raise UserError('退货单已存在')
+
+        order_return = order_return_obj.create({
+            'purchase_order_id': self.id,
+        })
+        for line in self.order_line:
+            order_return_line_obj.create({
+                'order_return_id': order_return.id,
+                'order_line_id': line.id,
+                'return_qty': line.product_qty,
+            })
+
+        action = self.env.ref('cj_purchase.action_purchase_order_return').read()[0]
+        action['domain'] = [('purchase_order_id', '=', self.id)]
+        return action
+
+    @api.multi
+    def action_view_order_return(self):
+        """查看退货单"""
+        self.ensure_one()
+        action = self.env.ref('cj_purchase.action_purchase_order_return').read()[0]
+        action['domain'] = [('purchase_order_id', '=', self.id)]
+        return action
+
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+        """禁止采购总经理和财务修改单据"""
+        result = super(PurchaseOrder, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        if view_type == 'form':
+            if not self.env.user._is_admin():
+                if self.env.user.has_group('cj_purchase.group_purchase_general_manager') or self.env.user.has_group('account.group_account_invoice'):
+                    doc = etree.XML(result['arch'])
+                    node = doc.xpath("//form")[0]
+                    node.set('create', '0')
+                    node.set('delete', '0')
+                    node.set('edit', '0')
+
+                    result['arch'] = etree.tostring(doc, encoding='unicode')
+        return result
 
     @api.model
     def default_get(self, fields):
@@ -188,15 +298,13 @@ class PurchaseOrder(models.Model):
 
     @api.multi
     def _create_picking(self):
-        StockPicking = self.env['stock.picking']
+        # StockPicking = self.env['stock.picking']
         for order in self:
-            if any([ptype in ['product', 'consu'] for ptype in
-                    order.order_line.mapped('product_id.type')]):
-                pickings = order.picking_ids.filtered(
-                    lambda x: x.state not in ('done', 'cancel'))
+            if any([ptype in ['product', 'consu'] for ptype in order.order_line.mapped('product_id.type')]):
+                pickings = order.picking_ids.filtered( lambda x: x.state not in ('done', 'cancel'))
                 if not pickings:
                     res = order._prepare_picking()
-                    picking = StockPicking.create(res)
+                    picking = self.env['stock.picking'].create(res)
                 else:
                     picking = pickings[0]
                 moves = order.order_line._create_stock_moves(picking)
@@ -210,8 +318,7 @@ class PurchaseOrder(models.Model):
                 picking.message_post_with_view('mail.message_origin_link',
                                                values={'self': picking,
                                                        'origin': order},
-                                               subtype_id=self.env.ref(
-                                                   'mail.mt_note').id)
+                                               subtype_id=self.env.ref('mail.mt_note').id)
         return True
 
     @api.multi
@@ -226,114 +333,6 @@ class PurchaseOrder(models.Model):
 
         return res
 
-    @api.multi
-    def button_confirm1(self):
-        """订单确认"""
-        self.write({'state': 'confirm'})
-
-    @api.multi
-    def button_confirm2(self):
-        """订单确认：提交OA审批"""
-        # 提交OA审批
-        for order in self:
-            order.oa_approval()
-
-        self.write({'state': 'oa_sent'})
-
-    @api.multi
-    def button_return(self):
-        """退货"""
-        order_return_obj = self.env['purchase.order.return']
-        order_return_line_obj = self.env['purchase.order.return.line']
-
-        self.ensure_one()
-
-        if order_return_obj.search([('purchase_order_id', '=', self.id), ('state', '!=', 'cancel')]):
-            raise UserError('退货单已存在')
-
-        order_return = order_return_obj.create({
-            'purchase_order_id': self.id,
-        })
-        for line in self.order_line:
-            order_return_line_obj.create({
-                'order_return_id': order_return.id,
-                'order_line_id': line.id,
-                'return_qty': line.product_qty,
-            })
-
-        action = self.env.ref('cj_purchase.action_purchase_order_return').read()[0]
-        action['domain'] = [('purchase_order_id', '=', self.id)]
-        return action
-
-    def _update_oa_approval_state(self, flow_id, refuse=False):
-        """OA审批通过回调"""
-        order = self.search([('flow_id', '=', flow_id)])
-        if not order:
-            return
-        if refuse:
-            order.state = 'oa_refuse'
-        else:
-            order._add_supplier_to_product()
-            order.button_approve()
-
-        return True
-
-    def oa_approval(self):
-        oa_api_obj = self.env['cj.oa.api']
-
-        subject = "采购订单审批"
-
-        data = {
-            '填写人': '',
-            '填写部门': '',
-            '填写日期': (self.date_order + timedelta(hours=8)).strftime(DATE_FORMAT),
-            '编号': self.name,
-            '金额大写': digital_to_chinese(self.amount_total),
-            '供应商': self.partner_id.name,
-            '公司名称': self.company_id.name,
-            '付款结算方式': self.payment_term_id.name,
-            '金额小写': self.amount_total,
-            '部门负责人': '',
-            'sub': []
-        }
-        for line in self.order_line:
-            data['sub'].append({
-                '产品条码': line.product_id.default_code,
-                '产品名称': line.product_id.name,
-                '数量': line.product_qty,
-                '单价': line.price_unit,
-                '税率': line.taxes_id.amount / 100,
-                '小计': line.price_subtotal,
-            })
-        flow_id = oa_api_obj.oa_start_process('Purchasing_order', subject, data, self._name)
-
-        if flow_id:
-            self.flow_id = flow_id
-        else:
-            raise UserError("发送审批失败,请联系管理员确认原因")
-        return True
-
-    @api.multi
-    def action_view_order_return(self):
-        self.ensure_one()
-        action = self.env.ref('cj_purchase.action_purchase_order_return').read()[0]
-        action['domain'] = [('purchase_order_id', '=', self.id)]
-        return action
-
-    # @api.model
-    # def create(self, vals):
-    #     model_obj = self.env['product.supplier.model']
-    #
-    #     res = super(PurchaseOrder, self).create(vals)
-    #     for line in res.mapped('order_line'):
-    #         if not model_obj.search([('product_id', '=', line.product_id.id), ('partner_id', '=', res.partner_id.id)]):
-    #             model_obj.create({
-    #                 'product_id': line.product_id.id,
-    #                 'partner_id': res.partner_id.id,
-    #                 'payment_term_id': line.payment_term_id.id
-    #             })
-    #     return res
-
     @api.onchange('partner_id', 'company_id')
     def onchange_partner_id(self):
         picking_type_obj = self.env['stock.picking.type']
@@ -341,45 +340,22 @@ class PurchaseOrder(models.Model):
 
         if not self.partner_id:
             self.fiscal_position_id = False
-            self.payment_term_id = False
             self.currency_id = self.env.user.company_id.currency_id.id
         else:
-            self.fiscal_position_id = self.env['account.fiscal.position'].with_context(
-                company_id=self.company_id.id).get_fiscal_position(self.partner_id.id)
-            self.payment_term_id = self.partner_id.property_supplier_payment_term_id.id
+            self.fiscal_position_id = self.env['account.fiscal.position'].with_context(company_id=self.company_id.id).get_fiscal_position(self.partner_id.id)
             self.currency_id = self.partner_id.property_purchase_currency_id.id or self.env.user.company_id.currency_id.id
 
             # 验证供应商是否有有效合同
             if not contact_obj.search([('partner_id', '=', self.partner_id.id), ('valid', '=', True)]):
                 raise ValidationError('供应商当前没有有效的合同！')
 
-
         if not self.company_id:
             self.picking_type_id = False
         else:
             picking_type = picking_type_obj.search([('warehouse_id.company_id', '=', self.company_id.id), ('code', '=', 'incoming')], limit=1)
             self.picking_type_id = picking_type.id
+
         return {}
-
-    '''采购经理确认->财务经理确认'''
-    def action_purchase_confirm(self):
-        self.write({'state': 'Purchase_Review'})
-
-    '''财务经理确认->总经理'''
-    def action_finance_manager_confirm(self):
-        self.write({'state': 'Finance_Review'})
-
-    '''总经理审核'''
-    def action_general_manager_confirm(self):
-        self.write({'state': 'Master_Review'})
-
-
-
-    '''确认供应商发货'''
-    def action_supplier_comfirm(self):
-        self._add_supplier_to_product()
-        self.button_approve()
-        self.write({'state': 'done'})
 
     def action_supplier_send(self):
         #todo:通知发货调用

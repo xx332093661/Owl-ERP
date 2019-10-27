@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
         <record id="view_purchase_order_form" model="ir.ui.view">
@@ -6,16 +7,13 @@
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
-                    <button type="object" name="action_view_order_return" class="oe_stat_button" icon="fa-truck"
-                            attrs="{'invisible':[('order_return_ids','=',[])]}">
+                    <button type="object" name="action_view_order_return" class="oe_stat_button" icon="fa-truck"  attrs="{'invisible':[('order_return_ids','=',[])]}">
                         <field name="order_return_count" widget="statinfo" string="退货单"/>
                         <field name="order_return_ids" invisible="1"/>
                     </button>
                 </xpath>
 
-                <xpath expr="//button[@name='action_rfq_send']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
+
                 <xpath expr="//button[@name='print_quotation']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -31,34 +29,49 @@
                 <xpath expr="//button[@id='bid_confirm']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-
+                <xpath expr="//button[@name='button_draft']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='button_unlock']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='button_done']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
                 <xpath expr="//button[@id='bid_confirm']" position="after">
-                    <button name="button_confirm1" type="object" class="oe_highlight" states="draft" string="确认"/>
-                    <!--<button name="button_confirm2" type="object" class="oe_highlight" states="draft,confirm"-->
-                            <!--string="发送OA审批"/>-->
-                    <button name="action_purchase_confirm" states="confirm" string="采购经理确认" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>
-                    <button name="action_finance_manager_confirm" states="Purchase_Review" string="财务经理确认" type="object" class="oe_highlight" groups="account.group_account_manager"/>
-                    <button name="action_general_manager_confirm" states="Finance_Review" string="总经理确认" type="object" class="oe_highlight" groups="cj_sale.role_general_manage"/>
+                    <button name="action_confirm" type="object" class="oe_highlight" states="draft" string="确认" groups="purchase.group_purchase_user"/><!--采购专员确认-->
+                    <button name="action_manager_confirm" type="object" states="confirm" string="采购经理审核" class="oe_highlight" groups="purchase.group_purchase_manager"/>
+                    <button name="action_finance_manager_confirm" type="object" states="manager_confirm" string="财务经理审核" class="oe_highlight" groups="account.group_account_manager"/>
+                    <button name="action_general_manager_refuse" states="finance_manager_confirm" string="采购总经理拒绝" type="object" groups="cj_purchase.group_purchase_general_manager"/>
+                    <button name="action_general_manager_confirm" states="finance_manager_confirm" string="采购总经理审批" type="object" class="oe_highlight" groups="cj_purchase.group_purchase_general_manager"/>
+                    <button name="button_approve" states="general_manager_confirm" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/>
 
-                    <button name="action_supplier_send" states="Master_Review" string="下载打印发货单" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>
-                    <button name="action_supplier_comfirm" states="Master_Review" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>
 
-                    <button name="button_return" type="object" states="done" string="退货"/>
+                    <!--<button name="action_supplier_send" states="Master_Review" string="下载打印发货单" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
+                    <button name="action_draft" type="object" states="confirm" string="设为草稿" groups="purchase.group_purchase_user"/>
+                    <button name="action_draft" type="object" states="cancel,general_manager_refuse" class="oe_highlight" string="设为草稿" groups="purchase.group_purchase_user"/>
+
+                    <button name="action_return" type="object" states="purchase,done" string="退货" groups="purchase.group_purchase_user"/>
+                    <button name="button_done" type="object" string="完成" class="oe_highlight" states="purchase" groups="purchase.group_purchase_user"/>
+                </xpath>
+                <xpath expr="//button[@name='button_cancel']" position="replace">
+                    <button name="action_cancel" type="object" states="draft,confirm,general_manager_refuse" string="取消" groups="purchase.group_purchase_user"/><!--取消订单-->
                 </xpath>
                 <field name="state" position="attributes">
-                    <attribute name="statusbar_visible">draft,confirm,Purchase_Review,Finance_Review,Master_Review,done</attribute>
+                    <attribute name="statusbar_visible">draft,confirm,manager_confirm,finance_manager_confirm,general_manager_confirm,purchase,done</attribute>
                 </field>
-
-
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="domain">[('supplier', '=', True), ('state', '=', 'finance_manager_confirm')]</attribute>
+                </xpath>
+                <xpath expr="//field[@name='company_id']" position="attributes">
+                    <attribute name="options">{'no_create': 1, 'no_open': 1}</attribute>
+                </xpath>
                 <xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="options">{'no_create': 1}</attribute>
                     <attribute name="context">{'search_default_supplier':1, 'default_supplier':1, 'default_customer':0, 'show_vat': True, 'form_view_ref': 'cj_purchase.view_partner_supplier_form', 'tree_view_ref': 'cj_purchase.view_partner_supplier_tree'}</attribute>
                 </xpath>
-                <!--<field name="partner_ref" position="after">-->
-                <!--<field name="payment_term_id" required="1" options="{'no_create': 1}" string="付款方式"/>-->
-                <!--</field>-->
                 <field name="date_order" position="after">
-                    <field name="apply_id" options="{'no_create': 1}"/>
+                    <field name="apply_id" options="{'no_create': 1}" readonly="1"/>
                 </field>
                 <field name="incoterm_id" position="after">
                     <field name="flow_id" readonly="1"/>
@@ -78,7 +91,22 @@
                     </group>
                 </xpath>
 
-                <xpath expr="//page[@name='purchase_delivery_invoice']" position="after">
+                <xpath expr="//page[@name='purchase_delivery_invoice']" position="before">
+                    <page string="供应商返利" attrs="{'invisible': [('rebate', '=', False)]}">
+                        <group col="4">
+                            <field name="rebate_type" attrs="{'required': [('rebate', '=', True)]}"/>
+                            <field name="rebate_time" attrs="{'required': [('rebate', '=', True)]}"/>
+                            <field name="rebate_amount" attrs="{'invisible': [('rebate_type', '!=', 'money')]}"/>
+                            <field name="delay_days" attrs="{'invisible': [('rebate_time', '!=', 'delay')]}"/>
+                        </group>
+                        <field name="rebate_line_ids" attrs="{'invisible': [('rebate_type', '!=', 'product')]}">
+                            <tree editable="bottom">
+                                <field name="product_id" required="1"/>
+                                <field name="uom_id" required="1"/>
+                                <field name="qty" required="1"/>
+                            </tree>
+                        </field>
+                    </page>
                     <page string="物流单">
                         <field name="transport_ids">
                             <tree editable="bottom">
@@ -90,40 +118,77 @@
                             </tree>
                         </field>
                     </page>
-                    <page string="供应商返利" attrs="{'invisible': [('rebate', '=', False)]}">
-                        <group col="4">
-                            <field name="rebate_type" attrs="{'required': [('rebate', '=', True)]}"/>
-                            <field name="rebate_time" attrs="{'required': [('rebate', '=', True)]}"/>
-                            <field name="rebate_amount" attrs="{'invisible': [('rebate_type', '!=', 'money')]}"/>
-                            <field name="delay_days" attrs="{'invisible': [('rebate_time', '!=', 'delay')]}"/>
-
-                        </group>
-                        <field name="rebate_line_ids" attrs="{'invisible': [('rebate_type', '!=', 'product')]}">
-                            <tree editable="bottom">
-                                <field name="product_id" required="1"/>
-                                <field name="uom_id" required="1"/>
-                                <field name="qty" required="1"/>
-                            </tree>
-                        </field>
-                    </page>
                 </xpath>
-
+                <xpath expr="//field[@name='payment_term_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
                 <!--采购订单明细增加payment_term_id(支付条款)字段-->
                 <xpath expr="//field[@name='order_line']/tree/field[@name='date_planned']" position="after">
                     <field name="payment_term_id"/>
                 </xpath>
-                <!--采购明细增加partner_id的上下文，以方便默认payment_term_id字段值-->
-                <xpath expr="//field[@name='order_line']" position="attributes">
-                    <attribute name="context">{'partner_id': partner_id, 'payment_term_id': payment_term_id}</attribute>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='taxes_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='company_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
 
+                <!--采购明细增加partner_id的上下文，以方便默认payment_term_id字段值-->
+                <xpath expr="//field[@name='order_line']" position="attributes">
+                    <attribute name="context">{'partner_id': partner_id}</attribute>
+                </xpath>
+
+
+
+                <!--确认后禁止修改-->
+                <field name="partner_id" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+                </field>
+                <field name="partner_ref" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+                </field>
+                <field name="date_order" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+                </field>
+                <field name="company_id" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+                </field>
+                <field name="order_line" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+                </field>
+                <field name="user_id" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+                </field>
+
+            </field>
+        </record>
+
+        <record id="purchase_order_view_form_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.form.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase_stock.purchase_order_view_form_inherit"/>
+            <field name="arch" type="xml">
+                <field name="picking_type_id" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
+                </field>
                 <!--限制作业类型-->
                 <field name="picking_type_id" position="attributes">
                     <attribute name="domain">[('warehouse_id.company_id', '=', company_id), ('code', '=', 'incoming')]</attribute>
                 </field>
+                <xpath expr="//button[@name='action_view_picking']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_rfq_send'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_rfq_send'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_rfq_send'][3]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
             </field>
         </record>
-
 
     </data>
 </odoo>

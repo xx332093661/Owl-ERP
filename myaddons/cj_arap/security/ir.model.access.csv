@@ -66,6 +66,8 @@ account_stock_inventory_diff_receipt_line_invoice,stock_inventory_diff_receipt_l
 account_account_cost_group_user, account_cost_group user,model_account_cost_group,base.group_user,1,0,0,0
 account_account_cost_group_invoice, account_cost_group invoice,model_account_cost_group,account.group_account_invoice,1,1,1,1
 
+access_purchase_rebate_line_invoice,access_purchase_rebate_line invoice,cj_purchase.model_purchase_rebate_line,account.group_account_invoice,1,0,0,0
+
 
 
 

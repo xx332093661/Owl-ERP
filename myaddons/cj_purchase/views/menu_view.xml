@@ -8,25 +8,28 @@
 
 
     <menuitem id="menu_purchase_operation" name="操作" parent="purchase.menu_purchase_root"
-              groups="purchase.group_purchase_manager,purchase.group_purchase_user" sequence="1"/>
+              groups="purchase.group_purchase_user,group_purchase_general_manager" sequence="1"/>
     <menuitem id="menu_purchase_main_data" name="主数据" parent="purchase.menu_purchase_root"
-              groups="purchase.group_purchase_manager,purchase.group_purchase_user" sequence="2"/>
+              groups="purchase.group_purchase_user" sequence="2"/>
 
 
     <menuitem name="供应商报价单" action="action_purchase_price_list" id="menu_purchase_price_list" parent="menu_purchase_operation"
               sequence="1"/>
 
     <menuitem name="采购申请" id="menu_action_purchase_apply" action="action_purchase_apply"
+              groups="purchase.group_purchase_user"
               parent="menu_purchase_operation" sequence="2"/>
 
 
 
     <menuitem action="purchase.purchase_rfq" id="menu_purchase_xjd" name="采购订单"
               parent="menu_purchase_operation"
+              groups="purchase.group_purchase_user,group_purchase_general_manager"
               sequence="4"/>
 
     <menuitem action="action_purchase_order_return" id="menu_purchase_order_return" name="采购退货单"
               parent="menu_purchase_operation"
+              groups="purchase.group_purchase_user"
               sequence="5"/>
 
     <!--<menuitem name="采购订单" action="purchase.purchase_form_action" id="menu_purchase_cgdd" parent="menu_purchase_operation"-->
@@ -49,7 +52,10 @@
               parent="menu_purchase_main_data" sequence="40"/>
 
 
-
+        <!--采购订单增加采购总经理可访问-->
+        <record id="purchase.menu_purchase_root" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('group_purchase_general_manager'))]"/>
+        </record>
 
 
 </odoo>

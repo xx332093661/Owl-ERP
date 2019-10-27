@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import fields, models, api
-import logging
-
 from odoo.exceptions import ValidationError
 
-_logger = logging.getLogger(__name__)
 
 READONLY_STATES = {
     'draft': [('readonly', False)]
@@ -84,9 +81,7 @@ class PurchaseOrderPoint(models.Model):
             vals['name'] = '仓库:%s %s库存规则' % (self.env['stock.warehouse'].browse(vals['warehouse_id']).name, self.env['product.product'].browse(vals['product_id']).partner_ref)
         return super(PurchaseOrderPoint, self).create(vals)
 
-
     def run_scheduler(self, company_id=None):
-
         apply_item = {}
 
         args = [('company_id', '=', company_id)] if company_id else []
