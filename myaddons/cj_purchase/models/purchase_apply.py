@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from lxml import etree
+
 import xlrd
 import logging
 import json
@@ -240,6 +242,22 @@ class PurchaseApply(models.Model):
             raise ValidationError('只有采购专员确认、销售专员驳回或取消的单据才能重置为草稿！')
 
         self.state = 'draft'
+
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+        """禁止采购总经理和财务修改单据"""
+        result = super(PurchaseApply, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        if view_type == 'form':
+            if not self.env.user._is_admin():
+                if self.env.user.has_group('sales_team.group_sale_salesman') or self.env.user.has_group('account.group_account_invoice'):
+                    doc = etree.XML(result['arch'])
+                    node = doc.xpath("//form")[0]
+                    node.set('create', '0')
+                    node.set('delete', '0')
+                    node.set('edit', '0')
+
+                    result['arch'] = etree.tostring(doc, encoding='unicode')
+        return result
 
     def goods_not_find(self, not_find, table, nrows):
         goods_obj = self.env['goods']
