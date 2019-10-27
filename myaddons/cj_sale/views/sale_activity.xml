@@ -50,13 +50,14 @@
                                 <field name="principal" options="{'no_create_edit': True, 'no_create':True}"/>
                             </group>
                             <field name="description" placeholder="描述"/>
-                            <field name="active" string="有效" />
+                            <field name="active" string="有效"  invisible="1" />
                             <field name="line_ids">
-                                  <tree>
+                                  <tree editable="bottom">
                                          <field name="product_id" />
                                          <field name="unit_price" />
                                          <field name="product_qty" />
-                                         <field name="used_qty" />
+                                         <field name="order_limit_qty" />
+                                         <field name="used_qty"   />
                                   </tree>
                             </field>
                         </group>

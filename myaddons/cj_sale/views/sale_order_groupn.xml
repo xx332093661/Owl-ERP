@@ -18,9 +18,9 @@
 
                     <!--<button name="action_confirm1" string="确认并提交OA审批" type="object" states="draft" confirm="确认提交OA审批吗？" class="btn-primary"/>-->
                     <button name="action_confirm" states="draft" type="object" string="确认"/>
-                    <button name="action_purchase_confirm" states="confirm" string="销售经理确认" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>
-                    <button name="action_finance_manager_confirm" states="Purchase_Review" string="财务经理确认" type="object" class="oe_highlight" groups="account.group_account_manager"/>
-                    <button name="action_general_manager_confirm" states="Finance_Review" string="总经理确认" type="object" class="oe_highlight" groups="cj_sale.role_general_manage"/>
+                    <button name="action_sale_manager_confirm" states="confirm" string="销售经理确认" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>
+                    <button name="action_finance_manager_confirm" states="account_Review" string="财务经理确认" type="object" class="oe_highlight" groups="account.group_account_manager"/>
+                    <button name="action_general_manager_confirm" states="master_Review" string="总经理确认" type="object" class="oe_highlight" groups="cj_sale.role_general_manage"/>
 
                     <!--<button name="action_confirm" string="订单确认" type="object" states="draft,purchase"/>-->
                     <!--
@@ -36,7 +36,7 @@
                     <!--
                     <button name="action_unlock" type="object" string="Unlock" states="done" groups="sales_team.group_sale_manager"/>
                     -->
-                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,sale,done"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,account_Review,master_Review,sale,done"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">

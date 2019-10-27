@@ -41,7 +41,10 @@ class SaleOrder(models.Model):
     state = fields.Selection([
         ('draft', '草稿'),
         ('sent', 'OA审批中'),
-        ('sale', '已确认'),
+        ('confirm', '销售审核'),
+        ('account_Review', '财务审核'),
+        ('master_Review', '总经理审核'),
+        ('sale', '待出库'),
         ('oa_refuse', 'OA审批未通过'),
         ('done', '完成'),
         ('cancel', '取消'),
@@ -169,10 +172,51 @@ class SaleOrder(models.Model):
                     else:
                         # 自动创建采购申请
                         purchase_confirm_obj.browse(check_res['res_id']).with_context({'active_model': self._name, 'active_id': order.id}).create_purchase_apply()
+                in_activity = order.check_activity()
 
+        #res = super(SaleOrder, self).action_confirm()
+        for order in self:
+            if order.group_flag in ['group', 'large']:
+                in_activity = order.check_activity()
+                if not in_activity:
+                    ###非营销活动总经理确定后，生成出库单
+                    print("==================",order.state)
+                    order.write({'state': 'confirm'})
+                else:
+                    res = super(SaleOrder, order).action_confirm()
+        return True
+
+    def action_sale_manager_confirm(self):
+        self.write({'state': 'account_Review'})
+
+    def action_finance_manager_confirm(self):
+        self.write({'state': 'master_Review'})
+
+    def action_general_manager_confirm(self):
+        self.write({'state': 'sale'})
         res = super(SaleOrder, self).action_confirm()
 
-        return res
+    '''检查活动'''
+
+    def check_activity(self):
+        in_activity = False
+        if self.cj_activity_id and self.cj_activity_id.active == True:
+
+            if self.order_line.mapped('product_id') in self.cj_activity_id.line_ids.mapped('product_id'):
+                in_activity = True
+            print(in_activity)
+            if in_activity == True:
+                for ol in self.order_line:
+
+                    al = self.cj_activity_id.line_ids.search([('product_id', '=', ol.product_id.id)])
+                    print(ol.price_unit, al.unit_price, ol.product_uom_qty, al.order_limit_qty)
+                    if ol.price_unit >= al.unit_price and ol.product_uom_qty <= al.order_limit_qty:
+                        in_activity = True
+                    else:
+                        raise UserError('本订单商品[%s]不符合营销[活动价格]和[数量]要求,请重新修改。' % (ol.product_id.display_name))
+                        in_activity = False
+        return in_activity
+
 
     def check_stock_qty(self):
         confirm_obj = self.env['sale.purchase.confirm']
