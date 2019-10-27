@@ -21,8 +21,8 @@
     ],
 
     'data': [
-        'security/ir.model.access.csv',
         'security/purchase_security.xml',
+        'security/ir.model.access.csv',
 
         'data/purchase_data.xml',
         'data/oa_approval_callback.xml',
