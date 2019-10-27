@@ -8,7 +8,7 @@ from datetime import datetime
 from itertools import groupby
 
 from odoo import fields, models, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 from odoo.tools.float_utils import float_is_zero, float_compare
 from odoo.exceptions import UserError, ValidationError
 
@@ -449,6 +449,9 @@ class PurchaseApply(models.Model):
             order_ids.append(order.id)
 
             for line in ls:
+                if float_is_zero(line.product_qty, precision_digits=2):
+                    raise ValidationError('申请数量不能为0')
+
                 new_order_line = order_line_obj.new({
                     'order_id': order.id,
                     'product_id': line.product_id.id,
