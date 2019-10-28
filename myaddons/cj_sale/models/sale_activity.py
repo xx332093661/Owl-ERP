@@ -65,8 +65,8 @@ class SaleActivityLine(models.Model):
     _description = '活动行'
 
     product_id = fields.Many2one('product.product', string='商品')
-    unit_price = fields.Float("单价")
-    product_qty = fields.Integer("数量")
+    unit_price = fields.Float("最低单价")
+    product_qty = fields.Integer("总限制数量")
     activity_id = fields.Many2one("cj.sale.activity", default=lambda self: self.env.context.get('active_id'), required=True, index=True, ondelete='cascade')
     used_qty = fields.Integer("使用数量", default=0)
     order_limit_qty = fields.Integer("每单订单限量")

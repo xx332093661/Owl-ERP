@@ -163,6 +163,7 @@ class SaleOrder(models.Model):
         # 团购单 库存不足创建采购申请
         for order in self:
             if order.group_flag in ['group', 'large']:
+
                 # 检查库存是否充足
                 check_res = order.check_stock_qty()
 
@@ -178,6 +179,7 @@ class SaleOrder(models.Model):
         for order in self:
             if order.group_flag in ['group', 'large']:
                 in_activity = order.check_activity()
+                order.check_activity_limited() ##检测是否超出数量限制等
                 if not in_activity:
                     ###非营销活动总经理确定后，生成出库单
                     print("==================",order.state)
@@ -216,6 +218,28 @@ class SaleOrder(models.Model):
                         raise UserError('本订单商品[%s]不符合营销[活动价格]和[数量]要求,请重新修改。' % (ol.product_id.display_name))
                         in_activity = False
         return in_activity
+
+
+
+    def check_activity_limited(self):
+        self.ensure_one()
+        in_limited = False
+        if  self.cj_activity_id and self.cj_activity_id.active==True :
+            order_ids=self.env['sale.order'].search([('cj_activity_id','=',self.cj_activity_id.id),('state','in',['sale','done'])]).ids
+
+            for ol in self.order_line :
+                print(order_ids)
+                product_sale_qty = sum( self.env['sale.order.line'].search([('order_id', 'in', order_ids), ('product_id', '=',ol.product_id.id ) ]).mapped('product_uom_qty') )
+                activity_line_obj=  self.env['cj.sale.activity.line'].search([('activity_id','=',self.cj_activity_id.id),('product_id','=',ol.product_id.id)])
+                activity_limit_qty=0
+                if not activity_line_obj:
+                    raise UserError('商品[%s]不存在于本订单的营销活动中。' % (ol.product_id.display_name))
+                else:
+                    activity_limit_qty = activity_line_obj[0].product_qty
+                    activity_line_obj[0].write({'used_qty':product_sale_qty})
+                if activity_limit_qty < product_sale_qty + ol.product_uom_qty :
+                    raise UserError('商品[%s]超出的营销活动数量限制【限量：%s，当前共%s】。' % (ol.product_id.display_name,activity_limit_qty,product_sale_qty + ol.product_uom_qty))
+
 
 
     def check_stock_qty(self):
