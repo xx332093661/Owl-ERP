@@ -248,8 +248,8 @@ class PurchaseOrder(models.Model):
         return action
 
     @api.multi
-    def button_approve(self):
-        res = super(PurchaseOrder, self).button_approve()
+    def button_approve(self, force=False):
+        res = super(PurchaseOrder, self).button_approve(force=force)
         self.purchase_order_count = len(self.search([('partner_id', '=', self.partner_id.id), ('state', 'in', ['purchase', 'done'])]))
         return res
 
