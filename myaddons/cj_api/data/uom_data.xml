@@ -115,7 +115,7 @@
             <field name="uom_type">bigger</field>
             <field name="factor_inv">1</field>
         </record>
-        <record id='uom_zhi' model='uom.uom'>
+        <record id='uom_zhi1' model='uom.uom'>
             <field name="name">支</field>
             <field name="category_id" ref="uom.product_uom_categ_unit"/>
             <field name="uom_type">bigger</field>
@@ -154,7 +154,7 @@
             <!--<field name="factor_inv">1</field>-->
         <!--</record>-->
 
-        <record id='uom_kg' model='uom.uom'>
+        <record id='uom_ml' model='uom.uom'>
             <field name="name">毫升</field>
             <field name="category_id" ref="uom.product_uom_categ_kgm"/>
             <field name="uom_type">smaller</field>

@@ -2037,25 +2037,25 @@ class ApiMessage(models.Model):
             if state:
                 return state.id
 
-        if name.index('内蒙') != -1:
+        if name.find('内蒙') != -1:
             return state_obj.search([('name', '=', '内蒙古自治区'), ('country_id', '=', country_id)]).id
 
-        if name.index('新疆') != -1:
+        if name.find('新疆') != -1:
             return state_obj.search([('name', '=', '新疆维吾尔自治区'), ('country_id', '=', country_id)]).id
 
-        if name.index('宁夏') != -1:
+        if name.find('宁夏') != -1:
             return state_obj.search([('name', '=', '宁夏回族自治区'), ('country_id', '=', country_id)]).id
 
-        if name.index('西藏') != -1:
+        if name.find('西藏') != -1:
             return state_obj.search([('name', '=', '西藏自治区'), ('country_id', '=', country_id)]).id
 
-        if name.index('广西') != -1:
+        if name.find('广西') != -1:
             return state_obj.search([('name', '=', '广西壮族自治区'), ('country_id', '=', country_id)]).id
 
-        if name.index('香港') != -1:
+        if name.find('香港') != -1:
             return state_obj.search([('name', '=', '香港特别行政区'), ('country_id', '=', country_id)]).id
 
-        if name.index('澳门') != -1:
+        if name.find('澳门') != -1:
             return state_obj.search([('name', '=', '澳门特别行政区'), ('country_id', '=', country_id)]).id
 
         _logger.warning('没有找到%s对应的省！' % name)
