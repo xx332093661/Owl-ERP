@@ -146,7 +146,7 @@ class AccountPaymentApply(models.Model):
                 '付款方式：%s' % ('、'.join([dict(PAYMENT_TERM_TYPE)[payment_type] for payment_type in
                                        list(set(order_lines.mapped('payment_term_id').mapped('type')))]),),
                 '付款内容：\n %s' % ('；'.join(payment_content),),
-                '\n采购的内容：\n %s' % ('；'.join(['商品：%s 采购数量：%s 采购价：%s' % (line.product_id.partner_ref, line.product_qty, line.price_unit, ) for line in order_lines])),
+                '\n采购的内容：\n %s' % ('；'.join(['商品：%s 采购数量：%s 采购单价：%s' % (line.product_id.partner_ref, line.product_qty, line.price_unit, ) for line in order_lines])),
                 '收货数：\n %s' % ('；'.join(['商品：%s 收货数量：%s' % (line.product_id.partner_ref, line.qty_received) for line in order_lines if line.qty_received > 0])),
 
             ]
@@ -165,6 +165,7 @@ class AccountPaymentApply(models.Model):
                 '公司名称': self.company_id.name,
                 '付款内容': content,
                 '姓名': self.create_uid.name,
+
                 '部门': '业务',
                 '付款金额小写': self.amount,
             }

@@ -29,6 +29,7 @@
                     <button name="print_quotation" string="Print" type="object" states="sent,sale" class="o_sale_print"/>
                     <button name="action_quotation_send" string="Send by Email" type="object" states="sent,sale"/>
                     -->
+
                     <button name="action_cancel" states="draft,sent,sale" type="object" string="订单取消"/>
                     <button name="action_draft" states="cancel" type="object" string="设为草稿"/>
                     <button name="action_done" type="object" string="完成订单" states="sale"
