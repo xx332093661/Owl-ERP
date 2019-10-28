@@ -663,7 +663,7 @@ class ApiMessage(models.Model):
                     'factor': 1.0
                 })
 
-            return uom.id
+            return uom[0].id
 
         def get_supplier():
             """计算商品的供应商"""
