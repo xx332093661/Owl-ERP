@@ -135,7 +135,7 @@
                   id="menu_action_account_customer_invoice_apply_sale"
                   groups="sales_team.group_sale_salesman"
                   parent="cj_sale.menu_sale_operation"
-                  sequence="10"/>
+                  sequence="100"/>
 
     </data>
 </odoo>

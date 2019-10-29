@@ -68,6 +68,8 @@ account_account_cost_group_invoice, account_cost_group invoice,model_account_cos
 
 access_purchase_rebate_line_invoice,access_purchase_rebate_line invoice,cj_purchase.model_purchase_rebate_line,account.group_account_invoice,1,0,0,0
 
+access_cj_sale_activity_invoice,cj_sale_activity invoice,cj_sale.model_cj_sale_activity,account.group_account_invoice,1,1,0,0
+
 
 
 

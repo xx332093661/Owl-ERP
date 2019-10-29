@@ -69,10 +69,13 @@
             name="全渠道订单"
             action="cj_sale.action_orders_all"
             parent="menu_account_sale"
-            sequence="1"/>
+            sequence="10"/>
 
         <menuitem name="团购单" id="menu_action_sale_bjd" action="cj_sale.action_orders_groupn"
-                  parent="menu_account_sale" sequence="2"/>
+                  parent="menu_account_sale" sequence="20"/>
+
+        <menuitem name="营销活动" id="cj_sale_activity_menu" action="cj_sale.cj_sale_activity_action"
+          parent="menu_account_sale" sequence="30"/>
 
         <!--应收应付\概览菜单隐藏-->
         <record id="account.menu_board_journal_1" model="ir.ui.menu">

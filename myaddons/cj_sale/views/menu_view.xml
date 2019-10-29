@@ -34,19 +34,21 @@
 
 
         <menuitem name="团购单" id="menu_action_sale_bjd" action="cj_sale.action_orders_groupn"
-                  parent="menu_sale_operation" sequence="2" groups="sales_team.group_sale_salesman" />
+                  parent="menu_sale_operation" sequence="20" groups="sales_team.group_sale_salesman" />
 
          <menuitem id="menu_sale_order"
             name="全渠道订单"
             action="action_orders_all"
             parent="menu_sale_operation"
-            sequence="1" groups="sales_team.group_sale_salesman" />
+            sequence="10" groups="sales_team.group_sale_salesman" />
 
           <menuitem id="menu_aftersale_order"
             name="售后服务单"
             action="action_orders_aftersale"
             parent="menu_sale_operation"
-            sequence="3" groups="sales_team.group_sale_salesman" />
+            sequence="30" groups="sales_team.group_sale_salesman" />
+        <menuitem id="cj_sale_activity_menu" name="营销活动" parent="menu_sale_operation" sequence="40"
+                  action="cj_sale_activity_action"/>
 
         <menuitem name="客户" id="menu_action_sale_kh" action="base.action_partner_form"
                   parent="menu_sale_main_data" sequence="10"/>
