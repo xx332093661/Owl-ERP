@@ -23,5 +23,8 @@ account_stock_material_requisition_user,stock_material_requisition user,model_st
 account_stock_material_requisition_line_user,stock_material_requisition_line user,model_stock_material_requisition_line,stock.group_stock_user,1,1,1,1
 account_stock_material_requisition_diff_line_user,stock_material_requisition_diff_line user,model_stock_material_requisition_diff_line,stock.group_stock_user,1,1,1,1
 
+account_product_cost_user,product_cost user,cj_purchase.model_product_cost,stock.group_stock_user,1,0,0,0
+
+
 
 

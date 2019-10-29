@@ -59,8 +59,7 @@ class SaleOrder(models.Model):
     delivery_ids = fields.One2many('delivery.order', 'sale_order_id', string='出货单', copy=False, readonly=False)
     logistics_ids = fields.One2many('delivery.logistics', 'order_id', '运单')
     # state = fields.Selection(selection_add=[('purchase', '采购中')])
-    group_flag = fields.Selection([('large', '大数量团购'), ('group', '团购'), ('not', '非团购')],
-                                  '团购标记', default='not')
+    group_flag = fields.Selection([('large', '大数量团购'), ('group', '团购'), ('not', '非团购')], '团购标记', default='not')
     payment_ids = fields.One2many('account.payment', 'sale_order_id', '收款记录')
 
     # 中台字段
@@ -179,13 +178,15 @@ class SaleOrder(models.Model):
         for order in self:
             if order.group_flag in ['group', 'large']:
                 in_activity = order.check_activity()
-                order.check_activity_limited() ##检测是否超出数量限制等
+                order.check_activity_limited()  # 检测是否超出数量限制等
                 if not in_activity:
                     ###非营销活动总经理确定后，生成出库单
                     print("==================",order.state)
                     order.write({'state': 'confirm'})
                 else:
-                    res = super(SaleOrder, order).action_confirm()
+                    super(SaleOrder, order).action_confirm()
+            else:
+                super(SaleOrder, order).action_confirm()
         return True
 
     def action_sale_manager_confirm(self):

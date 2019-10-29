@@ -32,3 +32,25 @@ class Warehouse(models.Model):
     #
     #     return super(Warehouse, self)._search(args, offset=offset, limit=limit, order=order,
     #                                           count=False, access_rights_uid=access_rights_uid)
+
+    @api.model
+    def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
+        """ 跨公司调拨时，调入仓库可以访问所有的仓库"""
+        if 'across_move_all' in self._context:
+            return super(Warehouse, self.sudo())._name_search(name=name, args=args, operator=operator, limit=limit, name_get_uid=1)
+        return super(Warehouse, self)._name_search(name=name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
+
+    @api.model
+    def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
+        """跨公司调拨时，调入仓库可以访问所有的仓库"""
+        if 'across_move_all' in self._context:
+            return super(Warehouse, self.sudo())._search(args, offset, limit, order, count, access_rights_uid)
+        return super(Warehouse, self)._search(args, offset, limit, order, count, access_rights_uid=access_rights_uid)
+
+    @api.multi
+    def read(self, fields=None, load='_classic_read'):
+        """跨公司调拨时，调入仓库可以访问所有的仓库"""
+        if 'across_move_all' in self._context:
+            return super(Warehouse, self.sudo()).read(fields, load)
+        return super(Warehouse, self).read(fields, load)
+

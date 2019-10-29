@@ -20,15 +20,12 @@ class StockAcrossMove(models.Model):
     _order = 'id desc'
 
     name = fields.Char('单号', readonly=1, default='New')
-    date = fields.Date('单据日期',
-                             default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')),
-                             readonly=1, states=READONLY_STATES)
+    date = fields.Date('单据日期', default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')), readonly=1, states=READONLY_STATES)
     state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('manager_confirm', '仓库经理审核'), ('out_in_confirm', '调出调入确认'), ('done', '完成')], '状态', default='draft', track_visibility='onchange')
     company_id = fields.Many2one('res.company', '公司', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', default=lambda self: self.env.user.company_id)
 
     warehouse_in_id = fields.Many2one('stock.warehouse', '调入仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('company_id', '!=', company_id)]")
-    warehouse_out_id = fields.Many2one('stock.warehouse', '调出仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange',
-                                       domain="[('company_id', '=', company_id)]",
+    warehouse_out_id = fields.Many2one('stock.warehouse', '调出仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('company_id', '=', company_id)]",
                                        default=lambda self: self.env['stock.warehouse'].search([('company_id', '=', self.env.user.company_id.id)], limit=1).id)
 
     payment_term_id = fields.Many2one('account.payment.term', '收款条款', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
@@ -49,13 +46,6 @@ class StockAcrossMove(models.Model):
     # origin_type = fields.Selection([('purchase', '采购'), ('sale', '销售')], '来源类型')
 
     @api.multi
-    def action_view_picking(self):
-        if self._context['view_type'] == 'sale':
-            return self.sale_order_id.action_view_delivery()
-
-        return self.purchase_order_id.action_view_picking()
-
-    @api.multi
     @api.constrains('warehouse_in_id', 'warehouse_out_id')
     def _check_warehouse(self):
         for move in self:
@@ -69,12 +59,12 @@ class StockAcrossMove(models.Model):
         if self.company_id:
             self.warehouse_out_id = self.env['stock.warehouse'].search([('company_id', '=', self.company_id.id)], limit=1).id
 
-    @api.onchange()
-    def _onchange_warehouse(self):
-        if self.warehouse_out_id and self.warehouse_in_id and self.warehouse_in_id.id != self.warehouse_out_id.id:
-            res = self.search([('warehouse_out_id', '=', self.warehouse_out_id.id), ('warehouse_in_id', '=', self.warehouse_in_id.id)], limit=1, order='id desc')
-            if res:
-                self.payment_term_id = res.payment_term_id.id
+    # @api.onchange()
+    # def _onchange_warehouse(self):
+    #     if self.warehouse_out_id and self.warehouse_in_id and self.warehouse_in_id.id != self.warehouse_out_id.id:
+    #         res = self.search([('warehouse_out_id', '=', self.warehouse_out_id.id), ('warehouse_in_id', '=', self.warehouse_in_id.id)], limit=1, order='id desc')
+    #         if res:
+    #             self.payment_term_id = res.payment_term_id.id
 
     @api.model
     def create(self, vals):
@@ -98,12 +88,33 @@ class StockAcrossMove(models.Model):
         if self.filtered(lambda x: x.state != 'draft'):
             raise ValidationError('非草稿状态的记录不能删除！')
 
+        # 限制调用仓库的权限
+        if any([res.company_id.id not in self.env.user.company_id.child_ids.ids for res in self]):
+            raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能删除！')
+
         return super(StockAcrossMove, self).unlink()
+
+    @api.multi
+    def write(self, vals):
+        # 限制调用仓库的权限
+        if any([res.company_id.id not in self.env.user.company_id.child_ids.ids for res in self]):
+            raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能修改！')
+
+        return super(StockAcrossMove, self).write(vals)
+
+    @api.multi
+    def action_view_picking(self):
+        if self._context['view_type'] == 'sale':
+            return self.sale_order_id.action_view_delivery()
+
+        return self.purchase_order_id.action_view_picking()
 
     @api.multi
     def action_confirm(self):
         """确认"""
         self.ensure_one()
+        if self.company_id.id not in self.env.user.company_id.child_ids.ids:
+            raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能确认！')
 
         if not self.line_ids:
             raise ValidationError("请输入调拨明细！")
@@ -120,6 +131,9 @@ class StockAcrossMove(models.Model):
     def action_draft(self):
         """重置为草稿"""
         self.ensure_one()
+        if self.company_id.id not in self.env.user.company_id.child_ids.ids:
+            raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能重置为草稿！')
+
         if self.state != 'confirm':
             raise ValidationError('只有确认的单据才能重置为草稿！')
 
@@ -130,13 +144,16 @@ class StockAcrossMove(models.Model):
         """经理审核"""
 
         def get_picking_type():
-            type_obj = self.env['stock.picking.type']
+            type_obj = self.env['stock.picking.type'].sudo()
             types = type_obj.search([('code', '=', 'incoming'), ('warehouse_id.company_id', '=', company_in_id)])
             if not types:
                 types = type_obj.search([('code', '=', 'incoming'), ('warehouse_id', '=', False)])
             return types[:1].id
 
         self.ensure_one()
+        if self.company_id.id not in self.env.user.company_id.child_ids.ids:
+            raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能审核！')
+
         if self.state != 'confirm':
             raise ValidationError('只有确认的单据才能经理审核！')
 
@@ -145,8 +162,8 @@ class StockAcrossMove(models.Model):
 
         company_out = self.warehouse_out_id.company_id
         company_out_id = company_out.id
-        company_in = self.warehouse_in_id.company_id
-        company_in_id = self.warehouse_in_id.company_id.id
+        company_in = self.warehouse_in_id.sudo().company_id
+        company_in_id = company_in.id
         # 创建销售订单
         sale_order = self.env['sale.order'].create({
             'partner_id': company_in.partner_id.id,
