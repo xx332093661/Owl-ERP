@@ -8,7 +8,7 @@
 
     'description': """物流费用""",
 
-    'author': "Inspur SuXueFeng",
+    'author': "",
     'license': 'Other proprietary',
     'website': "http://www.mypscloud.com",
 
