@@ -7,6 +7,7 @@ from odoo.exceptions import UserError
 from datetime import datetime, timedelta
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 from odoo.addons.cj_api.models.tools import digital_to_chinese
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -40,12 +41,14 @@ class SaleOrder(models.Model):
 
     state = fields.Selection([
         ('draft', '草稿'),
-        ('sent', 'OA审批中'),
-        ('confirm', '销售审核'),
-        ('account_Review', '财务审核'),
-        ('master_Review', '总经理审核'),
+        # ('sent', 'OA审批中'),
+        ('confirm', '确认'),
+        ('manager_confirm', '销售经理审核'),
+        ('finance_manager_confirm', '财务经理审核'),
+        ('general_manager_confirm', '采购总经理审批'),
+        ('general_manager_refuse', '采购总经理拒绝'),
         ('sale', '待出库'),
-        ('oa_refuse', 'OA审批未通过'),
+        # ('oa_refuse', 'OA审批未通过'),
         ('done', '完成'),
         ('cancel', '取消'),
         ('purchase', '采购中')
@@ -102,15 +105,60 @@ class SaleOrder(models.Model):
     sync_state = fields.Selection([('no_need', '无需同步'), ('not', '未同步'),
                                    ('success', '已同步'), ('error', '同步失败')], '同步中台状态', default='not')
 
+    @api.multi
+    def button_confirm(self):
+        """销售专员确认团购单"""
+        if self.state != 'draft':
+            raise ValidationError('只有草稿单据才能由销售专员确认！')
+
+        self.state = 'confirm'
+
+
+
+
+    @api.multi
+    def action_confirm(self):
+        """销售专员确认团购单"""
+        purchase_confirm_obj = self.env['sale.purchase.confirm']
+
+        # 团购单 库存不足创建采购申请
+        for order in self:
+            if order.group_flag in ['group', 'large']:
+
+                # 检查库存是否充足
+                check_res = order.check_stock_qty()
+
+                if check_res:
+                    if order.state == 'purchase':
+                        raise UserError('所售商品正在采购中')
+                    else:
+                        # 自动创建采购申请
+                        purchase_confirm_obj.browse(check_res['res_id']).with_context({'active_model': self._name, 'active_id': order.id}).create_purchase_apply()
+                in_activity = order.check_activity()
+
+        #res = super(SaleOrder, self).action_confirm()
+        for order in self:
+            if order.group_flag in ['group', 'large']:
+                in_activity = order.check_activity()
+                order.check_activity_limited()  # 检测是否超出数量限制等
+                if not in_activity:
+                    ###非营销活动总经理确定后，生成出库单
+                    print("==================",order.state)
+                    order.write({'state': 'confirm'})
+                else:
+                    super(SaleOrder, order).action_confirm()
+            else:
+                super(SaleOrder, order).action_confirm()
+        return True
+
     @api.model
     def create(self, val):
         """团购标记处理"""
-
         if self._context.get('group_flag') == 'group':
             val.update({'group_flag': 'group'})
+
         # todo 大数量团购处理
-        res = super(SaleOrder, self).create(val)
-        return res
+        return super(SaleOrder, self).create(val)
 
     def oa_approval(self):
         oa_api_obj = self.env['cj.oa.api']
@@ -154,40 +202,6 @@ class SaleOrder(models.Model):
             order.oa_approval()
 
         self.write({'state': 'sent'})
-
-    @api.multi
-    def action_confirm(self):
-        purchase_confirm_obj = self.env['sale.purchase.confirm']
-
-        # 团购单 库存不足创建采购申请
-        for order in self:
-            if order.group_flag in ['group', 'large']:
-
-                # 检查库存是否充足
-                check_res = order.check_stock_qty()
-
-                if check_res:
-                    if order.state == 'purchase':
-                        raise UserError('所售商品正在采购中')
-                    else:
-                        # 自动创建采购申请
-                        purchase_confirm_obj.browse(check_res['res_id']).with_context({'active_model': self._name, 'active_id': order.id}).create_purchase_apply()
-                in_activity = order.check_activity()
-
-        #res = super(SaleOrder, self).action_confirm()
-        for order in self:
-            if order.group_flag in ['group', 'large']:
-                in_activity = order.check_activity()
-                order.check_activity_limited()  # 检测是否超出数量限制等
-                if not in_activity:
-                    ###非营销活动总经理确定后，生成出库单
-                    print("==================",order.state)
-                    order.write({'state': 'confirm'})
-                else:
-                    super(SaleOrder, order).action_confirm()
-            else:
-                super(SaleOrder, order).action_confirm()
-        return True
 
     def action_sale_manager_confirm(self):
         self.write({'state': 'account_Review'})
