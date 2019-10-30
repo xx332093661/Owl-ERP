@@ -21,7 +21,7 @@ class PurchasePriceList(models.Model):
     name = fields.Char('标题', readonly=1, states=READONLY_STATES, track_visibility='onchange')
     order_time = fields.Datetime('报价时间', default=lambda self: datetime.now().strftime(DATETIME_FORMAT), readonly=1, states=READONLY_STATES, track_visibility='onchange')
     supplierinfo_ids = fields.One2many('product.supplierinfo', 'price_list_id', '供应商价格表', readonly=1, states=READONLY_STATES, track_visibility='onchange')
-    paper = fields.Binary('纸质文件', readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    paper = fields.Binary('纸质文件', readonly=1, states=READONLY_STATES, track_visibility='onchange', attachment=True)
 
     state = fields.Selection(STATES, track_visibility='onchange', default='draft', string='状态')
     active = fields.Boolean('有效', default=True)

@@ -6,7 +6,7 @@ class Company(models.Model):
     _inherit = 'res.company'
 
     about_company = fields.Html('关于')
-    app_background_image = fields.Binary('App背景图', default='/web_backend_theme/static/src/img/cover/cover_sunrise.jpg')
+    app_background_image = fields.Binary('App背景图', default='/web_backend_theme/static/src/img/cover/cover_sunrise.jpg', attachment=True)
     theme = fields.Selection([
         ('orange', '橙色'),
         ('gray_black', '灰黑色'),

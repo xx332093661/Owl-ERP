@@ -57,7 +57,7 @@ class PurchaseApply(models.Model):
     line_ids = fields.One2many('purchase.apply.line', 'apply_id', '申请明细', readonly=1, states=READONLY_STATES)
     order_ids = fields.One2many('purchase.order', 'apply_id', '采购订单', readonly=1, states=READONLY_STATES)
     order_count = fields.Integer(compute='_compute_order', string='订单数量', default=0, store=True)
-    attached = fields.Binary('原始单据',readonly=1, states=READONLY_STATES)
+    attached = fields.Binary('原始单据',readonly=1, states=READONLY_STATES, attachment=True)
     amount = fields.Float('预计成本', compute='_compute_amount')
 
     @api.onchange('company_id')
