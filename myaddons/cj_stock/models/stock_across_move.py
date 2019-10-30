@@ -97,8 +97,9 @@ class StockAcrossMove(models.Model):
     @api.multi
     def write(self, vals):
         # 限制调用仓库的权限
-        if any([res.company_id.id not in self.env.user.company_id.child_ids.ids for res in self]):
-            raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能修改！')
+        if 'cron_update' not in self._context:  # cron_update上下文避免计划任务修改状态报错
+            if any([res.company_id.id not in self.env.user.company_id.child_ids.ids for res in self]):
+                raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能修改！')
 
         return super(StockAcrossMove, self).write(vals)
 
@@ -224,10 +225,10 @@ class StockAcrossMove(models.Model):
                 in_ok = True
 
             if out_ok and in_ok:
-                move.state = 'done'
+                move.with_context(cron_update=1).state = 'done'  # cron_update避免修改状态报错
             else:
                 if (out_ok or in_ok) and move.state != 'out_in_confirm':
-                    move.state = 'out_in_confirm'
+                    move.with_context(cron_update=1).state = 'out_in_confirm'  # cron_update避免修改状态报错
 
     def generate_across_move_diff(self):
         """计算跨公司调拨差异"""
