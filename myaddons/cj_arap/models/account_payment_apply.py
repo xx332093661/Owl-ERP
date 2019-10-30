@@ -137,7 +137,7 @@ class AccountPaymentApply(models.Model):
                 invoice_residual_amount = order_amount_total - invoice_paid_amount  # 开票未付金额
 
                 apply_amount = sum(invoice_splits.mapped('amount')) - sum(invoice_splits.mapped('paid_amount'))  # 本次付款金额
-                payment_content.append('采购订单%s  订单总额：%s  已付款：%s 未付款：%s 本次付款：%s' % (order.name, order_amount_total, invoice_paid_amount, invoice_residual_amount, apply_amount))
+                payment_content.append('采购订单%s  订单总额：%s  已付款：%s 未付款：%s 本次付款：%s' % (order.name, order_amount_total, invoice_paid_amount, invoice_residual_amount, self.amount))
 
             content = [
                 '采购订单编号：%s' % ('，'.join(purchase_orders.mapped('name')), ),
