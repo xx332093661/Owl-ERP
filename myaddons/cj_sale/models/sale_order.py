@@ -11,6 +11,11 @@ from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
+READONLY_STATES = {
+    'draft': [('readonly', False)],
+}
+
+
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
@@ -45,16 +50,16 @@ class SaleOrder(models.Model):
         ('confirm', '确认'),
         ('manager_confirm', '销售经理审核'),
         ('finance_manager_confirm', '财务经理审核'),
-        ('general_manager_confirm', '采购总经理审批'),
-        ('general_manager_refuse', '采购总经理拒绝'),
+        ('general_manager_confirm', '总经理审批'),
+        ('general_manager_refuse', '总经理拒绝'),
         ('sale', '待出库'),
         # ('oa_refuse', 'OA审批未通过'),
         ('done', '完成'),
         ('cancel', '取消'),
         ('purchase', '采购中')
     ], string='状态', readonly=True, copy=False, index=True, track_visibility='onchange', track_sequence=3, default='draft')
-    channel_id = fields.Many2one(comodel_name='sale.channels', string='销售渠道')
-    cj_activity_id = fields.Many2one(comodel_name='cj.sale.activity', string='营销活动')
+    channel_id = fields.Many2one(comodel_name='sale.channels', string='销售渠道', readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('code', '!=', 'across_move')]")
+    cj_activity_id = fields.Many2one(comodel_name='cj.sale.activity', string='营销活动', domain="[('state', '=', 'done')]", readonly=1, states=READONLY_STATES, track_visibility='onchange')
     # payment_status = fields.Selection(string='支付状态', selection=PAYMENTSTATUS,
     #                                   default='unpaid')
     aftersale_status = fields.Selection(string='售后状态', selection=AFTERSALESTATUS, default='none')
@@ -100,7 +105,7 @@ class SaleOrder(models.Model):
     # gross_rate = fields.Float(string="毛利率")
     # goods_cost_checked = fields.Boolean(string="是否成本核算", helps="是否完成了订单商品成本的计算", default=False)
 
-    flow_id = fields.Char('审批流程ID')
+    # flow_id = fields.Char('审批流程ID')
 
     sync_state = fields.Selection([('no_need', '无需同步'), ('not', '未同步'),
                                    ('success', '已同步'), ('error', '同步失败')], '同步中台状态', default='not')
@@ -111,10 +116,93 @@ class SaleOrder(models.Model):
         if self.state != 'draft':
             raise ValidationError('只有草稿单据才能由销售专员确认！')
 
+        if not self.order_line:
+            return ValidationError('请输入销售明细！')
+
+        # 验证是否有相同的商品，不同的单价
+        order_lines = []
+        for line in self.order_line:
+            res = list(filter(lambda x: x['product'] == line.product_id, order_lines))
+            if not res:
+                order_lines.append({
+                    'product': line.product_id,
+                    'price_unit': [line.price_unit]
+                })
+            else:
+                res[0]['price_unit'].append(line.price_unit)
+
+        res = list(filter(lambda x: len(x['price_unit']) > 1, order_lines))
+        if res:
+            raise ValidationError('商品：%s的销售单价不相同！' % ('、'.join([r['product'].name for r in res])))
+
+        # 验证营销活动(验证订单明细的数量)
+        self.check_activity()
+
+        # 验证库存
+        res = self.check_stock_qty()
+        if res:
+            return {
+                'name': '创建采购申请',
+                'type': 'ir.actions.act_window',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'sale.purchase.confirm',
+                'target': 'new',
+                'context': {
+                    # 'msg': '以下商品库存数量不足，确认要创建采购申请补充库存吗？',
+                    'data': res
+                }
+        }
+
         self.state = 'confirm'
 
+    @api.multi
+    def button_draft(self):
+        """销售专员设为草稿"""
+        if self.state not in ['confirm', 'cancel', 'general_manager_refuse']:
+            raise ValidationError('只有销售专员确认、取消或总经理拒绝的单据才能由销售专员设为草稿！')
+
+        # TODO 设为草稿，如果有关联的采购申请，是否要删除或取消？
+        self.state = 'draft'
+
+    @api.multi
+    def button_cancel(self):
+        """取消订单"""
+        # TODO 取消订单，如果有关联的采购申请，是否要删除或取消？
+        self.action_cancel()
 
 
+    @api.multi
+    def button_sale_manager_confirm(self):
+        """销售经理审核"""
+        if self.state != 'confirm':
+            raise ValidationError('只有销售专员确认的单据才能由销售经理审核！')
+
+        self.state = 'manager_confirm'
+
+    @api.multi
+    def button_finance_manager_confirm(self):
+        """财务经理审核"""
+        if self.state != 'manager_confirm':
+            raise ValidationError('只有销售经理审核的单据才能由财务经理审核！')
+
+        self.state = 'finance_manager_confirm'
+
+    @api.multi
+    def button_general_manager_refuse(self):
+        """销售总经理拒绝"""
+        if self.state != 'finance_manager_confirm':
+            raise ValidationError('只有财务经理审核的单据才能由总经理拒绝')
+
+        self.state = 'general_manager_refuse'
+
+    @api.multi
+    def button_general_manager_confirm(self):
+        """销售总经理审批"""
+        if self.state != 'finance_manager_confirm':
+            raise ValidationError('只有财务经理审核的单据才能由总经理审批"')
+
+        self.action_confirm()
 
     @api.multi
     def action_confirm(self):
@@ -216,95 +304,183 @@ class SaleOrder(models.Model):
     '''检查活动'''
 
     def check_activity(self):
-        in_activity = False
-        if self.cj_activity_id and self.cj_activity_id.active == True:
+        """验证营销活动，验证订单明细的商品数量和单价 单价不能小天活动的单价，数量不能大于活动剩余数量"""
+        if not (self.cj_activity_id and self.cj_activity_id.active):
+            return
 
-            if self.order_line.mapped('product_id') in self.cj_activity_id.line_ids.mapped('product_id'):
-                in_activity = True
-            print(in_activity)
-            if in_activity == True:
-                for ol in self.order_line:
+        # 营销活动
+        activity_lines = [{
+            'product_id': line.product_id.id,
+            'unit_price': line.unit_price,  # 最低限价
+            'product_qty': line.product_qty,  # 活动数量
+            'used_qty': line.used_qty,  # 使用的数量
+            'order_limit_qty': line.order_limit_qty,  # 每个订单限量
+        } for line in self.cj_activity_id.line_ids]
 
-                    al = self.cj_activity_id.line_ids.search([('product_id', '=', ol.product_id.id)])
-                    print(ol.price_unit, al.unit_price, ol.product_uom_qty, al.order_limit_qty)
-                    if ol.price_unit >= al.unit_price and ol.product_uom_qty <= al.order_limit_qty:
-                        in_activity = True
-                    else:
-                        raise UserError('本订单商品[%s]不符合营销[活动价格]和[数量]要求,请重新修改。' % (ol.product_id.display_name))
-                        in_activity = False
-        return in_activity
+        # 汇总订单明细
+        order_lines = []
+        for line in self.order_line:
+            res = list(filter(lambda x: x['product_id'] == line.product_id.id, order_lines))
+            if not res:
+                order_lines.append({
+                    'product_id': line.product_id.id,
+                    'product': line.product_id,
+                    'price_unit': line.price_unit,
+                    'product_uom_qty': line.product_uom_qty
+                })
+            else:
+                res[0]['product_uom_qty'] += line.product_uom_qty
 
+        for line in order_lines:
+            res = list(filter(lambda x: x['product_id'] == line['product_id'], activity_lines))
+            if not res:
+                raise ValidationError('商品：%s没有在营销活动中！' % line['product'].name)
 
+            res = res[0]
+            product_name = line['product'].name
+            # 验证单价
+            if line['price_unit'] < res['unit_price']:
+                raise ValidationError('商品：%s的销售单价：%s不能小于营销活动单价：%s！' % (product_name, line['price_unit'], res['unit_price']))
 
-    def check_activity_limited(self):
-        self.ensure_one()
-        in_limited = False
-        if  self.cj_activity_id and self.cj_activity_id.active==True :
-            order_ids=self.env['sale.order'].search([('cj_activity_id','=',self.cj_activity_id.id),('state','in',['sale','done'])]).ids
+            # 验证每张订单数量
+            if res['order_limit_qty']:
+                if line['product_uom_qty'] > res['order_limit_qty']:
+                    raise ValidationError('商品：%s，订单数量：%s不能大于营销活动的每单订单限量：%s！' % (product_name, line['product_uom_qty'], res['order_limit_qty']))
 
-            for ol in self.order_line :
-                print(order_ids)
-                product_sale_qty = sum( self.env['sale.order.line'].search([('order_id', 'in', order_ids), ('product_id', '=',ol.product_id.id ) ]).mapped('product_uom_qty') )
-                activity_line_obj=  self.env['cj.sale.activity.line'].search([('activity_id','=',self.cj_activity_id.id),('product_id','=',ol.product_id.id)])
-                activity_limit_qty=0
-                if not activity_line_obj:
-                    raise UserError('商品[%s]不存在于本订单的营销活动中。' % (ol.product_id.display_name))
-                else:
-                    activity_limit_qty = activity_line_obj[0].product_qty
-                    activity_line_obj[0].write({'used_qty':product_sale_qty})
-                if activity_limit_qty < product_sale_qty + ol.product_uom_qty :
-                    raise UserError('商品[%s]超出的营销活动数量限制【限量：%s，当前共%s】。' % (ol.product_id.display_name,activity_limit_qty,product_sale_qty + ol.product_uom_qty))
+            # 验证营销活动的剩余数量
+            qty = max(res['product_qty'] - res['used_qty'], 0)  # 营销活动的剩余数量
+            if line['product_uom_qty'] > qty:
+                raise ValidationError('商品：%s订单数量：%s不能大于营销活动的剩余数量：%s！' % (product_name, line['product_uom_qty'], qty))
+
+        #
+        #
+        # in_activity = False
+        # if self.cj_activity_id and self.cj_activity_id.active == True:
+        #
+        #     if self.order_line.mapped('product_id') in self.cj_activity_id.line_ids.mapped('product_id'):
+        #         in_activity = True
+        #
+        #     print(in_activity)
+        #     if in_activity == True:
+        #         for ol in self.order_line:
+        #
+        #             al = self.cj_activity_id.line_ids.search([('product_id', '=', ol.product_id.id)])
+        #             print(ol.price_unit, al.unit_price, ol.product_uom_qty, al.order_limit_qty)
+        #             if ol.price_unit >= al.unit_price and ol.product_uom_qty <= al.order_limit_qty:
+        #                 in_activity = True
+        #             else:
+        #                 raise UserError('本订单商品[%s]不符合营销[活动价格]和[数量]要求,请重新修改。' % (ol.product_id.display_name))
+        #                 in_activity = False
+        # return in_activity
+
+    # def check_activity_limited(self):
+    #     self.ensure_one()
+    #     in_limited = False
+    #     if  self.cj_activity_id and self.cj_activity_id.active==True :
+    #         order_ids=self.env['sale.order'].search([('cj_activity_id','=',self.cj_activity_id.id),('state','in',['sale','done'])]).ids
+    #
+    #         for ol in self.order_line :
+    #             print(order_ids)
+    #             product_sale_qty = sum( self.env['sale.order.line'].search([('order_id', 'in', order_ids), ('product_id', '=',ol.product_id.id ) ]).mapped('product_uom_qty') )
+    #             activity_line_obj=  self.env['cj.sale.activity.line'].search([('activity_id','=',self.cj_activity_id.id),('product_id','=',ol.product_id.id)])
+    #             activity_limit_qty=0
+    #             if not activity_line_obj:
+    #                 raise UserError('商品[%s]不存在于本订单的营销活动中。' % (ol.product_id.display_name))
+    #             else:
+    #                 activity_limit_qty = activity_line_obj[0].product_qty
+    #                 activity_line_obj[0].write({'used_qty':product_sale_qty})
+    #             if activity_limit_qty < product_sale_qty + ol.product_uom_qty :
+    #                 raise UserError('商品[%s]超出的营销活动数量限制【限量：%s，当前共%s】。' % (ol.product_id.display_name,activity_limit_qty,product_sale_qty + ol.product_uom_qty))
 
 
 
     def check_stock_qty(self):
+        """销售员确认订单时，检查库存是否充足，不足提示创建采购申请"""
         confirm_obj = self.env['sale.purchase.confirm']
-        order_point_obj = self.env['purchase.order.point']
-        qty_dict = {}
+        order_point_obj = self.env['purchase.order.point']  # 采购订货规则
+
+        # 汇总订单行(不考虑出库仓库和货主)
+        order_lines = []
         for line in self.order_line:
-            if line.product_id.type == 'product':
+            res = list(filter(lambda x: x['product_id'] == line.product_id.id, order_lines))
+            if res:
+                res[0]['product_uom_qty'] += line.product_uom_qty
+            else:
+                order_lines.append({
+                    'product_id': line.product_id.id,
+                    'product_uom_qty': line.product_uom_qty,
+                    'product': line.product_id.with_context(warehouse=line.warehouse_id.id, owner_company_id=line.owner_id.id),
+                    'product_uom': line.product_uom,
+                    'warehouse_id': line.warehouse_id.id
+                })
 
-                product = line.product_id.with_context(
-                    warehouse=line.warehouse_id.id,
-                    owner_company_id=line.owner_id.id
-                )
-                product_qty = line.product_uom._compute_quantity(line.product_uom_qty, line.product_id.uom_id)
+        qty_dict = []
+        for line in order_lines:
+            product_qty = line['product_uom']._compute_quantity(line['product_uom_qty'], line['product_uom'])  # 销售订单数量
+            order_point = order_point_obj.search([('product_id', '=', line['product_id']), ('warehouse_id', '=', line['warehouse_id'])], limit=1)  # 采购订货规则
+            product_min_qty = order_point.product_min_qty if order_point else 0  # 最小库存量
+            qty = line['product'].virtual_available - product_qty - product_min_qty  #
+            if qty >= 0:
+                continue
 
-                order_point = order_point_obj.search([('product_id', '=', line.product_id.id), ('warehouse_id', '=', line.warehouse_id.id)], limit=1)
-                mit_qty = order_point.product_min_qty if order_point else 0
+            qty_dict.append({
+                'product_id': line['product_id'],
+                'product_uom': line['product_uom'].id,
 
-                qty = product.virtual_available - product_qty - mit_qty
-                if qty < 0:
-                    key = (line.product_id.id, line.product_uom.id)
-                    if key not in qty_dict:
-                        qty_dict[key] = abs(qty)
-                    else:
-                        qty_dict[key] += abs(qty)
+                'virtual_available': line['product'].virtual_available,  # 预测数量
+                'product_uom_qty': line['product_uom_qty'],  # 销售数量
+                'product_min_qty': product_min_qty, # 安全库存量
+                'product_qty': abs(qty),  # 需订购数量
+            })
 
-        lines = []
-        for key, qty in qty_dict.items():
-            lines.append((0, 0, {
-                'product_id': key[0],
-                'product_uom': key[1],
-                'product_qty': qty,
-            }))
+        return qty_dict
 
-        if not lines:
-            return
-
-        confirm = confirm_obj.create({
-            'line_ids': lines
-        })
-
-        return {
-            'type': 'ir.actions.act_window',
-            'name': '创建采购申请',
-            'view_type': 'form',
-            'view_mode': 'form',
-            'res_model': 'sale.purchase.confirm',
-            'target': 'new',
-            'res_id': confirm.id
-        }
+        #
+        # qty_dict = {}
+        # for line in self.order_line:
+        #     if line.product_id.type == 'product':
+        #
+        #         product = line.product_id.with_context(
+        #             warehouse=line.warehouse_id.id,
+        #             owner_company_id=line.owner_id.id
+        #         )
+        #         product_qty = line.product_uom._compute_quantity(line.product_uom_qty, line.product_id.uom_id)
+        #
+        #         order_point = order_point_obj.search([('product_id', '=', line.product_id.id), ('warehouse_id', '=', line.warehouse_id.id)], limit=1)
+        #         mit_qty = order_point.product_min_qty if order_point else 0
+        #
+        #         qty = product.virtual_available - product_qty - mit_qty
+        #         if qty < 0:
+        #             key = (line.product_id.id, line.product_uom.id)
+        #             if key not in qty_dict:
+        #                 qty_dict[key] = abs(qty)
+        #             else:
+        #                 qty_dict[key] += abs(qty)
+        #
+        # lines = []
+        # for key, qty in qty_dict.items():
+        #     lines.append((0, 0, {
+        #         'product_id': key[0],
+        #         'product_uom': key[1],
+        #         'product_qty': qty,
+        #     }))
+        #
+        # if not lines:
+        #     return
+        #
+        # confirm = confirm_obj.create({
+        #     'line_ids': lines
+        # })
+        #
+        # return {
+        #     'type': 'ir.actions.act_window',
+        #     'name': '创建采购申请',
+        #     'view_type': 'form',
+        #     'view_mode': 'form',
+        #     'res_model': 'sale.purchase.confirm',
+        #     'target': 'new',
+        #     'res_id': confirm.id
+        # }
 
     @api.multi
     def action_costcheck(self):

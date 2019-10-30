@@ -42,8 +42,8 @@
                     <button name="action_confirm" type="object" class="oe_highlight" states="draft" string="确认" groups="purchase.group_purchase_user"/><!--采购专员确认-->
                     <button name="action_manager_confirm" type="object" states="confirm" string="采购经理审核" class="oe_highlight" groups="purchase.group_purchase_manager"/>
                     <button name="action_finance_manager_confirm" type="object" states="manager_confirm" string="财务经理审核" class="oe_highlight" groups="account.group_account_manager"/>
-                    <button name="action_general_manager_refuse" states="finance_manager_confirm" string="采购总经理拒绝" type="object" groups="cj_purchase.group_purchase_general_manager"/>
-                    <button name="action_general_manager_confirm" states="finance_manager_confirm" string="采购总经理审批" type="object" class="oe_highlight" groups="cj_purchase.group_purchase_general_manager"/>
+                    <button name="action_general_manager_refuse" states="finance_manager_confirm" string="拒绝" type="object" groups="cj_purchase.group_purchase_general_manager"/>
+                    <button name="action_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_purchase.group_purchase_general_manager"/>
                     <button name="button_approve" states="general_manager_confirm" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/>
 
 

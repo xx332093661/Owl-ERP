@@ -23,3 +23,5 @@ access_delivery_logistics,delivery_logistics all,model_delivery_logistics,base.g
 access_delivery_logistics_package,delivery_logistics_package all,model_delivery_logistics_package,base.group_user,1,0,1,0
 access_delivery_logistics_package_product,delivery_logistics_package_product all,model_delivery_logistics_package_product,base.group_user,1,0,1,0
 
+access_purchase_order_point_user,purchase_order_point user,cj_purchase.model_purchase_order_point,sales_team.group_sale_salesman,1,1,0,0
+

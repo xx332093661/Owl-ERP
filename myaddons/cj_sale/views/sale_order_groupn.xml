@@ -17,12 +17,18 @@
                     -->
 
                     <!--<button name="action_confirm1" string="确认并提交OA审批" type="object" states="draft" confirm="确认提交OA审批吗？" class="btn-primary"/>-->
+
+                    <button name="button_cancel" string="取消" states="draft,confirm" type="object" groups="sales_team.group_sale_salesman"/>
+                    <button name="button_draft" string="设为草稿" states="confirm" type="object" groups="sales_team.group_sale_salesman"/>
+                    <button name="button_draft" string="设为草稿" states="cancel,general_manager_refuse" class="oe_highlight" type="object" groups="sales_team.group_sale_salesman"/>
                     <button name="button_confirm" string="确认" states="draft" type="object" class="oe_highlight" groups="sales_team.group_sale_salesman"/> <!--销专员确认-->
 
-                    <!--<button name="action_confirm" states="draft" type="object" string="确认" groups=""/>-->
-                    <button name="action_sale_manager_confirm" states="confirm" string="销售经理确认" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>
-                    <button name="action_finance_manager_confirm" states="account_Review" string="财务经理确认" type="object" class="oe_highlight" groups="account.group_account_manager"/>
-                    <button name="action_general_manager_confirm" states="master_Review" string="总经理确认" type="object" class="oe_highlight"/>
+
+                    <button name="button_sale_manager_confirm" states="confirm" string="销售经理审核" type="object" class="oe_highlight" groups="sales_team.group_sale_manager"/>
+                    <button name="button_finance_manager_confirm" states="manager_confirm" string="财务经理审核" type="object" class="oe_highlight" groups="account.group_account_manager"/>
+
+                    <button name="button_general_manager_refuse" states="finance_manager_confirm" string="拒绝" type="object" groups="cj_sale.group_sale_general_manage"/>
+                    <button name="button_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_sale.group_sale_general_manage"/>
 
                     <!--<button name="action_confirm" string="订单确认" type="object" states="draft,purchase"/>-->
                     <!--
@@ -32,8 +38,8 @@
                     <button name="action_quotation_send" string="Send by Email" type="object" states="sent,sale"/>
                     -->
 
-                    <button name="action_cancel" states="draft,sent,sale" type="object" string="订单取消"/>
-                    <button name="action_draft" states="cancel" type="object" string="设为草稿"/>
+                    <!--<button name="action_cancel" states="draft,sent,sale" type="object" string="订单取消"/>-->
+                    <!--<button name="action_draft" states="cancel" type="object" string="设为草稿"/>-->
                     <button name="action_done" type="object" string="完成订单" states="sale"
                             help="If the sale is locked, you can not modify it anymore. However, you will still be able to invoice or deliver."/>
                     <!--
@@ -62,7 +68,7 @@
                             <!--<field name="partner_invoice_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice'}" options="{'always_reload': True}"/>-->
                             <!--<field name="partner_shipping_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'delivery'}" options="{'always_reload': True}"/>-->
                             <field name="channel_id" options="{'no_create_edit': True, 'no_create':True}"/>
-                            <field name="client_order_ref" string="渠道单号"/>
+                            <field name="client_order_ref" string="渠道单号" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <field name="cj_activity_id" options="{'no_create_edit': True, 'no_create':True}" string="营销活动"/>
                         </group>
                         <group>
@@ -76,7 +82,10 @@
 
                     <notebook>
                         <page string="订单明细" name="order_lines">
-                            <field name="order_line" widget="section_and_note_one2many" mode="tree,kanban" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}">
+                            <field name="order_line"
+                                   context="{'default_warehouse_id': warehouse_id, 'default_owner_id': company_id}"
+                                   widget="section_and_note_one2many" mode="tree,kanban"
+                                   attrs="{'readonly': [('state', '!=', 'draft')]}">
                                 <form>
                                     <field name="display_type" invisible="1"/>
                                     <field name="sequence" invisible="1"/>
@@ -259,13 +268,14 @@
                         <page string="其他信息" name="other_information">
                             <group>
                                 <group string="销售" name="sales_person">
-                                    <field name="user_id"/>
-                                    <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                                    <field name="user_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': True, 'no_open': 1}"/>
+                                    <field name="company_id" options="{'no_create': True, 'no_open': 1}" attrs="{'readonly': [('state', '!=', 'draft')]}" required="1"/>
+                                    <field name="warehouse_id" options="{'no_create': True, 'no_open': 1}" required="1" domain="[('company_id', '=', company_id)]"/>
 
                                 </group>
                                 <group string="Reporting" name="technical" groups="base.group_no_one">
-                                    <field groups="base.group_no_one" name="origin"/>
-                                    <field name="flow_id" readonly="1"/>
+                                    <field groups="base.group_no_one" name="origin" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                    <!--<field name="flow_id" readonly="1"/>-->
                                 </group>
                                 <group name="utm_link" groups="base.group_no_one"/>
                             </group>
@@ -273,8 +283,8 @@
                     </notebook>
                 </sheet>
                 <div class="oe_chatter">
-                    <field name="message_follower_ids" widget="mail_followers"/>
-                    <field name="activity_ids" widget="mail_activity"/>
+                    <!--<field name="message_follower_ids" widget="mail_followers"/>-->
+                    <!--<field name="activity_ids" widget="mail_activity"/>-->
                     <field name="message_ids" widget="mail_thread"/>
                 </div>
             </form>

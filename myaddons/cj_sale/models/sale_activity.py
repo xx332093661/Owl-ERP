@@ -37,6 +37,8 @@ class SaleActivity(models.Model):
     # flow_id = fields.Char(string='OA FlowID')
     state = fields.Selection(selection=STATUS, default='draft', track_visibility='onchange', string='状态')
 
+    sale_order_ids = fields.One2many('sale.order', 'cj_activity_id', '销售订单')
+
     active = fields.Boolean(string='有效', default=True)
 
     @api.multi
@@ -99,10 +101,12 @@ class SaleActivityLine(models.Model):
     unit_price = fields.Float("最低单价", required=1)
     product_qty = fields.Integer("总限制数量", required=1)
 
-    used_qty = fields.Integer("使用数量", compute='_compute_used_qty')
+    used_qty = fields.Integer("使用数量", compute='_compute_used_qty', store=1)
     order_limit_qty = fields.Integer("每单订单限量")
 
     @api.multi
+    @api.depends('activity_id.sale_order_ids.order_line')
     def _compute_used_qty(self):
         """计算已使用量"""
-        # TODO 待处理
+        for res in self:
+            res.used_qty = sum(res.activity_id.sale_order_ids.mapped('order_line').filtered(lambda x: x.product_id.id == res.product_id.id and x.order_id.state not in ['draft', 'cancel', 'general_manager_refuse']).mapped('product_uom_qty'))

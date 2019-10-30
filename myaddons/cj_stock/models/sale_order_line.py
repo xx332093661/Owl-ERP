@@ -13,30 +13,9 @@ class SaleOrderLine(models.Model):
     """
     _inherit = 'sale.order.line'
 
-    @api.model
-    def _default_warehouse_id(self):
-        company = self.env.user.company_id.id
-        warehouse_ids = self.env['stock.warehouse'].search([('company_id', '=', company)], limit=1)
-        return warehouse_ids
+    warehouse_id = fields.Many2one('stock.warehouse', string='发货仓库',  required=True, readonly=True, states={'draft': [('readonly', False)]})
 
-    @api.model
-    def _default_owner_ids(self):
-        return self.env.user.company_id.ids
-
-    warehouse_id = fields.Many2one(
-        'stock.warehouse', string='发货仓库',
-        required=True, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]},
-        default=_default_warehouse_id)
-
-    # owner_ids = fields.Many2many(
-    #     'res.company', 'sale_order_line_owner_rel', 'line_id', 'company_id', '货主',
-    #     default=_default_owner_ids,
-    #     readonly=True, required=1, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]})
-
-    owner_id = fields.Many2one(
-        'res.company', '货主',
-        default=lambda self: self.env.user.company_id.id,
-        readonly=True, required=1, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]})
+    owner_id = fields.Many2one( 'res.company', '货主', readonly=True, required=1, states={'draft': [('readonly', False)]})
 
     @api.onchange('product_uom_qty', 'product_uom', 'route_id', 'warehouse_id', 'owner_id')
     def _onchange_product_id_check_availability(self):

@@ -18,8 +18,8 @@ STATES = [
     ('manager_confirm', '采购经理审核'),
     ('finance_manager_confirm', '财务经理审核'),
 
-    ('general_manager_confirm', '采购总经理审批'),
-    ('general_manager_refuse', '采购总经理拒绝'),
+    ('general_manager_confirm', '总经理审批'),
+    ('general_manager_refuse', '总经理拒绝'),
     ('purchase', '供应商发货'),
     ('done', '完成'),
     ('cancel', '取消'),
