@@ -52,7 +52,8 @@ PROCESS_ERROR = {
     '30': '公司编码找不到对应的公司',
     '31': '物流公司编号对应的物流公司没有打到',
     '32': '未能计算出快递费',
-    '33': '公司不一致'
+    '33': '公司不一致',
+    '34': '供应商组没找到'
 }
 
 
@@ -344,9 +345,39 @@ class ApiMessage(models.Model):
 
     # 3、MDM-ERP-SUPPLIER-QUEUE 供应商
     def deal_mdm_erp_supplier_queue(self, content):
-        """处理供应商主数据"""
+        """处理供应商主数据
+        字段对应：
+        supplierName: name,
+        supplierCode: code,
+        supplierGroup: supplier_group_id
+        creditCode: archive_code
+        country: country_id
+        province: state_id
+        city: city_id
+        area: street2
+        address: street
+        legalEntity: legal_entity
+        legalEntityId: legal_entity_id_card
+        enterprisePhone: phone
+        status: status
+
+        contacts:
+            id: cj_id
+            creditCode: archive_code
+            contact: name
+            contactPhone: phone
+            supplierRegion: large_area_id
+            supplierOffice: office
+            bank:
+            dockingCompany: docking_company
+            dockingPerson: docking_person
+            dockingPersonPhone: docking_person_phone
+
+        """
         partner_obj = self.env['res.partner']
         bank_obj = self.env['res.bank']
+        supplier_group_obj = self.env['res.partner.group']
+        partner_area_obj = self.env['res.partner.area']  # 供应商大区
 
         def get_bank_id(bank):
             if not bank:
@@ -361,25 +392,31 @@ class ApiMessage(models.Model):
 
         content, body = self._deal_content(content)
         for supplier in body:
+            supplier_group = supplier_group_obj.search([('type', '=', 'supplier'), ('code', '=', supplier['supplierGroup'])])
+            if not supplier_group:
+                raise MyValidationError('34', '供应商组：%s没有找到！' % supplier['supplierGroup'])
+
+            state_id = self.get_country_state_id(supplier['province'])
+            city_id = self.get_city_area_id(supplier['city'], state_id)
             val = {
                 'supplier': True,
                 'customer': False,
+                'active': True,
+                'state': 'confirm',  # 中台的数据，状态为审核
 
-                'name': supplier['supplierName'],
-                'code': supplier['supplierCode'],  # 编码
-                'supplier_group': supplier['supplierGroup'],  # 供应商组
-                'credit_code': supplier['creditCode'],  # 统一社会信用编码
-                'country_id': self.get_country_id(supplier['country']),
-                'state_id': self.get_country_state_id(supplier['province']),
-                'city': supplier['city'],
-                'street2': supplier['area'],
-                'street': supplier['address'],
+                'name': supplier['supplierName'],  # 供应商名称
+                'supplier_group_id': supplier_group.id,  # 供应商组
+                'code': supplier['supplierCode'],  # 供应商编码
+                'archive_code': supplier['creditCode'],  # 统一社会信用编码
+                'phone': supplier['enterprisePhone'],  # 企业联系方式
                 'legal_entity': supplier['legalEntity'],  # 法人
                 'legal_entity_id_card': supplier['legalEntityId'],  # 法人身份证号
-                'enterprise_phone': supplier['enterprisePhone'],  # 企业联系方式
                 'status': supplier['status'],  # 川酒状态(('0', '正常'), ('1', '冻结'), ('2', '废弃'))
-
-                'active': True
+                'country_id': self.get_country_id(supplier['country']),  # 国家
+                'state_id': state_id,  # 省份
+                'city_id': city_id,  # 城市
+                'street2': supplier['area'],  # 区县
+                'street': supplier['address'],  # 街道地址
             }
 
             partner = partner_obj.search([('code', '=', supplier['supplierCode']), ('supplier', '=', True)], limit=1)
@@ -392,20 +429,28 @@ class ApiMessage(models.Model):
                 partner.write(val)
 
             for contact in supplier['contacts']:
+                large_area_id = False
+                if contact['supplierRegion']:
+                    partner_area = partner_area_obj.search([('name', '=', contact['supplierRegion'])])
+                    if not partner_area:
+                        partner_area = partner_area_obj.create({'name': contact['supplierRegion']})
+
+                    large_area_id = partner_area.id
+
                 contact_val = {
                     'parent_id': partner.id,
+                    'type': 'contact',
 
-                    'cj_id': contact['id'],
-                    'credit_code': contact['creditCode'],  # 统一社会信用编码
-                    'name': contact['contact'],
-                    'phone': contact['contactPhone'],
-                    'large_area': contact['supplierRegion'],  # 供应商大区
+                    'cj_id': contact['id'],  # 联系人 id
+                    'archive_code': contact['creditCode'],  # 统一社会信用编码
+                    'name': contact['contact'],  # 供应商联系人
+                    'phone': contact['contactPhone'],  # 供应商联系人电话
+                    'large_area_id': large_area_id,  # 供应商大区
                     'office': contact['supplierOffice'],  # 供应商办事处
                     'docking_company': contact['dockingCompany'],  # 对接公司
                     'docking_person': contact['dockingPerson'],  # 对接人
                     'docking_person_phone': contact['dockingPersonPhone'],  # 对接人电话
-                    'status': contact['status'],
-                    'type': 'contact'
+                    'status': contact['status'],  # 状态
                 }
                 if contact['bank']:
                     contact_val.update({

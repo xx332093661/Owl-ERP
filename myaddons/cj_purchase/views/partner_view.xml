@@ -145,13 +145,14 @@
                                                     <field name="name" string="供应商联系人" required="1"/>
                                                     <field name="phone" string="供应商联系人电话" required="1"/>
                                                     <field name="office" string="供应商办事处"/>
-                                                    <field name="docking_person_phone" string="对接人电话" required="1"/>
+                                                    <field name="docking_person" string="对接人" required="1"/>
+                                                    <field name="status" string="状态" required="1"/>
                                                 </group>
                                                 <group>
                                                     <field name="archive_code" string="统一社会信用代码" required="1"/>
                                                     <field name="large_area_id" string="供应商大区"/>
-                                                    <field name="docking_person" string="对接人" required="1"/>
-                                                    <field name="status" string="状态" required="1"/>
+                                                    <field name="docking_company" string="对接公司"/>
+                                                    <field name="docking_person_phone" string="对接人电话" required="1"/>
                                                 </group>
                                             </group>
                                             <field name="bank_ids" nolabel="1">
