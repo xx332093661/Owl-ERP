@@ -52,7 +52,7 @@
               parent="menu_purchase_main_data" sequence="40"/>
 
 
-        <!--采购订单增加采购总经理可访问-->
+        <!--采购菜单增加采购总经理可访问-->
         <record id="purchase.menu_purchase_root" model="ir.ui.menu">
             <field name="groups_id" eval="[(4, ref('group_purchase_general_manager'))]"/>
         </record>

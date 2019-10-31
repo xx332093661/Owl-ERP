@@ -105,7 +105,7 @@ class SaleActivityLine(models.Model):
     order_limit_qty = fields.Integer("每单订单限量")
 
     @api.multi
-    @api.depends('activity_id.sale_order_ids.order_line')
+    @api.depends('activity_id.sale_order_ids.state')
     def _compute_used_qty(self):
         """计算已使用量"""
         for res in self:

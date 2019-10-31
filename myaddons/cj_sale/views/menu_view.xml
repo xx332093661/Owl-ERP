@@ -23,7 +23,7 @@
 
 
         <menuitem id="menu_sale_operation" name="操作" parent="sale.sale_menu_root"
-                  groups="sales_team.group_sale_salesman" sequence="1"/>
+                  groups="sales_team.group_sale_salesman,group_sale_general_manage" sequence="1"/>
         <menuitem id="menu_sale_main_data" name="主数据" parent="sale.sale_menu_root"
                   groups="sales_team.group_sale_salesman" sequence="2"/>
         <menuitem id="menu_sale_diaodu" name="调度" parent="sale.sale_menu_root"
@@ -34,7 +34,7 @@
 
 
         <menuitem name="团购单" id="menu_action_sale_bjd" action="cj_sale.action_orders_groupn"
-                  parent="menu_sale_operation" sequence="20" groups="sales_team.group_sale_salesman" />
+                  parent="menu_sale_operation" sequence="20" groups="sales_team.group_sale_salesman,group_sale_general_manage" />
 
          <menuitem id="menu_sale_order"
             name="全渠道订单"
@@ -48,6 +48,7 @@
             parent="menu_sale_operation"
             sequence="30" groups="sales_team.group_sale_salesman" />
         <menuitem id="cj_sale_activity_menu" name="营销活动" parent="menu_sale_operation" sequence="40"
+                  groups="sales_team.group_sale_salesman"
                   action="cj_sale_activity_action"/>
 
         <menuitem name="客户" id="menu_action_sale_kh" action="base.action_partner_form"
@@ -95,7 +96,10 @@
         <menuitem name="采购申请" id="menu_action_sale_cgsq" action="action_sale_purchase_apply"
                   parent="menu_sale_diaodu" sequence="1"/>
 
-
+        <!--销售菜单增加销售总经理可访问-->
+        <record id="sale.sale_menu_root" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('group_sale_general_manage'))]"/>
+        </record>
     </data>
 
 </odoo>

@@ -40,20 +40,19 @@
 
                     <!--<button name="action_cancel" states="draft,sent,sale" type="object" string="订单取消"/>-->
                     <!--<button name="action_draft" states="cancel" type="object" string="设为草稿"/>-->
-                    <button name="action_done" type="object" string="完成订单" states="sale"
-                            help="If the sale is locked, you can not modify it anymore. However, you will still be able to invoice or deliver."/>
+                    <button name="action_done" type="object" string="完成订单" states="sale" groups="sales_team.group_sale_salesman"/>
                     <!--
                     <button name="action_unlock" type="object" string="Unlock" states="done" groups="sales_team.group_sale_manager"/>
                     -->
-                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,account_Review,master_Review,sale,done"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,manager_confirm,finance_manager_confirm,general_manager_confirm,sale,done"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <field name="picking_ids" invisible="1"/>
-                        <button type="object" name="action_view_delivery" class="oe_stat_button" icon="fa-truck" groups="base.group_user">
+                        <button type="object" name="action_view_delivery" class="oe_stat_button" icon="fa-truck" groups="sales_team.group_sale_salesman">
                             <field name="delivery_count" widget="statinfo" string="出货单"/>
                         </button>
-                        <button name="action_view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o" attrs="{'invisible': [('invoice_count', '=', 0)]}">
+                        <button name="action_view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o" attrs="{'invisible': [('invoice_count', '=', 0)]}" groups="sales_team.group_sale_salesman">
                             <field name="invoice_count" widget="statinfo" string="结算单"/>
                         </button>
                     </div>
@@ -159,10 +158,6 @@
                                     </div>
                                     <field name="state" invisible="1"/>
                                 </form>
-                                <!-- This is inherited below to make the order lines non-editable (inline)
-                                    for the members of some usability groups (packaging, event):
-                                    Indeed in those cases we need a dialog because there are additional fields to input.
-                                -->
                                 <tree string="Sales Order Lines" editable="bottom" decoration-info="(not display_type and invoice_status == 'to invoice')">
                                     <field name="sequence" widget="handle"/>
                                     <!-- We do not display the type because we don't want the user to be bothered with that information if he has no section or note. -->
@@ -223,15 +218,14 @@
                                 </div>
                                 <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                             </group>
-                            <!--<field name="note" class="oe_inline"/>-->
                             <group class="oe_subtotal_footer oe_left" colspan="4" name="sale_profit" string="成本核算">
                                 <group>
                                     <field name="goods_cost"/>
-                                    <field name="packing_cost"/>
+                                    <field name="packing_cost" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
                                     <field name="gross_profit"/>
                                 </group>
                                 <group>
-                                    <field name="box_cost"/>
+                                    <field name="box_cost" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
                                     <field name="shipping_cost"/>
                                     <field name="gross_profit_rate"/>
                                 </group>
@@ -239,11 +233,11 @@
                             <div class="oe_clear"/>
                         </page>
                         <page string="支付记录">
-                            <field name="payment_ids"/>
+                            <field name="payment_ids" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
                         </page>
 
                         <page string="物流信息" name="order_lines">
-                            <field name="delivery_ids">
+                            <field name="delivery_ids" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}">
                                 <tree editable="bottom">
                                     <field name="name"/>
                                     <field name="logistics_code"/>
@@ -254,14 +248,14 @@
                             </field>
                             <group>
                                 <group>
-                                    <field name="consignee_name" string="收货人名字"/>
-                                    <field name="address" string="收货人地址"/>
-                                    <field name="consignee_city_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                    <field name="consignee_name" string="收货人名字" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
+                                    <field name="address" string="收货人地址" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
+                                    <field name="consignee_city_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
                                 </group>
                                 <group>
-                                    <field name="consignee_mobile" string="收货人电话"/>
-                                    <field name="consignee_state_id" options="{'no_create': 1, 'no_open': 1}"/>
-                                    <field name="consignee_district_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                    <field name="consignee_mobile" string="收货人电话" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
+                                    <field name="consignee_state_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
+                                    <field name="consignee_district_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
                                 </group>
                             </group>
                         </page>
@@ -275,7 +269,6 @@
                                 </group>
                                 <group string="Reporting" name="technical" groups="base.group_no_one">
                                     <field groups="base.group_no_one" name="origin" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                                    <!--<field name="flow_id" readonly="1"/>-->
                                 </group>
                                 <group name="utm_link" groups="base.group_no_one"/>
                             </group>
@@ -283,8 +276,6 @@
                     </notebook>
                 </sheet>
                 <div class="oe_chatter">
-                    <!--<field name="message_follower_ids" widget="mail_followers"/>-->
-                    <!--<field name="activity_ids" widget="mail_activity"/>-->
                     <field name="message_ids" widget="mail_thread"/>
                 </div>
             </form>

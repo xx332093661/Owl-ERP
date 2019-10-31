@@ -30,8 +30,9 @@
                     </field>
                 </group>
                 <footer>
-                    <button name="button_ok" string="创建采购申请" type="object" class="btn-primary"/>
-                    <button name="button_cancel" string="取消" class="btn-secondary" type="object"/>
+                    <button name="button_ok" string="确认订单并创建采购申请" type="object" class="btn-primary"/>
+                    <button name="button_confirm" string="仅确认订单" class="btn-secondary" type="object"/>
+                    <button string="取消" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>

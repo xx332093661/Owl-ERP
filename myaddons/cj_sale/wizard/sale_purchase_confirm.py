@@ -13,7 +13,6 @@ class SalePurchaseConfirm(models.TransientModel):
 
     @api.model
     def default_get(self, fields_list):
-        result = {}
         order = self.env[self._context['active_model']].browse(self._context['active_id'])  # 销售订单
         return {
             'sale_order_id': order.id,
@@ -30,9 +29,15 @@ class SalePurchaseConfirm(models.TransientModel):
         }
 
     @api.multi
-    def button_cancel(self):
-        """直接确认订单"""
+    def button_confirm(self):
+        """仅确认订单"""
         self.env[self._context['active_model']].browse(self._context['active_id']).state = 'confirm'
+
+    @api.multi
+    def button_ok(self):
+        """确认订单并创建采购申请"""
+        self.button_confirm()
+        self.create_purchase_apply()
 
     def create_purchase_apply(self):
         apply_obj = self.env['purchase.apply']
@@ -52,8 +57,6 @@ class SalePurchaseConfirm(models.TransientModel):
                 'product_uom': line.product_uom.id
             }))
         apply_obj.create(val)
-
-        order.state = 'purchase'
 
 
 class SalePurchaseConfirmLine(models.TransientModel):

@@ -25,3 +25,14 @@ access_delivery_logistics_package_product,delivery_logistics_package_product all
 
 access_purchase_order_point_user,purchase_order_point user,cj_purchase.model_purchase_order_point,sales_team.group_sale_salesman,1,1,0,0
 
+access_product_attribute_custom_value,product_attribute_custom_value all,sale.model_product_attribute_custom_value,base.group_user,1,0,0,0
+
+access_sale_order_general_manage,sale_order general_manage,sale.model_sale_order,group_sale_general_manage,1,1,0,0
+access_sale_order_line_general_manage,sale_order_line general_manage,sale.model_sale_order_line,group_sale_general_manage,1,0,0,0
+
+access_stock_picking_general_manage,stock_picking general_manage,stock.model_stock_picking,group_sale_general_manage,1,0,0,0
+access_stock_move_general_manage,stock_move general_manage,stock.model_stock_move,group_sale_general_manage,1,1,1,0
+access_account_invoice_general_manage,account_invoice general_manage,account.model_account_invoice,group_sale_general_manage,1,0,0,0
+access_account_payment_general_manage,account_payment general_manage,account.model_account_payment,group_sale_general_manage,1,0,0,0
+
+
