@@ -56,7 +56,8 @@ class SalePurchaseConfirm(models.TransientModel):
                 'product_qty': line.product_qty,
                 'product_uom': line.product_uom.id
             }))
-        apply_obj.create(val)
+        apply = apply_obj.create(val)
+        order.purchase_apply_id = apply.id
 
 
 class SalePurchaseConfirmLine(models.TransientModel):

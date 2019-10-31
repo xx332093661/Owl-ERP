@@ -98,7 +98,7 @@
 
         <!--销售菜单增加销售总经理可访问-->
         <record id="sale.sale_menu_root" model="ir.ui.menu">
-            <field name="groups_id" eval="[(4, ref('group_sale_general_manage'))]"/>
+            <field name="groups_id" eval="[(4, ref('group_sale_general_manage')), (4, ref('sales_team.group_sale_salesman'))]"/>
         </record>
     </data>
 
