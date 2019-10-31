@@ -19,6 +19,7 @@
     'depends': [
         'cj_base',
         'delivery',
+        'cj_purchase'
     ],
 
     'data': [

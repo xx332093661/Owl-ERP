@@ -59,6 +59,7 @@ class PurchaseApply(models.Model):
     order_count = fields.Integer(compute='_compute_order', string='订单数量', default=0, store=True)
     attached = fields.Binary('原始单据',readonly=1, states=READONLY_STATES, attachment=True)
     amount = fields.Float('预计成本', compute='_compute_amount')
+    sale_order_id = fields.Many2one('sale.order', '销售订单', compute='_compute_sale_order')
 
     @api.onchange('company_id')
     def _onchange_company_id(self):
@@ -151,6 +152,15 @@ class PurchaseApply(models.Model):
     @api.one
     def purchase_apply_done(self):
         self.state = 'done'
+
+    @api.multi
+    def _compute_sale_order(self):
+        """计算关联的销售订单(团购单)"""
+        order_obj = self.env['sale.order']
+        for res in self:
+            order = order_obj.search([('purchase_apply_id', '=', res.id)])
+            if order:
+                res.sale_order_id = order.id
 
     @api.multi
     def action_confirm(self):

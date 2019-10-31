@@ -37,10 +37,6 @@ class PosInterface(http.Controller):
              'msg': 错误信息
         }
         """
-        # module = importlib.import_module('odoo.addons.cj_api.models.api_message')
-        # my_validation_error = module.MyValidationError
-        # errors = module.PROCESS_ERROR
-
         ir_config = request.env['ir.config_parameter'].sudo()
         pos_interface_state = ir_config.get_param('pos_interface_state', default='off')  # POS接口状态
         if pos_interface_state == 'off':
@@ -107,14 +103,6 @@ class PosInterface(http.Controller):
                 'content': content,
                 'sequence': MQ_SEQUENCE[message_name]
             })
-            # request.env['api.message'].sudo().deal_mustang_to_erp_store_stock_push(content)
-        # except my_validation_error as e:
-        #     error_no = e.error_no
-        #     error_msg = errors[error_no]
-        #     return {
-        #         'state': 0,
-        #         'msg': error_msg
-        #     }
         except Exception:
             _logger.error(traceback.format_exc())
             return {
