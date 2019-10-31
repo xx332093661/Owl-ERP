@@ -72,9 +72,9 @@
                 </xpath>
                 <field name="date_order" position="after">
                     <field name="apply_id" options="{'no_create': 1}" readonly="1"/>
+                    <field name="contract_id" options="{'no_create': 1}" required="1"/>
                 </field>
                 <field name="incoterm_id" position="after">
-                    <field name="flow_id" readonly="1"/>
                     <field name="payment_time" widget="float_time"/>
                     <field name="deliver_time" widget="float_time"/>
                     <field name="logistics_time" widget="float_time"/>

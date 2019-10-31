@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 from lxml import etree
-import logging
 from datetime import timedelta
 
 from odoo import fields, models, api
 from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError
 
-_logger = logging.getLogger(__name__)
 
 STATES = [
     ('draft', '草稿'),
@@ -151,7 +149,8 @@ class PurchaseOrder(models.Model):
     purchase_order_count = fields.Integer('供应商采购订单数', readonly=1)
 
     explain = fields.Text('说明', compute='_cpt_explain')
-    flow_id = fields.Char('审批流程ID', readonly=1)
+
+    contract_id = fields.Many2one('supplier.contract', '供应商合同', required=0, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('partner_id', '=', partner_id), ('valid', '=', True)]")
 
     @api.multi
     def action_confirm(self):
@@ -270,12 +269,12 @@ class PurchaseOrder(models.Model):
         return result
 
     @api.model
-    def default_get(self, fields):
+    def default_get(self, fields_list):
         # 采购申请创建采购询价单默认值
         apply_obj = self.env['purchase.apply']
         order_line_obj = self.env['purchase.order.line']
 
-        res = super(PurchaseOrder, self).default_get(fields)
+        res = super(PurchaseOrder, self).default_get(fields_list)
 
         if self._context.get('apply_id'):
             apply = apply_obj.browse(self._context['apply_id'])
@@ -344,18 +343,21 @@ class PurchaseOrder(models.Model):
     @api.onchange('partner_id', 'company_id')
     def onchange_partner_id(self):
         picking_type_obj = self.env['stock.picking.type']
-        contact_obj = self.env['supplier.contract']
+        contract_obj = self.env['supplier.contract']
 
         if not self.partner_id:
             self.fiscal_position_id = False
             self.currency_id = self.env.user.company_id.currency_id.id
+            self.contract_id = False
         else:
             self.fiscal_position_id = self.env['account.fiscal.position'].with_context(company_id=self.company_id.id).get_fiscal_position(self.partner_id.id)
             self.currency_id = self.partner_id.property_purchase_currency_id.id or self.env.user.company_id.currency_id.id
 
-            # 验证供应商是否有有效合同
-            if not contact_obj.search([('partner_id', '=', self.partner_id.id), ('valid', '=', True)]):
-                raise ValidationError('供应商当前没有有效的合同！')
+            contract = contract_obj.search([('partner_id', '=', self.partner_id.id), ('valid', '=', True)], limit=1, order='id desc')
+            if contract:
+                self.contract_id = contract.id
+            else:
+                self.contract_id = False
 
         if not self.company_id:
             self.picking_type_id = False

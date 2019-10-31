@@ -22,7 +22,7 @@
                         <button name="action_confirm" type="object" states="draft" string="确认" class="oe_highlight"
                                 groups="purchase.group_purchase_user"/>
 
-                        <button name="action_draft" type="object" states="confirm" string="设为草稿"
+                        <button name="action_draft" type="object" states="confirm,purchase_manager_confirm" string="设为草稿"
                                 groups="purchase.group_purchase_user"/>
 
                         <button name="action_manager_confirm" type="object" states="confirm" string="采购经理审核" class="oe_highlight"

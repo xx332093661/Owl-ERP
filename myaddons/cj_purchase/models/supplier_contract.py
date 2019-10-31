@@ -98,6 +98,4 @@ class SupplierContract(models.Model):
 
     def get_contract_by_partner(self, partner_id):
         """根据partner_id获取有效合同"""
-        return self.search(
-            [('valid', '=', True), ('partner_id', '=', partner_id)],
-            order='date_from', limit=1)
+        return self.search([('valid', '=', True), ('partner_id', '=', partner_id)], order='date_from', limit=1)
