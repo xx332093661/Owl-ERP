@@ -334,17 +334,19 @@ class PurchaseApply(models.Model):
         if all_done:
             self.state = 'done'  # 收货完成
             return
+
         if part_done:
             self.state = 'part_done'  # 部分收货
             return
+
         # 采购已确认
         for order in self.order_ids:
             if order.transport_ids:
                 self.state = 'delivery'  # 已发货
                 return
+
             if order.state == 'purchase':
                 self.state = 'tendering'  # 通知供应商发货
-                return
 
     # def check_done(self):
     #     # 采购申请是否完成

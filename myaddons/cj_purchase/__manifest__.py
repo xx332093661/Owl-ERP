@@ -52,6 +52,8 @@
 
         'views/product_supplier_model_view.xml',
         'views/purchase_send_templates.xml',
+
+        'wizard/purchase_order_return_wizard_view.xml',
     ],
     'demo': [
     ],

@@ -221,6 +221,53 @@ class PurchaseOrder(models.Model):
 
         self.ensure_one()
 
+        # 合同禁止退货
+        if self.contract_id.returns_sate == 'prohibit':
+            raise ValidationError('供应商合同禁止退货！')
+
+        received_lines = []  # 已收货的商品
+        for line in self.order_line.filtered(lambda x: x.qty_received > 0):
+            res = list(filter(lambda x: x['product_id'] == line.product_id.id, received_lines))
+            if not res:
+                received_lines.append({
+                    'product_id': line.product_id.id,
+                    'qty_received': line.qty_received,  # 已收货数量
+                    'qty_returned': 0,  # 已退数量
+                    'order_qty': line.product_qty,  # 订单数量
+                })
+            else:
+                res[0]['qty_received'] += line.qty_received
+                res[0]['order_qty'] += line.product_qty
+
+        for line in order_return_obj.search([('purchase_order_id', '=', self.id), ('state', '!=', 'cancel')]).mapped('line_ids'):
+            res = list(filter(lambda x: x['product_id'] == line.product_id.id, received_lines))
+            if not res:
+                received_lines.append({
+                    'product_id': line.product_id.id,
+                    'qty_received': 0,
+                    'qty_returned': line.product_qty,  # 已退数量
+                    'order_qty': 0
+                })
+            else:
+                res[0]['qty_returned'] += line.product_qty
+
+        # 可退货的商品
+        can_return_lines = list(filter(lambda x: x['qty_received'] - x['qty_returned'] > 0, received_lines))
+        if not can_return_lines:
+            raise ValidationError('当前没有可退货的商品！')
+
+        return {
+            'name': '采购退货',
+            'type': 'ir.actions.act_window',
+            'res_model': 'purchase.order.return.wizard',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'data': can_return_lines
+            }
+        }
+
         if order_return_obj.search([('purchase_order_id', '=', self.id), ('state', '!=', 'cancel')]):
             raise UserError('退货单已存在')
 
