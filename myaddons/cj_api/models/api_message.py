@@ -1671,9 +1671,11 @@ class ApiMessage(models.Model):
                 raise MyValidationError('25', '商品：%s退货数量大于出库数量！' % ('、'.join(pros)))
 
             # 创建退货单
-            return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create({
+            vals = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).default_get(return_picking_obj._fields)
+            vals.update({
                 'product_return_moves': return_vals,
             })
+            return_picking = return_picking_obj.create(vals)
             new_picking_id, pick_type_id = return_picking._create_returns()
             picking_obj.browse(new_picking_id).action_done()  # 确认入库
             return
