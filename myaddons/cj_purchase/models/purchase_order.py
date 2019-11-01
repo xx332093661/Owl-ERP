@@ -245,11 +245,11 @@ class PurchaseOrder(models.Model):
                 received_lines.append({
                     'product_id': line.product_id.id,
                     'qty_received': 0,
-                    'qty_returned': line.product_qty,  # 已退数量
+                    'qty_returned': line.return_qty,  # 已退数量
                     'order_qty': 0
                 })
             else:
-                res[0]['qty_returned'] += line.product_qty
+                res[0]['qty_returned'] += line.return_qty
 
         # 可退货的商品
         can_return_lines = list(filter(lambda x: x['qty_received'] - x['qty_returned'] > 0, received_lines))
@@ -268,22 +268,22 @@ class PurchaseOrder(models.Model):
             }
         }
 
-        if order_return_obj.search([('purchase_order_id', '=', self.id), ('state', '!=', 'cancel')]):
-            raise UserError('退货单已存在')
-
-        order_return = order_return_obj.create({
-            'purchase_order_id': self.id,
-        })
-        for line in self.order_line:
-            order_return_line_obj.create({
-                'order_return_id': order_return.id,
-                'order_line_id': line.id,
-                'return_qty': line.product_qty,
-            })
-
-        action = self.env.ref('cj_purchase.action_purchase_order_return').read()[0]
-        action['domain'] = [('purchase_order_id', '=', self.id)]
-        return action
+        # if order_return_obj.search([('purchase_order_id', '=', self.id), ('state', '!=', 'cancel')]):
+        #     raise UserError('退货单已存在')
+        #
+        # order_return = order_return_obj.create({
+        #     'purchase_order_id': self.id,
+        # })
+        # for line in self.order_line:
+        #     order_return_line_obj.create({
+        #         'order_return_id': order_return.id,
+        #         'order_line_id': line.id,
+        #         'return_qty': line.product_qty,
+        #     })
+        #
+        # action = self.env.ref('cj_purchase.action_purchase_order_return').read()[0]
+        # action['domain'] = [('purchase_order_id', '=', self.id)]
+        # return action
 
     @api.multi
     def action_view_order_return(self):
@@ -352,13 +352,13 @@ class PurchaseOrder(models.Model):
 
     @api.multi
     def _create_picking(self):
-        # StockPicking = self.env['stock.picking']
+        StockPicking = self.env['stock.picking']
         for order in self:
             if any([ptype in ['product', 'consu'] for ptype in order.order_line.mapped('product_id.type')]):
                 pickings = order.picking_ids.filtered( lambda x: x.state not in ('done', 'cancel'))
                 if not pickings:
                     res = order._prepare_picking()
-                    picking = self.env['stock.picking'].create(res)
+                    picking = StockPicking.create(res)
                 else:
                     picking = pickings[0]
                 moves = order.order_line._create_stock_moves(picking)

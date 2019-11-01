@@ -23,8 +23,6 @@ class PurchaseOrderReturnWizard(models.TransientModel):
             'purchase_order_id': order.id,
             'warehouse_id': order.picking_type_id.warehouse_id.id,
             'partner_id': order.partner_id.id,
-            'note': self.note,
-            'type': self.type,
             'line_ids': [(0, 0, {
                 'product_id': line['product_id'],
                 'product_qty': line['qty_received'] - line['qty_returned']
@@ -52,9 +50,12 @@ class PurchaseOrderReturnWizard(models.TransientModel):
 
         order = self.env[self._context['active_model']].browse(self._context['active_id'])
         # 创建退货单
-        order_return_obj.create({
+        order_return = order_return_obj.create({
             'purchase_order_id': order.id,
             'warehouse_id': order.picking_type_id.warehouse_id.id,
+            'partner_id': order.partner_id.id,
+            'note': self.note,
+            'type': self.type,
             'line_ids': [(0, 0, {
                 'product_id': line.product_id.id,
                 'return_qty': line.product_qty,  # 退货数量
@@ -64,7 +65,14 @@ class PurchaseOrderReturnWizard(models.TransientModel):
         })
 
         return {
-
+            'name': '采购退货单',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'res_model': 'purchase.order.return',
+            'res_id': order_return.id,
+            'target': 'current',
+            'flags': {'form': {'action_buttons': True, 'options': {'mode': 'edit'}}}
         }
 
 

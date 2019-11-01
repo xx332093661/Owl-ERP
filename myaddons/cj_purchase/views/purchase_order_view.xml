@@ -39,6 +39,10 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//button[@id='bid_confirm']" position="after">
+                    <button name="action_cancel" type="object" states="draft,confirm,general_manager_refuse" string="取消" groups="purchase.group_purchase_user"/><!--取消订单-->
+                    <button name="action_draft" type="object" states="confirm" string="设为草稿" groups="purchase.group_purchase_user"/>
+                    <button name="action_draft" type="object" states="cancel,general_manager_refuse" class="oe_highlight" string="设为草稿" groups="purchase.group_purchase_user"/>
+
                     <button name="action_confirm" type="object" class="oe_highlight" states="draft" string="确认" groups="purchase.group_purchase_user"/><!--采购专员确认-->
                     <button name="action_manager_confirm" type="object" states="confirm" string="采购经理审核" class="oe_highlight" groups="purchase.group_purchase_manager"/>
                     <button name="action_finance_manager_confirm" type="object" states="manager_confirm" string="财务经理审核" class="oe_highlight" groups="account.group_account_manager"/>
@@ -48,14 +52,13 @@
 
 
                     <!--<button name="action_supplier_send" states="Master_Review" string="下载打印发货单" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
-                    <button name="action_draft" type="object" states="confirm" string="设为草稿" groups="purchase.group_purchase_user"/>
-                    <button name="action_draft" type="object" states="cancel,general_manager_refuse" class="oe_highlight" string="设为草稿" groups="purchase.group_purchase_user"/>
+
 
                     <button name="action_return" type="object" states="purchase,done" string="退货" groups="purchase.group_purchase_user"/>
                     <button name="button_done" type="object" string="完成" class="oe_highlight" states="purchase" groups="purchase.group_purchase_user"/>
                 </xpath>
                 <xpath expr="//button[@name='button_cancel']" position="replace">
-                    <button name="action_cancel" type="object" states="draft,confirm,general_manager_refuse" string="取消" groups="purchase.group_purchase_user"/><!--取消订单-->
+
                 </xpath>
                 <field name="state" position="attributes">
                     <attribute name="statusbar_visible">draft,confirm,manager_confirm,finance_manager_confirm,general_manager_confirm,purchase,done</attribute>
