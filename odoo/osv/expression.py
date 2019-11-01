@@ -850,8 +850,6 @@ class expression(object):
             # ----------------------------------------
 
             elif not field:
-                _logger.warning('0' * 100)
-                _logger.warning(model._name)
                 raise ValueError("Invalid field %r in leaf %r" % (left, str(leaf)))
 
             elif field.inherited:

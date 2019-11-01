@@ -217,7 +217,7 @@ class PurchaseApply(models.Model):
             done_times.sort()
             picking_done_date = done_times[-1]
 
-            consume_time = picking_done_date - self.write_date
+            consume_time = picking_done_date - obj.write_date
             consume_time = str(consume_time).replace('day', '天').replace('s', '').split(':')
             obj.consume_time = consume_time[0] + '小时' + consume_time[1] + '分钟'
 
