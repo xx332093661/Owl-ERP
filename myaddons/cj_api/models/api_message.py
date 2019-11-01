@@ -1657,7 +1657,7 @@ class ApiMessage(models.Model):
                 else:
                     res[0]['return_qty'] += abs(content['quantity'])
 
-                stock_move = picking.move_ids_without_package.filtered(lambda x: x.product_id.id == product.id)
+                stock_move = picking.move_lines.filtered(lambda x: x.product_id.id == product.id)
                 return_vals.append((0, 0, {
                     'product_id': product.id,
                     'quantity': abs(content['quantity']),
