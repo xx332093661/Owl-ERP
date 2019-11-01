@@ -75,7 +75,7 @@ class PurchaseOrder(models.Model):
         """采购订单经OA审批通过后，如果订单的支付条款是预付款(先款后货)，则取支付条款规则第一条记录，来计算并创建供应商账单，并打开供应商账单，
         """
         res = super(PurchaseOrder, self).button_approve(force=force)
-        self.filtered(lambda x: x.payment_term_id.type == 'first_payment')._generate_invoice_split()  # 先款后货的生成账单分期
+        self.filtered(lambda x: x.payment_term_id.type == 'first_payment')._generate_invoice_split()  # 先款后货的生成账单分期  TODO 订单行的支付条款
         return res
 
     def _generate_invoice_split(self):

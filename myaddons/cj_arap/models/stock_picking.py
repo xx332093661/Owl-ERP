@@ -1013,6 +1013,11 @@ class StockPicking(models.Model):
             # 创建账单分期
             self._generate_purchase_invoice_create_invoice_split(invoice)
 
+            # 关联先款后货的分期 TODO
+            self.env['account.invoice.split'].search([('purchase_order_id', '=', invoice.purchase_id.id), ('invoice_id', '=', False)]).write({
+                'invoice_id': invoice.id
+            })
+
 
         # if purchase.payment_term_id.type == 'sale_after_payment':  # 销售后支付，不做任何操作
         #     return

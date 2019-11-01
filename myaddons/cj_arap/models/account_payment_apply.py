@@ -214,9 +214,9 @@ class AccountPaymentApply(models.Model):
         """OA审批通过回调"""
         apply = self.search([('flow_id', '=', flow_id)])
         if refuse:
-            apply.state = 'oa_accept'  # 审批通过
-        else:
             apply.state = 'oa_refuse'  # 审批拒绝
+        else:
+            apply.state = 'oa_accept'  # 审批通过
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
