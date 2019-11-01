@@ -26,10 +26,6 @@ class PurchaseOrderReturn(models.Model):
     _description = '采购退货单'
     _inherit = ["mail.thread"]
 
-    @api.one
-    def _cpt_return_picking_count(self):
-        self.return_picking_count = len(self.return_picking_ids)
-
     name = fields.Char('单号', default='NEW', readonly=1, track_visibility='onchange')
     partner_id = fields.Many2one('res.partner', track_visibility='onchange', string='供应商', required=1, readonly=1, states=READONLY_STATES, domain="[('supplier', '=', True), ('state', '=', 'finance_manager_confirm')]")
     purchase_order_id = fields.Many2one('purchase.order', '采购订单', readonly=1, states=READONLY_STATES, track_visibility='onchange', required=1, domain="[('partner_id', '=', partner_id)]")
@@ -42,7 +38,15 @@ class PurchaseOrderReturn(models.Model):
     note = fields.Text('退货原因', readonly=1, states=READONLY_STATES, track_visibility='onchange')
 
     return_picking_ids = fields.One2many('stock.picking', 'order_return_id', '出库单')
-    return_picking_count = fields.Integer('出库单数量', compute='_cpt_return_picking_count')
+    return_picking_count = fields.Integer('出库单数量', compute='_compute_picking_count')
+
+    replenishment_picking_ids = fields.One2many('stock.picking', 'order_replenishment_id', '补货单', help='结算方式为补货，采购经理审核后，同时创建补货的分拣')
+    replenishment_picking_count = fields.Integer('补货单数量', compute='_compute_picking_count')
+
+    @api.one
+    def _compute_picking_count(self):
+        self.return_picking_count = len(self.return_picking_ids)
+        self.replenishment_picking_count = len(self.replenishment_picking_ids)
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
@@ -203,7 +207,7 @@ class PurchaseOrderReturn(models.Model):
         """创建补货stock.picking"""
         now = datetime.now(pytz.timezone('Asia/Shanghai'))
         order = self.purchase_order_id
-        # assert isinstance(order, models.Model)
+
         res = order._prepare_picking()
         res['date'] = now  # 修改时间，改为当前，默认为订单的date_order字段值
         picking = self.env['stock.picking'].create(res)
@@ -240,11 +244,29 @@ class PurchaseOrderReturn(models.Model):
         moves = self.env['stock.move'].create(values)
         # moves = order.order_line._create_stock_moves(picking)
         seq = 0
-        for move in sorted(moves, key=lambda move: move.date_expected):
+        for move in sorted(moves, key=lambda x: x.date_expected):
             seq += 5
             move.sequence = seq
         # moves._action_assign()
         picking.message_post_with_view('mail.message_origin_link', values={'self': picking, 'origin': order}, subtype_id=self.env.ref('mail.mt_note').id)
+
+        self.replenishment_picking_ids = [(6, 0, [picking.id])]
+
+    @api.multi
+    def action_return_picking_view(self):
+        """查看退货单"""
+        self.ensure_one()
+        action = self.env.ref('stock.action_picking_tree_all').read()[0]
+        action['domain'] = [('id', '=', self.return_picking_ids.ids)]
+        return action
+
+    @api.multi
+    def action_replenishment_picking_view(self):
+        """查看补货单"""
+        self.ensure_one()
+        action = self.env.ref('stock.action_picking_tree_all').read()[0]
+        action['domain'] = [('id', '=', self.replenishment_picking_ids.ids)]
+        return action
 
     @api.model
     def create(self, vals):
@@ -256,41 +278,6 @@ class PurchaseOrderReturn(models.Model):
             vals['warehouse_id'] = self.env['purchase.order'].browse(vals['purchase_order_id']).picking_type_id.warehouse_id.id
 
         return super(PurchaseOrderReturn, self).create(vals)
-
-    # @api.multi
-    # def state_confirm(self):
-    #     return_picking_obj = self.env['stock.return.picking']
-    #
-    #     self.ensure_one()
-    #     return_picking_ids = []
-    #     pickings = self.purchase_order_id.picking_ids.filtered(lambda x: x.state == 'done')
-    #     if not pickings:
-    #         raise UserError('没有已收货的单据')
-    #
-    #     for picking in pickings:
-    #         val = return_picking_obj.with_context({'active_id': picking.id}).default_get(list(return_picking_obj._fields))
-    #         return_picking = return_picking_obj.with_context({'active_id': picking.id}).create(val)
-    #         res = return_picking.create_returns()
-    #         return_picking_ids.append(res['res_id'])
-    #
-    #     self.return_picking_ids = [(6, 0, return_picking_ids)]
-    #
-    #     self.state = 'confirm'
-
-    @api.multi
-    def action_return_picking_view(self):
-        self.ensure_one()
-        action = self.env.ref('stock.action_picking_tree_all').read()[0]
-        action['domain'] = [('id', '=', self.return_picking_ids.ids)]
-        return action
-
-    # def check_done(self):
-    #     done = True
-    #     for picking in self.return_picking_ids:
-    #         if picking.state != 'done':
-    #             done = False
-    #     if done:
-    #         self.state = 'done'
 
 
 class PurchaseOrderReturnLine(models.Model):
@@ -332,4 +319,5 @@ class PurchaseOrderReturnLine(models.Model):
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    order_return_id = fields.Many2one('purchase.order.return')
+    order_return_id = fields.Many2one('purchase.order.return', string='采购退货单')
+    order_replenishment_id = fields.Many2one('purchase.order.return', string='采购退货单')

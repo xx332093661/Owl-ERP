@@ -271,7 +271,7 @@ class PurchaseApply(models.Model):
             raise ValidationError('请完善需要采购的产品的供应商信息： \n1、 供应商是否创建且具备有效的合同  \n2、 供应商有本采购申请的产品的报价。（通过 采购-操作-供应商报价单进行录入）')
 
         # 按供应商分组
-        for partner, ls in groupby(sorted(self.line_ids, key=lambda x: x.supplierinfo_id.name), lambda x: x.supplierinfo_id.name):
+        for partner, ls in groupby(sorted(self.line_ids, key=lambda x: x.supplierinfo_id.name.id), lambda x: x.supplierinfo_id.name):
             partner_id = partner.id
             contract = contract_obj.get_contract_by_partner(partner_id)
             if contract:

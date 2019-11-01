@@ -1373,7 +1373,7 @@ class ApiMessage(models.Model):
 
         # 4、出库商品和数量验证
         wait_out_lines = []  # 待出库
-        for product, ls in groupby(sorted(order.order_line, key=lambda x: x.product_id), lambda x: x.product_id):  # 按商品分组
+        for product, ls in groupby(sorted(order.order_line, key=lambda x: x.product_id.id), lambda x: x.product_id):  # 按商品分组
             ls = list(ls)
             wait_qty = sum([line.product_uom_qty for line in ls]) - sum([line.qty_delivered for line in ls])
             wait_out_lines.append({
@@ -1549,7 +1549,7 @@ class ApiMessage(models.Model):
                 sale_order.action_confirm()  # 确认草稿订单
 
             wait_out_lines = []  # 待出库
-            for product, ls in groupby(sorted(sale_order.order_line, key=lambda x: x.product_id), lambda x: x.product_id):  # 按商品分组
+            for product, ls in groupby(sorted(sale_order.order_line, key=lambda x: x.product_id.id), lambda x: x.product_id):  # 按商品分组
                 wait_qty = sum([line.product_uom_qty for line in ls]) - sum([line.qty_delivered for line in ls])
                 wait_out_lines.append({
                     'product_id': product.id,
@@ -1636,7 +1636,7 @@ class ApiMessage(models.Model):
                 raise MyValidationError('24', '订单：%s未完成出库，不能退货！' % order_name)
 
             stock_out_lines = []  # 出库商品
-            for product, ls in groupby(sorted(sale_order.order_line, key=lambda x: x.product_id), lambda x: x.product_id):  # 按商品分组
+            for product, ls in groupby(sorted(sale_order.order_line, key=lambda x: x.product_id.id), lambda x: x.product_id):  # 按商品分组
                 stock_out_lines.append({
                     'product_id': product.id,
                     'stock_out_qty': sum([line.qty_delivered for line in ls]),  # 出库数量

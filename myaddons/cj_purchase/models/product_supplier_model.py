@@ -5,29 +5,29 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
 
-class CommerceModel(models.Model):
-    _name = 'commerce.model'
-    _description = '贸易模式'
-    _log_access = False
+# class CommerceModel(models.Model):
+#     _name = 'commerce.model'
+#     _description = '贸易模式'
+#     _log_access = False
+#
+#     name = fields.Char('名称', required=1)
+#     code = fields.Char('代码')
+#
+#     _sql_constraints = [('name_uniq', 'unique (name)', '贸易模式名称已经存在!')]
 
-    name = fields.Char('名称', required=1)
-    code = fields.Char('代码')
 
-    _sql_constraints = [('name_uniq', 'unique (name)', '贸易模式名称已经存在!')]
-
-
-class StockModel(models.Model):
-    _name = 'stock.model'
-    _description = '入库模式'
-    _log_access = False
-
-    name = fields.Char('名称', required=1)
-    code = fields.Char('代码', required=1)
-
-    _sql_constraints = [
-        ('name_uniq', 'unique (name)', '入库模式名称必须唯一!'),
-        ('code_uniq', 'unique (code)', '入库模式代码必须唯一!'),
-    ]
+# class StockModel(models.Model):
+#     _name = 'stock.model'
+#     _description = '入库模式'
+#     _log_access = False
+#
+#     name = fields.Char('名称', required=1)
+#     code = fields.Char('代码', required=1)
+#
+#     _sql_constraints = [
+#         ('name_uniq', 'unique (name)', '入库模式名称必须唯一!'),
+#         ('code_uniq', 'unique (code)', '入库模式代码必须唯一!'),
+#     ]
 
 
 class ProductSupplierModel(models.Model):
@@ -115,13 +115,11 @@ class PurchaseOrder(models.Model):
     """
     _inherit = 'purchase.order'
 
-    def button_confirm1(self):
-        super(PurchaseOrder, self).button_confirm1()
+    @api.multi
+    def button_approve(self, force=False):
+        res = super(PurchaseOrder, self).button_approve(force=force)
         self._check_payment_term()
-
-    def button_confirm2(self):
-        super(PurchaseOrder, self).button_confirm2()
-        self._check_payment_term()
+        return res
 
     def _check_payment_term(self):
         """验证支付条款"""

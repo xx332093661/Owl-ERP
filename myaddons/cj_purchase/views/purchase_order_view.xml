@@ -124,7 +124,7 @@
                     </page>
                 </xpath>
                 <xpath expr="//field[@name='payment_term_id']" position="attributes">
-                    <attribute name="invisible">1</attribute>
+                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
                 </xpath>
                 <!--采购订单明细增加payment_term_id(支付条款)字段-->
                 <xpath expr="//field[@name='order_line']/tree/field[@name='date_planned']" position="after">
@@ -139,11 +139,9 @@
 
                 <!--采购明细增加partner_id的上下文，以方便默认payment_term_id字段值-->
                 <xpath expr="//field[@name='order_line']" position="attributes">
-                    <attribute name="context">{'partner_id': partner_id, 'company_id': company_id}</attribute>
+                    <attribute name="context">{'partner_id': partner_id, 'company_id': company_id, 'default_payment_term_id': payment_term_id}</attribute>
                     <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
                 </xpath>
-
-
 
                 <!--确认后禁止修改-->
                 <field name="partner_id" position="attributes">

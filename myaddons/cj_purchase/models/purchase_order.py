@@ -161,6 +161,9 @@ class PurchaseOrder(models.Model):
         if not self.order_line:
             raise ValidationError('请输入要采购的商品！')
 
+        if any([line.product_uom_qty < 0 for line in self.order_line]):
+            raise ValidationError('采购数量必须大于0！')
+
         self.state = 'confirm'
 
     @api.multi
@@ -217,7 +220,6 @@ class PurchaseOrder(models.Model):
     def action_return(self):
         """退货"""
         order_return_obj = self.env['purchase.order.return']
-        order_return_line_obj = self.env['purchase.order.return.line']
 
         self.ensure_one()
 
@@ -267,23 +269,6 @@ class PurchaseOrder(models.Model):
                 'data': can_return_lines
             }
         }
-
-        # if order_return_obj.search([('purchase_order_id', '=', self.id), ('state', '!=', 'cancel')]):
-        #     raise UserError('退货单已存在')
-        #
-        # order_return = order_return_obj.create({
-        #     'purchase_order_id': self.id,
-        # })
-        # for line in self.order_line:
-        #     order_return_line_obj.create({
-        #         'order_return_id': order_return.id,
-        #         'order_line_id': line.id,
-        #         'return_qty': line.product_qty,
-        #     })
-        #
-        # action = self.env.ref('cj_purchase.action_purchase_order_return').read()[0]
-        # action['domain'] = [('purchase_order_id', '=', self.id)]
-        # return action
 
     @api.multi
     def action_view_order_return(self):
@@ -413,6 +398,13 @@ class PurchaseOrder(models.Model):
             self.picking_type_id = picking_type.id
 
         return {}
+
+    @api.onchange('contract_id')
+    def _onchange_contract_id(self):
+        if not self.contract_id:
+            return
+
+        self.payment_term_id = self.contract_id.payment_term_id.id
 
     def action_supplier_send(self):
         #todo:通知发货调用
