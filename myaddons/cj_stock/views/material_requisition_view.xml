@@ -175,14 +175,17 @@
             <field name="arch" type="xml">
                 <form>
                     <header>
-                        <button name="action_confirm_return" string="确认入库" type="object"
+                        <button name="action_confirm_return" string="确认" type="object"
                                 states="draft"
                                 class="oe_highlight" groups="stock.group_stock_user"/>
 
-                        <field name="state" widget="statusbar" statusbar_visible="draft,done" readonly="1"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,picking,done" readonly="1"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
+                            <button type="object" name="action_view_stock_picking" class="oe_stat_button" icon="fa-truck" groups="stock.group_stock_user">
+                                <field name="picking_count" widget="statinfo" string="入库单"/>
+                            </button>
                             <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive" attrs="{'invisible':[('state', '!=', 'done')]}">
                                 <field name="active" widget="boolean_button"/>
                             </button>
@@ -193,7 +196,7 @@
 
                         <group>
                             <group>
-                                <field name="parent_id" options="{'no_create': 1}" required="1" domain="[('type', '=', 'requisition'), ('state', '=', 'done')]"/>
+                                <field name="parent_id" options="{'no_create': 1}" required="1" domain="[('type', '=', 'requisition'), ('state', 'in', ['done', 'picking'])]"/>
                                 <field name="warehouse_id" options="{'no_create': 1, 'no_open': 1}" string="收货仓库" readonly="1"/>
                             </group>
                             <group>
@@ -207,7 +210,8 @@
                                 <field name="line_ids">
                                     <tree editable="top">
                                         <field name="product_id" options="{'no_create': 1, 'no_open': 1}"/>
-                                        <field name="product_qty" string="退料数量"/>
+                                        <field name="requisition_qty" string="退料数量"/>
+                                        <field name="product_qty" string="收货数量"/>
                                     </tree>
                                     <form>
                                         <group col="4">

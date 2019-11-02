@@ -3,8 +3,8 @@ import pytz
 from datetime import datetime
 
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError, UserError
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare
+from odoo.exceptions import ValidationError
+from odoo.tools import float_compare
 
 STATES = [
     ('draft', '草稿'),
@@ -36,7 +36,7 @@ class MaterialRequisition(models.Model):
     company_id = fields.Many2one('res.company', '公司', related='warehouse_id.company_id', store=1)
 
     type = fields.Selection([('requisition', '领料'), ('return', '退料')], '类型', default='requisition', track_visibility='onchange')
-    parent_id = fields.Many2one('stock.material.requisition', '领料单', track_visibility='onchange')
+    parent_id = fields.Many2one('stock.material.requisition', '领料单', track_visibility='onchange', readonly=1, states=READONLY_STATES)
     child_ids = fields.One2many('stock.material.requisition', 'parent_id', '退料单')
     child_count = fields.Integer('退料单数量', compute='_compute_child_count')
 
@@ -141,6 +141,93 @@ class MaterialRequisition(models.Model):
             'material_requisition_id': self.id
         })
 
+    def action_confirm_return(self):
+        """确认退料单"""
+        if self.type != 'return':
+            raise ValidationError('只有退料单才能执行此操作！')
+
+        if self.state != 'draft':
+            raise ValidationError('只有草稿状态的单据才可确认！')
+
+        if not self.line_ids:
+            raise ValidationError('请输入退料明细！')
+
+        requisition = self.parent_id
+        # 领料数量
+        requisition_lines = []
+        for move in requisition.move_ids:
+            res = list(filter(lambda x: x['product_id'] == move.product_id.id, requisition_lines))
+            if res:
+                res[0]['requisition_qty'] += move.quantity_done
+            else:
+                requisition_lines.append({
+                    'product_id': move.product_id.id,
+                    'requisition_qty': move.quantity_done,  # 领料数量
+                    'returned_qty': 0,   # 归还数量
+                })
+        # 已收货
+        for move in requisition.child_ids.mapped('move_ids').filtered(lambda x: x.state == 'done'):
+            res = list(filter(lambda x: x['product_id'] == move.product_id.id, requisition_lines))
+            if res:
+                res[0]['returned_qty'] += move.quantity_done
+            else:
+                requisition_lines.append({
+                    'product_id': move.product_id.id,
+                    'requisition_qty': 0,  # 领料数量
+                    'returned_qty': move.quantity_done,  # 归还数量
+                })
+        # 待收货
+        for move in requisition.child_ids.mapped('move_ids').filtered(lambda x: x.state != 'done'):
+            res = list(filter(lambda x: x['product_id'] == move.product_id.id, requisition_lines))
+            if res:
+                res[0]['returned_qty'] += move.product_uom_qty
+            else:
+                requisition_lines.append({
+                    'product_id': move.product_id.id,
+                    'requisition_qty': 0,  # 领料数量
+                    'returned_qty': move.product_uom_qty,  # 归还数量
+                })
+        # 退料单(draft状态)
+        for line in requisition.child_ids.filtered(lambda x: x.state == 'draft' and x.id != self.id).mapped('line_ids'):
+            res = list(filter(lambda x: x['product_id'] == line.product_id.id, requisition_lines))
+            if res:
+                res[0]['returned_qty'] += line.requisition_qty
+            else:
+                requisition_lines.append({
+                    'product_id': line.product_id.id,
+                    'requisition_qty': 0,  # 领料数量
+                    'returned_qty': line.requisition_qty,  # 归还数量
+                })
+
+        can_return_lines = list(filter(lambda x: x['requisition_qty'] - x['returned_qty'] > 0, requisition_lines))
+        for line in self.line_ids:
+            res = list(filter(lambda x: x['product_id'] == line.product_id.id, can_return_lines))
+            if not res:
+                raise ValidationError('商品：%s未领料！' % line.product_id.partner_ref)
+            res = res[0]
+            qty = res['requisition_qty'] - res['returned_qty']
+            if line.requisition_qty > qty:
+                raise ValidationError('商品：%s 领料%s 已退料%s 还可退%s' % (line.product_id.partner_ref, res['requisition_qty'], res['returned_qty'], qty))
+
+        self.state = 'picking'
+
+        # 入库
+        self.action_return_validate()
+
+    def action_return_validate(self):
+        """退料入库处理"""
+        self.mapped('move_ids').unlink()  # 删除存在的stock.move
+        self.line_ids._generate_return_moves()  # 创建stock.move
+        self.move_ids._action_confirm()
+        self.move_ids.mapped('picking_id').write({
+            'material_requisition_id': self.id
+        })
+
+    def action_view_return(self):
+        """查看退料单"""
+        action = self.env.ref('cj_stock.action_stock_material_requisition_return').read()[0]
+        action['domain'] = [('parent_id', '=', self.id)]
+        return action
 
     @api.multi
     def _compute_picking_count(self):
@@ -211,7 +298,6 @@ class MaterialRequisition(models.Model):
 
         return super(MaterialRequisition, self).unlink()
 
-
     @api.onchange('parent_id')
     def _onchange_parent_id(self):
         self.partner_id = False
@@ -224,83 +310,67 @@ class MaterialRequisition(models.Model):
         self.partner_id = self.parent_id.partner_id.id
         self.warehouse_id = self.parent_id.warehouse_id.id
 
-        lines = []
-        for line in self.parent_id.line_ids:
-            returned_qty = sum(self.parent_id.child_ids.mapped('line_ids').filtered(lambda x: x.product_id.id == line.product_id.id).mapped('product_qty'))  # 已退数量
-            product_qty = line.product_qty - returned_qty
-            lines.append({
-                'product_id': line.product_id.id,
-                'requisition_qty': line.product_qty,
-                'returned_qty': returned_qty,
-                'product_qty': product_qty
-            })
+        requisition = self.parent_id  # 领料单
 
-        line_ids = list(filter(lambda x: float_compare(x['product_qty'], 0.0, precision_rounding=0.001) == 1, lines))
-        if not line_ids:
-            raise ValidationError('所有领用的商品或物料已全部退还！')
+        # 领料数量
+        requisition_lines = []
+        for move in requisition.move_ids:
+            res = list(filter(lambda x: x['product_id'] == move.product_id.id, requisition_lines))
+            if res:
+                res[0]['requisition_qty'] += move.quantity_done
+            else:
+                requisition_lines.append({
+                    'product_id': move.product_id.id,
+                    'requisition_qty': move.quantity_done,  # 领料数量
+                    'returned_qty': 0,   # 归还数量
+                })
+
+        # 已收货
+        for move in requisition.child_ids.mapped('move_ids').filtered(lambda x: x.state == 'done'):
+            res = list(filter(lambda x: x['product_id'] == move.product_id.id, requisition_lines))
+            if res:
+                res[0]['returned_qty'] += move.quantity_done
+            else:
+                requisition_lines.append({
+                    'product_id': move.product_id.id,
+                    'requisition_qty': 0,  # 领料数量
+                    'returned_qty': move.quantity_done,   # 归还数量
+                })
+        # 待收货
+        for move in requisition.child_ids.mapped('move_ids').filtered(lambda x: x.state != 'done'):
+            res = list(filter(lambda x: x['product_id'] == move.product_id.id, requisition_lines))
+            if res:
+                res[0]['returned_qty'] += move.product_uom_qty
+            else:
+                requisition_lines.append({
+                    'product_id': move.product_id.id,
+                    'requisition_qty': 0,  # 领料数量
+                    'returned_qty': move.product_uom_qty,  # 归还数量
+                })
+
+        # 退料单(draft状态)
+        for line in requisition.child_ids.filtered(lambda x: x.state == 'draft').mapped('line_ids'):
+            res = list(filter(lambda x: x['product_id'] == line.product_id.id, requisition_lines))
+            if res:
+                res[0]['returned_qty'] += line.requisition_qty
+            else:
+                requisition_lines.append({
+                    'product_id': line.product_id.id,
+                    'requisition_qty': 0,  # 领料数量
+                    'returned_qty': line.requisition_qty,   # 归还数量
+                })
+
+        can_return_lines = list(filter(lambda x: x['requisition_qty'] - x['returned_qty'] > 0, requisition_lines))
+        if not can_return_lines:
+            raise ValidationError('领用还未出库或所有领用的物料已全部退还！')
 
         line_ids = [(0, 0, {
             'product_id': line['product_id'],
-            'product_qty': line['product_qty']
-        })for line in line_ids]
+            'requisition_qty': line['requisition_qty'] - line['returned_qty']
+        })for line in can_return_lines]
 
         line_ids.insert(0, (5, 0))
         self.line_ids = line_ids
-
-
-
-
-
-
-
-
-
-    def action_confirm_return(self):
-        """确认退料入库"""
-        if self.type != 'return':
-            raise ValidationError('只有退料单才能执行此操作！')
-
-        # 验证退货数量
-        requisition = [{
-            'product_id': line.product_id.id,
-            'request_qty': line.product_qty,
-            'return_qty': 0
-        }for line in self.parent_id.line_ids]  # 领料数量
-
-        # 退料数量
-        for line in self.search([('parent_id', '=', self.parent_id.id), ('type', '=', 'return')]).mapped('line_ids'):
-            res = list(filter(lambda x: x['product_id'] == line.product_id.id, requisition))
-            if res:
-                res[0]['return_qty'] += line.product_qty
-            else:
-                requisition.append({
-                    'product_id': line.product_id.id,
-                    'request_qty': 0,
-                    'return_qty': line.product_qty
-                })
-
-        # 退料数量大于领料数量
-        if list(filter(lambda x: float_compare(x['return_qty'], x['request_qty'], precision_rounding=0.01) == 1, requisition)):
-            raise ValidationError('退料数量大于领料数量')
-
-        self.state = 'done'
-
-        # 入库
-        self.action_return_validate()
-
-    def action_return_validate(self):
-        """退料入库处理"""
-        self.mapped('move_ids').unlink()  # 删除存在的stock.move
-        self.line_ids._generate_return_moves()  # 创建stock.move
-        self.post_inventory()  # 入库
-
-    def action_view_return(self):
-        """查看退料单"""
-        action = self.env.ref('cj_stock.action_stock_material_requisition_return').read()[0]
-        action['domain'] = [('parent_id', '=', self.id)]
-        return action
-
-
 
 
 class MaterialRequisitionLine(models.Model):
@@ -318,10 +388,6 @@ class MaterialRequisitionLine(models.Model):
         for line in self:
             line.product_qty = sum(line.move_ids.mapped('quantity_done'))
 
-    @api.onchange('requisition_qty')
-    def _onchange_requisition_qty(self):
-        self.product_qty = self.requisition_qty
-
     def _get_move_values(self):
         self.ensure_one()
         location_obj = self.env['stock.location']
@@ -330,44 +396,32 @@ class MaterialRequisitionLine(models.Model):
         tz = self.env.user.tz or 'Asia/Shanghai'
         today = datetime.now(tz=pytz.timezone(tz)).date()
 
+        requisition = self.requisition_id
+        warehouse = requisition.warehouse_id
+
         # 目标库位是客户库位
         location_dest_id = location_obj.search([('usage', '=', 'customer')], limit=1).id
         # 源库位为对应仓库的库存库位 TODO 如果一个仓库有多个库存库位如何处理？
-        location_id = self.requisition_id.warehouse_id.lot_stock_id.id  # 仓库的库存库位
+        location_id = warehouse.lot_stock_id.id  # 仓库的库存库位
         # location_id = location_obj.search([('usage', '=', 'internal'), ('location_id.name', '=', self.requisition_id.warehouse_id.code)], limit=1).id
 
         product = self.product_id
-        uom_id = product.uom_id.id
-        product_id = product.id
-        product_qty = self.requisition_qty
         return {
-            'name': '领料：' + product.name,
-            'product_id': product_id,
-            'product_uom': uom_id,
-            'product_uom_qty': product_qty,
-            'picking_type_id': picking_type_obj.search([('warehouse_id', '=', self.requisition_id.warehouse_id.id), ('code', '=', 'outgoing')], limit=1).id,
-            'origin': self.requisition_id.name,
+            'name': '领料：' + product.partner_ref,
+            'product_id': product.id,
+            'product_uom': product.uom_id.id,
+            'product_uom_qty': self.requisition_qty,
+            'picking_type_id': picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'outgoing')], limit=1).id,
+            'origin': requisition.name,
             'date': today,
-            'company_id': self.requisition_id.warehouse_id.company_id.id,
-            'material_requisition_id': self.requisition_id.id,
+            'company_id': warehouse.company_id.id,
+            'material_requisition_id': requisition.id,
             'material_requisition_line_id': self.id,
             # 'state': 'confirmed',
             'restrict_partner_id': False,
             'location_id': location_id,
             'location_dest_id': location_dest_id,
-            'partner_id': self.requisition_id.partner_id.id,
-            # 'move_line_ids': [(0, 0, {
-            #     'product_id': product_id,
-            #     'lot_id': False,  # 不管理批次
-            #     'product_uom_qty': product_qty,  # bypass reservation here
-            #     'product_uom_id': uom_id,
-            #     'qty_done': 0,
-            #     'package_id': False,
-            #     'result_package_id': False,
-            #     'location_id': location_id,
-            #     'location_dest_id': location_dest_id,
-            #     'owner_id': False,
-            # })]
+            'partner_id': requisition.partner_id.id,
         }
 
     def _generate_moves(self):
@@ -387,44 +441,37 @@ class MaterialRequisitionLine(models.Model):
     def _get_return_move_values(self):
         self.ensure_one()
         location_obj = self.env['stock.location']
+        picking_type_obj = self.env['stock.picking.type']
 
         tz = self.env.user.tz or 'Asia/Shanghai'
         today = datetime.now(tz=pytz.timezone(tz)).date()
 
+        requisition = self.requisition_id
+        warehouse = requisition.warehouse_id
+
         # 源库位是客户库位
         location_id = location_obj.search([('usage', '=', 'customer')], limit=1).id
         # 目标库位为对应仓库的库存库位 TODO 如果一个仓库有多个库存库位如何处理？
-        location_dest_id = self.requisition_id.warehouse_id.lot_stock_id.id  # 仓库的库存库位
+        location_dest_id = warehouse.lot_stock_id.id  # 仓库的库存库位
         # location_id = location_obj.search([('usage', '=', 'internal'), ('location_id.name', '=', self.requisition_id.warehouse_id.code)], limit=1).id
 
         product = self.product_id
-        uom_id = product.uom_id.id
-        product_id = product.id
-        product_qty = self.product_qty
         return {
-            'name': '退料：' + product.name,
-            'product_id': product_id,
-            'product_uom': uom_id,
-            'product_uom_qty': product_qty,
+            'name': '退料：' + product.partner_ref,
+            'product_id': product.id,
+            'product_uom': product.uom_id.id,
+            'product_uom_qty': self.requisition_qty,
+            'picking_type_id': picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'incoming')], limit=1).id,
+            'origin': requisition.name,
             'date': today,
-            'company_id': self.requisition_id.warehouse_id.company_id.id,
-            'material_requisition_id': self.requisition_id.id,
-            'state': 'confirmed',
+            'company_id': warehouse.company_id.id,
+            'material_requisition_id': requisition.id,
+            'material_requisition_line_id': self.id,
+            # 'state': 'confirmed',
             'restrict_partner_id': False,
             'location_id': location_id,
             'location_dest_id': location_dest_id,
-            'move_line_ids': [(0, 0, {
-                'product_id': product_id,
-                'lot_id': False,  # 不管理批次
-                'product_uom_qty': 0,  # bypass reservation here
-                'product_uom_id': uom_id,
-                'qty_done': product_qty,
-                'package_id': False,
-                'result_package_id': False,
-                'location_id': location_id,
-                'location_dest_id': location_dest_id,
-                'owner_id': False,
-            })]
+            'partner_id': requisition.partner_id.id,
         }
 
 
