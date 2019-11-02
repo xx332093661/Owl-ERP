@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import pytz
 from datetime import datetime
-from copy import copy
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
-from odoo.tools import float_compare
 
 STATES = [
     ('draft', '草稿'),
