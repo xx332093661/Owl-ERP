@@ -19,6 +19,7 @@ class StockPicking(models.Model):
 
     # delivery_ids = fields.Many2many('delivery.order', string='物流单', compute='_compute_deliveries', store=True)
     delivery_id = fields.Many2one('delivery.order', string='物流单')
+    material_requisition_id = fields.Many2one('stock.material.requisition', '领料单')
 
     # @api.one
     # def _compute_deliveries(self):

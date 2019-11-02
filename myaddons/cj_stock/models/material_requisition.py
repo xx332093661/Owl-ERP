@@ -9,9 +9,10 @@ from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare
 STATES = [
     ('draft', '草稿'),
     ('confirm', '确认'),
-    ('oa_sent', 'OA审批中'),
-    ('oa_accept', 'OA审批通过'),
-    ('oa_refuse', 'OA审批拒绝'),
+    ('manager_confirm', '仓库经理审核'),
+    ('general_manager_confirm', '总经理审批'),
+    ('general_manager_refuse', '总经理拒绝'),
+    ('picking', '待出库'),
     ('done', '完成')
 ]
 
@@ -47,8 +48,105 @@ class MaterialRequisition(models.Model):
     flow_id = fields.Char('OA审批流ID', track_visibility='onchange')
     # stock.move
     move_ids = fields.One2many('stock.move', 'material_requisition_id', '库存移动')
+    picking_ids = fields.One2many('stock.picking', 'material_requisition_id', '出库单')
+    picking_count = fields.Integer('出库单数量', compute='_compute_picking_count')
 
     diff_ids = fields.One2many('stock.material.requisition.diff.line', 'requisition_id', string='差异', compute='_compute_diff_ids')
+
+    @api.multi
+    def action_confirm(self):
+        """仓库专员确认"""
+        self.ensure_one()
+
+        if self.state != 'draft':
+            raise ValidationError('只有草稿的单据才能确认！')
+
+        if not self.line_ids:
+            raise ValidationError("请输入领料明细！")
+
+        if any([line.requisition_qty <= 0 for line in self.line_ids]):
+            raise ValidationError('需求数量必须大于0！')
+
+        self.state = 'confirm'
+
+    @api.multi
+    def action_draft(self):
+        """重置为草稿"""
+        self.ensure_one()
+        if self.state not in ['confirm', 'general_manager_refuse']:
+            raise ValidationError('只有确认或总经理拒绝的单据才能重置为草稿！')
+
+        self.state = 'draft'
+
+    @api.multi
+    def action_manager_confirm(self):
+        """仓库经理确认"""
+        if self.state != 'confirm':
+            return ValidationError('只有确认的单据才能由仓库经理审核！')
+
+        self.state = 'manager_confirm'
+
+    @api.multi
+    def action_general_manager_refuse(self):
+        """销售经理拒绝"""
+        if self.state != 'manager_confirm':
+            raise ValidationError('只有仓库经理审核的单据才能由总经理拒绝！')
+        self.state = 'general_manager_refuse'
+
+    @api.multi
+    def action_general_manager_confirm(self):
+        """销售经理审批"""
+        if self.state != 'manager_confirm':
+            raise ValidationError('只有仓库经理审核的单据才能由总经理审批！')
+        self.state = 'general_manager_confirm'
+
+    @api.multi
+    def action_picking(self):
+        """确认发货"""
+        if self.state != 'general_manager_confirm':
+            raise ValidationError('只有总经理审批的单据才能确认发货！')
+
+        self.state = 'picking'
+        # 产生出库单
+        self._create_stock_picking()
+
+    @api.multi
+    def action_done(self):
+        """完成"""
+        self.ensure_one()
+        if self.state != 'picking':
+            raise ValidationError('只有发货状态的单据才能完成！')
+
+        self.state = 'done'
+
+    @api.multi
+    def action_view_stock_picking(self):
+        """查看出库单"""
+        action = self.env.ref('stock.action_picking_tree_all').read()[0]
+
+        pickings = self.mapped('picking_ids')
+        if len(pickings) > 1:
+            action['domain'] = [('id', 'in', pickings.ids)]
+        elif pickings:
+            action['views'] = [(self.env.ref('stock.view_picking_form').id, 'form')]
+            action['res_id'] = pickings.id
+        return action
+
+    def _create_stock_picking(self):
+        """产生出库单"""
+        self.mapped('move_ids').unlink()  # 删除存在的stock.move
+        self.line_ids._generate_moves()  # 创建stock.move
+        self.move_ids._action_confirm()
+        self.move_ids.mapped('picking_id').write({
+            'material_requisition_id': self.id
+        })
+
+
+    @api.multi
+    def _compute_picking_count(self):
+        """计算出库单数量"""
+        for res in self:
+            res.picking_count = len(res.picking_ids)
 
     @api.multi
     def _compute_diff_ids(self):
@@ -113,86 +211,49 @@ class MaterialRequisition(models.Model):
 
         return super(MaterialRequisition, self).unlink()
 
-    @api.multi
-    def action_confirm(self):
-        """确认"""
-        self.ensure_one()
 
-        if not self.line_ids:
-            raise ValidationError("请输入领料明细！")
+    @api.onchange('parent_id')
+    def _onchange_parent_id(self):
+        self.partner_id = False
+        self.warehouse_id = False
+        self.line_ids = False
 
-        if self.state != 'draft':
-            raise ValidationError('只有草稿的单据才能确认！')
+        if not self.parent_id:
+            return
 
-        self.state = 'confirm'
+        self.partner_id = self.parent_id.partner_id.id
+        self.warehouse_id = self.parent_id.warehouse_id.id
 
-    @api.multi
-    def action_draft(self):
-        """重置为草稿"""
-        self.ensure_one()
-        if self.state != 'confirm':
-            raise ValidationError('只有确认的单据才能重置为草稿！')
+        lines = []
+        for line in self.parent_id.line_ids:
+            returned_qty = sum(self.parent_id.child_ids.mapped('line_ids').filtered(lambda x: x.product_id.id == line.product_id.id).mapped('product_qty'))  # 已退数量
+            product_qty = line.product_qty - returned_qty
+            lines.append({
+                'product_id': line.product_id.id,
+                'requisition_qty': line.product_qty,
+                'returned_qty': returned_qty,
+                'product_qty': product_qty
+            })
 
-        self.state = 'draft'
+        line_ids = list(filter(lambda x: float_compare(x['product_qty'], 0.0, precision_rounding=0.001) == 1, lines))
+        if not line_ids:
+            raise ValidationError('所有领用的商品或物料已全部退还！')
 
-    @api.multi
-    def action_commit_approval(self):
-        """提交OA审批"""
-        self.ensure_one()
-        if self.state != 'confirm':
-            raise ValidationError('只有审核的单据才可以提交OA审批！')
+        line_ids = [(0, 0, {
+            'product_id': line['product_id'],
+            'product_qty': line['product_qty']
+        })for line in line_ids]
 
-        # TODO 发送数据结构未明确
-        try:
-            code = 'Payment_request'
-            subject = '领料单审核'
-            data = {
-                '日期': self.date.strftime(DATE_FORMAT),
-                '编号': self.name,
-                # '付款金额大写': digital_to_chinese(self.amount),
-                # '申请单位': '',
-                # '公司名称': self.company_id.name,
-                # '付款内容': '供应商付款',
-                # '姓名': self.create_uid.name,
-                # '部门': '',
-                # '付款金额小写': self.amount
-            }
-            model = self._name
-            flow_id = self.env['cj.oa.api'].oa_start_process(code, subject, data, model)
-        except Exception:
-            raise UserError('提交OA审批出错！')
+        line_ids.insert(0, (5, 0))
+        self.line_ids = line_ids
 
-        self.write({
-            'state': 'oa_sent',
-            'flow_id': flow_id
-        })
 
-    def _update_oa_approval_state(self, flow_id):
-        """OA审批通过回调"""
-        res = self.search([('flow_id', '=', flow_id)])
-        if res:
-            res.state = 'oa_accept'  # TODO OA拒绝未处理
 
-    @api.multi
-    def action_done(self):
-        """确认发货"""
-        self.ensure_one()
-        if self.state != 'oa_accept':
-            raise ValidationError('只有OA审批的单据才能出货！')
 
-        self.state = 'done'
-        # 出库
-        self.action_validate()
 
-    def action_validate(self):
-        """出库处理"""
-        self.mapped('move_ids').unlink()  # 删除存在的stock.move
-        self.line_ids._generate_moves()  # 创建stock.move
-        self.post_inventory()  # 出库
-        # TODO 未处理会计凭证
 
-    def post_inventory(self):
-        self.mapped('move_ids').filtered(lambda move: move.state != 'done')._action_done()
+
+
 
     def action_confirm_return(self):
         """确认退料入库"""
@@ -240,40 +301,6 @@ class MaterialRequisition(models.Model):
         return action
 
 
-    @api.onchange('parent_id')
-    def _onchange_parent_id(self):
-        self.partner_id = False
-        self.warehouse_id = False
-        self.line_ids = False
-
-        if not self.parent_id:
-            return
-
-        self.partner_id = self.parent_id.partner_id.id
-        self.warehouse_id = self.parent_id.warehouse_id.id
-
-        lines = []
-        for line in self.parent_id.line_ids:
-            returned_qty = sum(self.parent_id.child_ids.mapped('line_ids').filtered(lambda x: x.product_id.id == line.product_id.id).mapped('product_qty'))  # 已退数量
-            product_qty = line.product_qty - returned_qty
-            lines.append({
-                'product_id': line.product_id.id,
-                'requisition_qty': line.product_qty,
-                'returned_qty': returned_qty,
-                'product_qty': product_qty
-            })
-
-        line_ids = list(filter(lambda x: float_compare(x['product_qty'], 0.0, precision_rounding=0.001) == 1, lines))
-        if not line_ids:
-            raise ValidationError('所有领用的商品或物料已全部退还！')
-
-        line_ids = [(0, 0, {
-            'product_id': line['product_id'],
-            'product_qty': line['product_qty']
-        })for line in line_ids]
-
-        line_ids.insert(0, (5, 0))
-        self.line_ids = line_ids
 
 
 class MaterialRequisitionLine(models.Model):
@@ -283,7 +310,13 @@ class MaterialRequisitionLine(models.Model):
     requisition_id = fields.Many2one('stock.material.requisition', '领料单', ondelete='cascade')
     product_id = fields.Many2one('product.product', '商品/物料', required=1)
     requisition_qty = fields.Float('需求数量', required=0)
-    product_qty = fields.Float('实发数量', required=1, help='领料数据或退料数量')
+    product_qty = fields.Float('实发数量', compute='_compute_product_qty')
+    move_ids = fields.One2many('stock.move', 'material_requisition_line_id', '库存移动')
+
+    @api.multi
+    def _compute_product_qty(self):
+        for line in self:
+            line.product_qty = sum(line.move_ids.mapped('quantity_done'))
 
     @api.onchange('requisition_qty')
     def _onchange_requisition_qty(self):
@@ -292,6 +325,7 @@ class MaterialRequisitionLine(models.Model):
     def _get_move_values(self):
         self.ensure_one()
         location_obj = self.env['stock.location']
+        picking_type_obj = self.env['stock.picking.type']
 
         tz = self.env.user.tz or 'Asia/Shanghai'
         today = datetime.now(tz=pytz.timezone(tz)).date()
@@ -305,31 +339,35 @@ class MaterialRequisitionLine(models.Model):
         product = self.product_id
         uom_id = product.uom_id.id
         product_id = product.id
-        product_qty = self.product_qty
+        product_qty = self.requisition_qty
         return {
             'name': '领料：' + product.name,
             'product_id': product_id,
             'product_uom': uom_id,
             'product_uom_qty': product_qty,
+            'picking_type_id': picking_type_obj.search([('warehouse_id', '=', self.requisition_id.warehouse_id.id), ('code', '=', 'outgoing')], limit=1).id,
+            'origin': self.requisition_id.name,
             'date': today,
             'company_id': self.requisition_id.warehouse_id.company_id.id,
             'material_requisition_id': self.requisition_id.id,
-            'state': 'confirmed',
+            'material_requisition_line_id': self.id,
+            # 'state': 'confirmed',
             'restrict_partner_id': False,
             'location_id': location_id,
             'location_dest_id': location_dest_id,
-            'move_line_ids': [(0, 0, {
-                'product_id': product_id,
-                'lot_id': False,  # 不管理批次
-                'product_uom_qty': 0,  # bypass reservation here
-                'product_uom_id': uom_id,
-                'qty_done': product_qty,
-                'package_id': False,
-                'result_package_id': False,
-                'location_id': location_id,
-                'location_dest_id': location_dest_id,
-                'owner_id': False,
-            })]
+            'partner_id': self.requisition_id.partner_id.id,
+            # 'move_line_ids': [(0, 0, {
+            #     'product_id': product_id,
+            #     'lot_id': False,  # 不管理批次
+            #     'product_uom_qty': product_qty,  # bypass reservation here
+            #     'product_uom_id': uom_id,
+            #     'qty_done': 0,
+            #     'package_id': False,
+            #     'result_package_id': False,
+            #     'location_id': location_id,
+            #     'location_dest_id': location_dest_id,
+            #     'owner_id': False,
+            # })]
         }
 
     def _generate_moves(self):
