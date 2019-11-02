@@ -339,7 +339,7 @@
         <!--泸州电商：销售总经理-->
         <function id="partner_lz_sale_general_manager" model="res.partner" name="create">
             <value model="res.partner" eval="{
-                'name': '泸州电商：销售经理',
+                'name': '泸州电商：销售总经理',
                 'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
                 'customer': False,
                 'supplier': False,
