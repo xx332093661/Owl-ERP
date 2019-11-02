@@ -1,12 +1,22 @@
 # -*- coding: utf-8 -*-
 import pytz
 from datetime import datetime
+from copy import copy
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from odoo.tools import float_compare
 
 STATES = [
+    ('draft', '草稿'),
+    ('confirm', '确认'),
+    ('manager_confirm', '仓库经理审核'),
+    ('general_manager_confirm', '总经理审批'),
+    ('general_manager_refuse', '总经理拒绝'),
+    ('picking', '待出库'),
+    ('done', '完成')
+]
+STATES1 = [
     ('draft', '草稿'),
     ('confirm', '确认'),
     ('manager_confirm', '仓库经理审核'),
@@ -25,6 +35,12 @@ class MaterialRequisition(models.Model):
     _inherit = ['mail.thread']
     _order = 'id desc'
 
+    def _get_states(self):
+        if 'requisition_return' in self._context:
+            return STATES1
+
+        return STATES
+
     def _default_warehouse_id(self):
         return self.env['stock.warehouse'].search([('company_id', '=', self.env.user.company_id.id)], limit=1).id
 
@@ -42,7 +58,7 @@ class MaterialRequisition(models.Model):
 
     line_ids = fields.One2many('stock.material.requisition.line', 'requisition_id', '领料明细', required=1, readonly=1, states=READONLY_STATES)
 
-    state = fields.Selection(STATES, '状态', default='draft', track_visibility='onchange')
+    state = fields.Selection(_get_states, '状态', default='draft', track_visibility='onchange')
 
     active = fields.Boolean('归档', default=True)
     flow_id = fields.Char('OA审批流ID', track_visibility='onchange')
@@ -237,37 +253,41 @@ class MaterialRequisition(models.Model):
 
     @api.multi
     def _compute_diff_ids(self):
-        # TODO 不起作用(重新设计)
-        for res in self:
-            # 领料
-            lines = [{
-                'product_id': line.product_id.id,
-                'requisition_qty': line.product_qty,  # 领料数量
-                'product_qty': 0,  # 退料数量
-            } for line in res.line_ids]
+        for requisition in self:
+            # 领料数量
+            requisition_lines = []
+            for move in requisition.move_ids:
+                res = list(filter(lambda x: x['product_id'] == move.product_id.id, requisition_lines))
+                if res:
+                    res[0]['requisition_qty'] += move.quantity_done
+                else:
+                    requisition_lines.append({
+                        'product_id': move.product_id.id,
+                        'requisition_qty': move.quantity_done,  # 领料数量
+                        'returned_qty': 0,  # 归还数量
+                    })
 
-            for child in res.child_ids:
-                for line in child.line_ids:
-                    r = list(filter(lambda x: x['product_id'] == line.product_id.id, lines))
-                    if r:
-                        r[0]['product_qty'] += line.product_qty
-                    else:
-                        lines.append({
-                            'product_id': line.product_id.id,
-                            'requisition_qty': 0,
-                            'product_qty': line.product_qty
-                        })
+            # 已收货
+            for move in requisition.child_ids.mapped('move_ids').filtered(lambda x: x.state == 'done'):
+                res = list(filter(lambda x: x['product_id'] == move.product_id.id, requisition_lines))
+                if res:
+                    res[0]['returned_qty'] += move.quantity_done
+                else:
+                    requisition_lines.append({
+                        'product_id': move.product_id.id,
+                        'requisition_qty': 0,  # 领料数量
+                        'returned_qty': move.quantity_done,  # 归还数量
+                    })
 
-            lines = list(filter(lambda x: float_compare(x['requisition_qty'], x['product_qty'], precision_rounding=0.001) != 0, lines))
-            if lines:
-                diff_ids = [(0, 0, {
-                    'product_id': line['product_id'],
-                    'requisition_qty': line['requisition_qty'],
-                    'product_qty': line['product_qty'],
-                }) for line in lines]
+            diff_lines = list(filter(lambda x: x['requisition_qty'] - x['returned_qty'] > 0, requisition_lines))
+            diff_ids = [(0, 0, {
+                'product_id': line['product_id'],
+                'requisition_qty': line['requisition_qty'],
+                'product_qty': line['returned_qty'],
+            }) for line in diff_lines]
 
-                diff_ids.insert(0, (5, 0))
-                res.diff_ids = diff_ids
+            diff_ids.insert(0, (5, 0))
+            requisition.diff_ids = diff_ids
 
     @api.multi
     def _compute_child_count(self):
