@@ -15,12 +15,13 @@
         <record id="sequence_payment_apply" model="ir.sequence">
             <field name="name">付款申请序列</field>
             <field name="code">account.payment.apply</field>
-            <field name="prefix">APA/%(range_year)s/</field>
+            <!--<field name="prefix">APA/%(range_year)s/</field>-->
+            <field name="prefix">DSFK-ERP-%(year)s%(month)s%(day)s-</field>
             <field eval="1" name="number_next"/>
             <field eval="1" name="number_increment"/>
             <field eval="True" name="use_date_range"/>
             <field eval="False" name="company_id"/>
-            <field name="padding">5</field>
+            <field name="padding">3</field>
         </record>
 
         <record id="sequence_account_customer_invoice_apply" model="ir.sequence">
