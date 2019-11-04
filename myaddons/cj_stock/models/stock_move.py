@@ -26,6 +26,7 @@ class StockMove(models.Model):
     consumable_id = fields.Many2one('stock.consumable.consu', '易耗品消耗')
 
     material_requisition_id = fields.Many2one('stock.material.requisition', '领料单')
+    material_requisition_line_id = fields.Many2one('stock.material.requisition.line', '领料单明细')
 
     # 盘点
     inventory_line_id = fields.Many2one('stock.inventory.line', '盘点明细')

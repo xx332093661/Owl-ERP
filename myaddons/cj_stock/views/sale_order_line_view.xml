@@ -11,11 +11,11 @@
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='order_line']/tree/field[@name='qty_invoiced']" position="after">
-                    <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}"/>
+                    <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}" invisible="1"/>
                     <field name="owner_id" placeholder="货主..." options="{'no_open': 1, 'no_create': 1}" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']" position="attributes">
-                    <attribute name="context">{'exist_line': order_line}</attribute>
+                    <attribute name="context">{'exist_line': order_line, 'default_warehouse_id': warehouse_id, 'default_owner_id': company_id}</attribute>
                 </xpath>
             </field>
         </record>
@@ -29,11 +29,11 @@
             <field name="inherit_id" ref="cj_sale.view_order_form_groupn"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='order_line']/tree/field[@name='qty_invoiced']" position="after">
-                    <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}"/>
+                    <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}" invisible="1"/>
                     <field name="owner_id" placeholder="货主..." options="{'no_open': 1, 'no_create': 1}" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']" position="attributes">
-                    <attribute name="context">{'exist_line': order_line}</attribute>
+                    <attribute name="context">{'exist_line': order_line, 'default_warehouse_id': warehouse_id, 'default_owner_id': company_id}</attribute>
                 </xpath>
             </field>
         </record>
@@ -47,11 +47,11 @@
             <field name="inherit_id" ref="cj_sale.view_order_form_chuanjiu"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='order_line']/tree/field[@name='qty_invoiced']" position="after">
-                    <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}"/>
+                    <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}" invisible="1"/>
                     <field name="owner_id" placeholder="货主..." options="{'no_open': 1, 'no_create': 1}" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']" position="attributes">
-                    <attribute name="context">{'exist_line': order_line}</attribute>
+                    <attribute name="context">{'exist_line': order_line, 'default_warehouse_id': warehouse_id, 'default_owner_id': company_id}</attribute>
                 </xpath>
             </field>
         </record>

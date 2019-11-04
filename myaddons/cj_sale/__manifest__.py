@@ -19,11 +19,13 @@
     'depends': [
         'cj_base',
         'delivery',
+        'cj_purchase'
     ],
 
     'data': [
-        'security/ir.model.access.csv',
         'security/sale_security.xml',
+        'security/ir.model.access.csv',
+
 
         'data/default_channels.xml',
         'data/partner.xml',

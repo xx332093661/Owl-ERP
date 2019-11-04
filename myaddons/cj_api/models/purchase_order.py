@@ -18,26 +18,6 @@ class PurchaseOrder(models.Model):
     send_pos_state = fields.Selection([('draft', '草稿'), ('done', '完成'), ('error', '错误')], '同步POS状态', default='draft')
     send_pos_error = fields.Text('同步到POS错误信息')
 
-    # @api.multi
-    # def button_approve(self, force=False):
-    #     res = super(PurchaseOrder, self).button_approve(force)
-    #     for order in self:
-    #         try:
-    #             state, msg = order.push_data_to_pos()  # 将采购订单推送到门店
-    #             order.write({
-    #                 'send_pos_state': state,
-    #                 'send_pos_error': msg
-    #             })
-    #         except:
-    #             error_trace = traceback.format_exc()
-    #             order.write({
-    #                 'send_pos_state': 'error',
-    #                 'send_pos_error': error_trace
-    #             })
-    #             _logger.error(error_trace)
-    #
-    #     return res
-
     @api.model
     def push_data_to_pos(self):
         """将采购订单推送到门店

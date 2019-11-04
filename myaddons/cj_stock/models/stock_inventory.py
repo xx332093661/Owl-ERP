@@ -346,6 +346,10 @@ class InventoryLine(models.Model):
             if product_cost:
                 return product_cost.cost
 
+            product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
+            if product_cost:
+                return product_cost.cost
+
             raise my_validation_error('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
 
         module = importlib.import_module('odoo.addons.cj_api.models.api_message')

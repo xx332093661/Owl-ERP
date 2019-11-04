@@ -9,5 +9,13 @@
             <field name="padding">5</field>
             <field eval="False" name="company_id"/>
         </record>
+
+        <record id="sequence_purchase_order_return" model="ir.sequence">
+            <field name="name">退货单序列</field>
+            <field name="code">purchase.order.return</field>
+            <field name="prefix">POR</field>
+            <field name="padding">5</field>
+            <field eval="False" name="company_id"/>
+        </record>
     </data>
 </odoo>

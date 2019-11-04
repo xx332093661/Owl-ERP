@@ -47,7 +47,6 @@ class Translation(models.Model):
                 if module_name == 'cj_base' and trans_file.split('.')[0] not in loaded:
                     continue
 
-                trans_file = trans_file
                 if not trans_file.endswith(file_suffix):
                     continue
 

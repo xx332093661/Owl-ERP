@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 from lxml import etree
-import logging
 from datetime import timedelta
 
 from odoo import fields, models, api
 from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError
 
-_logger = logging.getLogger(__name__)
 
 STATES = [
     ('draft', '草稿'),
@@ -18,8 +16,8 @@ STATES = [
     ('manager_confirm', '采购经理审核'),
     ('finance_manager_confirm', '财务经理审核'),
 
-    ('general_manager_confirm', '采购总经理审批'),
-    ('general_manager_refuse', '采购总经理拒绝'),
+    ('general_manager_confirm', '总经理审批'),
+    ('general_manager_refuse', '总经理拒绝'),
     ('purchase', '供应商发货'),
     ('done', '完成'),
     ('cancel', '取消'),
@@ -151,7 +149,8 @@ class PurchaseOrder(models.Model):
     purchase_order_count = fields.Integer('供应商采购订单数', readonly=1)
 
     explain = fields.Text('说明', compute='_cpt_explain')
-    flow_id = fields.Char('审批流程ID', readonly=1)
+
+    contract_id = fields.Many2one('supplier.contract', '供应商合同', required=0, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('partner_id', '=', partner_id), ('valid', '=', True)]")
 
     @api.multi
     def action_confirm(self):
@@ -161,6 +160,9 @@ class PurchaseOrder(models.Model):
 
         if not self.order_line:
             raise ValidationError('请输入要采购的商品！')
+
+        if any([line.product_uom_qty < 0 for line in self.order_line]):
+            raise ValidationError('采购数量必须大于0！')
 
         self.state = 'confirm'
 
@@ -218,26 +220,55 @@ class PurchaseOrder(models.Model):
     def action_return(self):
         """退货"""
         order_return_obj = self.env['purchase.order.return']
-        order_return_line_obj = self.env['purchase.order.return.line']
 
         self.ensure_one()
 
-        if order_return_obj.search([('purchase_order_id', '=', self.id), ('state', '!=', 'cancel')]):
-            raise UserError('退货单已存在')
+        # 合同禁止退货
+        if self.contract_id.returns_sate == 'prohibit':
+            raise ValidationError('供应商合同禁止退货！')
 
-        order_return = order_return_obj.create({
-            'purchase_order_id': self.id,
-        })
-        for line in self.order_line:
-            order_return_line_obj.create({
-                'order_return_id': order_return.id,
-                'order_line_id': line.id,
-                'return_qty': line.product_qty,
-            })
+        received_lines = []  # 已收货的商品
+        for line in self.order_line.filtered(lambda x: x.qty_received > 0):
+            res = list(filter(lambda x: x['product_id'] == line.product_id.id, received_lines))
+            if not res:
+                received_lines.append({
+                    'product_id': line.product_id.id,
+                    'qty_received': line.qty_received,  # 已收货数量
+                    'qty_returned': 0,  # 已退数量
+                    'order_qty': line.product_qty,  # 订单数量
+                })
+            else:
+                res[0]['qty_received'] += line.qty_received
+                res[0]['order_qty'] += line.product_qty
 
-        action = self.env.ref('cj_purchase.action_purchase_order_return').read()[0]
-        action['domain'] = [('purchase_order_id', '=', self.id)]
-        return action
+        for line in order_return_obj.search([('purchase_order_id', '=', self.id), ('state', '!=', 'cancel')]).mapped('line_ids'):
+            res = list(filter(lambda x: x['product_id'] == line.product_id.id, received_lines))
+            if not res:
+                received_lines.append({
+                    'product_id': line.product_id.id,
+                    'qty_received': 0,
+                    'qty_returned': line.return_qty,  # 已退数量
+                    'order_qty': 0
+                })
+            else:
+                res[0]['qty_returned'] += line.return_qty
+
+        # 可退货的商品
+        can_return_lines = list(filter(lambda x: x['qty_received'] - x['qty_returned'] > 0, received_lines))
+        if not can_return_lines:
+            raise ValidationError('当前没有可退货的商品！')
+
+        return {
+            'name': '采购退货',
+            'type': 'ir.actions.act_window',
+            'res_model': 'purchase.order.return.wizard',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'data': can_return_lines
+            }
+        }
 
     @api.multi
     def action_view_order_return(self):
@@ -270,12 +301,12 @@ class PurchaseOrder(models.Model):
         return result
 
     @api.model
-    def default_get(self, fields):
+    def default_get(self, fields_list):
         # 采购申请创建采购询价单默认值
         apply_obj = self.env['purchase.apply']
         order_line_obj = self.env['purchase.order.line']
 
-        res = super(PurchaseOrder, self).default_get(fields)
+        res = super(PurchaseOrder, self).default_get(fields_list)
 
         if self._context.get('apply_id'):
             apply = apply_obj.browse(self._context['apply_id'])
@@ -306,13 +337,13 @@ class PurchaseOrder(models.Model):
 
     @api.multi
     def _create_picking(self):
-        # StockPicking = self.env['stock.picking']
+        StockPicking = self.env['stock.picking']
         for order in self:
             if any([ptype in ['product', 'consu'] for ptype in order.order_line.mapped('product_id.type')]):
                 pickings = order.picking_ids.filtered( lambda x: x.state not in ('done', 'cancel'))
                 if not pickings:
                     res = order._prepare_picking()
-                    picking = self.env['stock.picking'].create(res)
+                    picking = StockPicking.create(res)
                 else:
                     picking = pickings[0]
                 moves = order.order_line._create_stock_moves(picking)
@@ -344,18 +375,21 @@ class PurchaseOrder(models.Model):
     @api.onchange('partner_id', 'company_id')
     def onchange_partner_id(self):
         picking_type_obj = self.env['stock.picking.type']
-        contact_obj = self.env['supplier.contract']
+        contract_obj = self.env['supplier.contract']
 
         if not self.partner_id:
             self.fiscal_position_id = False
             self.currency_id = self.env.user.company_id.currency_id.id
+            self.contract_id = False
         else:
             self.fiscal_position_id = self.env['account.fiscal.position'].with_context(company_id=self.company_id.id).get_fiscal_position(self.partner_id.id)
             self.currency_id = self.partner_id.property_purchase_currency_id.id or self.env.user.company_id.currency_id.id
 
-            # 验证供应商是否有有效合同
-            if not contact_obj.search([('partner_id', '=', self.partner_id.id), ('valid', '=', True)]):
-                raise ValidationError('供应商当前没有有效的合同！')
+            contract = contract_obj.search([('partner_id', '=', self.partner_id.id), ('valid', '=', True)], limit=1, order='id desc')
+            if contract:
+                self.contract_id = contract.id
+            else:
+                self.contract_id = False
 
         if not self.company_id:
             self.picking_type_id = False
@@ -364,6 +398,13 @@ class PurchaseOrder(models.Model):
             self.picking_type_id = picking_type.id
 
         return {}
+
+    @api.onchange('contract_id')
+    def _onchange_contract_id(self):
+        if not self.contract_id:
+            return
+
+        self.payment_term_id = self.contract_id.payment_term_id.id
 
     def action_supplier_send(self):
         #todo:通知发货调用

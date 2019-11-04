@@ -17,11 +17,11 @@ class PurchasePriceList(models.Model):
     _description = '报价单'
     _order = 'id desc'
 
-    company_id = fields.Many2one('res.company', '公司', readonly=1, states=READONLY_STATES, track_visibility='onchange', domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
+    company_id = fields.Many2one('res.company', '公司', readonly=1, states=READONLY_STATES, track_visibility='onchange', domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])], default=lambda self: self.env.user.company_id.id)
     name = fields.Char('标题', readonly=1, states=READONLY_STATES, track_visibility='onchange')
     order_time = fields.Datetime('报价时间', default=lambda self: datetime.now().strftime(DATETIME_FORMAT), readonly=1, states=READONLY_STATES, track_visibility='onchange')
     supplierinfo_ids = fields.One2many('product.supplierinfo', 'price_list_id', '供应商价格表', readonly=1, states=READONLY_STATES, track_visibility='onchange')
-    paper = fields.Binary('纸质文件', readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    paper = fields.Binary('纸质文件', readonly=1, states=READONLY_STATES, track_visibility='onchange', attachment=True)
 
     state = fields.Selection(STATES, track_visibility='onchange', default='draft', string='状态')
     active = fields.Boolean('有效', default=True)
@@ -40,7 +40,7 @@ class PurchasePriceList(models.Model):
     @api.multi
     def action_draft(self):
         """设为草稿"""
-        if self.state != 'confirm':
+        if self.state not in ['confirm', 'purchase_manager_confirm']:
             raise ValidationError('只有确认的单据才能设为草稿！')
 
         self.state = 'draft'

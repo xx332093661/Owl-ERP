@@ -17,35 +17,73 @@ class MaterialRequisitionReturnWizard(models.TransientModel):
 
     @api.model
     def default_get(self, fields_list):
-        res = super(MaterialRequisitionReturnWizard, self).default_get(fields_list)
+        result = super(MaterialRequisitionReturnWizard, self).default_get(fields_list)
         requisition = self.env[self._context['active_model']].browse(self._context['active_id'])  # 领料单
 
-        lines = []
-        for line in requisition.line_ids:
-            returned_qty = sum(requisition.child_ids.mapped('line_ids').filtered(lambda x: x.product_id.id == line.product_id.id).mapped('product_qty'))  # 已退数量
-            product_qty = line.product_qty - returned_qty
-            lines.append({
-                'product_id': line.product_id.id,
-                'requisition_qty': line.product_qty,
-                'returned_qty': returned_qty,
-                'product_qty': product_qty
-            })
-        line_ids = list(filter(lambda x: float_compare(x['product_qty'], 0.0, precision_rounding=0.001) == 1, lines))
-        if not line_ids:
-            raise ValidationError('所有领用的商品或物料已全部退还！')
+        # 领料数量
+        requisition_lines = []
+        for move in requisition.move_ids:
+            res = list(filter(lambda x: x['product_id'] == move.product_id.id, requisition_lines))
+            if res:
+                res[0]['requisition_qty'] += move.quantity_done
+            else:
+                requisition_lines.append({
+                    'product_id': move.product_id.id,
+                    'requisition_qty': move.quantity_done,  # 领料数量
+                    'returned_qty': 0,   # 归还数量
+                })
 
-        res.update({
+        # 已收货
+        for move in requisition.child_ids.mapped('move_ids').filtered(lambda x: x.state == 'done'):
+            res = list(filter(lambda x: x['product_id'] == move.product_id.id, requisition_lines))
+            if res:
+                res[0]['returned_qty'] += move.quantity_done
+            else:
+                requisition_lines.append({
+                    'product_id': move.product_id.id,
+                    'requisition_qty': 0,  # 领料数量
+                    'returned_qty': move.quantity_done,   # 归还数量
+                })
+        # 待收货
+        for move in requisition.child_ids.mapped('move_ids').filtered(lambda x: x.state != 'done'):
+            res = list(filter(lambda x: x['product_id'] == move.product_id.id, requisition_lines))
+            if res:
+                res[0]['returned_qty'] += move.product_uom_qty
+            else:
+                requisition_lines.append({
+                    'product_id': move.product_id.id,
+                    'requisition_qty': 0,  # 领料数量
+                    'returned_qty': move.product_uom_qty,  # 归还数量
+                })
+
+        # 退料单(draft状态)
+        for line in requisition.child_ids.filtered(lambda x: x.state == 'draft').mapped('line_ids'):
+            res = list(filter(lambda x: x['product_id'] == line.product_id.id, requisition_lines))
+            if res:
+                res[0]['returned_qty'] += line.requisition_qty
+            else:
+                requisition_lines.append({
+                    'product_id': line.product_id.id,
+                    'requisition_qty': 0,  # 领料数量
+                    'returned_qty': line.requisition_qty,   # 归还数量
+                })
+
+        can_return_lines = list(filter(lambda x: x['requisition_qty'] - x['returned_qty'] > 0, requisition_lines))
+        if not can_return_lines:
+            raise ValidationError('领用还未出库或所有领用的物料已全部退还！')
+
+        result.update({
             'partner_id': requisition.partner_id.id,
             'warehouse_id': requisition.warehouse_id.id,
             'line_ids': [(0, 0, {
                 'product_id': line['product_id'],
-                'requisition_qty': line['requisition_qty'],
-                'returned_qty': line['returned_qty'],
-                'product_qty': line['product_qty']
-            }) for line in line_ids]
+                'requisition_qty': line['requisition_qty'],  # 领料数量
+                'returned_qty': line['returned_qty'],  # 已退数量
+                'product_qty': line['requisition_qty'] - line['returned_qty']  # 本次退料数量
+            }) for line in can_return_lines]
         })
 
-        return res
+        return result
 
     @api.multi
     def button_ok(self):
@@ -62,7 +100,7 @@ class MaterialRequisitionReturnWizard(models.TransientModel):
             'parent_id': self._context['active_id'],
             'line_ids': [(0, 0, {
                 'product_id': line.product_id.id,
-                'product_qty': line.product_qty
+                'requisition_qty': line.product_qty
             }) for line in self.line_ids]
 
         })

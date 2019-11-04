@@ -42,7 +42,7 @@ class AccountInvoiceRegister(models.Model):
     amount = fields.Monetary('开票金额', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
     currency_id = fields.Many2one('res.currency', string='币种', default=lambda self: self.env.user.company_id.currency_id.id)
     type = fields.Selection([('in_invoice', '供应商发票'), ('out_invoice', '客户发票')], '类型')
-    attached = fields.Binary('附件', readonly=1, states=READONLY_STATES)
+    attached = fields.Binary('附件', readonly=1, states=READONLY_STATES, attachment=True)
     company_id = fields.Many2one('res.company', '公司', readonly=1, states=READONLY_STATES, default=lambda self: self.env.user.company_id.id)
     state = fields.Selection(selection='_selection_filter', string='状态', track_visibility='onchange', default='draft')
 

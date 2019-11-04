@@ -1,89 +1,89 @@
 <odoo>
     <!--贸易模式-->
-    <data>
-        <record id="view_commerce_model_tree" model="ir.ui.view">
-            <field name="name">commerce.model tree</field>
-            <field name="model">commerce.model</field>
-            <field name="arch" type="xml">
-                <tree editable="top">
-                    <field name="name"/>
-                    <field name="code"/>
-                </tree>
-            </field>
-        </record>
-        <record id="view_commerce_model_form" model="ir.ui.view">
-            <field name="name">commerce.model form</field>
-            <field name="model">commerce.model</field>
-            <field name="arch" type="xml">
-                <form>
-                    <sheet>
-                        <group>
-                            <group>
-                                <field name="name"/>
-                            </group>
-                            <group>
-                                <field name="code"/>
-                            </group>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+    <!--<data>-->
+        <!--<record id="view_commerce_model_tree" model="ir.ui.view">-->
+            <!--<field name="name">commerce.model tree</field>-->
+            <!--<field name="model">commerce.model</field>-->
+            <!--<field name="arch" type="xml">-->
+                <!--<tree editable="top">-->
+                    <!--<field name="name"/>-->
+                    <!--<field name="code"/>-->
+                <!--</tree>-->
+            <!--</field>-->
+        <!--</record>-->
+        <!--<record id="view_commerce_model_form" model="ir.ui.view">-->
+            <!--<field name="name">commerce.model form</field>-->
+            <!--<field name="model">commerce.model</field>-->
+            <!--<field name="arch" type="xml">-->
+                <!--<form>-->
+                    <!--<sheet>-->
+                        <!--<group>-->
+                            <!--<group>-->
+                                <!--<field name="name"/>-->
+                            <!--</group>-->
+                            <!--<group>-->
+                                <!--<field name="code"/>-->
+                            <!--</group>-->
+                        <!--</group>-->
+                    <!--</sheet>-->
+                <!--</form>-->
+            <!--</field>-->
+        <!--</record>-->
 
-        <record id="view_commerce_model_search" model="ir.ui.view">
-            <field name="name">commerce.model search</field>
-            <field name="model">commerce.model</field>
-            <field name="arch" type="xml">
-                <search>
-                    <field name="name"/>
-                    <field name="code"/>
-                </search>
-            </field>
-        </record>
-    </data>
+        <!--<record id="view_commerce_model_search" model="ir.ui.view">-->
+            <!--<field name="name">commerce.model search</field>-->
+            <!--<field name="model">commerce.model</field>-->
+            <!--<field name="arch" type="xml">-->
+                <!--<search>-->
+                    <!--<field name="name"/>-->
+                    <!--<field name="code"/>-->
+                <!--</search>-->
+            <!--</field>-->
+        <!--</record>-->
+    <!--</data>-->
 
     <!--入库模式-->
-    <data>
-        <record id="view_stock_model_tree" model="ir.ui.view">
-            <field name="name">stock.model tree</field>
-            <field name="model">stock.model</field>
-            <field name="arch" type="xml">
-                <tree editable="top">
-                    <field name="name"/>
-                    <field name="code"/>
-                </tree>
-            </field>
-        </record>
-        <record id="view_stock_model_form" model="ir.ui.view">
-            <field name="name">stock.model form</field>
-            <field name="model">stock.model</field>
-            <field name="arch" type="xml">
-                <form>
-                    <sheet>
-                        <group>
-                            <group>
-                                <field name="name"/>
-                            </group>
-                            <group>
-                                <field name="code"/>
-                            </group>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+    <!--<data>-->
+        <!--<record id="view_stock_model_tree" model="ir.ui.view">-->
+            <!--<field name="name">stock.model tree</field>-->
+            <!--<field name="model">stock.model</field>-->
+            <!--<field name="arch" type="xml">-->
+                <!--<tree editable="top">-->
+                    <!--<field name="name"/>-->
+                    <!--<field name="code"/>-->
+                <!--</tree>-->
+            <!--</field>-->
+        <!--</record>-->
+        <!--<record id="view_stock_model_form" model="ir.ui.view">-->
+            <!--<field name="name">stock.model form</field>-->
+            <!--<field name="model">stock.model</field>-->
+            <!--<field name="arch" type="xml">-->
+                <!--<form>-->
+                    <!--<sheet>-->
+                        <!--<group>-->
+                            <!--<group>-->
+                                <!--<field name="name"/>-->
+                            <!--</group>-->
+                            <!--<group>-->
+                                <!--<field name="code"/>-->
+                            <!--</group>-->
+                        <!--</group>-->
+                    <!--</sheet>-->
+                <!--</form>-->
+            <!--</field>-->
+        <!--</record>-->
 
-        <record id="view_stock_model_search" model="ir.ui.view">
-            <field name="name">stock.model search</field>
-            <field name="model">stock.model</field>
-            <field name="arch" type="xml">
-                <search>
-                    <field name="name"/>
-                    <field name="code"/>
-                </search>
-            </field>
-        </record>
-    </data>
+        <!--<record id="view_stock_model_search" model="ir.ui.view">-->
+            <!--<field name="name">stock.model search</field>-->
+            <!--<field name="model">stock.model</field>-->
+            <!--<field name="arch" type="xml">-->
+                <!--<search>-->
+                    <!--<field name="name"/>-->
+                    <!--<field name="code"/>-->
+                <!--</search>-->
+            <!--</field>-->
+        <!--</record>-->
+    <!--</data>-->
 
 
     <!--商品供应商模式-->

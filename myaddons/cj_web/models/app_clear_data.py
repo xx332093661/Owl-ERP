@@ -129,6 +129,9 @@ class AppClearData(models.Model):
 
         to_removes = [
             # 清除采购单据
+            ['purchase.order.return.line'],
+            ['purchase.order.return'],
+            ['purchase.order.point'],
             ['purchase.order.line', ],
             ['purchase.order', ],
             ['purchase.requisition.line', ],
@@ -137,7 +140,8 @@ class AppClearData(models.Model):
             ['purchase.apply', ],
             ['purchase.supplierinfo', ],
             ['purchase.price.list'],
-            ['product.supplier.model']
+            ['product.supplier.model'],
+            ['supplier.contract']
         ]
         try:
             for line in to_removes:

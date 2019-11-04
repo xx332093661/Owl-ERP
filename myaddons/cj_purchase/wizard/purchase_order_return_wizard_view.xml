@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_purchase_order_return_wizard_form" model="ir.ui.view">
+        <field name="name">purchase.order.return.wizard form</field>
+        <field name="model">purchase.order.return.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <group>
+                        <field name="partner_id" options="{'no_open': 1}"/>
+                        <field name="warehouse_id" options="{'no_open': 1}"/>
+                    </group>
+                    <group>
+                        <field name="purchase_order_id" options="{'no_open': 1}"/>
+                        <field name="type"/>
+                    </group>
+                </group>
+                <group string="退货明细">
+                    <field name="line_ids" nolabel="1">
+                        <tree editable="top">
+                            <field name="product_id" options="{'no_open': 1, 'no_create': 1}"/>
+                            <field name="product_qty"/>
+                        </tree>
+                    </field>
+                </group>
+                <group string="退货原因">
+                    <field name="note" nolabel="1" placeholder="退货原因"/>
+                </group>
+
+                <footer>
+                    <button name="button_ok" string="确认退货" type="object" class="btn-primary"/>
+                    <button string="取消" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

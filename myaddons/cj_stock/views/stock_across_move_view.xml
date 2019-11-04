@@ -55,18 +55,18 @@
 
                         <group>
                             <group>
-                                <field name="warehouse_out_id" options="{'no_create': 1, 'no_open': 1}" domain="[('id', '!=', warehouse_in_id)]"/>
+                                <field name="warehouse_out_id" options="{'no_create': 1, 'no_open': 1}"/>
                                 <field name="cost_type"/>
                                 <field name="cost_increase_rating" attrs="{'invisible': [('cost_type', '!=', 'increase')], 'required': [('cost_type', '=', 'increase')]}"/>
                                 <field name="date"/>
                                 <field name="sale_order_id" options="{'no_create': 1}"/>
+                                <field name="origin_sale_order_id" help="中台接口，全渠道订单出库时，出库仓库的公司与订单公司不一致时，产生跨公司调拨单"/>
                             </group>
                             <group>
-                                <field name="warehouse_in_id" options="{'no_create': 1, 'no_open': 1}" domain="[('id', '!=', warehouse_out_id)]"/>
+                                <field name="warehouse_in_id" options="{'no_create': 1, 'no_open': 1}" context="{'across_move_all': 1}"/>
                                 <field name="payment_term_id"/>
                                 <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
                                 <field name="purchase_order_id" options="{'no_create': 1}"/>
-                                <field name="origin_sale_order_id"/>
                             </group>
                         </group>
                         <notebook>
@@ -140,6 +140,7 @@
             <field name="res_model">stock.across.move</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
+            <field name="context">{'across_move_all': 1}</field>
         </record>
 
         <menuitem

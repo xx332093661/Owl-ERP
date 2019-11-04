@@ -26,5 +26,23 @@
         <record id="stock.menu_wms_barcode_nomenclature_all" model="ir.ui.menu">
             <field name="active" eval="False"/>
         </record>
+
+        <!--仓库菜单允许销售总经理访问-->
+        <record id="stock.menu_stock_root" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('cj_sale.group_sale_general_manage'))]"/>
+        </record>
+        <!--仓库/动作菜单允许销售总经理访问-->
+        <record id="stock.menu_stock_warehouse_mgmt" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_user')),(4, ref('cj_sale.group_sale_general_manage'))]"/>
+        </record>
+
+        <!--仓库/概览菜单只允许仓库专员和仓库经理访问-->
+        <record id="stock.stock_picking_type_menu" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_user'))]"/>
+        </record>
+        <!--仓库/主数据菜单只允许仓库专员和仓库经理访问-->
+        <record id="stock.menu_stock_inventory_control" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_user'))]"/>
+        </record>
     </data>
 </odoo>

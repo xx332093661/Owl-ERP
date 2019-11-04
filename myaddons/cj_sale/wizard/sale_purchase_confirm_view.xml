@@ -6,33 +6,45 @@
         <field name="arch" type="xml">
             <form string="Parameters">
                 <p>
-                    为以下商品库存数量不足，需采购
+                    以下商品库存数量不足，确认要创建采购申请补充库存吗？
                 </p>
                 <group>
-                    <field name="line_ids">
-                        <tree  editable="bottom">
-                            <field name="product_id" required="1"/>
-                            <field name="product_uom" required="1"/>
-                            <field name="product_qty" required="1"/>
+                    <group>
+                        <field name="sale_order_id" options="{'no_open': 1, 'no_create': 1}" readonly="1"/>
+                        <field name="warehouse_id" options="{'no_open': 1, 'no_create': 1}" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="company_id" options="{'no_open': 1, 'no_create': 1}" readonly="1"/>
+                    </group>
+                </group>
+                <group string="补货明细">
+                    <field name="line_ids" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="product_id" required="1" options="{'no_open': 1, 'no_create': 1}" />
+                            <field name="product_uom" required="1" readonly="1"/>
+                            <field name="virtual_available" readonly="1"/>
+                            <field name="product_uom_qty" readonly="1"/>
+                            <field name="product_min_qty" readonly="1"/>
+                            <field name="product_qty" readonly="0" required="1"/>
                         </tree>
-
                     </field>
                 </group>
                 <footer>
-                    <button name="create_purchase_apply" string="创建采购申请" type="object" class="btn-primary"/>
-                    <button string="取消" class="btn-secondary" special="cancel"/>
+                    <button name="button_ok" string="确认订单并创建采购申请" type="object" class="btn-primary"/>
+                    <button name="button_confirm" string="仅确认订单" class="btn-secondary" type="object"/>
+                    <button string="取消" class="btn-secondary" special="cancel" />
                 </footer>
             </form>
         </field>
     </record>
 
-    <record id="action_sale_purchase_confirm" model="ir.actions.act_window">
-        <field name="name">生成采购申请</field>
-        <field name="res_model">sale.purchase.confirm</field>
-        <field name="view_type">form</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-    </record>
+    <!--<record id="action_sale_purchase_confirm" model="ir.actions.act_window">-->
+        <!--<field name="name">生成采购申请</field>-->
+        <!--<field name="res_model">sale.purchase.confirm</field>-->
+        <!--<field name="view_type">form</field>-->
+        <!--<field name="view_mode">form</field>-->
+        <!--<field name="target">new</field>-->
+    <!--</record>-->
 
 
 </odoo>

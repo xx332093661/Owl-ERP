@@ -37,5 +37,5 @@ class SupplierInfo(models.Model):
             tz = 'Asia/Shanghai'
             date = datetime.now(tz=pytz.timezone(tz)).date()
             args = args or []
-            args.extend(['&', '|', ('date_start', '=', False), ('date_start', '<=', date), '|', ('date_end', '=', False), ('date_end', '>=', date)])
+            args.extend(['&', '|', ('date_start', '=', False), ('date_start', '<=', date), '|', ('date_end', '=', False), ('date_end', '>=', date), ('price_list_id.state', '=', 'done')])
         return super(SupplierInfo, self)._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)

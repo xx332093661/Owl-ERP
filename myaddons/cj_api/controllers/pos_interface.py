@@ -9,6 +9,7 @@ import traceback
 from odoo import http
 from odoo.http import request
 from odoo.tools import float_compare
+from ..models.rabbit_mq_receive import MQ_SEQUENCE
 
 _logger = logging.getLogger(__name__)
 
@@ -36,10 +37,6 @@ class PosInterface(http.Controller):
              'msg': 错误信息
         }
         """
-        # module = importlib.import_module('odoo.addons.cj_api.models.api_message')
-        # my_validation_error = module.MyValidationError
-        # errors = module.PROCESS_ERROR
-
         ir_config = request.env['ir.config_parameter'].sudo()
         pos_interface_state = ir_config.get_param('pos_interface_state', default='off')  # POS接口状态
         if pos_interface_state == 'off':
@@ -99,19 +96,13 @@ class PosInterface(http.Controller):
 
         try:
             content = json.dumps({'body': body, 'raw_data': json.dumps(inventory_data)})
+            message_name = 'mustang-to-erp-store-stock-push'
             api_message_obj.create({
                 'message_type': 'rabbit_mq',
-                'message_name': 'mustang-to-erp-store-stock-push',
-                'content': content
+                'message_name': message_name,
+                'content': content,
+                'sequence': MQ_SEQUENCE[message_name]
             })
-            # request.env['api.message'].sudo().deal_mustang_to_erp_store_stock_push(content)
-        # except my_validation_error as e:
-        #     error_no = e.error_no
-        #     error_msg = errors[error_no]
-        #     return {
-        #         'state': 0,
-        #         'msg': error_msg
-        #     }
         except Exception:
             _logger.error(traceback.format_exc())
             return {
