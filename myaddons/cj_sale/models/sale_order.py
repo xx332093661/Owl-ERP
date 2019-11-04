@@ -69,6 +69,9 @@ class SaleOrder(models.Model):
     consignee_state_id = fields.Many2one('res.country.state', '省')
     consignee_city_id = fields.Many2one('res.city', '市')
     consignee_district_id = fields.Many2one('res.city', '区(县)')
+    special_order_mark = fields.Selection([('normal', '普通订单'), ('compensate', '补发货订单')], '订单类型', default='normal')
+    # origin = fields.Char('关联的销售订单')
+    reason = fields.Char('补发货原因')
 
     arap_checked = fields.Boolean(string="商品核算", helps="是否完成了该订单的应收应付核算检查", default=False)
     cost_checked = fields.Boolean(string="物流核算", helps="是否完成了订单商品成本的计算", default=False)
