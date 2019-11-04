@@ -315,6 +315,8 @@
                                         <field name="discount_coupon" string="优惠卷抵扣的金额"/>
                                         <field name="remark" string="用户备注"/>
                                         <field name="product_amount" string="商品总金额"/>
+                                        <field name="special_order_mark"/>
+                                        <field name="reason"/>
                                     </group>
                                 </group>
                                 <group invisible="1">
