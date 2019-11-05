@@ -44,6 +44,10 @@ class StockPicking(models.Model):
             else:
                 self._generate_purchase_invoice()
 
+        # 补货(采购退货后，再补货)
+        if self.order_replenishment_id:
+            self._generate_replenishment_invoice()
+
     def _generate_sale_invoice(self):
         """创建销售账单"""
 
@@ -1018,7 +1022,6 @@ class StockPicking(models.Model):
                 'invoice_id': invoice.id
             })
 
-
         # if purchase.payment_term_id.type == 'sale_after_payment':  # 销售后支付，不做任何操作
         #     return
         #
@@ -1048,8 +1051,12 @@ class StockPicking(models.Model):
                 taxes = line.taxes_id
                 invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
                 invoice_line = self.env['account.invoice.line']
+                purchase_line_id = line.id
+                if isinstance(line.id, models.NewId):
+                    purchase_line_id = False
+
                 vals_list.append((0, 0, {
-                    'purchase_line_id': line.id,
+                    'purchase_line_id': purchase_line_id,
                     'name': line.order_id.name + ': ' + line.name,
                     'origin': line.order_id.origin,
                     'uom_id': line.product_uom.id,
@@ -1152,6 +1159,57 @@ class StockPicking(models.Model):
             return
 
         self.env['account.invoice.split'].create_invoice_split(invoice)
+
+    def _generate_replenishment_invoice(self):
+        """采购退货后，再补货"""
+        order_line_obj = self.env['purchase.order.line']
+
+        purchase = self.order_replenishment_id.purchase_order_id  # 采购订单
+
+        # 按订单明细的支付条款分组
+        payment_term_group = []
+        for line in self.move_lines:
+            if float_compare(line.quantity_done, 0, precision_rounding=0.001) != 1:
+                continue
+
+            order_line = purchase.order_line.filtered(lambda x: x.product_id.id == line.product_id.id)
+            payment_term = order_line.payment_term_id  # 付款方式
+            res = list(filter(lambda x: x['payment_term'] == payment_term, payment_term_group))
+            if not res:
+                payment_term_group.append({
+                    'payment_term': payment_term,
+                    'lines': {line.product_id: {'qty': line.quantity_done, 'price': order_line.price_unit}}
+                })
+            else:
+                res = res[0]
+                res['lines'].setdefault(line.product_id, {'qty': 0, 'price': order_line.price_unit})
+                res['lines'][line.product_id]['qty'] += line.quantity_done
+
+        for payment_term_info in payment_term_group:
+            payment_term = payment_term_info['payment_term']
+            if payment_term.type in ['sale_after_payment', 'joint']:  # 销售后支付或联营商品，不做任何操作
+                continue
+
+            order_line = self.env['purchase.order.line']
+            for product in payment_term_info['lines']:
+                res = payment_term_info['lines'][product]
+                order_line |= order_line_obj.new({
+                    'product_id': product.id,
+                    'price_unit': res['price'],
+                    'product_uom_qty': res['qty'],
+                    'qty_received': res['qty'],
+                    'order_id': purchase.id,
+                    'name': product.partner_ref,
+                    'product_uom': product.uom_id.id,
+                    'company_id': purchase.company_id.id
+                })
+
+            # 创建账单
+            invoice = self._generate_purchase_invoice_create(purchase, order_line, payment_term)
+            # 打开账单
+            self._generate_purchase_invoice_open(invoice)
+            # 创建账单分期
+            self._generate_purchase_invoice_create_invoice_split(invoice)
 
     def _compute_invoice_journal(self, company_id, inv_type, currency_id):
         """计算结算单journal_id字段"""

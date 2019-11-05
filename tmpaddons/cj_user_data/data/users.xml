@@ -64,7 +64,7 @@
                 'login': 'cgzjl@cj.com',
                 'password': '123456',
                 'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02014')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('purchase.group_purchase_manager')])],
+                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('cj_purchase.group_purchase_general_manager')])],
             }"/>
         </function>
 
@@ -288,7 +288,7 @@
                 'login': 'cgzjl@lz.com',
                 'password': '123456',
                 'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('purchase.group_purchase_manager')])],
+                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('cj_purchase.group_purchase_general_manager')])],
             }"/>
         </function>
 

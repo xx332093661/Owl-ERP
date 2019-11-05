@@ -56,8 +56,8 @@
                                     <tree>
                                         <field name="name"/>
                                         <field name="product_id" required="1" options="{'no_create': 1}"/>
-                                        <field name="price"/>
                                         <field name="min_qty" required="1"/>
+                                        <field name="price"/>
                                         <field name="date_start"/>
                                         <field name="date_end"/>
                                     </tree>

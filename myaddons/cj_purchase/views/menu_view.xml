@@ -14,6 +14,7 @@
 
 
     <menuitem name="供应商报价单" action="action_purchase_price_list" id="menu_purchase_price_list" parent="menu_purchase_operation"
+              groups="purchase.group_purchase_user"
               sequence="1"/>
 
     <menuitem name="采购申请" id="menu_action_purchase_apply" action="action_purchase_apply"
