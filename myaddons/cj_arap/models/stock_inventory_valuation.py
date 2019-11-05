@@ -83,6 +83,10 @@ class StockInventoryValuationMove(models.Model):
             if move.material_requisition_id:
                 return self.env.ref('cj_stock.requisition_in')  # 领料退库
 
+            # 采购退货补货
+            if move.picking_id.order_replenishment_id:
+                return self.env.ref('cj_stock.replenishment')  # 采购退货补货
+
             # 门店销售退货(此类型，接口数据能追溯的的销售订单，归到销售退货(sale_delivery)类型，查找不到的用此类型)
             if store_stock_update_code == 'STOCK_01001':
                 return self.env.ref('cj_stock.STOCK_01001')  # 门店销售退货
@@ -256,6 +260,10 @@ class StockInventoryValuationMove(models.Model):
             # 领料退库
             if move.material_requisition_id:
                 return stock_cost
+
+            # 采购退货补货
+            if move.picking_id.order_replenishment_id:
+                return stock_cost  # 采购退货补货
 
             # 门店销售退货(此类型，接口数据能追溯的的销售订单，归到销售退货(sale_delivery)类型，查找不到的用此类型)
             if store_stock_update_code == 'STOCK_01001':

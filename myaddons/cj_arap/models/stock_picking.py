@@ -1052,8 +1052,8 @@ class StockPicking(models.Model):
                 invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
                 invoice_line = self.env['account.invoice.line']
                 purchase_line_id = line.id
-                if isinstance(line.id, models.NewId):
-                    purchase_line_id = False
+                if isinstance(purchase_line_id, models.NewId):
+                    purchase_line_id = line.id.ref
 
                 vals_list.append((0, 0, {
                     'purchase_line_id': purchase_line_id,
@@ -1178,11 +1178,11 @@ class StockPicking(models.Model):
             if not res:
                 payment_term_group.append({
                     'payment_term': payment_term,
-                    'lines': {line.product_id: {'qty': line.quantity_done, 'price': order_line.price_unit}}
+                    'lines': {line.product_id: {'qty': line.quantity_done, 'price': order_line.price_unit, 'order_line_id': order_line.id}}
                 })
             else:
                 res = res[0]
-                res['lines'].setdefault(line.product_id, {'qty': 0, 'price': order_line.price_unit})
+                res['lines'].setdefault(line.product_id, {'qty': 0, 'price': order_line.price_unit, 'order_line_id': order_line.id})
                 res['lines'][line.product_id]['qty'] += line.quantity_done
 
         for payment_term_info in payment_term_group:
@@ -1201,8 +1201,9 @@ class StockPicking(models.Model):
                     'order_id': purchase.id,
                     'name': product.partner_ref,
                     'product_uom': product.uom_id.id,
-                    'company_id': purchase.company_id.id
-                })
+                    'company_id': purchase.company_id.id,
+                    'sale_line_id': res['order_line_id']
+                }, ref=res['order_line_id'])
 
             # 创建账单
             invoice = self._generate_purchase_invoice_create(purchase, order_line, payment_term)
