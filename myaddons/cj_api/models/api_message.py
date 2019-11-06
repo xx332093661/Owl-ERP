@@ -103,6 +103,9 @@ class ApiMessage(models.Model):
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-STOCKOUT-QUEUE')   # 出库单队列
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-STOCK-QUEUE')   # 库存数据队列
 
+        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-RETURN-STOCKIN-QUEUE')   # 退货入库单数据
+        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-REFUND-ERP-QUEUE')   # 退款单数据
+
         self.start_mq_thread_by_name('RabbitMQSendThread', 'rabbit_mq_send_thread')
 
     @staticmethod
@@ -1025,6 +1028,16 @@ class ApiMessage(models.Model):
 
             return pid
 
+        def get_parent():
+            """获取关联的销售订单"""
+            if not order_code:
+                return False
+            parent_order = order_obj.search([('code', '=', order_code)], limit=1)
+            if not parent_order:
+                raise MyValidationError('14', '关联的销售订单：%s没有找到！' % order_code)
+
+            return parent_order.id
+
         def create_sale_order():
             """创订销售订单
             字段对应：
@@ -1091,7 +1104,7 @@ class ApiMessage(models.Model):
                 'consignee_city_id': consignee_city_id,  # 市
                 'consignee_district_id': consignee_district_id,  # 区(县)
                 'special_order_mark': content.get('specialOrderMark'),  # 订单类型（普通订单：normal，补发货订单：compensate）
-                'origin': content.get('orderCode'),     # 关联销售订单（补发货订单特有）
+                'parent_id': parent_id,     # 关联销售订单（补发货订单特有）
                 'reason': content.get('reason'),    # 补发货原因（补发货订单特有）
 
                 'sync_state': 'no_need',
@@ -1166,6 +1179,7 @@ class ApiMessage(models.Model):
         channel_code = content['channel']  # 销售渠道
         store_code = get_store_code()
         store_name = content['storeName']  # 门店名称
+        order_code = content.get('orderCode')  # 关联的销售订单号
 
         # 计算销售渠道
         channel_id = get_channel()
@@ -1176,6 +1190,7 @@ class ApiMessage(models.Model):
         company_id = get_company()  # 计算公司
         warehouse_id = get_warehouse()  # 计算仓库(可能是临时仓库)
         partner_id = get_partner()  # 计算客户
+        parent_id = get_parent()    # 关联的销售订单
         order = create_sale_order()  # 创建销售订单
         order_id = order.id
 
@@ -2046,6 +2061,24 @@ class ApiMessage(models.Model):
     # 15、mustang-to-erp-service-list-push 售后服务单
     def deal_mustang_to_erp_service_list_push(self, content):  # mustang-to-erp-service-list-push
         """售后服务单"""
+
+    # 16、退款单数据
+    def deal_mustang_refund_erp_queue(self, content):
+        """退款单"""
+        aftersale_order_obj = self.env['aftersale.order'].sudo()
+        order_obj = self.env['sale.order'].sudo()
+
+        content = json.loads(content)
+
+        return_code = content['body']['returnCode']     # 退货单号
+        refund_code = content['body']['refundCode']     # 退款单号
+        order_code = content['body']['orderCode']     # 订单号
+
+        aftersale_order = aftersale_order_obj.search([('sale_order_id.name', '=', order_code)], limit=1)
+        if not aftersale_order:
+            aftersale_order.create({
+                'name': refund_code,
+            })
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']

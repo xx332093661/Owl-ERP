@@ -316,6 +316,7 @@
                                         <field name="remark" string="用户备注"/>
                                         <field name="product_amount" string="商品总金额"/>
                                         <field name="special_order_mark"/>
+                                        <field name="parent_id"/>
                                         <field name="reason"/>
                                     </group>
                                 </group>
