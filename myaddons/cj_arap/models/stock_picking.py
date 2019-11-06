@@ -741,19 +741,49 @@ class StockPicking(models.Model):
 
     def _generate_purchase_refund_invoice(self):
         """采购退货、退货再收货等处理"""
-        def prepare_invoice_line():
+        # def prepare_invoice_line():
+        #     vals_list = []
+        #     for stock_move_line in stock_moves.mapped('move_line_ids'):
+        #         line = purchase.order_line.filtered(lambda x: x.product_id.id == stock_move_line.product_id.id)  # 库存移动行对应的采购订单行
+        #
+        #         qty = stock_move_line.qty_done  # 完成移动的数量
+        #
+        #         if float_compare(qty, 0.0, precision_rounding=line.product_uom.rounding) <= 0:
+        #             continue
+        #
+        #         taxes = line.taxes_id
+        #         invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
+        #         invoice_line = self.env['account.invoice.line']
+        #         vals_list.append((0, 0, {
+        #             'purchase_line_id': line.id,
+        #             'name': line.order_id.name + ': ' + line.name,
+        #             'origin': line.order_id.origin,
+        #             'uom_id': line.product_uom.id,
+        #             'product_id': line.product_id.id,
+        #             'account_id': invoice_line.with_context(journal_id=journal.id, type=in_type)._default_account(),  # stock.journal的对应科目
+        #             'price_unit': line.order_id.currency_id._convert(line.price_unit, currency, line.company_id, date_invoice, round=False),
+        #             'quantity': qty,
+        #             'discount': 0.0,
+        #             'account_analytic_id': line.account_analytic_id.id,
+        #             'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
+        #             'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
+        #         }))
+        #         # # 商品对应科目
+        #         # account = invoice_line.get_invoice_line_account('in_invoice', line.product_id, line.order_id.fiscal_position_id, company)
+        #         # if account:
+        #         #     data['account_id'] = account.id
+        #         #
+        #         # return data
+        #
+        #     return vals_list
+
+        def prepare_invoice_line1():
             vals_list = []
-            for stock_move_line in stock_moves.mapped('move_line_ids'):
-                line = purchase.order_line.filtered(lambda x: x.product_id.id == stock_move_line.product_id.id)  # 库存移动行对应的采购订单行
-
-                qty = stock_move_line.qty_done  # 完成移动的数量
-
-                if float_compare(qty, 0.0, precision_rounding=line.product_uom.rounding) <= 0:
-                    continue
-
+            for res in lines:
+                line = res['purchase_order_line']  # 采购订单
+                qty = res['qty']
                 taxes = line.taxes_id
-                invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id,
-                                                                                line.order_id.partner_id)
+                invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
                 invoice_line = self.env['account.invoice.line']
                 vals_list.append((0, 0, {
                     'purchase_line_id': line.id,
@@ -769,12 +799,6 @@ class StockPicking(models.Model):
                     'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
                     'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
                 }))
-                # # 商品对应科目
-                # account = invoice_line.get_invoice_line_account('in_invoice', line.product_id, line.order_id.fiscal_position_id, company)
-                # if account:
-                #     data['account_id'] = account.id
-                #
-                # return data
 
             return vals_list
 
@@ -788,7 +812,7 @@ class StockPicking(models.Model):
         currency = purchase.currency_id  # 币种
         currency_id = currency.id
         stock_moves = self.move_lines  # 库存调拨(stock.move)
-        payment_term = purchase.payment_term_id  # 支付条款
+        # payment_term = purchase.payment_term_id  # 支付条款
 
         tz = self.env.user.tz or 'Asia/Shanghai'
         date_invoice = datetime.now(tz=pytz.timezone(tz)).date()
@@ -802,84 +826,187 @@ class StockPicking(models.Model):
 
         journal = self._compute_invoice_journal(company_id, in_type, currency_id)  # 分录
 
-        # 1、创建账单
-        vals = {
-            'state': 'draft',  # 状态
-            'origin': purchase.name,  # 源文档
-            'reference': purchase.partner_ref,  # 供应商单号
-            'purchase_id': purchase.id,
-            'currency_id': currency_id,  # 币种
-            'company_id': company_id,  # 公司
-            'payment_term_id': payment_term.id,  # 支付条款
-            'type': 'in_refund',  # 类型
+        move_lines = {}
+        for stock_move_line in stock_moves.mapped('move_line_ids'):
+            if float_compare(stock_move_line.qty_done, 0.0, precision_rounding=0.001) <= 0:
+                continue
 
-            'account_id': partner._get_partner_account_id(company_id, in_type),  # 供应商科目
-            # 'cash_rounding_id': False,  # 现金舍入方式
-            # 'comment': '',  # 其它信息
-            # 'date': False,  # 会计日期(Keep empty to use the invoice date.)
-            'date_due': self._compute_invoice_date_due(purchase, date_invoice, payment_term),  # 截止日期
-            'date_invoice': date_invoice,  # 开票日期
-            'fiscal_position_id': self._compute_invoice_fiscal_position_id(partner),  # 替换规则
-            'incoterm_id': False,  # 国际贸易术语
-            'invoice_line_ids': prepare_invoice_line(),  # 发票明细
-            # 'invoice_split_ids': [],  # 账单分期
-            'journal_id': journal.id,  # 分录
-            # 'move_id': False,  # 会计凭证(稍后创建)
-            # 'move_name': False,  # 会计凭证名称(稍后创建)
-            # 'name': False,  # 参考/说明(自动产生)
-            'partner_bank_id': self._compute_invoice_partner_bank_id(partner),  # 银行账户
-            'partner_id': partner.id,  # 业务伙伴(供应商)
-            'refund_invoice_id': False,  # 为红字发票开票(退款账单关联的账单) TODO 待计算退货
-            'sent': False,  # 已汇
-            'source_email': False,  # 源电子邮件
-            # 'tax_line_ids': [],  # 税额明细行
-            # 'transaction_ids': False,  # 交易(此时未发生支付)
-            # 'vendor_bill_id': False,  # 供应商账单(此处未发生)
-            # 'vendor_bill_purchase_id': False,  # 采购单和账单二者(选择供应商未开票的订单)
+            line = purchase.order_line.filtered(lambda x: x.product_id.id == stock_move_line.product_id.id)  # 库存移动行对应的采购订单行
+            payment_term = line.payment_term_id  # 付款方式
 
-            # 'team_id': False,  # 销售团队(默认)
-            'user_id': self.env.user.id,  # 销售员(采购负责人)
-            'stock_picking_id': self.id,  # 退货时，可以通过此字段找到要冲销的账单
-        }
+            move_lines.setdefault(payment_term, [])
 
-        invoice = self.env['account.invoice'].create(vals)
-        invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
+            res = list(filter(lambda x: x['product_id'] == stock_move_line.product_id.id, move_lines[payment_term]))
+            if not res:
+                move_lines[payment_term].append({
+                    'product_id': stock_move_line.product_id.id,
+                    'qty': stock_move_line.qty_done,
+                    'purchase_order_line': line,
+                })
+            else:
+                res[0]['qty'] += stock_move_line.qty_done
 
-        if is_in:
-            # 打开账单
-            self._generate_purchase_invoice_open(invoice)
-            # 计算未核销的预付款， 核销预付款
-            self._generate_purchase_invoice_outstanding_debits(invoice, purchase)
-            # 创建账单分期
-            self._generate_purchase_invoice_create_invoice_split(invoice)
-        else:
-            # 2、打开并登记凭证
-            invoice.sudo().action_invoice_open()
+        for payment_term in move_lines:
+            lines = move_lines[payment_term]
 
-            # 3、冲销对应的账单
-            invoice_reconcile = self.env['account.invoice'].search(
-                [('stock_picking_id', '=', self.move_lines[0].origin_returned_move_id.picking_id.id), ('state', 'in', ['draft', 'open'])])
+            vals = {
+                'state': 'draft',  # 状态
+                'origin': purchase.name,  # 源文档
+                'reference': purchase.partner_ref,  # 供应商单号
+                'purchase_id': purchase.id,
+                'currency_id': currency_id,  # 币种
+                'company_id': company_id,  # 公司
+                'payment_term_id': payment_term.id,  # 支付条款
+                'type': 'in_refund',  # 类型
 
-            if not invoice_reconcile:
-                return
+                'account_id': partner._get_partner_account_id(company_id, in_type),  # 供应商科目
+                # 'cash_rounding_id': False,  # 现金舍入方式
+                # 'comment': '',  # 其它信息
+                # 'date': False,  # 会计日期(Keep empty to use the invoice date.)
+                'date_due': self._compute_invoice_date_due(purchase, date_invoice, payment_term),  # 截止日期
+                'date_invoice': date_invoice,  # 开票日期
+                'fiscal_position_id': self._compute_invoice_fiscal_position_id(partner),  # 替换规则
+                'incoterm_id': False,  # 国际贸易术语
+                'invoice_line_ids': prepare_invoice_line1(),  # 发票明细
+                # 'invoice_split_ids': [],  # 账单分期
+                'journal_id': journal.id,  # 分录
+                # 'move_id': False,  # 会计凭证(稍后创建)
+                # 'move_name': False,  # 会计凭证名称(稍后创建)
+                # 'name': False,  # 参考/说明(自动产生)
+                'partner_bank_id': self._compute_invoice_partner_bank_id(partner),  # 银行账户
+                'partner_id': partner.id,  # 业务伙伴(供应商)
+                'refund_invoice_id': False,  # 为红字发票开票(退款账单关联的账单) TODO 待计算退货
+                'sent': False,  # 已汇
+                'source_email': False,  # 源电子邮件
+                # 'tax_line_ids': [],  # 税额明细行
+                # 'transaction_ids': False,  # 交易(此时未发生支付)
+                # 'vendor_bill_id': False,  # 供应商账单(此处未发生)
+                # 'vendor_bill_purchase_id': False,  # 采购单和账单二者(选择供应商未开票的订单)
 
-            domain = [
-                ('account_id', '=', invoice.account_id.id),
-                ('partner_id', '=', self.env['res.partner']._find_accounting_partner(invoice.partner_id).id),
-                ('reconciled', '=', False),  # reconciled-已核销
-                '|',
-                '&', ('amount_residual_currency', '!=', 0.0), ('currency_id', '!=', None),  # amount_residual_currency-外币残余金额
-                '&', ('amount_residual_currency', '=', 0.0), '&', ('currency_id', '=', None),
-                ('amount_residual', '!=', 0.0)  # amount_residual-残值额
-            ]
-            domain.extend([('credit', '=', 0), ('debit', '>', 0)])  # credit-贷方  debit-借方
-            aml = self.env['account.move.line'].search(domain).filtered(lambda x: x.invoice_id.id == invoice.id)
+                # 'team_id': False,  # 销售团队(默认)
+                'user_id': self.env.user.id,  # 销售员(采购负责人)
+                'stock_picking_id': self.id,  # 退货时，可以通过此字段找到要冲销的账单
+            }
 
-            invoice_reconcile.sudo().assign_outstanding_credit(aml.id)
+            invoice = self.env['account.invoice'].create(vals)
+            invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
 
-            # 4、重新创建账单分期
-            invoice_reconcile.invoice_split_ids.unlink()
-            self._generate_purchase_invoice_create_invoice_split(invoice_reconcile)
+            if is_in:
+                # 打开账单
+                self._generate_purchase_invoice_open(invoice)
+                # 计算未核销的预付款， 核销预付款
+                self._generate_purchase_invoice_outstanding_debits(invoice, purchase)
+                # 创建账单分期
+                self._generate_purchase_invoice_create_invoice_split(invoice)
+            else:
+                # 2、打开并登记凭证
+                invoice.sudo().action_invoice_open()
+
+                # 3、冲销对应的账单
+                invoice_reconcile = self.env['account.invoice'].search(
+                    [('stock_picking_id', '=', self.move_lines[0].origin_returned_move_id.picking_id.id),
+                     ('state', 'in', ['draft', 'open'])])
+
+                if not invoice_reconcile:
+                    return
+
+                domain = [
+                    ('account_id', '=', invoice.account_id.id),
+                    ('partner_id', '=', self.env['res.partner']._find_accounting_partner(invoice.partner_id).id),
+                    ('reconciled', '=', False),  # reconciled-已核销
+                    '|',
+                    '&', ('amount_residual_currency', '!=', 0.0), ('currency_id', '!=', None),
+                    # amount_residual_currency-外币残余金额
+                    '&', ('amount_residual_currency', '=', 0.0), '&', ('currency_id', '=', None),
+                    ('amount_residual', '!=', 0.0)  # amount_residual-残值额
+                ]
+                domain.extend([('credit', '=', 0), ('debit', '>', 0)])  # credit-贷方  debit-借方
+                aml = self.env['account.move.line'].search(domain).filtered(lambda x: x.invoice_id.id == invoice.id)
+
+                invoice_reconcile.sudo().assign_outstanding_credit(aml.id)
+
+                # 4、重新创建账单分期
+                invoice_reconcile.invoice_split_ids.unlink()
+                self._generate_purchase_invoice_create_invoice_split(invoice_reconcile)
+
+        # # 1、创建账单
+        # vals = {
+        #     'state': 'draft',  # 状态
+        #     'origin': purchase.name,  # 源文档
+        #     'reference': purchase.partner_ref,  # 供应商单号
+        #     'purchase_id': purchase.id,
+        #     'currency_id': currency_id,  # 币种
+        #     'company_id': company_id,  # 公司
+        #     'payment_term_id': payment_term.id,  # 支付条款
+        #     'type': 'in_refund',  # 类型
+        #
+        #     'account_id': partner._get_partner_account_id(company_id, in_type),  # 供应商科目
+        #     # 'cash_rounding_id': False,  # 现金舍入方式
+        #     # 'comment': '',  # 其它信息
+        #     # 'date': False,  # 会计日期(Keep empty to use the invoice date.)
+        #     'date_due': self._compute_invoice_date_due(purchase, date_invoice, payment_term),  # 截止日期
+        #     'date_invoice': date_invoice,  # 开票日期
+        #     'fiscal_position_id': self._compute_invoice_fiscal_position_id(partner),  # 替换规则
+        #     'incoterm_id': False,  # 国际贸易术语
+        #     'invoice_line_ids': prepare_invoice_line(),  # 发票明细
+        #     # 'invoice_split_ids': [],  # 账单分期
+        #     'journal_id': journal.id,  # 分录
+        #     # 'move_id': False,  # 会计凭证(稍后创建)
+        #     # 'move_name': False,  # 会计凭证名称(稍后创建)
+        #     # 'name': False,  # 参考/说明(自动产生)
+        #     'partner_bank_id': self._compute_invoice_partner_bank_id(partner),  # 银行账户
+        #     'partner_id': partner.id,  # 业务伙伴(供应商)
+        #     'refund_invoice_id': False,  # 为红字发票开票(退款账单关联的账单) TODO 待计算退货
+        #     'sent': False,  # 已汇
+        #     'source_email': False,  # 源电子邮件
+        #     # 'tax_line_ids': [],  # 税额明细行
+        #     # 'transaction_ids': False,  # 交易(此时未发生支付)
+        #     # 'vendor_bill_id': False,  # 供应商账单(此处未发生)
+        #     # 'vendor_bill_purchase_id': False,  # 采购单和账单二者(选择供应商未开票的订单)
+        #
+        #     # 'team_id': False,  # 销售团队(默认)
+        #     'user_id': self.env.user.id,  # 销售员(采购负责人)
+        #     'stock_picking_id': self.id,  # 退货时，可以通过此字段找到要冲销的账单
+        # }
+        #
+        # invoice = self.env['account.invoice'].create(vals)
+        # invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
+        #
+        # if is_in:
+        #     # 打开账单
+        #     self._generate_purchase_invoice_open(invoice)
+        #     # 计算未核销的预付款， 核销预付款
+        #     self._generate_purchase_invoice_outstanding_debits(invoice, purchase)
+        #     # 创建账单分期
+        #     self._generate_purchase_invoice_create_invoice_split(invoice)
+        # else:
+        #     # 2、打开并登记凭证
+        #     invoice.sudo().action_invoice_open()
+        #
+        #     # 3、冲销对应的账单
+        #     invoice_reconcile = self.env['account.invoice'].search(
+        #         [('stock_picking_id', '=', self.move_lines[0].origin_returned_move_id.picking_id.id), ('state', 'in', ['draft', 'open'])])
+        #
+        #     if not invoice_reconcile:
+        #         return
+        #
+        #     domain = [
+        #         ('account_id', '=', invoice.account_id.id),
+        #         ('partner_id', '=', self.env['res.partner']._find_accounting_partner(invoice.partner_id).id),
+        #         ('reconciled', '=', False),  # reconciled-已核销
+        #         '|',
+        #         '&', ('amount_residual_currency', '!=', 0.0), ('currency_id', '!=', None),  # amount_residual_currency-外币残余金额
+        #         '&', ('amount_residual_currency', '=', 0.0), '&', ('currency_id', '=', None),
+        #         ('amount_residual', '!=', 0.0)  # amount_residual-残值额
+        #     ]
+        #     domain.extend([('credit', '=', 0), ('debit', '>', 0)])  # credit-贷方  debit-借方
+        #     aml = self.env['account.move.line'].search(domain).filtered(lambda x: x.invoice_id.id == invoice.id)
+        #
+        #     invoice_reconcile.sudo().assign_outstanding_credit(aml.id)
+        #
+        #     # 4、重新创建账单分期
+        #     invoice_reconcile.invoice_split_ids.unlink()
+        #     self._generate_purchase_invoice_create_invoice_split(invoice_reconcile)
 
     def _generate_purchase_invoice(self):
         """创建采购账单
