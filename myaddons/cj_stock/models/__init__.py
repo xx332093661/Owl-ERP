@@ -13,7 +13,7 @@ from . import stock_scrap
 from . import sale_order_line
 from . import stock_inventory_valuation
 from . import stock_picking
-from . import delivery_order
+# from . import delivery_order
 from . import consumable_consu
 # from . import ir_actions
 from . import consumable_apply

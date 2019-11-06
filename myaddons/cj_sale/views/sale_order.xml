@@ -268,7 +268,7 @@
                                 <field name="payment_ids"/>
                             </page>
 
-                            <page string="物流信息" name="delivery_ids">
+                            <page string="出货信息" name="delivery_ids">
                                 <field name="delivery_ids">
                                     <tree editable="bottom">
                                         <field name="name"/>

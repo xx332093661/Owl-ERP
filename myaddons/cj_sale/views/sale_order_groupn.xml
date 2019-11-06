@@ -237,7 +237,7 @@
                             <field name="payment_ids" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
                         </page>
 
-                        <page string="物流信息" name="order_lines">
+                        <page string="出货信息" name="order_lines">
                             <field name="delivery_ids" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}">
                                 <tree editable="bottom">
                                     <field name="name"/>
