@@ -291,6 +291,11 @@
                                     </group>
                                 </group>
                             </page>
+                            <page string="退货退款">
+                                <field name="return_ids"/>
+                                <field name="refund_ids"/>
+                            </page>
+
                             <page string="其他信息" name="other_information">
                                 <group string="同步信息" col="6" colspan="4">
                                     <group col="2" colspan="2">

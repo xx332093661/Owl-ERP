@@ -27,7 +27,9 @@ MQ_SEQUENCE = {
     'mustang-to-erp-logistics-push': 11,  # 物流信息
     'mustang-to-erp-store-stock-update-record-push': 13,  # 门店库存变更记录
     'mustang-to-erp-order-status-push': 14,  # 订单状态
-    'mustang-to-erp-service-list-push': 15,  # 售后服务单
+    # 'mustang-to-erp-service-list-push': 15,  # 售后服务单
+    'WMS-ERP-RETURN-STOCKIN-QUEUE': 15,  # 退货入库单
+    'MUSTANG-REFUND-ERP-QUEUE': 16,  # 退款单
 }
 
 

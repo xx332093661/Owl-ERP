@@ -45,6 +45,8 @@ class SaleOrder(models.Model):
     logistics_ids = fields.One2many('delivery.logistics', 'order_id', '运单')
     group_flag = fields.Selection([('large', '大数量团购'), ('group', '团购'), ('not', '非团购')], '团购标记', default='not')
     payment_ids = fields.One2many('account.payment', 'sale_order_id', '收款记录')
+    return_ids = fields.One2many('sale.order.return', 'sale_order_id', '退货入库单')
+    refund_ids = fields.One2many('sale.order.refund', 'sale_order_id', '退款单')
 
     # 中台字段
     user_level = fields.Char("用户等级")
@@ -73,8 +75,8 @@ class SaleOrder(models.Model):
     parent_id = fields.Many2one('sale.order', '关联的销售订单')
     reason = fields.Char('补发货原因')
 
-    arap_checked = fields.Boolean(string="商品核算", helps="是否完成了该订单的应收应付核算检查", default=False)
-    cost_checked = fields.Boolean(string="物流核算", helps="是否完成了订单商品成本的计算", default=False)
+    # arap_checked = fields.Boolean(string="商品核算", helps="是否完成了该订单的应收应付核算检查", default=False)
+    # cost_checked = fields.Boolean(string="物流核算", helps="是否完成了订单商品成本的计算", default=False)
 
     sync_state = fields.Selection([('no_need', '无需同步'), ('not', '未同步'), ('success', '已同步'), ('error', '同步失败')], '同步中台状态', default='not')
 

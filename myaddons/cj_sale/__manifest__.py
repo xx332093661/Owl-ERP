@@ -35,11 +35,13 @@
         'views/sale_channels.xml',
         'views/sale_activity.xml',
         'views/sale_order.xml',
-        'views/aftersale_order.xml',
+        # 'views/aftersale_order.xml',
         'views/sale_order_groupn.xml',
         'views/delivery_order_view.xml',
         'views/res_config_setting_view.xml',
         'views/delivery_carrier_view.xml',
+        'views/sale_order_return_view.xml',
+        'views/sale_order_refund_view.xml',
 
 
         'wizard/sale_purchase_confirm_view.xml',

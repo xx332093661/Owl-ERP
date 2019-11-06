@@ -30,7 +30,7 @@ class DeliveryOrder(models.Model):
     _rec_name = 'name'
     _inherit = ['mail.thread']
 
-    name = fields.Char(string='物流单号', required=True, index=True, readonly=1, states=READONLY_STATES)
+    name = fields.Char(string='物流单号', required=False, index=True, readonly=1, states=READONLY_STATES)
     carrier_id = fields.Many2one('delivery.carrier', string="交货方式", help="请选择对应的快递方式")
     sale_order_id = fields.Many2one('sale.order', string='销售单', track_visibility='onchange', required=0, readonly=1, states=READONLY_STATES)
     purchase_order_id = fields.Many2one('purchase.order', string='关联采购单')
