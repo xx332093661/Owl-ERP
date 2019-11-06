@@ -19,7 +19,7 @@ from . import account_invoice_register
 # from . import ir_actions
 from . import account_customer_invoice_apply
 from . import consumable_consu
-from . import delivery_order
+# from . import delivery_order
 from . import stock_inventory
 from . import stock_scrap
 from . import ir_property
