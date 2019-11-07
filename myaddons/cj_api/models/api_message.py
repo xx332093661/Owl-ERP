@@ -2169,6 +2169,9 @@ class ApiMessage(models.Model):
             'push_state': content['pushState'],
         })
 
+        # 创建退货结算单
+        
+
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
