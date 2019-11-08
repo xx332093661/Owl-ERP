@@ -240,7 +240,7 @@ class StockPicking(models.Model):
                 vals_list.append((0, 0, {
                     'purchase_line_id': purchase_order_line.id,
                     'name': purchase.name + ': ' + purchase_order_line.name,
-                    'origin': purchase.origin,
+                    'origin': purchase.name,
                     'uom_id': purchase_order_line.product_uom.id,
                     'product_id': purchase_order_line.product_id.id,
                     'account_id': invoice_line_obj._default_account(), # stock.journal的对应科目
@@ -394,7 +394,7 @@ class StockPicking(models.Model):
                 vals_list.append((0, 0, {
                     'sale_line_ids': [(6, 0, line.ids)],
                     'name': sale.name + ': ' + line.name,
-                    'origin': sale.origin,
+                    'origin': sale.name,
                     'uom_id': line.product_uom.id,
                     'product_id': line.product_id.id,
                     'account_id': invoice_line.with_context(journal_id=journal.id, type='out_invoice')._default_account(), # stock.journal的对应科目
@@ -875,7 +875,7 @@ class StockPicking(models.Model):
                 vals_list.append((0, 0, {
                     'purchase_line_id': purchase_order_line.id,
                     'name': purchase.name + ': ' + purchase_order_line.name,
-                    'origin': purchase.origin,
+                    'origin': purchase.name,
                     'uom_id': purchase_order_line.product_uom.id,
                     'product_id': purchase_order_line.product_id.id,
                     'account_id': invoice_line_obj._default_account(), # stock.journal的对应科目
@@ -1018,7 +1018,7 @@ class StockPicking(models.Model):
                 vals_list.append((0, 0, {
                     'sale_line_ids': [(6, 0, line.ids)],
                     'name': sale.name + ': ' + line.name,
-                    'origin': sale.origin,
+                    'origin': sale.name,
                     'uom_id': line.product_uom.id,
                     'product_id': line.product_id.id,
                     'account_id': invoice_line.with_context(journal_id=journal.id, type='out_invoice')._default_account(), # stock.journal的对应科目
@@ -1234,7 +1234,7 @@ class StockPicking(models.Model):
                 vals_list.append((0, 0, {
                     'purchase_line_id': line.id,
                     'name': line.order_id.name + ': ' + line.name,
-                    'origin': line.order_id.origin,
+                    'origin': line.order_id.name,
                     'uom_id': line.product_uom.id,
                     'product_id': line.product_id.id,
                     'account_id': invoice_line.with_context(journal_id=journal.id, type=in_type)._default_account(),  # stock.journal的对应科目
@@ -1493,7 +1493,7 @@ class StockPicking(models.Model):
                 vals_list.append((0, 0, {
                     'sale_line_ids': [(6, 0, line.ids)],
                     'name': sale.name + ': ' + line.name,
-                    'origin': sale.origin,
+                    'origin': sale.name,
                     'uom_id': line.product_uom.id,
                     'product_id': line.product_id.id,
                     'account_id': invoice_line.with_context(journal_id=journal.id, type='out_invoice')._default_account(), # stock.journal的对应科目
@@ -1631,7 +1631,7 @@ class StockPicking(models.Model):
                 vals_list.append((0, 0, {
                     'purchase_line_id': purchase_line_id,
                     'name': line.order_id.name + ': ' + line.name,
-                    'origin': line.order_id.origin,
+                    'origin': line.order_id.name,
                     'uom_id': line.product_uom.id,
                     'product_id': line.product_id.id,
                     'account_id': invoice_line.with_context(journal_id=journal.id, type='in_invoice')._default_account(),  # stock.journal的对应科目

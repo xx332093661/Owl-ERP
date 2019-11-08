@@ -1684,7 +1684,7 @@ class ApiMessage(models.Model):
             vals.update({
                 'product_return_moves': return_vals,
             })
-            return_picking = return_picking_obj.create(vals)
+            return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
             new_picking_id, pick_type_id = return_picking._create_returns()
             picking_obj.browse(new_picking_id).action_done()  # 确认入库
             return
@@ -2119,14 +2119,14 @@ class ApiMessage(models.Model):
                 'product_id': product.id,
                 'quantity': item['actualQty'],
                 'move_id': stock_move.id,
-                'to_refund': False  # 退货退款
+                'to_refund': True  # 退货退款
             }))
 
         vals = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).default_get(return_picking_obj._fields)
         vals.update({
             'product_return_moves': return_vals,
         })
-        return_picking = return_picking_obj.create(vals)
+        return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
         new_picking_id, pick_type_id = return_picking._create_returns()
         picking_obj.browse(new_picking_id).action_done()  # 确认入库
 
@@ -2170,8 +2170,6 @@ class ApiMessage(models.Model):
         })
 
         # TODO 创建退货结算单
-        
-
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
