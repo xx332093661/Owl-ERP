@@ -169,10 +169,12 @@ class PurchaseOrder(models.Model):
     @api.multi
     def action_cancel(self):
         """取消订单"""
-        for order in self:
-            for inv in order.invoice_ids:
-                if inv and inv.state not in ('cancel', 'draft', 'general_manager_refuse'):
-                    raise UserError('不能取消这个采购单，你必须首先取消相关的供应商账单。')
+        if self.state not in ['draft', 'confirm', 'general_manager_refuse']:
+            raise ValidationError('只有草稿、确认、总经理拒绝的单据才能取消！')
+
+        for inv in self.invoice_ids:
+            if inv and inv.state not in ('cancel', 'draft', 'general_manager_refuse'):
+                raise UserError('不能取消这个采购单，你必须首先取消相关的供应商账单。')
 
         return super(PurchaseOrder, self).button_cancel()
 
@@ -180,7 +182,7 @@ class PurchaseOrder(models.Model):
     def action_draft(self):
         """设为草稿"""
         if self.state not in ['confirm', 'cancel', 'general_manager_refuse']:
-            raise ValidationError("")
+            raise ValidationError("只有确认、取消、总经理拒绝的单据才能设为草稿！")
 
         self.state = 'draft'
 

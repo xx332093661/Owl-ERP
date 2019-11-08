@@ -1670,7 +1670,7 @@ class ApiMessage(models.Model):
                 return_vals.append((0, 0, {
                     'product_id': product.id,
                     'quantity': abs(content['quantity']),
-                    'move_id': stock_move.id
+                    'move_id': stock_move.id,
                 }))
 
             # 退货数量大于出库数量
@@ -2072,7 +2072,7 @@ class ApiMessage(models.Model):
         if not delivery:
             raise MyValidationError('35', '原出库单号：%s对应的出库单不存在！' % content['preDeliveryOrderCode'])
 
-        warehouse = warehouse_obj.search([('code', '=', content['warehouseNo'])])
+        warehouse = warehouse_obj.search([('code', '=', content['warehouseNo'])])  # TODO 退货到不同的仓库未处理
         if not warehouse:
             raise MyValidationError('11', '仓库编码：%s对应仓库不存在！' % content['warehouseNo'])
 
@@ -2169,7 +2169,7 @@ class ApiMessage(models.Model):
             'push_state': content['pushState'],
         })
 
-        # 创建退货结算单
+        # TODO 创建退货结算单
         
 
 
