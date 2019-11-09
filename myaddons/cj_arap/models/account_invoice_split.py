@@ -64,12 +64,19 @@ class AccountInvoiceSplit(models.Model):
 
             return float_round(invoice.residual_signed * p[1], precision_rounding=rounding, rounding_method='HALF-UP')
 
+        def compute_amount_first_payment(p, i):
+            """计算支付金额"""
+            if i == len(payment_term_list) - 1:  # 最后一条记录，返回未支付的，其余按比例计算
+                return residual_signed - amount_total
+
+            return float_round(residual_signed * p[1], precision_rounding=rounding, rounding_method='HALF-UP')
+
         payment_term = invoice.payment_term_id
         date_invoice = invoice.date_invoice
         currency_id = invoice.currency_id.id
         rounding = invoice.currency_id.rounding
 
-        if payment_term.type == 'cycle_payment': # 滚单结算，忽略所有付款规则
+        if payment_term.type == 'cycle_payment':  # 滚单结算，忽略所有付款规则
             payment_term_list = [(date_invoice, 1.0)]
         else:
             payment_term_list = payment_term.with_context(currency_id=currency_id).compute(value=1, date_ref=date_invoice)[0]
@@ -78,8 +85,13 @@ class AccountInvoiceSplit(models.Model):
         vals_list = []
         amount_total = 0.0
         i = 0
+        residual_signed = invoice.residual_signed
+        residual_signed += sum(invoice.invoice_split_ids.mapped('paid_amount'))
         for index, pt in enumerate(payment_term_list):
-            amount = compute_amount(pt, index)
+            if payment_term.type == 'first_payment':
+                amount = compute_amount_first_payment(pt, index)
+            else:
+                amount = compute_amount(pt, index)
             amount_total += amount
             if payment_term.type == 'first_payment' and index == 0:  # 先款后货，略过第一条规则
                 i += 1

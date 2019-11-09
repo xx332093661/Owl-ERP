@@ -43,7 +43,7 @@ class AccountInvoiceRegister(models.Model):
     currency_id = fields.Many2one('res.currency', string='币种', default=lambda self: self.env.user.company_id.currency_id.id)
     type = fields.Selection([('in_invoice', '供应商发票'), ('out_invoice', '客户发票')], '类型')
     attached = fields.Binary('附件', readonly=1, states=READONLY_STATES, attachment=True)
-    company_id = fields.Many2one('res.company', '公司', readonly=1, states=READONLY_STATES, default=lambda self: self.env.user.company_id.id)
+    company_id = fields.Many2one('res.company', '公司', readonly=1, states=READONLY_STATES, default=lambda self: self.env.user.company_id.id, domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
     state = fields.Selection(selection='_selection_filter', string='状态', track_visibility='onchange', default='draft')
 
     purchase_order_ids = fields.Many2many('purchase.order', compute='_compute_purchase_invoice', string='关联的采购订单')

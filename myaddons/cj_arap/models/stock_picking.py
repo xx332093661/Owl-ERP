@@ -1592,8 +1592,9 @@ class StockPicking(models.Model):
                       ('partner_id', '=', self.env['res.partner']._find_accounting_partner(invoice.partner_id).id),
                       ('reconciled', '=', False),
                       '|',
-                      '&', ('amount_residual_currency', '!=', 0.0), ('currency_id','!=', None),
-                      '&', ('amount_residual_currency', '=', 0.0), '&', ('currency_id','=', None), ('amount_residual', '!=', 0.0)]
+                      '&', ('amount_residual_currency', '!=', 0.0), ('currency_id', '!=', None),
+                      '&', ('amount_residual_currency', '=', 0.0), '&', ('currency_id', '=', None),
+                      ('amount_residual', '!=', 0.0)]
             if invoice.type in ('out_invoice', 'in_refund'):
                 domain.extend([('credit', '>', 0), ('debit', '=', 0)])
             else:
@@ -1602,13 +1603,13 @@ class StockPicking(models.Model):
             for aml in lines:
                 invoice.assign_outstanding_credit(aml.id)
 
-            # 创建账单分期
-            self._generate_purchase_invoice_create_invoice_split(invoice)
-
             # 关联先款后货的分期 TODO
             self.env['account.invoice.split'].search([('purchase_order_id', '=', invoice.purchase_id.id), ('invoice_id', '=', False)]).write({
                 'invoice_id': invoice.id
             })
+
+            # 创建账单分期
+            self._generate_purchase_invoice_create_invoice_split(invoice)
 
         # if purchase.payment_term_id.type == 'sale_after_payment':  # 销售后支付，不做任何操作
         #     return

@@ -34,12 +34,12 @@ class AccountPaymentApply(models.Model):
     _description = '付款申请'
     _inherit = ['mail.thread']
 
-    name = fields.Char('单号', readonly=1, default='/')
+    name = fields.Char('单号', readonly=1, default='NEW')
     partner_id = fields.Many2one('res.partner', '供应商',
                                  readonly=1,
                                  states=STATES,
                                  required=1, domain="[('supplier', '=', True)]", track_visibility='onchange')
-    company_id = fields.Many2one('res.company', '公司',default=lambda self : self.env.user.company_id.id,  readonly=1, track_visibility='onchange')
+    company_id = fields.Many2one('res.company', '公司',default=lambda self : self.env.user.company_id.id,  readonly=0, track_visibility='onchange', domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
     apply_date = fields.Date('申请日期',
                              readonly=1,
                              states=STATES,
@@ -217,6 +217,10 @@ class AccountPaymentApply(models.Model):
             apply.state = 'oa_refuse'  # 审批拒绝
         else:
             apply.state = 'oa_accept'  # 审批通过
+
+    @api.onchange('company_id')
+    def _onchange_company_id(self):
+        self.invoice_register_id = False
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
