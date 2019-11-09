@@ -299,7 +299,7 @@ class StockPicking(models.Model):
                 values.append({
                     'product': product,
                     'purchase': purchase,
-                    # 'payment_term': order_line.payment_term_id,
+                    'payment_term': order_line.payment_term_id,
                     'invoice_qty': invoice_qty,
                     'purchase_order_line': order_line,
                     # 'price_unit': float_round(line.move_id.sale_line_id.price_unit * (100 - payment_term.fee_rate) / 100.0, precision_digits=2),  # 结算单价
@@ -937,12 +937,12 @@ class StockPicking(models.Model):
                 values.append({
                     'product': product,
                     'purchase': purchase,
-                    'payment_term': order_line.payment_term,
+                    'payment_term': order_line.payment_term_id,
                     'invoice_qty': invoice_qty,
                     'purchase_order_line': order_line,
                     # 'price_unit': float_round(line.move_id.sale_line_id.price_unit * (100 - payment_term.fee_rate) / 100.0, precision_digits=2),  # 结算单价
                     'price_unit': line.move_id.sale_line_id.price_unit,
-                    'fee_rate': order_line.payment_term.fee_rate,
+                    'fee_rate': order_line.payment_term_id.fee_rate,
                     'supplier_model_id': supplier_model.id
                 })
 
