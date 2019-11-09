@@ -1587,6 +1587,21 @@ class StockPicking(models.Model):
             self._generate_purchase_invoice_open(invoice)
             # 计算未核销的预付款， 核销预付款
             invoice._invoice_outstanding_debits(purchase)
+            # 核销退货
+            domain = [('account_id', '=', invoice.account_id.id),
+                      ('partner_id', '=', self.env['res.partner']._find_accounting_partner(invoice.partner_id).id),
+                      ('reconciled', '=', False),
+                      '|',
+                      '&', ('amount_residual_currency', '!=', 0.0), ('currency_id','!=', None),
+                      '&', ('amount_residual_currency', '=', 0.0), '&', ('currency_id','=', None), ('amount_residual', '!=', 0.0)]
+            if invoice.type in ('out_invoice', 'in_refund'):
+                domain.extend([('credit', '>', 0), ('debit', '=', 0)])
+            else:
+                domain.extend([('credit', '=', 0), ('debit', '>', 0)])
+            lines = self.env['account.move.line'].search(domain)
+            for aml in lines:
+                invoice.assign_outstanding_credit(aml.id)
+
             # 创建账单分期
             self._generate_purchase_invoice_create_invoice_split(invoice)
 
@@ -1782,6 +1797,20 @@ class StockPicking(models.Model):
             invoice = self._generate_purchase_invoice_create(purchase, order_line, payment_term)
             # 打开账单
             self._generate_purchase_invoice_open(invoice)
+            # 核销退货
+            domain = [('account_id', '=', invoice.account_id.id),
+                      ('partner_id', '=', self.env['res.partner']._find_accounting_partner(invoice.partner_id).id),
+                      ('reconciled', '=', False),
+                      '|',
+                      '&', ('amount_residual_currency', '!=', 0.0), ('currency_id','!=', None),
+                      '&', ('amount_residual_currency', '=', 0.0), '&', ('currency_id','=', None), ('amount_residual', '!=', 0.0)]
+            if invoice.type in ('out_invoice', 'in_refund'):
+                domain.extend([('credit', '>', 0), ('debit', '=', 0)])
+            else:
+                domain.extend([('credit', '=', 0), ('debit', '>', 0)])
+            lines = self.env['account.move.line'].search(domain)
+            for aml in lines:
+                invoice.assign_outstanding_credit(aml.id)
             # 创建账单分期
             self._generate_purchase_invoice_create_invoice_split(invoice)
 

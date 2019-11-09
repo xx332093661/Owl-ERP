@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import pytz
+from itertools import groupby
 
 from odoo import fields, models, api
 from odoo.exceptions import UserError
@@ -75,41 +76,71 @@ class PurchaseOrder(models.Model):
         """采购订单经OA审批通过后，如果订单的支付条款是预付款(先款后货)，则取支付条款规则第一条记录，来计算并创建供应商账单，并打开供应商账单，
         """
         res = super(PurchaseOrder, self).button_approve(force=force)
-        self.filtered(lambda x: x.payment_term_id.type == 'first_payment')._generate_invoice_split()  # 先款后货的生成账单分期  TODO 订单行的支付条款
+        self._generate_invoice_split()  # 先款后货的生成账单分期
+        # self.filtered(lambda x: x.payment_term_id.type == 'first_payment')._generate_invoice_split()  # 先款后货的生成账单分期  TODO 订单行的支付条款
         return res
 
     def _generate_invoice_split(self):
         """先款后货的生成账单分期"""
+        order_lines = self.order_line.filtered(lambda x: x.payment_term_id.type == 'first_payment')
+        if not order_lines:
+            return
+
         tz = self.env.user.tz or 'Asia/Shanghai'
         date_invoice = datetime.now(tz=pytz.timezone(tz)).date()
 
         vals_list = []
-        for purchase in self:
-            payment_term = purchase.payment_term_id.with_context(currency_id=purchase.currency_id.id)
+        for payment_term, lines in groupby(sorted(order_lines, key=lambda x: x.payment_term_id.id), lambda x: x.payment_term_id):
+            lines = list(lines)
             payment_term_list = payment_term.compute(value=1, date_ref=date_invoice)[0]
             payment_term_list.sort(key=lambda x: x[0])  # 按到期日期升序排序
-            amount_total = purchase.amount_total  # 采购订单总金额
+            amount_total = sum(line.price_subtotal for line in lines)
             amount = amount_total * payment_term_list[0][1]  # 账单行金额
 
-            rounding = purchase.currency_id.rounding
-
-            if float_compare(amount, 0.0, precision_rounding=rounding) > 0:
+            if float_compare(amount, 0.0, precision_rounding=0.01) > 0:
                 vals_list.append({
                     'sequence': 1,
                     'invoice_id': False,
-                    'purchase_order_id': purchase.id,
+                    'purchase_order_id': self.id,
                     'sale_order_id': False,
                     'date_invoice': date_invoice,
                     'date_due': date_invoice,
                     'amount': amount,
-                    'partner_id': purchase.partner_id.id,
-                    'company_id': purchase.company_id.id,
+                    'partner_id': self.partner_id.id,
+                    'company_id': self.company_id.id,
                     'state': 'open',
-                    'comment': '采购订单%s：预付款' % purchase.name,
+                    'comment': '采购订单%s：预付款' % self.name,
                     'type': 'first_payment',
                 })
 
         self.env['account.invoice.split'].create(vals_list)
+
+        # for purchase in self:
+        #     payment_term = purchase.payment_term_id.with_context(currency_id=purchase.currency_id.id)
+        #     payment_term_list = payment_term.compute(value=1, date_ref=date_invoice)[0]
+        #     payment_term_list.sort(key=lambda x: x[0])  # 按到期日期升序排序
+        #     amount_total = purchase.amount_total  # 采购订单总金额
+        #     amount = amount_total * payment_term_list[0][1]  # 账单行金额
+        #
+        #     rounding = purchase.currency_id.rounding
+        #
+        #     if float_compare(amount, 0.0, precision_rounding=rounding) > 0:
+        #         vals_list.append({
+        #             'sequence': 1,
+        #             'invoice_id': False,
+        #             'purchase_order_id': purchase.id,
+        #             'sale_order_id': False,
+        #             'date_invoice': date_invoice,
+        #             'date_due': date_invoice,
+        #             'amount': amount,
+        #             'partner_id': purchase.partner_id.id,
+        #             'company_id': purchase.company_id.id,
+        #             'state': 'open',
+        #             'comment': '采购订单%s：预付款' % purchase.name,
+        #             'type': 'first_payment',
+        #         })
+        #
+        # self.env['account.invoice.split'].create(vals_list)
 
     @api.multi
     def button_cancel(self):

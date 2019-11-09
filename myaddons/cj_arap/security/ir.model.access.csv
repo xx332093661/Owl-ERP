@@ -70,6 +70,9 @@ access_purchase_rebate_line_invoice,access_purchase_rebate_line invoice,cj_purch
 
 access_cj_sale_activity_invoice,cj_sale_activity invoice,cj_sale.model_cj_sale_activity,account.group_account_invoice,1,1,0,0
 
+access_account_full_reconcile_stock_user,account_full_reconcile stock_user,account.model_account_full_reconcile,stock.group_stock_user,1,1,1,0
+
+
 
 
 
