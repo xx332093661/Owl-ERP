@@ -21,7 +21,7 @@ class SaleOrder(models.Model):
         oldname='payment_term',
         readonly=1,
         required=1, states={'draft': [('readonly', False)]},
-        domain=[('type', 'not in', ['sale_after_payment', 'cycle_payment'])],
+        domain=[('type', 'not in', ['sale_after_payment', 'cycle_payment', 'joint'])],
         ondelete='restrict')
 
     invoice_ids = fields.One2many('account.invoice', 'sale_id', '内部结算单')

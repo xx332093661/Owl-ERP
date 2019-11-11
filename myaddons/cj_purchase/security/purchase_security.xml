@@ -38,8 +38,13 @@
         </record>
     </data>
 
-
     <data noupdate="1">
+        <!--供应商价格表访问规则-->
+        <function model="ir.rule" name="write">
+            <value model="ir.rule" search="[ref('product.product_supplierinfo_comp_rule')]"/>
+            <value eval="{'domain_force': ['|', ('company_id', '=', False), ('company_id','child_of',[user.company_id.id])]}"/>
+        </function>
+
         <record model="ir.rule" id="purchase_price_list_rule">
             <field name="name">报价单访问规则</field>
             <field name="model_id" ref="cj_purchase.model_purchase_price_list"/>

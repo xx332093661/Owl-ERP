@@ -36,7 +36,8 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-
+        <menuitem id="cj_org_menu" name="组织机构" parent="base.menu_users" sequence="15"
+                      action="cj_org_action"/>
 
     </data>
 </odoo>

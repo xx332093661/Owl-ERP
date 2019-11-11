@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_api_full_config_tree" model="ir.ui.view">
+            <field name="name">api.full.config tree</field>
+            <field name="model">api.full.config</field>
+            <field name="arch" type="xml">
+                <tree editable="top">
+                    <field name="queue_name"/>
+                    <field name="message_name"/>
+                    <field name="company_code"/>
+                    <field name="source_code"/>
+                    <field name="system_code"/>
+                    <field name="secret_key"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <record id="action_api_full_config" model="ir.actions.act_window">
+            <field name="name">全量接口配置</field>
+            <field name="res_model">api.full.config</field>
+            <field name="view_mode">tree</field>
+        </record>
+
+        <menuitem id="menu_action_api_full_config" name="全量接口配置"
+                  groups="base.group_erp_manager"
+                  parent="menu_cj_api" sequence="10"
+                      action="action_api_full_config"/>
+
+    </data>
+</odoo>

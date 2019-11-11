@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+        <record id='api_full_config1' model='api.full.config'>
+            <field name="company_code">02014</field>
+            <field name="source_code">auth_org</field>
+            <field name="system_code">Owl</field>
+            <field name="secret_key">F6xN4G1SEIUnT7cgqPzQ8eMznjsjmsKS</field>
+            <field name="message_name">MDM-ERP-ORG-QUEUE</field>
+            <field name="queue_name">组织机构</field>
+        </record>
+        <record id='api_full_config2' model='api.full.config'>
+            <field name="company_code">02014</field>
+            <field name="source_code">dms_store</field>
+            <field name="system_code">Owl</field>
+            <field name="secret_key">au03Jg4NhWCBGhDMkK8A0Q9A70E3ki7C</field>
+            <field name="message_name">MDM-ERP-STORE-QUEUE</field>
+            <field name="queue_name">门店</field>
+        </record>
+        <record id='api_full_config3' model='api.full.config'>
+            <field name="company_code">02014</field>
+            <field name="source_code">dms_material_info</field>
+            <field name="system_code">Owl</field>
+            <field name="secret_key">I70aRj46mtGMSe60PXcEaDJkbELGnRXD</field>
+            <field name="message_name">MDM-ERP-MATERIAL-QUEUE</field>
+            <field name="queue_name">物料</field>
+        </record>
+        <record id='api_full_config4' model='api.full.config'>
+            <field name="company_code">02020</field>
+            <field name="source_code">dms_warehouse</field>
+            <field name="system_code">Owl</field>
+            <field name="secret_key">Li790zOlnHyutDeXEeNaS4Eh8oy7aHwM</field>
+            <field name="message_name">MDM-ERP-WAREHOUSE-QUEUE</field>
+            <field name="queue_name">仓库</field>
+        </record>
+        <record id='api_full_config5' model='api.full.config'>
+            <field name="company_code">02014</field>
+            <field name="source_code">auth_distributor_member</field>
+            <field name="system_code">Owl</field>
+            <field name="secret_key">KDRaLF56VY9tGfdPr5EFskby0zznXdZE</field>
+            <field name="message_name">MDM-ERP-MEMBER-QUEUE</field>
+            <field name="queue_name">会员</field>
+        </record>
+        <record id='api_full_config6' model='api.full.config'>
+            <field name="company_code">02014,02020</field>
+            <field name="source_code">auth_distributor</field>
+            <field name="system_code">Owl</field>
+            <field name="secret_key">Vc4hRNwaTYjrHSL0dFzue7bXMpnc170x</field>
+            <field name="message_name">MDM-ERP-DISTRIBUTOR-QUEUE</field>
+            <field name="queue_name">经销商</field>
+        </record>
+    </data>
+</openerp>

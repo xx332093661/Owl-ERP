@@ -1670,7 +1670,7 @@ class ApiMessage(models.Model):
                 return_vals.append((0, 0, {
                     'product_id': product.id,
                     'quantity': abs(content['quantity']),
-                    'move_id': stock_move.id
+                    'move_id': stock_move.id,
                 }))
 
             # 退货数量大于出库数量
@@ -1684,7 +1684,7 @@ class ApiMessage(models.Model):
             vals.update({
                 'product_return_moves': return_vals,
             })
-            return_picking = return_picking_obj.create(vals)
+            return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
             new_picking_id, pick_type_id = return_picking._create_returns()
             picking_obj.browse(new_picking_id).action_done()  # 确认入库
             return
@@ -2072,7 +2072,7 @@ class ApiMessage(models.Model):
         if not delivery:
             raise MyValidationError('35', '原出库单号：%s对应的出库单不存在！' % content['preDeliveryOrderCode'])
 
-        warehouse = warehouse_obj.search([('code', '=', content['warehouseNo'])])
+        warehouse = warehouse_obj.search([('code', '=', content['warehouseNo'])])  # TODO 退货到不同的仓库未处理
         if not warehouse:
             raise MyValidationError('11', '仓库编码：%s对应仓库不存在！' % content['warehouseNo'])
 
@@ -2119,14 +2119,14 @@ class ApiMessage(models.Model):
                 'product_id': product.id,
                 'quantity': item['actualQty'],
                 'move_id': stock_move.id,
-                'to_refund': False  # 退货退款
+                'to_refund': True  # 退货退款
             }))
 
         vals = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).default_get(return_picking_obj._fields)
         vals.update({
             'product_return_moves': return_vals,
         })
-        return_picking = return_picking_obj.create(vals)
+        return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
         new_picking_id, pick_type_id = return_picking._create_returns()
         picking_obj.browse(new_picking_id).action_done()  # 确认入库
 
@@ -2169,9 +2169,7 @@ class ApiMessage(models.Model):
             'push_state': content['pushState'],
         })
 
-        # 创建退货结算单
-        
-
+        # TODO 创建退货结算单
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']

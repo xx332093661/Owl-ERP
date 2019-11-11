@@ -27,7 +27,7 @@ class SaleReturnLine(models.Model):
     _name = 'sale.order.return.line'
     _description = '销售退货单明细'
 
-    return_id = fields.Many2one('sale.return', '销售退货单', ondelete='cascade')
+    return_id = fields.Many2one('sale.order.return', '销售退货单', ondelete='cascade')
     product_id = fields.Many2one('product.product', '商品')
     inventory_type = fields.Selection([('CC', '残次'), ('ZP', '正品')], '库存类型')
     quantity = fields.Float('下单数量')

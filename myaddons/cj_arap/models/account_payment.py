@@ -11,10 +11,16 @@ from odoo.tools import float_is_zero, float_round, float_compare
 
 class AccountPayment(models.Model):
     _inherit = 'account.payment'
+    _name = 'account.payment'
+
+    company_id = fields.Many2one('res.company', related=False, string='公司', required=1, readonly=1, states={'draft': [('readonly', False)]}, default=lambda self: self.env.user.company_id.id, domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
+    journal_id = fields.Many2one('account.journal', string='付款分录', required=1,
+                                 domain="[('type', 'in', ('bank', 'cash')), ('company_id', '=', company_id)]")
 
     invoice_split_ids = fields.Many2many('account.invoice.split', 'account_payment_split_payment_rel', 'payment_id', 'split_id', '账单分期', readonly=1)
     invoice_register_id = fields.Many2one('account.invoice.register', '发票登记', readonly=1, states={'draft': [('readonly', False)]})
-    apply_id = fields.Many2one('account.payment.apply', '付款申请', readonly=1, states={'draft': [('readonly', False)]}, track_visibility='onchange')
+    apply_id = fields.Many2one('account.payment.apply', '付款申请', required=1, readonly=1, states={'draft': [('readonly', False)]}, track_visibility='onchange',
+                               domain="[('partner_id', '=', partner_id), ('company_id', '=', company_id), ('state', 'in', ['oa_accept', 'paying'])]")
     purchase_order_id = fields.Many2one('purchase.order', '采购订单')
     invoice_name = fields.Char('发票号', related='invoice_register_id.name', store=1)
     customer_invoice_apply_id = fields.Many2one('account.customer.invoice.apply', '客户发票申请',
@@ -60,6 +66,20 @@ class AccountPayment(models.Model):
 
         return res
 
+    @api.onchange('company_id')
+    def _onchange_company_id(self):
+        self.journal_id = False
+        jrnl_filters = self._compute_journal_domain_and_types()
+        journal_types = jrnl_filters['journal_types']
+        journal_types.update(['bank', 'cash'])
+        domain = jrnl_filters['domain'] + [('type', 'in', list(journal_types))] + [('company_id', '=', self.company_id.id)]
+
+        return {
+            'domain': {
+                'journal_id': domain
+            }
+        }
+
     @api.onchange('currency_id')
     def _onchange_currency(self):
         """在团购单付款时，不因currency_id的改变而修改默认付款金额
@@ -97,7 +117,7 @@ class AccountPayment(models.Model):
 
         return {'domain': {'journal_id': jrnl_filters['domain'] + domain_on_types}}
 
-    @api.onchange('partner_id')
+    @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):
         res = super(AccountPayment, self)._onchange_partner_id()
         self.apply_id = False
@@ -112,6 +132,21 @@ class AccountPayment(models.Model):
         self.invoice_register_id = self.apply_id.invoice_register_id.id
         self.invoice_split_ids = self.apply_id.invoice_split_ids.ids
         self.amount = max(self.apply_id.amount - sum(self.apply_id.payment_ids.mapped('amount')), 0)
+
+    # def _compute_journal_domain_and_types(self):
+    #     journal_type = ['bank', 'cash']
+    #     domain = []
+    #     if self.currency_id.is_zero(self.amount) and self.has_invoices:
+    #         # In case of payment with 0 amount, allow to select a journal of type 'general' like
+    #         # 'Miscellaneous Operations' and set this journal by default.
+    #         journal_type = ['general']
+    #         self.payment_difference_handling = 'reconcile'
+    #     else:
+    #         if self.payment_type == 'inbound':
+    #             domain.append(('at_least_one_inbound', '=', True))
+    #         else:
+    #             domain.append(('at_least_one_outbound', '=', True))
+    #     return {'domain': domain, 'journal_types': set(journal_type)}
 
     @api.model
     def create(self, vals):
@@ -168,6 +203,8 @@ class AccountPayment(models.Model):
         elif self.partner_id:
             if self.partner_type == 'customer':
                 self.destination_account_id = self.partner_id.with_context(force_company=company_id).property_account_receivable_id.id
+            elif self.partner_type == 'supplier':
+                self.destination_account_id = self.partner_id.with_context(force_company=company_id).property_account_payable_id.id
             else:
                 self.destination_account_id = self.partner_id.property_account_payable_id.id
         elif self.partner_type == 'customer':

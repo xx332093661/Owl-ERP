@@ -38,8 +38,11 @@ class AccountInvoice(models.Model):
             '&', ('amount_residual_currency', '=', 0.0), '&', ('currency_id', '=', None),
             ('amount_residual', '!=', 0.0)  # amount_residual-残值额
         ]
-        domain.extend([('credit', '=', 0), ('debit', '>', 0)])  # credit-贷方  debit-借方
-
+        # domain.extend([('credit', '=', 0), ('debit', '>', 0)])  # credit-贷方  debit-借方
+        if self.type in ('out_invoice', 'in_refund'):
+            domain.extend([('credit', '>', 0), ('debit', '=', 0)])  # credit-贷方  debit-借方
+        else:
+            domain.extend([('credit', '=', 0), ('debit', '>', 0)])  # credit-贷方  debit-借方
         # 优先核销先款后货的
         lines = self.env['account.move.line'].search(domain)
         currency = self.currency_id
