@@ -16,6 +16,5 @@
     <menuitem id="oa_approval_callback_menu" name="OA审批回调" parent="cj_oa_menu" sequence="2"
                   action="oa_approval_callback_action"/>
 
-    <menuitem id="cj_org_menu" name="组织机构" parent="menu_cj_api" sequence="5"
-                  action="cj_org_action"/>
+
 </odoo>

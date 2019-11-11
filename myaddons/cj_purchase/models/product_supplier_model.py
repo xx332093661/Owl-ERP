@@ -126,8 +126,8 @@ class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     @api.multi
-    def button_approve(self, force=False):
-        res = super(PurchaseOrder, self).button_approve(force=force)
+    def action_confirm(self):
+        res = super(PurchaseOrder, self).action_confirm()
         self._check_payment_term()
         return res
 

@@ -7,11 +7,11 @@
             <field name="model">account.invoice.register</field>
             <field name="arch" type="xml">
                 <tree string="供应商发票登记">
+                    <field name="company_id" groups="base.group_multi_currency"/>
                     <field name="name"/>
                     <field name="partner_id" string="供应商"/>
                     <field name="invoice_date"/>
                     <field name="amount" widget="monetary"/>
-
                     <field name="state"/>
                 </tree>
             </field>
@@ -23,15 +23,15 @@
             <field name="arch" type="xml">
                 <form string="供应商发票登记">
                     <header>
-                        <button name="action_confirm" type="object" states="draft" string="确认" class="oe_highlight" groups="account.group_account_invoice"/>
                         <button name="action_draft" type="object" states="confirm" string="设为草稿" groups="account.group_account_invoice"/>
+                        <button name="action_confirm" type="object" states="draft" string="确认" class="oe_highlight" groups="account.group_account_invoice"/>
                         <button name="action_manager_confirm" type="object" states="confirm" string="审核" class="oe_highlight" groups="account.group_account_manager"/>
                         <!--<button name="action_payment_apply" type="object" states="manager_confirm" string="付款申请" class="oe_highlight" groups="account.group_account_invoice"/>-->
                         <!--<button name="action_draft" type="object" states="manager_confirm" string="设为草稿" groups="account.group_account_manager"/>-->
-                        <button name="%(action_account_invoice_register_apply_wizard)d" type="action"
-                                attrs="{'invisible': ['|', ('has_payment_apply', '=', True), '|', ('state', '!=', 'manager_confirm'), ('invoice_split_ids', '=', [])]}"
-                                string="付款申请" class="oe_highlight"
-                                groups="purchase.group_purchase_user,account.group_account_invoice"/>
+                        <!--<button name="%(action_account_invoice_register_apply_wizard)d" type="action"-->
+                                <!--attrs="{'invisible': ['|', ('has_payment_apply', '=', True), '|', ('state', '!=', 'manager_confirm'), ('invoice_split_ids', '=', [])]}"-->
+                                <!--string="付款申请" class="oe_highlight"-->
+                                <!--groups="purchase.group_purchase_user,account.group_account_invoice"/>-->
                         <!--先付款给供应商，后开具发票过来，此时发票应关联付款记录-->
                         <!--<button name="%(action_account_invoice_register_associate_payment_wizard)d" type="action"-->
                                 <!--attrs="{'invisible': ['|', ('invoice_split_ids', '!=', []), ('payment_ids', '!=', [])]}"-->
@@ -48,6 +48,7 @@
                                 采购订单
                             </button>
                             <button type="object" name="action_view_account_invoice"
+                                    groups="account.group_account_invoice"
                                     attrs="{'invisible': [('invoice_ids', '=', [])]}" class="oe_stat_button" icon="fa-pencil-square-o" >
                                 账单
                             </button>
@@ -58,24 +59,20 @@
                        <group>
                            <group>
                                 <field name="partner_id" options="{'no_create': 1, 'no_open': 1}" string="供应商"/>
-                                <field name="amount" widget="monetary"/>
-                               <!--<field name="payment_id" options="{'no_create': 1}" readonly="1"/>-->
-                               <field name="currency_id" invisible="1"/>
-                                <field name="has_payment_apply" invisible="1"/>
-                           </group>
-                           <group>
-                               <field name="invoice_date" string="开票日期"/>
-                                <!--<field name="attached"/>-->
-                               <field name="company_id"  options="{'no_create': 1, 'no_open': 1}"/>
-
+                                <field name="amount" widget="monetary" readonly="1"/>
                                 <label for="purchase_order_ids" attrs="{'invisible': [('purchase_order_ids', '=', [])]}"/>
                                 <div attrs="{'invisible': [('purchase_order_ids', '=', [])]}">
                                     <field name="purchase_order_ids" widget="many2many_tags" class="oe_inline"/>
                                     <button name="action_view_purchase_order" type="object" string="查看" class="oe_link"/>
                                 </div>
-
-                                <label for="invoice_ids" attrs="{'invisible': [('invoice_ids', '=', [])]}"/>
-                                <div attrs="{'invisible': [('invoice_ids', '=', [])]}">
+                               <field name="payment_apply_id"/>
+                                <field name="has_payment_apply" invisible="1"/>
+                           </group>
+                           <group>
+                               <field name="invoice_date" string="开票日期"/>
+                               <field name="company_id"  options="{'no_create': 1, 'no_open': 1}"/>
+                                <label for="invoice_ids" attrs="{'invisible': [('invoice_ids', '=', [])]}" groups="account.group_account_invoice"/>
+                                <div attrs="{'invisible': [('invoice_ids', '=', [])]}" groups="account.group_account_invoice">
                                     <field name="invoice_ids" widget="many2many_tags" class="oe_inline"/>
                                     <button name="action_view_account_invoice" type="object" string="查看" class="oe_link"/>
                                 </div>
@@ -83,40 +80,75 @@
                            </group>
                        </group>
                        <notebook>
-                           <page string="账单分期">
-                               <field name="invoice_split_ids"
-                                      context="{ 'form_view_ref': 'cj_arap.view_account_invoice_split_form'}"
-                               domain="[('partner_id', '=', partner_id), ('purchase_order_id', '!=', False),
-                               ('state', '=', 'open'), ('company_id', '=', company_id), ('invoice_register_ids', '=', False)]">
-                                   <!--此处添加tree视图定义，主要是为了能编辑invoice_split_ids字段-->
-                                    <tree string="账单分期"
-                                    decoration-success="state=='open'" decoration-muted="state=='paid'">
-                                        <field name="name"/>
-
-                                        <field name="date_invoice"/>
-                                        <field name="date_due"/>
-                                        <field name="amount" sum="Total" string="总额"/>
-                                        <field name="paid_amount" sum="总额"/>
-                                        <field name="partner_id"/>
-                                        <field name="company_id"/>
-                                        <!--<field name="comment"/>-->
-                                        <!--<field name="type"/>-->
-                                        <field name="purchase_order_id"/>
-                                        <field name="invoice_id" string="账单"/>
-                                        <field name="apply_id"/>
-                                        <!--<field name="payment_id"/>-->
-                                        <field name="state"/>
-                                    </tree>
+                           <page string="开票明细">
+                               <field name="line_ids">
+                                   <tree editable="top">
+                                       <field name="invoice_split_id" options="{'no_create': 1}"/>
+                                       <field name="date_invoice"/>
+                                       <field name="date_due"/>
+                                       <field name="amount"/>
+                                       <field name="paid_amount"/>
+                                       <field name="purchase_order_id"/>
+                                       <field name="invoice_amount"/>
+                                   </tree>
+                                   <form>
+                                       <group>
+                                           <group>
+                                               <field name="invoice_split_id" options="{'no_create': 1}"/>
+                                               <!--<field name="state"/>-->
+                                           </group>
+                                           <group>
+                                               <field name="purchase_order_id"/>
+                                           </group>
+                                       </group>
+                                       <group>
+                                           <group>
+                                               <field name="date_invoice"/>
+                                               <field name="amount"/>
+                                               <field name="invoice_amount"/>
+                                           </group>
+                                           <group>
+                                               <field name="date_due"/>
+                                               <field name="paid_amount"/>
+                                           </group>
+                                       </group>
+                                   </form>
                                </field>
                            </page>
-                           <page string="付款申请">
-                               <field name="payment_apply_ids"/>
-                           </page>
-                           <page string="付款记录">
-                               <field name="payment_ids"
-                                      context="{'tree_view_ref': 'account.view_account_supplier_payment_tree', 'form_view_ref': 'account.view_account_payment_form'}"
-                                      readonly="1"/>
-                           </page>
+                           <!--<page string="账单分期">-->
+                               <!--<field name="invoice_split_ids"-->
+                                      <!--context="{ 'form_view_ref': 'cj_arap.view_account_invoice_split_form'}"-->
+                               <!--domain="[('partner_id', '=', partner_id), ('purchase_order_id', '!=', False),-->
+                               <!--('state', '=', 'open'), ('company_id', '=', company_id), ('invoice_register_ids', '=', False)]">-->
+                                   <!--&lt;!&ndash;此处添加tree视图定义，主要是为了能编辑invoice_split_ids字段&ndash;&gt;-->
+                                    <!--<tree string="账单分期"-->
+                                    <!--decoration-success="state=='open'" decoration-muted="state=='paid'">-->
+                                        <!--<field name="name"/>-->
+
+                                        <!--<field name="date_invoice"/>-->
+                                        <!--<field name="date_due"/>-->
+                                        <!--<field name="amount" sum="Total" string="总额"/>-->
+                                        <!--<field name="paid_amount" sum="总额"/>-->
+                                        <!--<field name="partner_id"/>-->
+                                        <!--<field name="company_id"/>-->
+                                        <!--&lt;!&ndash;<field name="comment"/>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<field name="type"/>&ndash;&gt;-->
+                                        <!--<field name="purchase_order_id"/>-->
+                                        <!--<field name="invoice_id" string="账单"/>-->
+                                        <!--<field name="apply_id"/>-->
+                                        <!--&lt;!&ndash;<field name="payment_id"/>&ndash;&gt;-->
+                                        <!--<field name="state"/>-->
+                                    <!--</tree>-->
+                               <!--</field>-->
+                           <!--</page>-->
+                           <!--<page string="付款申请">-->
+                               <!--<field name="payment_apply_ids"/>-->
+                           <!--</page>-->
+                           <!--<page string="付款记录">-->
+                               <!--<field name="payment_ids"-->
+                                      <!--context="{'tree_view_ref': 'account.view_account_supplier_payment_tree', 'form_view_ref': 'account.view_account_payment_form'}"-->
+                                      <!--readonly="1"/>-->
+                           <!--</page>-->
                        </notebook>
                     </sheet>
                     <div class="oe_chatter">
@@ -219,7 +251,7 @@
                                <field name="customer_invoice_apply_id" options="{'no_create': 1, 'no_open': 1}" required="1"/>
                                 <field name="company_id"  options="{'no_create': 1, 'no_open': 1}" invisible="1"/>
                                <!--<field name="payment_id" options="{'no_create': 1}" string="收款单" readonly="1"/>-->
-                               <field name="currency_id" invisible="1"/>
+                               <!--<field name="currency_id" invisible="1"/>-->
                            </group>
                            <group>
                                <field name="invoice_date" string="开票日期"/>

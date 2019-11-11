@@ -7,6 +7,10 @@ READONLY_STATES = {
     'draft': [('readonly', False)]
 }
 
+STATES = [
+    ('draft', '草稿'), ('open', '打开'), ('paiding', '支付中'), ('paid', '已支付'), ('cancel', '已取消')
+]
+
 
 class AccountInvoiceSplit(models.Model):
     _name = 'account.invoice.split'
@@ -21,12 +25,11 @@ class AccountInvoiceSplit(models.Model):
     date_invoice = fields.Date(string='开单日期', readonly=1, states=READONLY_STATES)
     date_due = fields.Date('到期日期', readonly=1, states=READONLY_STATES)
     amount = fields.Float('待付金额', readonly=1, states=READONLY_STATES)
+    paid_amount = fields.Float('已支付', readonly=1, states=READONLY_STATES)
+    wait_amount = fields.Float('等待付款金额', compute='_compute_wait_amount')
     partner_id = fields.Many2one('res.partner', string='供应商', readonly=1, states=READONLY_STATES)
     company_id = fields.Many2one('res.company', string='公司', readonly=1, states=READONLY_STATES)
-    state = fields.Selection([('draft', '草稿'), ('open', '打开'), ('paid', '已支付'), ('cancel', '已取消')], '状态', default='draft')
-
-    # reconciled = fields.Boolean(string='Paid/Reconciled',)
-    paid_amount = fields.Float('已支付', readonly=1, states=READONLY_STATES)
+    state = fields.Selection(STATES, '状态', default='draft')
 
     comment = fields.Char('备注', readonly=1, states=READONLY_STATES)
     type = fields.Selection([('invoice', '账单'), ('first_payment', '预付款')], '付款类别', readonly=1, states=READONLY_STATES)
@@ -36,6 +39,20 @@ class AccountInvoiceSplit(models.Model):
     invoice_register_ids = fields.Many2many('account.invoice.register', 'account_invoice_register_split_rel', 'split_id', 'register_id', '发票登记', readonly=1, states=READONLY_STATES)
 
     customer_invoice_apply_id = fields.Many2one('account.customer.invoice.apply', '客户发票申请', readonly=1)
+
+    @api.multi
+    def _compute_wait_amount(self):
+        """计算供应商等待付款的金额
+        即开具了发票，还没有付款的金额
+        """
+        register_line_obj = self.env['account.invoice.register.line']  # 供应商发票登记
+        for res in self:
+            if not res.purchase_order_id or res.state not in ['paiding', 'open']:
+                continue
+
+            lines = register_line_obj.search([('invoice_split_id', '=', res.id), ('register_id.state', '!=', 'paid')])
+
+            res.wait_amount = sum(lines.mapped('invoice_amount'))
 
     @api.model
     def create(self, vals):
