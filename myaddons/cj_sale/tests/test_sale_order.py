@@ -102,10 +102,10 @@ class TestSaleOrder(TransactionCase):
         })
         return sale_order
 
-    # def test_create_sale_order(self):
-    #     """销售订单性能测试（1000条）"""
-    #     for i in range(1000):
-    #         self._create_sale_order()
+    def test_create_sale_order(self):
+        """销售订单性能测试（1000条）"""
+        for i in range(1000):
+            self._create_sale_order()
 
     def test_button_confirm(self):
         """测试销售专员确认团购单"""
