@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+
+
     <!--客户相关-->
     <data>
         <!--客户收款窗体视图-->
@@ -112,6 +115,20 @@
 
     <!--供应商相关-->
     <data>
+        <!--payment_transaction_id（交易记录让其不可见）-->
+        <record id="view_account_payment_form_inherit_payment" model="ir.ui.view">
+            <field name="name">view.account.payment.form.inherit.payment</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="payment.view_account_payment_form_inherit_payment"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='payment_transaction_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+    <data>
         <!--修改供应商付款记录视图，增加invoice_split_id(账单分期)、invoice_register_id(发票登记)、apply_id(付款申请)等字段-->
         <record id="view_account_supplier_payment_tree" model="ir.ui.view">
             <field name="name">account.supplier.payment.tree</field>
@@ -122,6 +139,12 @@
                 <xpath expr="//field[@name='amount']" position="after">
                     <field name="invoice_register_id"/>
                     <field name="apply_id"/>
+                </xpath>
+                <xpath expr="//field[@name='payment_method_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='journal_id']" position="attributes">
+                    <attribute name="string">付款方式</attribute>
                 </xpath>
             </field>
         </record>
@@ -148,31 +171,42 @@
                 </xpath>
                 <xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="invisible">context.get('default_partner_id')</attribute>
-                </xpath>
-                <!--2、增加invoice_split_id(账单分期)、invoice_register_id(发票登记)、apply_id(付款申请)等字段-->
-                <xpath expr="//field[@name='payment_method_code']" position="after">
-                    <field name="apply_id" options="{'no_create': 1}"/>
-                </xpath>
-                <xpath expr="//group[2]" position="inside">
-                    <field name="invoice_register_id" readonly="1"/>
-                </xpath>
-                <xpath expr="//group[1]" position="after">
-                    <notebook>
-                        <page string="账单分期">
-                            <field name="invoice_split_ids" context="{'form_view_ref': 'cj_arap.view_account_invoice_split_form', 'tree_view_ref': 'cj_arap.view_account_invoice_split_tree'}"/>
-                        </page>
-                    </notebook>
-                </xpath>
-                <!--3、业务伙伴的label改为供应商，且不能创建-->
-                <xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="string">供应商</attribute>
                     <attribute name="options">{'no_create': 1}</attribute>
                 </xpath>
-                <!--4、在journal_id字段前添加company_id字段-->
-                <xpath expr="//field[@name='journal_id']" position="replace">
-                    <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
-                    <field name="journal_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': 1, 'no_open': 1}" domain="[('type', 'in', ('bank', 'cash')), ('company_id', '=', company_id)]"/>
+
+                <!--付款金额只读-->
+                <xpath expr="//field[@name='amount']" position="attributes">
+                    <attribute name="readonly">1</attribute>
                 </xpath>
+
+                <!--将journal_id字段放到apply_id后面-->
+                <xpath expr="//field[@name='journal_id']" position="replace"/>
+                <!--在partner_id字段后添加apply_id字段-->
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="apply_id" options="{'no_create': 1}"/>
+                    <field name="journal_id" attrs="{'readonly': [('state', '!=', 'draft')]}"
+                           string="付款方式"
+                           options="{'no_create': 1, 'no_open': 0}"/>
+                </xpath>
+
+                <!--在communication(备忘)前添加字段invoice_register_id-->
+                <xpath expr="//field[@name='communication']" position="before">
+                    <field name="invoice_register_id" context="{'default_type': 'in_invoice'}"/>
+                </xpath>
+
+                <!--<xpath expr="//group[1]" position="after">-->
+                    <!--<notebook>-->
+                        <!--<page string="账单分期">-->
+                            <!--<field name="invoice_split_ids" context="{'form_view_ref': 'cj_arap.view_account_invoice_split_form', 'tree_view_ref': 'cj_arap.view_account_invoice_split_tree'}"/>-->
+                        <!--</page>-->
+                    <!--</notebook>-->
+                <!--</xpath>-->
+                <!--在payment_date前添加company_id字段-->
+                <xpath expr="//field[@name='payment_date']" position="before">
+                    <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
+                </xpath>
+
 
             </field>
         </record>
@@ -235,6 +269,12 @@
             <field name="view_id" ref="account.view_account_payment_graph"/>
             <field name="act_window_id" ref="account.action_account_payments_payable"/>
         </record>
+
+        <record id="account.action_account_payments_payable" model="ir.actions.act_window">
+            <field name="domain">[('payment_type','=','outbound')]</field>
+            <field name="context">{'default_payment_type': 'outbound', 'default_partner_type': 'supplier'}</field>
+        </record>
+
     </data>
 
 

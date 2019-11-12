@@ -5,9 +5,39 @@ from lxml import etree
 from odoo import fields, models, api
 from odoo.tools import float_is_zero, float_round
 from odoo.addons import decimal_precision as dp
-from odoo.addons.account.models.account_invoice import AccountInvoiceLine as ail
+from odoo.addons.account.models.account_invoice import AccountInvoiceLine as ail, AccountInvoice as ai
 
 _logger = logging.getLogger(__name__)
+
+
+# @api.multi
+# def assign_outstanding_credit(self, credit_aml_id, amount=None):
+#     self.ensure_one()
+#     credit_aml = self.env['account.move.line'].browse(credit_aml_id)
+#     if not credit_aml.currency_id and self.currency_id != self.company_id.currency_id:
+#         amount_currency = self.company_id.currency_id._convert(credit_aml.balance, self.currency_id, self.company_id,
+#                                                                credit_aml.date or fields.Date.today())
+#         credit_aml.with_context(allow_amount_currency=True, check_move_validity=False).write({
+#             'amount_currency': amount_currency,
+#             'currency_id': self.currency_id.id})
+#     if credit_aml.payment_id:
+#         credit_aml.payment_id.write({'invoice_ids': [(4, self.id, None)]})
+#     return self.register_payment(credit_aml, amount)
+#
+#
+# ai.assign_outstanding_credit = assign_outstanding_credit
+
+
+# @api.multi
+# def register_payment(self, payment_line, writeoff_acc_id=False, writeoff_journal_id=False, amount=None):
+#     """ Reconcile payable/receivable lines from the invoice with payment_line """
+#     line_to_reconcile = self.env['account.move.line']
+#     for inv in self:
+#         line_to_reconcile += inv._get_aml_for_register_payment()
+#     return (line_to_reconcile + payment_line).reconcile(writeoff_acc_id, writeoff_journal_id, amount)
+#
+#
+# ai.register_payment = register_payment
 
 
 class AccountInvoice(models.Model):
@@ -47,11 +77,12 @@ class AccountInvoice(models.Model):
         lines = self.env['account.move.line'].search(domain)
         currency = self.currency_id
         for line in lines:
-            if not line.payment_id or not line.payment_id.invoice_split_ids:
+            # if not line.payment_id or not line.payment_id.invoice_split_ids:
+            if not line.payment_id:
                 continue
 
-            if purchase.id not in line.payment_id.invoice_split_ids.mapped('purchase_order_id').ids:
-                continue
+            # if purchase.id not in line.payment_id.invoice_split_ids.mapped('purchase_order_id').ids:
+            #     continue
 
             if line.currency_id and line.currency_id == currency:
                 amount_to_show = abs(line.amount_residual_currency)
@@ -279,6 +310,14 @@ class AccountInvoice(models.Model):
 
         return float_round(stock_cost * line.quantity, precision_rounding=0.01, rounding_method='HALF-UP')
 
+    @api.multi
+    def register_payment(self, payment_line, writeoff_acc_id=False, writeoff_journal_id=False, amount=None):
+        """ Reconcile payable/receivable lines from the invoice with payment_line """
+        line_to_reconcile = self.env['account.move.line']
+        for inv in self:
+            line_to_reconcile += inv._get_aml_for_register_payment()
+        return (line_to_reconcile + payment_line).reconcile(writeoff_acc_id, writeoff_journal_id, amount)
+
 
 class AccountInvoiceLine(models.Model):
     _inherit = "account.invoice.line"
@@ -316,7 +355,6 @@ class AccountInvoiceLine(models.Model):
             price_subtotal_signed = currency._convert(price_subtotal_signed, self.invoice_id.company_id.currency_id, self.company_id or self.env.user.company_id, date or fields.Date.today())
         sign = self.invoice_id.type in ['in_refund', 'out_refund'] and -1 or 1
         self.price_subtotal_signed = price_subtotal_signed * sign
-
 
 
 @api.v8

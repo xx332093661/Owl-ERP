@@ -35,8 +35,8 @@
 
                         <button name="action_commit_approval" type="object" states="confirm" string="提交OA审批" class="oe_highlight"
                                 groups="purchase.group_purchase_user"/>
-                        <button name="%(action_account_payment_apply_payment_wizard)d" type="action" states="oa_accept,paying" string="登记付款" class="oe_highlight"
-                                groups="account.group_account_invoice"/>
+                        <!--<button name="action_account_payment_apply_payment_wizard" type="action" states="oa_accept,paying" string="登记付款" class="oe_highlight"-->
+                                <!--groups="account.group_account_invoice"/>-->
                         <field name="state" widget="statusbar" statusbar_visible="draft,confirm,oa_sent,oa_accept,paying,done"/>
                     </header>
 

@@ -303,7 +303,8 @@ class AccountInvoiceRegisterLine(models.Model):
     _inherit = ['mail.thread']
 
     register_id = fields.Many2one('account.invoice.register', '发票登记', ondelete='cascade')
-    invoice_split_id = fields.Many2one('account.invoice.split',  '账单分期', required=1, domain="[('partner_id', '=', parent.partner_id), ('company_id', '=', parent.company_id), ('state', 'in', ['open', 'paiding'])]")
+    invoice_split_id = fields.Many2one('account.invoice.split',  '账单分期', required=0,
+                                       domain="[('partner_id', '=', parent.partner_id), ('company_id', '=', parent.company_id), ('state', 'in', ['open', 'paiding'])]")
     date_invoice = fields.Date(string='开单日期', related='invoice_split_id.date_invoice')
     date_due = fields.Date('到期日期', related='invoice_split_id.date_due')
     amount = fields.Float('总额', related='invoice_split_id.amount')

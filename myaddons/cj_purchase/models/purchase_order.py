@@ -47,14 +47,14 @@ class PurchaseOrder(models.Model):
 
     def _get_payment_time(self):
         payment_time = 0
-        if self.payment_term_id == self.env.ref('account.account_payment_term_immediate'):
-            # 计算付款时间
-            if self.invoice_split_ids:
-                invoice_split = self.invoice_split_ids[0]
-                if invoice_split.state == 'paid':
-                    time_start = invoice_split.create_date
-                    time_end = invoice_split.payment_ids[0].write_date
-                    payment_time = (time_end - time_start).total_seconds() / 3600
+        # if self.payment_term_id == self.env.ref('account.account_payment_term_immediate'):
+        #     # 计算付款时间
+        #     if self.invoice_split_ids:
+        #         invoice_split = self.invoice_split_ids[0]
+        #         if invoice_split.state == 'paid':
+        #             time_start = invoice_split.create_date
+        #             time_end = invoice_split.payment_ids[0].write_date
+        #             payment_time = (time_end - time_start).total_seconds() / 3600
         return payment_time
 
     def _get_deliver_time(self):
