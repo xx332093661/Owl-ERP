@@ -187,6 +187,7 @@
                     <field name="apply_id" options="{'no_create': 1}"/>
                     <field name="journal_id" attrs="{'readonly': [('state', '!=', 'draft')]}"
                            string="付款方式"
+                           domain="[('type', 'in', ('bank', 'cash')), ('company_id', '=', company_id)]"
                            options="{'no_create': 1, 'no_open': 0}"/>
                 </xpath>
 

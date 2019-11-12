@@ -21,8 +21,7 @@ class AccountPayment(models.Model):
 
     invoice_register_id = fields.Many2one('account.invoice.register', '发票登记', related='apply_id.invoice_register_id')
 
-    journal_id = fields.Many2one('account.journal', string='付款分录', required=1,
-                                 domain="[('type', 'in', ('bank', 'cash')), ('company_id', '=', company_id)]")
+    journal_id = fields.Many2one('account.journal', string='付款分录', required=1)
 
     invoice_split_ids = fields.Many2many('account.invoice.split', 'account_payment_split_payment_rel', 'payment_id', 'split_id', '账单分期', readonly=1)
 
