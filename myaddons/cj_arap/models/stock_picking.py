@@ -751,19 +751,21 @@ class StockPicking(models.Model):
         supplier_model_obj = self.env['product.supplier.model'].with_context(active_test=False)  # 商品供应商模式
         order_line_obj = self.env['purchase.order.line']
 
-        tz = self.env.user.tz or 'Asia/Shanghai'
-        date_invoice = datetime.now(tz=pytz.timezone(tz)).date()
-
         company = self.sale_id.company_id
         company_id = company.id
         currency = company.currency_id  # 币种
         currency_id = currency.id
 
+        move_lines = self.move_line_ids.filtered(filter_stock_move_line)
+        if not move_lines:
+            return
+
+        tz = self.env.user.tz or 'Asia/Shanghai'
+        date_invoice = datetime.now(tz=pytz.timezone(tz)).date()
+
         journal = self._compute_invoice_journal(company_id, 'in_invoice', currency_id)  # 采购分录
 
         invoice_line_obj = self.env['account.invoice.line'].with_context(journal_id=journal.id, type='in_invoice')
-
-        move_lines = self.move_line_ids.filtered(filter_stock_move_line)
 
         # 关联对应的采购行
         values = []
@@ -895,19 +897,21 @@ class StockPicking(models.Model):
         supplier_model_obj = self.env['product.supplier.model'].with_context(active_test=False)  # 商品供应商模式
         order_line_obj = self.env['purchase.order.line']
 
-        tz = self.env.user.tz or 'Asia/Shanghai'
-        date_invoice = datetime.now(tz=pytz.timezone(tz)).date()
-
         company = self.sale_id.company_id
         company_id = company.id
         currency = company.currency_id  # 币种
         currency_id = currency.id
 
+        move_lines = self.move_line_ids.filtered(filter_stock_move_line)
+        if not move_lines:
+            return
+
+        tz = self.env.user.tz or 'Asia/Shanghai'
+        date_invoice = datetime.now(tz=pytz.timezone(tz)).date()
+
         journal = self._compute_invoice_journal(company_id, 'in_invoice', currency_id)  # 分录
 
         invoice_line_obj = self.env['account.invoice.line'].with_context(journal_id=journal.id, type='in_invoice')
-
-        move_lines = self.move_line_ids.filtered(filter_stock_move_line)
 
         values = []
         for line in move_lines:
@@ -998,47 +1002,47 @@ class StockPicking(models.Model):
 
     def _generate_sale_invoice_create(self, sale):
         """创建销售订单对应的结算单"""
-        def get_picking_amount():
-            """根据订单计算本次出库的金额"""
-
         def prepare_invoice_line():
             vals_list = []
             for line in sale.order_line:
-                if line.product_id.purchase_method == 'purchase':
-                    qty = line.product_qty - line.qty_invoiced
-                else:
-                    qty = line.qty_delivered - line.qty_invoiced
+                # if line.product_id.purchase_method == 'purchase':
+                #     qty = line.product_qty - line.qty_invoiced
+                # else:
+                #     qty = line.qty_delivered - line.qty_invoiced
 
-                if float_compare(qty, 0.0, precision_rounding=line.product_uom.rounding) <= 0:
+                qty = line.qty_delivered - line.qty_invoiced  # 发货数量 - 开票数量
+                if float_compare(qty, 0.0, precision_rounding=0.001) <= 0:
                     continue
+                # taxes = line.tax_id
+                # invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
 
-                taxes = line.tax_id
-                invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
-                invoice_line = self.env['account.invoice.line']
                 vals_list.append((0, 0, {
                     'sale_line_ids': [(6, 0, line.ids)],
                     'name': sale.name + ': ' + line.name,
                     'origin': sale.name,
                     'uom_id': line.product_uom.id,
                     'product_id': line.product_id.id,
-                    'account_id': invoice_line.with_context(journal_id=journal.id, type='out_invoice')._default_account(), # stock.journal的对应科目
-                    'price_unit': line.order_id.currency_id._convert(line.price_unit, currency, line.company_id, date_invoice, round=False),
+                    'account_id': invoice_line_obj._default_account(),  # stock.journal的对应科目
+                    # 'price_unit': line.order_id.currency_id._convert(line.price_unit, currency, line.company_id, date_invoice, round=False),
+                    'price_unit': line.price_unit,
                     'quantity': qty,
-                    'discount': 0.0,
-                    'account_analytic_id': False,
-                    'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
-                    'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
+                    # 'discount': 0.0,
+                    # 'account_analytic_id': False,
+                    # 'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
+                    # 'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
                 }))
 
             return vals_list
 
+        inv_type = 'out_invoice'
+
         partner = sale.partner_id  # 客户
-        company = sale.company_id  # 公司
-        company_id = company.id
-        currency = sale.currency_id  # 币种
-        currency_id = currency.id
-        journal = self._compute_invoice_journal(company_id, 'out_invoice', currency_id)  # 分录
+        company_id = sale.company_id.id  # 公司
+        currency_id = sale.currency_id.id  # 币种
         payment_term = sale.payment_term_id  # 支付条款
+        journal = self._compute_invoice_journal(company_id, inv_type, currency_id)  # 分录
+
+        invoice_line_obj = self.env['account.invoice.line'].with_context(journal_id=journal.id, type=inv_type)
 
         tz = self.env.user.tz or 'Asia/Shanghai'
         date_invoice = datetime.now(tz=pytz.timezone(tz)).date()
@@ -1053,15 +1057,16 @@ class StockPicking(models.Model):
             'currency_id': currency_id,  # 币种
             'company_id': company_id,  # 公司
             'payment_term_id': payment_term.id,  # 支付条款
-            'type': 'out_invoice',  # 类型
+            'type': inv_type,  # 类型
 
-            'account_id': partner._get_partner_account_id(company_id, 'out_invoice'),  # 供应商科目
+            'account_id': partner._get_partner_account_id(company_id, inv_type),  # 供应商科目
             # 'cash_rounding_id': False,  # 现金舍入方式
             # 'comment': '',  # 其它信息
             # 'date': False,  # 会计日期(Keep empty to use the invoice date.)
             'date_due': max(line[0] for line in payment_term_list),  # 截止日期
             'date_invoice': date_invoice,  # 开票日期
-            'fiscal_position_id': self._compute_invoice_fiscal_position_id(partner),  # 替换规则
+            # 'fiscal_position_id': self._compute_invoice_fiscal_position_id(partner),  # 替换规则
+            'fiscal_position_id': False,  # 替换规则
             'incoterm_id': False,  # 国际贸易术语
             'invoice_line_ids': prepare_invoice_line(),  # 发票明细
             # 'invoice_split_ids': [],  # 账单分期
@@ -1069,7 +1074,8 @@ class StockPicking(models.Model):
             # 'move_id': False,  # 会计凭证(稍后创建)
             # 'move_name': False,  # 会计凭证名称(稍后创建)
             # 'name': False,  # 参考/说明(自动产生)
-            'partner_bank_id': self._compute_invoice_partner_bank_id(partner),  # 银行账户
+            # 'partner_bank_id': self._compute_invoice_partner_bank_id(partner),  # 银行账户
+            'partner_bank_id': False,  # 银行账户
             'partner_id': partner.id,  # 业务伙伴(供应商)
             'refund_invoice_id': False,  # 为红字发票开票(退款账单关联的账单) TODO 待计算退货
             'sent': False,  # 已汇
@@ -1087,7 +1093,7 @@ class StockPicking(models.Model):
         }
 
         invoice = self.env['account.invoice'].create(vals)
-        invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
+        # invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
 
         return invoice
 
@@ -1863,5 +1869,25 @@ class StockPicking(models.Model):
         """计算partner_bank_id字段值"""
         bank_ids = partner.commercial_partner_id.bank_ids
         return bank_ids[0].id if bank_ids else False
+
+    def reconcile_invoice(self, invoice):
+        """核销预付款、退货"""
+        partner_id = self.env['res.partner']._find_accounting_partner(invoice.partner_id).id
+        domain = [('account_id', '=', invoice.account_id.id),
+                  ('partner_id', '=', partner_id),
+                  ('reconciled', '=', False),
+                  '|',
+                  '&', ('amount_residual_currency', '!=', 0.0), ('currency_id', '!=', None),
+                  '&', ('amount_residual_currency', '=', 0.0), '&', ('currency_id', '=', None),
+                  ('amount_residual', '!=', 0.0)]
+        if invoice.type in ('out_invoice', 'in_refund'):
+            domain.extend([('credit', '>', 0), ('debit', '=', 0)])
+        else:
+            domain.extend([('credit', '=', 0), ('debit', '>', 0)])
+        lines = self.env['account.move.line'].search(domain)
+        for aml in lines:
+            invoice.assign_outstanding_credit(aml.id)
+            if invoice.state == 'paid':
+                return
 
 
