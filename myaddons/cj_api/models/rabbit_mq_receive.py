@@ -30,6 +30,29 @@ MQ_SEQUENCE = {
     # 'mustang-to-erp-service-list-push': 15,  # 售后服务单
     'WMS-ERP-RETURN-STOCKIN-QUEUE': 15,  # 退货入库单
     'MUSTANG-REFUND-ERP-QUEUE': 16,  # 退款单
+
+    'MUSTANG-ERP-ORDER-STATUS-PUSH': 50,
+}
+
+EXCHANGES = {
+    'MDM-ERP-ORG-QUEUE': '',  # 组织机构
+    'MDM-ERP-STORE-QUEUE': '',  # 门店信息
+    'MDM-ERP-SUPPLIER-QUEUE': '',  # 供应商
+    'MDM-ERP-DISTRIBUTOR-QUEUE': '',  # 经销商
+    'MDM-ERP-MEMBER-QUEUE': '',  # 会员
+    'MDM-ERP-WAREHOUSE-QUEUE': '',  # 仓库
+    'MDM-ERP-MATERIAL-QUEUE': '',  # 商品
+    'mustang-to-erp-store-stock-push': 'mustang-to-erp-exchange',  # 门店库存
+    'WMS-ERP-STOCK-QUEUE': 'ERP_EXCHANGE',  # 外部仓库库存
+    'mustang-to-erp-order-push': 'mustang-to-erp-exchange',  # 订单
+    'WMS-ERP-STOCKOUT-QUEUE': 'ERP_EXCHANGE',  # 订单出库
+    'mustang-to-erp-logistics-push': 'mustang-to-erp-exchange',  # 物流信息
+    'mustang-to-erp-store-stock-update-record-push': 'mustang-to-erp-exchange',  # 门店库存变更记录
+    'mustang-to-erp-order-status-push': 'mustang-to-erp-exchange',  # 订单状态
+    'WMS-ERP-RETURN-STOCKIN-QUEUE': 'ERP_EXCHANGE',  # 退货入库单
+    'MUSTANG-REFUND-ERP-QUEUE': '',  # 退款单
+
+    'MUSTANG-ERP-ORDER-STATUS-PUSH': '',
 }
 
 
@@ -51,6 +74,7 @@ class RabbitMQReceiveThread(threading.Thread):
                 self.ip = config_parameter_obj.get_param('cj_rabbit_mq_ip_id', default='')
                 self.port = config_parameter_obj.get_param('cj_rabbit_mq_port_id', default='')
                 self.exchange = config_parameter_obj.get_param('cj_rabbit_mq_receive_exchange_id', default='')
+                # self.exchange = EXCHANGES.get(name, '')
                 self.queue_name = name
             except Exception:
                 _logger.error(traceback.format_exc())
