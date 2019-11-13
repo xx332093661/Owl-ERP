@@ -21,7 +21,7 @@
                     <!--<field name="type"/>-->
                     <field name="purchase_order_id"/>
                     <field name="invoice_id" string="账单"/>
-                    <field name="apply_id"/>
+                    <!--<field name="apply_id"/>-->
                     <!--<field name="payment_id"/>-->
                     <field name="state"/>
                 </tree>
@@ -56,14 +56,14 @@
                                 <field name="type" invisible="1"/>
                             </group>
                         </group>
-                        <notebook>
-                            <page string="发票登记">
-                                <field name="invoice_register_ids"/>
-                            </page>
-                            <page string="付款记录">
-                                <field name="payment_ids"/>
-                            </page>
-                        </notebook>
+                        <!--<notebook>-->
+                            <!--<page string="发票登记">-->
+                                <!--<field name="invoice_register_ids"/>-->
+                            <!--</page>-->
+                            <!--<page string="付款记录">-->
+                                <!--<field name="payment_ids"/>-->
+                            <!--</page>-->
+                        <!--</notebook>-->
                     </sheet>
                 </form>
             </field>
@@ -93,7 +93,6 @@
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field name="domain">[('purchase_order_id', '!=', False)]</field>
-            <field name="context">{'search_default_state_unpaid': 1, 'search_default_group_partner': 1}</field>
         </record>
 
         <menuitem id="menu_account_account_invoice_split" action="account_account_invoice_split"

@@ -11,6 +11,14 @@
                 <xpath expr="//field[@name='reference']" position="attributes">
                     <attribute name="string">供应商参考</attribute>
                 </xpath>
+                <!--隐藏amount_untaxed-->
+                <xpath expr="//field[@name='amount_untaxed']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏amount_untaxed-->
+                <xpath expr="//field[@name='amount_tax']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
             </field>
         </record>
 
@@ -21,6 +29,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//header/button[1]" position="replace"/><!--删除打开账单按钮-->
                 <xpath expr="//header/button[1]" position="replace"/><!--删除付款登记按钮-->
+                <xpath expr="//header/button[1]" position="replace"/><!--删除申请红字发票按钮-->
 
                 <!--在供应商字段后添加付款条款字段-->
                 <xpath expr="//field[@name='payment_term_id']" position="replace"/>
@@ -32,9 +41,9 @@
                 <!--删除user_id字段-->
                 <xpath expr="//field[@name='user_id']" position="replace"/>
                 <!--添加is_internal_settlement字段-->
-                <xpath expr="//field[@name='vendor_bill_id']" position="after">
-                    <field name="is_internal_settlement"/>
-                </xpath>
+                <!--<xpath expr="//field[@name='vendor_bill_id']" position="after">-->
+                    <!--<field name="is_internal_settlement"/>-->
+                <!--</xpath>-->
                 <!--删除date字段-->
                 <xpath expr="//field[@name='date']" position="replace"/>
                 <!--添加账单分期字段-->
@@ -51,20 +60,40 @@
                         </tree>
                     </field>
                 </xpath>
-
-                <!--内部结算增加内部强算比例和采购单价字段-->
-                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_unit']" position="before">
-                    <field name="purchase_line_price_unit" attrs="{'column_invisible': [('parent.is_internal_settlement', '!=', True)]}"/>
-                    <field name="internal_settlement_scale" attrs="{'column_invisible': [('parent.is_internal_settlement', '!=', True)]}"/>
+                <!--隐藏税-->
+                <xpath expr="//field[@name='tax_line_ids']" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
+
+                <!--&lt;!&ndash;内部结算增加内部强算比例和采购单价字段&ndash;&gt;-->
+                <!--<xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_unit']" position="before">-->
+                    <!--<field name="purchase_line_price_unit" attrs="{'column_invisible': [('parent.is_internal_settlement', '!=', True)]}"/>-->
+                    <!--<field name="internal_settlement_scale" attrs="{'column_invisible': [('parent.is_internal_settlement', '!=', True)]}"/>-->
+                <!--</xpath>-->
 
                 <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_subtotal']" position="before">
-                    <field name="supplier_model_id"/>
+                    <field name="supplier_model_id" attrs="{'column_invisible': [('parent.payment_term_id.type', '!=', 'joint')]}"/>
                     <!--<field name="supplier_model_id" attrs="{'column_invisible': [('parent.payment_term_id.type', '!=', 'joint')]}"/>-->
-                    <field name="fee_rate"/>
-                    <field name="joint_fee"/>
+                    <field name="fee_rate" attrs="{'column_invisible': [('parent.payment_term_id.type', '!=', 'joint')]}"/>
+                    <field name="joint_fee" attrs="{'column_invisible': [('parent.payment_term_id.type', '!=', 'joint')]}"/>
                 </xpath>
 
+                <!--隐藏明细(invoice_line_ids)的说明(name)字段-->
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='name']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--隐藏明细(invoice_line_ids)的税(invoice_line_tax_ids)字段-->
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='invoice_line_tax_ids']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--company_id字段不可open-->
+                <xpath expr="//page[@name='other_info']/group/group/field[@name='company_id']" position="attributes">
+                    <attribute name="options">{'no_open': 1, 'no_create': 1}</attribute>
+                </xpath>
+                <!--journal_id字段不可open-->
+                <xpath expr="//field[@name='journal_id']" position="attributes">
+                    <attribute name="options">{'no_open': 1, 'no_create': 1}</attribute>
+                </xpath>
             </field>
         </record>
     </data>
