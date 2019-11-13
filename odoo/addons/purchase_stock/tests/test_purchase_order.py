@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from datetime import datetime
 
@@ -13,7 +12,6 @@ class TestPurchaseOrder(AccountingTestCase):
 
     def setUp(self):
         super(TestPurchaseOrder, self).setUp()
-        # Useful models
         self.PurchaseOrder = self.env['purchase.order']
         self.PurchaseOrderLine = self.env['purchase.order.line']
         self.AccountInvoice = self.env['account.invoice']
