@@ -82,9 +82,13 @@ class RabbitMQReceiveThread(threading.Thread):
                 cr.close()
 
     def run(self):
-        if not all((self.username, self.password, self.ip, self.port, self.exchange)):
+        if not all([self.username, self.password, self.ip, self.port]):
             _logger.error('MQ服务器配置不完整！')
             return
+
+        # if not all((self.username, self.password, self.ip, self.port, self.exchange)):
+        #     _logger.error('MQ服务器配置不完整！')
+        #     return
 
         try:
             # 连接MQ服务器

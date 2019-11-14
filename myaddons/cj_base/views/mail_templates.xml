@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="assets_backend" name="mail assets" inherit_id="mail.assets_backend">
+            <xpath expr="//script[contains(@src, '/mail/static/src/js/tour.js')]" position="replace"/>
+        </template>
+        <template id="assets_backend_inherit_sale" name="Sale backend assets" inherit_id="sale.assets_backend_inherit_sale">
+            <xpath expr="//script[contains(@src, '/sale/static/src/js/tour.js')]" position="replace"/>
+        </template>
+        <template id="account_assets_backend" name="account assets" inherit_id="account.assets_backend">
+            <xpath expr="//script[contains(@src, '/account/static/src/js/tour.js')]" position="replace"/>
+        </template>
+    </data>
+</odoo>
