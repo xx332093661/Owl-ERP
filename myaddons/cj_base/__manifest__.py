@@ -21,7 +21,9 @@
         'cj_web',
         'l10n_cj',
         'cj_api',
-        'l10n_cn_city'
+        'l10n_cn_city',
+        'ees_sticky_table_header',
+        'web_backend_theme'
     ],
     'data': [
         # 更改main company名称为川酒集团
