@@ -386,14 +386,14 @@ class ApiMessage(models.Model):
         supplier_group_obj = self.env['res.partner.group']
         partner_area_obj = self.env['res.partner.area']  # 供应商大区
 
-        def get_bank_id(bank):
-            if not bank:
+        def get_bank_id(bank_name):
+            if not bank_name:
                 return False
 
-            bank = bank_obj.search([('name', '=', bank)])
+            bank = bank_obj.search([('name', '=', bank_name)])
             if not bank:
                 bank = bank_obj.create({
-                    'name': bank,
+                    'name': bank_name,
                 })
             return bank.id
 
@@ -409,7 +409,7 @@ class ApiMessage(models.Model):
                 'supplier': True,
                 'customer': False,
                 'active': True,
-                'state': 'confirm',  # 中台的数据，状态为审核
+                'state': 'finance_manager_confirm',  # 中台的数据，状态为审核
 
                 'name': supplier['supplierName'],  # 供应商名称
                 'supplier_group_id': supplier_group.id,  # 供应商组
