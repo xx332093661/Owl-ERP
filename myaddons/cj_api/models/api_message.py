@@ -8,7 +8,9 @@ from pypinyin import lazy_pinyin, Style
 import json
 import random
 from itertools import groupby
+import psycopg2
 
+import odoo
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 from .rabbit_mq_receive import RabbitMQReceiveThread
@@ -67,6 +69,13 @@ class MyValidationError(ValidationError):
         self.error_no = error_no
 
 
+class RabbitMQTable(models.Model):
+    _name = 'api.rabbit.mq'
+    _description = 'RabbitMQ互斥'
+
+    name = fields.Char('名称')
+
+
 class ApiMessage(models.Model):
     _name = 'api.message'
     _description = 'api消息'
@@ -88,6 +97,27 @@ class ApiMessage(models.Model):
     @api.model
     def start_mq_thread(self):
         """计划任务：开启mq客户端"""
+        exist = False
+        db_name = odoo.tools.config.get('db_name')
+        db = odoo.sql_db.db_connect(db_name)
+        cr = db.cursor()
+        try:
+            cr.execute("""SELECT * FROM api_rabbit_mq FOR UPDATE NOWAIT;""")
+            cr.fetchone()
+        except psycopg2.OperationalError as e:
+            if e.pgcode == '55P03':
+                exist = True
+            else:
+                cr.close()
+                raise
+        # finally:
+        #     cr.close()
+
+        if exist:
+            _logger.info('0' * 100)
+            cr.close()
+            return True
+
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-ORG-QUEUE')    # 组织结构（公司）
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-STORE-QUEUE')    # 门店
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-SUPPLIER-QUEUE')  # 供应商
