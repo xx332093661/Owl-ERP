@@ -210,7 +210,7 @@
             <field name="view_mode">tree,form</field>
             <field name="domain">[('sale_order_id', '!=', False)]</field>
             <field name="search_view_id" ref="view_account_invoice_split_sale_search"/>
-            <field name="context">{'search_default_state_unpaid': 1, 'search_default_group_partner': 1}</field>
+            <!--<field name="context">{'search_default_state_unpaid': 1, 'search_default_group_partner': 1}</field>-->
         </record>
 
         <record id="account_account_invoice_split_sale_tree" model="ir.actions.act_window.view">

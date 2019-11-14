@@ -7,11 +7,11 @@
             <field name="model">account.invoice.register</field>
             <field name="arch" type="xml">
                 <tree string="供应商发票登记">
-                    <field name="company_id" groups="base.group_multi_currency"/>
+                    <field name="company_id"/>
                     <field name="name"/>
                     <field name="partner_id" string="供应商"/>
                     <field name="invoice_date"/>
-                    <field name="amount" widget="monetary"/>
+                    <field name="amount"/>
                     <field name="state"/>
                 </tree>
             </field>
@@ -217,10 +217,11 @@
             <field name="priority">1000</field>
             <field name="arch" type="xml">
                 <tree string="客户发票登记">
+                    <field name="company_id"/>
                     <field name="name"/>
                     <field name="partner_id" string="客户"/>
                     <field name="invoice_date"/>
-                    <field name="amount" widget="monetary"/>
+                    <field name="amount"/>
                     <field name="customer_invoice_apply_id"/>
                     <field name="state"/>
                 </tree>
@@ -248,30 +249,61 @@
                        <group>
                            <group>
                                 <field name="partner_id" options="{'no_create': 1, 'no_open': 1}" string="客户"/>
-                               <field name="customer_invoice_apply_id" options="{'no_create': 1, 'no_open': 1}" required="1"/>
-                                <field name="company_id"  options="{'no_create': 1, 'no_open': 1}" invisible="1"/>
-                               <!--<field name="payment_id" options="{'no_create': 1}" string="收款单" readonly="1"/>-->
-                               <!--<field name="currency_id" invisible="1"/>-->
+                               <field name="customer_invoice_apply_id" options="{'no_create': 1}" required="1"/>
+                                <field name="company_id"  options="{'no_create': 1, 'no_open': 1}"/>
                            </group>
                            <group>
                                <field name="invoice_date" string="开票日期"/>
-                               <field name="amount" widget="monetary"/>
-                                <!--<field name="attached"/>-->
-
+                               <field name="amount" readonly="1"/>
                            </group>
                        </group>
                        <notebook>
-                           <page string="账单分期">
-                               <field name="invoice_split_ids"
-                                      context="{'tree_view_ref': 'cj_arap.view_account_invoice_split_sale_tree', 'form_view_ref': 'cj_arap.view_account_invoice_split_sale_form'}"
-                               domain="[('partner_id', '=', partner_id), ('purchase_order_id', '!=', False), ('state', '=', 'open'), ('company_id', '=', company_id)]">
+                           <page string="开票明细">
+                               <field name="line_ids" readonly="1">
+                                   <tree editable="top">
+                                       <field name="invoice_split_id" options="{'no_create': 1}" required="1"/>
+                                       <field name="date_invoice"/>
+                                       <field name="date_due"/>
+                                       <field name="amount"/>
+                                       <field name="paid_amount"/>
+                                       <field name="sale_order_id"/>
+                                       <field name="invoice_amount"/>
+                                   </tree>
+                                   <form>
+                                       <group>
+                                           <group>
+                                               <field name="invoice_split_id" options="{'no_create': 1}"/>
+                                               <!--<field name="state"/>-->
+                                           </group>
+                                           <group>
+                                               <field name="sale_order_id"/>
+                                           </group>
+                                       </group>
+                                       <group>
+                                           <group>
+                                               <field name="date_invoice"/>
+                                               <field name="amount"/>
+                                               <field name="invoice_amount"/>
+                                           </group>
+                                           <group>
+                                               <field name="date_due"/>
+                                               <field name="paid_amount"/>
+                                           </group>
+                                       </group>
+                                   </form>
                                </field>
                            </page>
-                           <page string="付款记录">
-                               <field name="payment_ids" widget="many2many"
-                                      domain="[('partner_id', '=', partner_id), ('payment_type', '=', 'inbound'), ('invoice_register_id', '=', False)]"
-                                      context="{'tree_view_ref': 'account.view_account_payment_tree', 'form_view_ref': 'cj_arap.view_account_sale_payment_form'}"/>
-                           </page>
+                           <!--<page string="账单分期">-->
+                               <!--<field name="invoice_split_ids"-->
+                                      <!--context="{'tree_view_ref': 'cj_arap.view_account_invoice_split_sale_tree', 'form_view_ref': 'cj_arap.view_account_invoice_split_sale_form'}"-->
+                               <!--domain="[('partner_id', '=', partner_id), ('purchase_order_id', '!=', False), ('state', '=', 'open'), ('company_id', '=', company_id)]">-->
+                               <!--</field>-->
+                           <!--</page>-->
+                           <!--<page string="付款记录">-->
+                               <!--<field name="payment_ids" widget="many2many"-->
+                                      <!--domain="[('partner_id', '=', partner_id), ('payment_type', '=', 'inbound'), ('invoice_register_id', '=', False)]"-->
+                                      <!--context="{'tree_view_ref': 'account.view_account_payment_tree', 'form_view_ref': 'cj_arap.view_account_sale_payment_form'}"/>-->
+                           <!--</page>-->
                        </notebook>
                     </sheet>
                     <div class="oe_chatter">

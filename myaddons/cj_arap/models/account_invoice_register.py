@@ -44,7 +44,9 @@ class AccountInvoiceRegister(models.Model):
     # currency_id = fields.Float('res.currency', string='币种', default=lambda self: self.env.user.company_id.currency_id.id)
     type = fields.Selection([('in_invoice', '供应商发票'), ('out_invoice', '客户发票')], '类型')
     attached = fields.Binary('附件', readonly=1, states=READONLY_STATES, attachment=True)
-    company_id = fields.Many2one('res.company', '公司', readonly=1, states=READONLY_STATES, default=lambda self: self.env.user.company_id.id, domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
+    company_id = fields.Many2one('res.company', '公司', readonly=1, states=READONLY_STATES,
+                                 default=lambda self: self.env.user.company_id.id,
+                                 domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
     state = fields.Selection(selection='_selection_filter', string='状态', track_visibility='onchange', default='draft')
 
     purchase_order_ids = fields.Many2many('purchase.order', compute='_compute_purchase_invoice', string='关联的采购订单')
@@ -59,7 +61,8 @@ class AccountInvoiceRegister(models.Model):
     has_payment_apply = fields.Boolean('是否有付款申请', compute='_compute_has_payment_apply')
 
     customer_invoice_apply_id = fields.Many2one('account.customer.invoice.apply', '客户发票申请',
-                                                domain="[('state', '=', 'finance_manager_confirm'), ('partner_id', '=', partner_id), ('invoice_register_ids', '=', False)]", readonly=1, states=READONLY_STATES)
+                                                domain="[('state', '=', 'finance_manager_confirm'), ('partner_id', '=', partner_id), ('company_id', '=', company_id), ('invoice_register_ids', '=', False)]",
+                                                readonly=1, states=READONLY_STATES)
 
     line_ids = fields.One2many('account.invoice.register.line', 'register_id', '开票明细', required=1, readonly=1, states=READONLY_STATES)
 
@@ -73,6 +76,8 @@ class AccountInvoiceRegister(models.Model):
         # 供应商发票
         if invoice_type == 'in_invoice':
             self._supplier_changed()
+        else:
+            self.customer_invoice_apply_id = False
 
     def _supplier_changed(self):
         """供应商发票登记，供应商或公司值改变"""
@@ -93,9 +98,28 @@ class AccountInvoiceRegister(models.Model):
             line_ids = [(0, 0, {
                 'invoice_split_id': split.id,
                 'invoice_amount': split.amount - split.paid_amount - split.wait_amount
-            }) for split in invoice_splits]
+            }) for split in invoice_splits if split.amount - split.paid_amount - split.wait_amount > 0]
             line_ids.insert(0, (5, 0))
             self.line_ids = line_ids
+
+    @api.onchange('customer_invoice_apply_id')
+    def _onchange_customer_invoice_apply_id(self):
+        """客户发票审请，计算"""
+        invoice_type = self._context.get('default_type')  # 发票类型
+        if not invoice_type:
+            return
+
+        if invoice_type == 'out_invoice':
+            if not self.customer_invoice_apply_id:
+                self.amount = 0
+                self.line_ids = [(5, 0)]
+            else:
+                line_ids = [(0, 0, {
+                    'invoice_split_id': line.invoice_split_id.id,
+                    'invoice_amount': line.invoice_amount
+                }) for line in self.customer_invoice_apply_id.line_ids]
+                line_ids.insert(0, (5, 0))
+                self.line_ids = line_ids
 
     @api.onchange('line_ids', 'line_ids.invoice_amount')
     def _onchange_line_ids(self):
@@ -139,11 +163,87 @@ class AccountInvoiceRegister(models.Model):
             self.state = 'manager_confirm'
 
     @api.multi
+    def action_view_purchase_order(self):
+        """查看关联的采购订单"""
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'tree,form',
+            'name': '%s关联的采购订单' % self.name,
+            'res_model': 'purchase.order',
+            'domain': [('id', 'in', self.purchase_order_ids.ids)]
+        }
+
+    @api.multi
+    def action_view_account_invoice(self):
+        """查看关联的账单"""
+        tree_id = self.env.ref('account.invoice_supplier_tree').id
+        form_id = self.env.ref('account.invoice_supplier_form').id
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'tree,form',
+            'name': '%s关联的账单' % self.name,
+            'res_model': 'account.invoice',
+            'views': [(tree_id, 'tree'), (form_id, 'form')],
+            'domain': [('id', 'in', self.invoice_ids.ids)]
+        }
+
+    @api.multi
     @api.constrains('amount')
     def _check_amount(self):
         for invoice in self:
             if float_compare(invoice.amount, 0.0, precision_rounding=0.01) <= 0:
                 raise ValidationError('开票金额必须大于0！')
+
+    @api.multi
+    def _compute_purchase_invoice(self):
+        for res in self:
+            invoice_split_ids = res.line_ids.mapped('invoice_split_id')
+            purchase_order_ids = invoice_split_ids.mapped('purchase_order_id').ids
+            res.purchase_order_ids = purchase_order_ids
+            invoice_ids = invoice_split_ids.mapped('invoice_id').ids
+            res.invoice_ids = invoice_ids
+
+    @api.multi
+    def unlink(self):
+        if self.filtered(lambda x: x.state != 'draft'):
+            raise ValidationError('非草稿单据不能删除！')
+
+        self.mapped('customer_invoice_apply_id').write({'state': 'finance_manager_confirm'})  # 还原客户发票申请状态
+
+        # for res in self:
+        #     if res.customer_invoice_apply_id:
+        #         res.customer_invoice_apply_id.state = 'finance_manager_confirm'
+        #         if res.payment_ids:
+        #             res.payment_ids.write({
+        #                 'customer_invoice_apply_id': res.customer_invoice_apply_id.id,
+        #                 'invoice_split_ids': [(3, sp.id) for sp in res.invoice_split_ids]
+        #             })
+
+        return super(AccountInvoiceRegister, self).unlink()
+
+    @api.model
+    def create(self, vals):
+        if 'customer_invoice_apply_id' in vals:
+            apply = self.env['account.customer.invoice.apply'].browse(vals['customer_invoice_apply_id'])
+            vals['line_ids'] = [(0, 0, {
+                'invoice_split_id': line.invoice_split_id.id,
+                'invoice_amount': line.invoice_amount
+            }) for line in apply.line_ids]
+        res = super(AccountInvoiceRegister, self).create(vals)
+        # if res.customer_invoice_apply_id:
+        #     res.customer_invoice_apply_id.state = 'done'
+        #     if res.payment_ids:
+        #         res.payment_ids.write({
+        #             'customer_invoice_apply_id': res.customer_invoice_apply_id.id,
+        #             'invoice_split_ids': [(4, sp.id) for sp in res.invoice_split_ids]
+        #         })
+
+        res.amount = sum(res.line_ids.mapped('invoice_amount'))
+        res.customer_invoice_apply_id.state = 'register'  # 修改客户发票申请状态
+
+        return res
 
 
     # @api.onchange('partner_id', 'company_id')
@@ -172,26 +272,7 @@ class AccountInvoiceRegister(models.Model):
     #         invoice_splits = split_obj.search(domain)
     #         self.invoice_split_ids = invoice_splits.ids
 
-    @api.onchange('customer_invoice_apply_id')
-    def _onchange_customer_invoice_apply_id(self):
-        """客户发票审请，计算"""
-        invoice_type = self._context.get('default_type')  # 发票类型
-        if not invoice_type:
-            return
 
-        if invoice_type == 'out_invoice':
-            self.invoice_split_ids = self.customer_invoice_apply_id.invoice_split_ids.ids
-            self.amount = self.customer_invoice_apply_id.amount
-
-            # 默认收款记录
-            if self.customer_invoice_apply_id:
-                domain = [('payment_type', '=', 'inbound'), ('partner_id', '=', self.partner_id.id)]
-                domain.extend([('invoice_register_id', '=', False), ('sale_order_id', '=', self.customer_invoice_apply_id.sale_id.id)])
-                payment = self.env['account.payment'].search(domain, limit=1)
-                if payment:
-                    self.payment_ids = payment.ids
-            else:
-                self.payment_ids = False
 
     # @api.onchange('invoice_split_ids')
     # def _onchange_invoice_split_ids(self):
@@ -208,14 +289,7 @@ class AccountInvoiceRegister(models.Model):
         for register in self:
             register.has_payment_apply = len(register.payment_apply_ids) != 0
 
-    @api.multi
-    def _compute_purchase_invoice(self):
-        for res in self:
-            invoice_split_ids = res.line_ids.mapped('invoice_split_id')
-            purchase_order_ids = invoice_split_ids.mapped('purchase_order_id').ids
-            res.purchase_order_ids = purchase_order_ids
-            invoice_ids = invoice_split_ids.mapped('invoice_id').ids
-            res.invoice_ids = invoice_ids
+
 
     @api.multi
     def _compute_payment_apply(self):
@@ -237,64 +311,9 @@ class AccountInvoiceRegister(models.Model):
         # 无效
         return [('id', 'not in', ids)]
 
-    @api.multi
-    def action_view_purchase_order(self):
-        """查看关联的采购订单"""
-        return {
-            'type': 'ir.actions.act_window',
-            'view_type': 'form',
-            'view_mode': 'tree,form',
-            'name': '%s关联的采购订单' % self.name,
-            'res_model': 'purchase.order',
-            'domain': [('id', 'in', self.purchase_order_ids.ids)]
-        }
 
-    @api.multi
-    def action_view_account_invoice(self):
-        """查看关联的账单"""
-        tree_id = self.env.ref('account.invoice_supplier_tree').id
-        form_id = self.env.ref('account.invoice_supplier_form').id
-        return {
-            'type': 'ir.actions.act_window',
-            'view_type': 'form',
-            'view_mode': 'tree,form',
-            'name': '%s关联的账单' % self.name,
-            'res_model': 'account.invoice',
-            'views': [(tree_id, 'tree'), (form_id, 'form')],
-            'domain': [('id', 'in', self.invoice_ids.ids)]
-        }
 
-    @api.multi
-    def unlink(self):
-        if self.filtered(lambda x: x.state != 'draft'):
-            raise ValidationError('审核的单据不能删除！')
 
-        for res in self:
-            if res.customer_invoice_apply_id:
-                res.customer_invoice_apply_id.state = 'finance_manager_confirm'
-                if res.payment_ids:
-                    res.payment_ids.write({
-                        'customer_invoice_apply_id': res.customer_invoice_apply_id.id,
-                        'invoice_split_ids': [(3, sp.id) for sp in res.invoice_split_ids]
-                    })
-
-        return super(AccountInvoiceRegister, self).unlink()
-
-    @api.model
-    def create(self, vals):
-        res = super(AccountInvoiceRegister, self).create(vals)
-        if res.customer_invoice_apply_id:
-            res.customer_invoice_apply_id.state = 'done'
-            if res.payment_ids:
-                res.payment_ids.write({
-                    'customer_invoice_apply_id': res.customer_invoice_apply_id.id,
-                    'invoice_split_ids': [(4, sp.id) for sp in res.invoice_split_ids]
-                })
-
-        if res.type == 'in_invoice':
-            res.amount = sum(res.line_ids.mapped('invoice_amount'))
-
-        return res
 
 
 class AccountInvoiceRegisterLine(models.Model):
@@ -310,6 +329,7 @@ class AccountInvoiceRegisterLine(models.Model):
     amount = fields.Float('总额', related='invoice_split_id.amount')
     paid_amount = fields.Float('已支付', related='invoice_split_id.paid_amount')
     purchase_order_id = fields.Many2one('purchase.order', '采购订单', related='invoice_split_id.purchase_order_id')
+    sale_order_id = fields.Many2one('sale.order', '销售订单', related='invoice_split_id.sale_order_id')
     state = fields.Selection(STATES, '状态', related='invoice_split_id.state')
     invoice_amount = fields.Float('本次开票金额', required=1)
 
@@ -326,7 +346,7 @@ class AccountInvoiceRegisterLine(models.Model):
             if float_compare(res.invoice_amount, 0, precision_rounding=0.01) != 1:
                 raise ValidationError('开票金额必须大于0！')
 
-            wait_amount = res.amount - res.paid_amount
+            wait_amount = res.amount - res.paid_amount - res.invoice_split_id.wait_amount + res.invoice_amount
             if float_compare(res.invoice_amount, wait_amount, precision_rounding=0.01) == 1:
                 raise ValidationError('账单分期：%s的开票金额不能大于：%s' % (res.invoice_split_id.name, wait_amount))
 

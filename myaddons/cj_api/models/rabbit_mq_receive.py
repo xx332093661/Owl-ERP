@@ -91,7 +91,7 @@ class RabbitMQReceiveThread(threading.Thread):
             credentials = pika.PlainCredentials(self.username, self.password)
 
             parameter = pika.ConnectionParameters(host=self.ip,
-                                                  # port=self.port,
+                                                  port=self.port,
                                                   credentials=credentials)
             connection = pika.BlockingConnection(parameter)
             channel = connection.channel()

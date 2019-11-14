@@ -16,21 +16,17 @@ class AccountPayment(models.Model):
     company_id = fields.Many2one('res.company', related=False, string='公司', required=1, readonly=1, states={'draft': [('readonly', False)]},
                                  default=lambda self: self.env.user.company_id.id, domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
 
-    apply_id = fields.Many2one('account.payment.apply', '付款申请', required=1, readonly=1, states={'draft': [('readonly', False)]}, track_visibility='onchange',
-                               domain="[('partner_id', '=', partner_id), ('company_id', '=', company_id), ('state', 'in', ['oa_accept'])]")
+    apply_id = fields.Many2one('account.payment.apply', '付款申请', readonly=1, states={'draft': [('readonly', False)]}, track_visibility='onchange')
 
-    invoice_register_id = fields.Many2one('account.invoice.register', '发票登记', related='apply_id.invoice_register_id')
+    invoice_register_id = fields.Many2one('account.invoice.register', '发票登记')
 
     journal_id = fields.Many2one('account.journal', string='付款分录', required=1)
 
     invoice_split_ids = fields.Many2many('account.invoice.split', 'account_payment_split_payment_rel', 'payment_id', 'split_id', '账单分期', readonly=1)
 
-
     purchase_order_id = fields.Many2one('purchase.order', '采购订单')
     invoice_name = fields.Char('发票号', related='invoice_register_id.name', store=1)
-    customer_invoice_apply_id = fields.Many2one('account.customer.invoice.apply', '客户发票申请',
-                                                domain="[('state', '=', 'finance_manager_confirm'), ('partner_id', '=', partner_id), ('invoice_register_ids', '=', False)]",
-                                                readonly=1, states={'draft': [('readonly', False)]})
+    customer_invoice_apply_id = fields.Many2one('account.customer.invoice.apply', '客户发票申请', track_visibility='onchange', readonly=1)
 
     def _get_counterpart_move_line_vals(self, invoice=None):
         """订算account.move.line的account_id字段时，增加从上下文获取"""
@@ -153,7 +149,7 @@ class AccountPayment(models.Model):
     @api.onchange('company_id')
     def _onchange_company_id(self):
         self.journal_id = False
-        self.apply_id = False
+
         # jrnl_filters = self._compute_journal_domain_and_types()
         # journal_types = jrnl_filters['journal_types']
         # journal_types.update(['bank', 'cash'])
@@ -169,15 +165,22 @@ class AccountPayment(models.Model):
     def _onchange_partner_id(self):
         res = super(AccountPayment, self)._onchange_partner_id()
         self.apply_id = False
+        self.invoice_register_id = False
         # self.invoice_register_id = False
         # self.invoice_split_ids = False
-        if 'create_from_sale_order' not in self._context:
-            self.amount = 0
+        # if 'create_from_sale_order' not in self._context:
+        #     self.amount = 0
         return res
 
     @api.onchange('apply_id')
     def _onchange_apply_id(self):
         self.amount = self.apply_id.amount
+
+    @api.onchange('invoice_register_id')
+    def _onchange_invoice_register_id(self):
+        self.amount = self.invoice_register_id.amount
+        self.customer_invoice_apply_id = self.invoice_register_id.customer_invoice_apply_id.id
+
 
     # @api.onchange('apply_id')
     # def _onchange_apply_id(self):
@@ -203,22 +206,26 @@ class AccountPayment(models.Model):
     @api.model
     def create(self, vals):
         # 默认供应商发票、账单分期
-        if vals.get('apply_id'):
+        default_payment_type = self._context.get('default_payment_type')
+        if default_payment_type == 'outbound':  # 付款
             apply = self.env['account.payment.apply'].browse(vals['apply_id'])  # 付款申请
-            # vals.update({
-            #     'invoice_split_ids': [(6, 0, apply.invoice_split_ids.ids)],
-            #     'invoice_register_id': apply.invoice_register_id.id
-            # })
-            # if not vals.get('invoice_ids'):
-            #     vals['invoice_ids'] = [(6, 0, apply.invoice_split_ids.mapped('invoice_id').ids)]
-
             vals['amount'] = apply.amount
+            vals['invoice_register_id'] = apply.invoice_register_id.id
+
+        if default_payment_type == 'inbound':  # 收款
+            invoice_register = self.env['account.invoice.register'].browse(vals['invoice_register_id'])  # 发票登记
+            vals['amount'] = invoice_register.amount
+            vals['customer_invoice_apply_id'] = invoice_register.customer_invoice_apply_id.id
 
         res = super(AccountPayment, self).create(vals)
-        # 修改关联的付款申请的状态为paying(付款中)
-        if res.apply_id:
+        if default_payment_type == 'outbound':  # 付款
+            # 修改关联的付款申请的状态为paying(付款中)
             res.apply_id.state = 'paying'
-            res.apply_id.invoice_register_id.state = 'wait_pay'
+            res.invoice_register_id.state = 'wait_pay'
+
+        if default_payment_type == 'inbound':  # 收款
+            res.invoice_register_id.state = 'wait_pay'
+            res.customer_invoice_apply_id.state = 'paiding'
 
         # if res.sale_order_id:
         #     if res.sale_order_id.state == 'oa_refuse':
@@ -235,14 +242,14 @@ class AccountPayment(models.Model):
     @api.multi
     def unlink(self):
         # 将对应的付款申请的状态改为oa_accept(OA审批通过)
-        applies = self.mapped('apply_id')
+        for res in self:
+            if res.apply_id:
+                res.apply_id.state = 'oa_accept'
+            res.invoice_register_id.state = 'manager_confirm'
+            if res.customer_invoice_apply_id:
+                res.customer_invoice_apply_id.state = 'register'
 
-        res = super(AccountPayment, self).unlink()
-        for apply in applies:
-            apply.state = 'oa_accept'
-            apply.invoice_register_id.state = 'manager_confirm'
-
-        return res
+        return super(AccountPayment, self).unlink()
 
     @api.one
     @api.depends('invoice_ids', 'payment_type', 'partner_type', 'partner_id')
@@ -311,7 +318,8 @@ class AccountPayment(models.Model):
         #     if float_is_zero(payment_amount, precision_digits=2):
         #         break
 
-        if self.apply_id:
+        default_payment_type = self._context.get('default_payment_type')
+        if default_payment_type == 'outbound':  # 付款
             self.apply_id.state = 'done'  # 修改付款申请状态
             self.invoice_register_id.state = 'paid'  # 修改发票登记的状态
             # 修改账单分期的状态和付款金额
@@ -330,6 +338,27 @@ class AccountPayment(models.Model):
                     aml = self.move_line_ids.filtered(lambda x: x.debit > 0)
                     invoice.register_payment(aml, amount=line.invoice_amount)
                     self.write({'invoice_ids': [(4, invoice.id, None)]})
+
+        if default_payment_type == 'inbound':  # 收款
+            self.invoice_register_id.state = 'paid'  # 修改发票登记的状态
+            self.customer_invoice_apply_id.state = 'done'
+            # self.customer_invoice_apply_id.state = 'done'
+            for line in self.invoice_register_id.line_ids:
+                invoice_split = line.invoice_split_id  # 账单分期
+                amount_residual = invoice_split.amount - invoice_split.paid_amount  # 账单分期未支付余额
+
+                vals = {'paid_amount': invoice_split.paid_amount + line.invoice_amount}
+                if float_compare(amount_residual, line.invoice_amount, precision_digits=2) == 0:  # 如果核销完，修改账单分期状态
+                    vals['state'] = 'paid'
+
+                invoice_split.write(vals)
+
+                invoice = invoice_split.invoice_id
+                if invoice:
+                    aml = self.move_line_ids.filtered(lambda x: x.credit > 0)
+                    invoice.register_payment(aml, amount=line.invoice_amount)
+                    self.write({'invoice_ids': [(4, invoice.id, None)]})
+
 
             # invoice_split_all_done = all([r.state in ['paid', 'cancel'] for r in self.invoice_split_ids])  # 所有账单分期支付完成
             #

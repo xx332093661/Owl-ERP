@@ -46,13 +46,21 @@ class AccountInvoiceSplit(models.Model):
         即开具了发票，还没有付款的金额
         """
         register_line_obj = self.env['account.invoice.register.line']  # 供应商发票登记
+        apply_line_obj = self.env['account.customer.invoice.apply.line']  # 客户发票申请
         for res in self:
-            if not res.purchase_order_id or res.state not in ['paiding', 'open']:
+            if res.state not in ['paiding', 'open']:
                 continue
 
-            lines = register_line_obj.search([('invoice_split_id', '=', res.id), ('register_id.state', '!=', 'paid')])
+            if res.purchase_order_id:
+                lines = register_line_obj.search([('invoice_split_id', '=', res.id), ('register_id.state', '!=', 'paid')])
 
-            res.wait_amount = sum(lines.mapped('invoice_amount'))
+                res.wait_amount = sum(lines.mapped('invoice_amount'))
+
+            if res.sale_order_id:
+                lines = apply_line_obj.search([('invoice_split_id', '=', res.id), ('apply_id.state', '!=', 'done')])
+
+                res.wait_amount = sum(lines.mapped('invoice_amount'))
+
 
     @api.model
     def create(self, vals):
