@@ -38,9 +38,10 @@
         <menuitem id="menu_account_main" name="主数据"
                   parent="account.menu_finance" sequence="4"
                   groups="account.group_account_user"/>
-        <menuitem id="menu_account_main_product" name="商品"
-                  action="account.product_product_action_sellable"
-                  parent="menu_account_main" sequence="10"/>
+
+        <!--<menuitem id="menu_account_main_product" name="商品"-->
+                  <!--action="account.product_product_action_sellable"-->
+                  <!--parent="menu_account_main" sequence="10"/>-->
         <!--<menuitem id="menu_account_main_customer" name="客户"-->
                   <!--action="base.action_partner_customer_form"-->
                   <!--parent="menu_account_main" sequence="20"/>-->
