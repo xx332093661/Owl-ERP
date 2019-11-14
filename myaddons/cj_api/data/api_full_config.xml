@@ -49,5 +49,13 @@
             <field name="message_name">MDM-ERP-DISTRIBUTOR-QUEUE</field>
             <field name="queue_name">经销商</field>
         </record>
+        <record id='api_full_config7' model='api.full.config'>
+            <field name="company_code">02014</field>
+            <field name="source_code">dms_supplier_info</field>
+            <field name="system_code">Owl</field>
+            <field name="secret_key">6bNHkvqOIlbqGKgWcqcBGwvsF2675EOy</field>
+            <field name="message_name">MDM-ERP-SUPPLIER-QUEUE</field>
+            <field name="queue_name">供应商</field>
+        </record>
     </data>
 </openerp>
