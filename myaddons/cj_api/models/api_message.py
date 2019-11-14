@@ -142,7 +142,7 @@ class ApiMessage(models.Model):
             return getattr(x, 'update_code', '')
 
         if not messages:
-            messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', 3)], order='sequence asc, id asc')
+            messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', 3)], order='sequence asc, id asc', limit=3000)
         else:
             messages = self.search([('id', 'in', messages.ids)], order='sequence asc, id asc')
 
