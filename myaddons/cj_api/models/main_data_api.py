@@ -65,6 +65,8 @@ class MainDataApi(models.TransientModel):
             "requestTime": date_now.strftime(DATETIME_FORMAT),
             "randomStr": random_str()
         }
+        _logger.info('W' * 100)
+        _logger.info(data)
         data['signature'] = signature(data, queue.secret_key)
 
         headers = {'Content-Type': 'application/json'}
