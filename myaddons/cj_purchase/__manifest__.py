@@ -40,6 +40,7 @@
 
         'wizard/purchase_scheduler_compute_views.xml',
         'wizard/purchase_price_list_import_view.xml',
+        'wizard/purchase_apply_import_view.xml',
 
         'views/purchase_order_point_view.xml',
         'views/res_config_setting_view.xml',
