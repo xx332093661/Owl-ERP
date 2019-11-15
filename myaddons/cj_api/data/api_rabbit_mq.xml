@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<openerp>
-    <!--上传中台-->
-    <data noupdate="1">
-        <record id='rabbit_mq1' model='api.rabbit.mq'>
-		   <field name="name">RabbitMQ</field>
-		</record>
-    </data>
-</openerp>
