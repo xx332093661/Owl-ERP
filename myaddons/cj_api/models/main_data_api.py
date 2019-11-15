@@ -69,8 +69,12 @@ class MainDataApi(models.TransientModel):
 
         headers = {'Content-Type': 'application/json'}
         resp = requests.post(url, json.dumps(data), headers=headers)
+        _logger.info('0' * 100)
+        _logger.info(resp.status_code)
         if resp.status_code == 200:
             content = resp.json()
+            _logger.info('1' * 100)
+            _logger.info(content)
             if content.get('code') and content.get('msg'):
                 _logger.error('同步全量数据：%s发生错误，错误信息：', queue.queue_name, content['msg'])
                 return
