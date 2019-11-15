@@ -68,11 +68,11 @@ class MyValidationError(ValidationError):
         self.error_no = error_no
 
 
-class RabbitMQTable(models.Model):
-    _name = 'api.rabbit.mq'
-    _description = 'RabbitMQ互斥'
-
-    name = fields.Char('名称')
+# class RabbitMQTable(models.Model):
+#     _name = 'api.rabbit.mq'
+#     _description = 'RabbitMQ互斥'
+#
+#     name = fields.Char('名称')
 
 
 class ApiMessage(models.Model):
