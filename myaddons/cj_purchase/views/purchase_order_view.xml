@@ -89,10 +89,8 @@
                     <field name="purchase_order_count"/>
                 </field>
 
-                <xpath expr="//page[@name='purchase_delivery_invoice']/group" position="after">
-                    <group>
-                        <field name="explain"/>
-                    </group>
+                <xpath expr="//field[@name='purchase_order_count']" position="after">
+                    <field name="explain"/>
                 </xpath>
 
                 <xpath expr="//page[@name='purchase_delivery_invoice']" position="before">
