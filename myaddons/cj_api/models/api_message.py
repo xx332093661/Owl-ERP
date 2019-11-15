@@ -15,7 +15,7 @@ from odoo.exceptions import ValidationError
 from .rabbit_mq_receive import RabbitMQReceiveThread
 from .rabbit_mq_send import RabbitMQSendThread
 from .rabbit_mq_receive import MQ_SEQUENCE
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare, float_is_zero
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare, float_is_zero, config
 
 _logger = logging.getLogger(__name__)
 
@@ -89,15 +89,17 @@ class ApiMessage(models.Model):
     @api.model
     def start_mq_thread(self):
         """计划任务：开启mq客户端"""
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        try:
-            s.connect(('8.8.8.8', 80))
-            ip = s.getsockname()[0]
-        finally:
-            s.close()
+        rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去连RabbitMQ
+        if rabbitmq_ip:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            try:
+                s.connect(('8.8.8.8', 80))
+                ip = s.getsockname()[0]
+            finally:
+                s.close()
 
-        if ip != '10.0.0.76':
-            return
+            if ip != rabbitmq_ip:
+                return
 
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-ORG-QUEUE')    # 组织结构（公司）
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-STORE-QUEUE')    # 门店
