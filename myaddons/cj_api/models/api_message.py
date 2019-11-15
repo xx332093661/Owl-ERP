@@ -8,14 +8,13 @@ from pypinyin import lazy_pinyin, Style
 import json
 import random
 from itertools import groupby
-import psycopg2
 
-import odoo
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 from .rabbit_mq_receive import RabbitMQReceiveThread
 from .rabbit_mq_send import RabbitMQSendThread
 from .rabbit_mq_receive import MQ_SEQUENCE
+from odoo.tools import detect_ip_addr
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare, float_is_zero
 
 _logger = logging.getLogger(__name__)
@@ -97,50 +96,52 @@ class ApiMessage(models.Model):
     @api.model
     def start_mq_thread(self):
         """计划任务：开启mq客户端"""
-        exist = False
-        db_name = odoo.tools.config.get('db_name')
-        db = odoo.sql_db.db_connect(db_name)
-        cr = db.cursor()
-        try:
-            cr.execute("""SELECT * FROM api_rabbit_mq FOR UPDATE NOWAIT;""")
-            cr.fetchone()
-        except psycopg2.OperationalError as e:
-            if e.pgcode == '55P03':
-                exist = True
-            else:
-                cr.close()
-                raise
-        # finally:
+        _logger.info('0' * 100)
+        _logger.info(detect_ip_addr())
+        # exist = False
+        # db_name = odoo.tools.config.get('db_name')
+        # db = odoo.sql_db.db_connect(db_name)
+        # cr = db.cursor()
+        # try:
+        #     cr.execute("""SELECT * FROM api_rabbit_mq FOR UPDATE NOWAIT;""")
+        #     cr.fetchone()
+        # except psycopg2.OperationalError as e:
+        #     if e.pgcode == '55P03':
+        #         exist = True
+        #     else:
+        #         cr.close()
+        #         raise
+        # # finally:
+        # #     cr.close()
+        #
+        # if exist:
+        #     _logger.info('0' * 100)
         #     cr.close()
+        #     return True
 
-        if exist:
-            _logger.info('0' * 100)
-            cr.close()
-            return True
-
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-ORG-QUEUE')    # 组织结构（公司）
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-STORE-QUEUE')    # 门店
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-SUPPLIER-QUEUE')  # 供应商
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-DISTRIBUTOR-QUEUE')  # 经销商
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-MEMBER-QUEUE')   # 会员
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-WAREHOUSE-QUEUE')   # 仓库
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-MATERIAL-QUEUE')   # 商品
-
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-store-stock-push')  # 门店库存
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-order-push')   # 订单
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-order-status-push')   # 订单状态
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-logistics-push')   # 物流信息
-        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-service-list-push')   # 售后服务单
-
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-store-stock-update-record-push')   # 门店库存变更记录
-
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-STOCKOUT-QUEUE')   # 出库单队列
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-STOCK-QUEUE')   # 库存数据队列
-
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-RETURN-STOCKIN-QUEUE')   # 退货入库单数据
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-REFUND-ERP-QUEUE')   # 退款单数据
-
-        self.start_mq_thread_by_name('RabbitMQSendThread', 'rabbit_mq_send_thread')
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-ORG-QUEUE')    # 组织结构（公司）
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-STORE-QUEUE')    # 门店
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-SUPPLIER-QUEUE')  # 供应商
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-DISTRIBUTOR-QUEUE')  # 经销商
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-MEMBER-QUEUE')   # 会员
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-WAREHOUSE-QUEUE')   # 仓库
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-MATERIAL-QUEUE')   # 商品
+        #
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-store-stock-push')  # 门店库存
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-order-push')   # 订单
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-order-status-push')   # 订单状态
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-logistics-push')   # 物流信息
+        # # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-service-list-push')   # 售后服务单
+        #
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-store-stock-update-record-push')   # 门店库存变更记录
+        #
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-STOCKOUT-QUEUE')   # 出库单队列
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-STOCK-QUEUE')   # 库存数据队列
+        #
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-RETURN-STOCKIN-QUEUE')   # 退货入库单数据
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-REFUND-ERP-QUEUE')   # 退款单数据
+        #
+        # self.start_mq_thread_by_name('RabbitMQSendThread', 'rabbit_mq_send_thread')
 
     @staticmethod
     def start_mq_thread_by_name(class_name, thread_name):
