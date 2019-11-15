@@ -89,7 +89,7 @@ class ApiMessage(models.Model):
     @api.model
     def start_mq_thread(self):
         """计划任务：开启mq客户端"""
-        rabbitmq_ip = config.get('rabbitmq_ip', False)  # 用哪个ip去连RabbitMQ
+        rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去连RabbitMQ
         if rabbitmq_ip:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             try:
