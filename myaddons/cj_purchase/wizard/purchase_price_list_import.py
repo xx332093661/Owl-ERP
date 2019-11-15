@@ -2,10 +2,16 @@
 
 from odoo import api, models, tools, fields
 from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
+from xlrd import XLRDError
+from odoo.tools import float_compare
 
 import logging
 import xlrd
 import json
+import base64
+import os
+import traceback
 
 _logger = logging.getLogger(__name__)
 
@@ -14,100 +20,97 @@ class PurchasePriceListImport(models.TransientModel):
     _name = 'purchase.price.list.import'
     _description = '报价单导入'
 
-    attachment = fields.Binary('附件', attachment=True)
+    import_file = fields.Binary('Excel文件', required=True)
+    overlay = fields.Boolean('覆盖已存在的数据？', default=True)
 
     @api.multi
     def button_ok(self):
-        attachment_obj = self.env['ir.attachment'].sudo()
+        def is_numeric(val, verify_null=None):
+            """是否是数字
+            导入，不考虑批次号
+            """
+            if not verify_null and not val:
+                return True
+
+            try:
+                float(val)
+                return True
+            except ValueError:
+                return False
+
         supplierinfo_obj = self.env['product.supplierinfo']
         partner_obj = self.env['res.partner']
         pt_obj = self.env['product.template']
 
-        self.ensure_one()
-        attachment = attachment_obj.search(
-            [('res_model', '=', 'purchase.price.list.import'), ('res_field', '=', 'attachment'), ('res_id', '=', self.id), ])
+        file_name = 'import_file.xls'
+        with open(file_name, "wb") as f:
+            f.write(base64.b64decode(self.import_file))
 
-        if not attachment:
-            raise ValidationError('请上传要导入的excel')
+        try:
+            workbook = xlrd.open_workbook(file_name)
+        except XLRDError:
+            raise UserError('导入文件格式错误，请导入Excel文件！')
 
-        data = xlrd.open_workbook(
-            attachment_obj._full_path(attachment.store_fname))
+        sheet = workbook.sheet_by_index(0)
 
-        table = data.sheet_by_index(0)
-        nrows = table.nrows
-        for i in range(2, nrows):
-            row = table.row_values(i)
+        lines = [sheet.row_values(row_index) for row_index in range(sheet.nrows) if row_index >= 3]
 
-            supplier_code = row[0]  # 供应商编码
-            product_code = row[1]  # 商品编码
-            # product_name = row[2]  # 商品名称
-            min_qty = row[3]  # 最小采购量
-            price = row[4]  # 价格
-            date_start = row[5]  # 有效期(开始)
-            date_end = row[6]  # 有效期(截止)
+        try:
+            # 数据较验
+            for line in lines:
+                min_qty = line[3]  # 最小采购量
+                price = line[4]  # 价格
 
-            if isinstance(supplier_code, float):
-                supplier_code = str(int(supplier_code))
+                assert is_numeric(min_qty), '在手数量%s必须是数字' % min_qty
+                assert is_numeric(price), '价格%s必须是数字' % price
 
-            if isinstance(product_code, float):
-                product_code = str(int(product_code))
+            for line in lines:
+                supplier_code = line[0]  # 供应商编码
+                product_code = line[1]  # 商品编码
+                # product_name = line[2]  # 商品名称
+                min_qty = line[3]  # 最小采购量
+                price = line[4]  # 价格
+                date_start = line[5]  # 有效期(开始)
+                date_end = line[6]  # 有效期(截止)
 
-            supplier = partner_obj.search([('code', '=', supplier_code)], limit=1)
-            if not supplier:
-                raise ValidationError('供应商：%s 不存在' % supplier_code)
+                if isinstance(supplier_code, float):
+                    supplier_code = str(int(supplier_code))
 
-            pt = pt_obj.search([('default_code', '=', product_code)], limit=1)
-            if not pt:
-                raise ValidationError('商品：%s 不存在' % product_code)
+                if isinstance(product_code, float):
+                    product_code = str(int(product_code))
 
-            date_start = xlrd.xldate.xldate_as_datetime(date_start, 0)
-            date_end = xlrd.xldate.xldate_as_datetime(date_end, 0)
+                supplier = partner_obj.search([('code', '=', supplier_code)], limit=1)
+                if not supplier:
+                    raise ValidationError('供应商：%s 不存在' % supplier_code)
 
-            supplierinfo_obj.create({
-                'price_list_id': self._context['active_id'],
-                'company_id': self.env.user.company_id.id,
+                pt = pt_obj.search([('default_code', '=', product_code)], limit=1)
+                if not pt:
+                    raise ValidationError('商品：%s 不存在' % product_code)
 
-                'name': supplier.id,
-                'product_tmpl_id': pt.id,
-                'min_qty': min_qty or 0,
-                'price': price or 0,
-                'date_start': date_start,
-                'date_end': date_end
-            })
+                date_start = xlrd.xldate.xldate_as_datetime(date_start, 0)
+                date_end = xlrd.xldate.xldate_as_datetime(date_end, 0)
+
+                supplierinfo_obj.create({
+                    'price_list_id': self._context['active_id'],
+                    'company_id': self.env.user.company_id.id,
+
+                    'name': supplier.id,
+                    'product_tmpl_id': pt.id,
+                    'min_qty': min_qty or 0,
+                    'price': price or 0,
+                    'date_start': date_start,
+                    'date_end': date_end
+                })
 
 
 
-    @api.multi
-    def download_template(self):
-        url = '/web/export/export_xls_view'
-
-        data = {
-            "headers": [
-                "报价单模板",
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-            ],
-            "files_name": "报价单模板",
-            "rows": [
-                [
-                    "供应商编码",
-                    "商品编码",
-                    "商品名称",
-                    "最小采购量",
-                    "价格",
-                    "有效期(开始)",
-                    "有效期(截止)",
-                ],
-            ],
-        }
-        url = url + '?data=%s&token=%s' % (json.dumps(data), 1)
-
-        return {
-            'type': 'ir.actions.act_url',
-            'url': url,
-            'target': 'new'
-        }
+        except Exception:
+            raise
+        finally:
+            # 处理完成，删除上传文件
+            if os.path.exists(file_name):
+                try:
+                    os.remove(file_name)
+                except IOError:
+                    _logger.error('删除导入的临时文件出错！')
+                    _logger.error(traceback.format_exc())

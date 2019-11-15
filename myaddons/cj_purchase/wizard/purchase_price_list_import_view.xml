@@ -7,10 +7,13 @@
             <form>
                 <group>
                     <group>
-                        <field name="attachment" required="0"/>
+                        <field name="import_file" required="0"/>
                     </group>
                     <group>
-                        <button name="download_template" type="object" string="模板下载"/>
+                        <label for="id" string="模板下载"/>
+                        <div>
+                            <a href="/cj_purchase/static/template/purchase_price_list.xlsx" target="_blank">下载</a>
+                        </div>
                     </group>
                 </group>
 
