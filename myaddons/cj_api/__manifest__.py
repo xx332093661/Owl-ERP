@@ -28,6 +28,9 @@
 
         'views/menu_view.xml',
         'views/api_full_config_view.xml',
+        'views/api_message_dump_view.xml',
+
+        'wizard/api_message_dump_restore_wizard_view.xml',
 
 
 

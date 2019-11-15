@@ -138,5 +138,13 @@
 
     </data>
 
+    <!--api数据保留天数-->
+    <data>
+        <record id="api_data_reserve_days" model="ir.config_parameter">
+            <field name="key">api_data_reserve_days</field>
+            <field name="value">7</field>
+        </record>
+    </data>
+
 </openerp>
 

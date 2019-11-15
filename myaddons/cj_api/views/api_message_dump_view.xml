@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_api_message_dump_tree" model="ir.ui.view">
+            <field name="name">api.message.dump tree</field>
+            <field name="model">api.message.dump</field>
+            <field name="arch" type="xml">
+                <tree editable="top">
+                    <field name="name"/>
+                    <field name="to_date"/>
+                    <field name="message_names"/>
+                </tree>
+            </field>
+        </record>
+    </data>
+</odoo>

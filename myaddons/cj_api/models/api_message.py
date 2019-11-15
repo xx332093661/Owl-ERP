@@ -4,11 +4,14 @@ import traceback
 import threading
 import uuid
 import socket
-from datetime import timedelta
+from datetime import timedelta, datetime
 from pypinyin import lazy_pinyin, Style
 import json
 import random
 from itertools import groupby
+import pytz
+import csv
+import os
 
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
@@ -58,7 +61,8 @@ PROCESS_ERROR = {
     '35': '出库单不存在',
     '36': '退货入库单不存在',
     '37': '退款单号重复',
-    '38': '退货入库单重复'
+    '38': '退货入库单重复',
+    '39': '没有盘点明细'
 }
 
 
@@ -66,6 +70,17 @@ class MyValidationError(ValidationError):
     def __init__(self, error_no, msg):
         super(ValidationError, self).__init__(msg)
         self.error_no = error_no
+
+
+class ApiMessageDump(models.Model):
+    _name = 'api.message.dump'
+    _description = '接口数据转储'
+    _order = 'id desc'
+
+    name = fields.Char('文件名')
+    to_date = fields.Char('截止时间')
+    path = fields.Char('文件路径')
+    message_names = fields.Text('存储队列')
 
 
 class ApiMessage(models.Model):
@@ -870,12 +885,7 @@ class ApiMessage(models.Model):
 
             vals_list = []
             for store_stock in store_stocks:
-                # TODO 临时处理方案
-                product = self.env['product.product'].search([('default_code', '=', store_stock['goodsCode'])])
-                if not product:
-                    continue
-
-                # product = self.get_product(store_stock['goodsCode'])   # 临时注销
+                product = self.get_product(store_stock['goodsCode'])   # 临时注销
                 product_id = product.id
                 # is_init = get_is_init()  # 商品是否是初次盘点
                 vals_list.append({
@@ -889,10 +899,11 @@ class ApiMessage(models.Model):
                     'product_uom_id': product.uom_id.id,
                     'product_qty': store_stock['quantity']
                 })
+            if not vals_list:
+                raise MyValidationError('39', '没有盘点明细')
 
-            if vals_list:  # TODO 临时加的
-                inventory_line_obj.with_context(company_id=company_id).create(vals_list)
-                inventory.action_validate()
+            inventory_line_obj.with_context(company_id=company_id).create(vals_list)
+            inventory.action_validate()
 
     # 9、WMS-ERP-STOCK-QUEUE 外部仓库库存
     def deal_wms_erp_stock_queue(self, content):
@@ -961,6 +972,9 @@ class ApiMessage(models.Model):
                     'product_uom_id': product.uom_id.id,
                     'product_qty': store_stock['totalNum']
                 })
+            if not vals_list:
+                raise MyValidationError('39', '没有盘点明细')
+
             inventory_line_obj.with_context(company_id=company_id).create(vals_list)
             inventory.action_validate()
 
@@ -2276,6 +2290,70 @@ class ApiMessage(models.Model):
             raise MyValidationError('09', '商品编码：%s 对应的商品未找到！' % default_code)
 
         return product
+
+    @api.model
+    def _cron_dump_api_data(self, message_name=None, reserve_days=None):
+        """转储接口数据
+        配置参数： api_data_reserve_days(api数据保留天数)
+        """
+        rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去连RabbitMQ
+        if rabbitmq_ip:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            try:
+                s.connect(('8.8.8.8', 80))
+                ip = s.getsockname()[0]
+            finally:
+                s.close()
+
+            if ip != rabbitmq_ip:
+                return
+
+        param_obj = self.env['ir.config_parameter'].sudo()
+        if not reserve_days:
+            reserve_days = param_obj.get_param('api_data_reserve_days', '7')  # api数据保留天数
+            reserve_days = int(reserve_days)
+        else:
+            if isinstance(reserve_days, str):
+                reserve_days = int(reserve_days)
+
+        tz = self.env.user.tz or 'Asia/Shanghai'
+        create_date = datetime.now(tz=pytz.timezone(tz)).date() - timedelta(days=reserve_days) - timedelta(hours=8)
+
+        domain = [('create_date', '<', create_date), ('state', '=', 'done')]
+        if message_name:
+            domain.extend([('message_name', '=', message_name)])
+
+        fields_list = list(self._fields.keys())
+        fields_list.pop(fields_list.index('__last_update'))
+        fields_list.pop(fields_list.index('display_name'))
+        fields_list.pop(fields_list.index('create_uid'))
+        fields_list.pop(fields_list.index('write_uid'))
+        messages = self.search_read(domain, fields_list, limit=10000)  # 限制10000条数据
+
+        # 删除原来的
+        ids = [message['id'] for message in messages]
+        self.search([('id', 'in', ids)]).unlink()
+
+        now = datetime.now(tz=pytz.timezone(tz))
+        time = now.strftime("%Y-%m-%d_%H-%M-%S")
+        name = '%s.csv' % time
+        path = os.path.join(config['data_dir'], name)
+
+        # 创建转储记录
+        message_names = [message['message_name'] for message in messages]
+        self.env['api.message.dump'].create({
+            'name': name,
+            'path': path,
+            'to_date': now.strftime(DATETIME_FORMAT),
+            'message_names': '、'.join(list(set(message_names)))
+        })
+
+        # 创建文件
+        with open(path, 'w')as f:
+            writer = csv.DictWriter(f, fieldnames=fields_list)
+            writer.writeheader()
+            for message in messages:
+                writer.writerow(message)
 
     # # 15、mustang-to-erp-service-list-push 售后服务单
     # def deal_mustang_to_erp_service_list_push(self, content):  # mustang-to-erp-service-list-push

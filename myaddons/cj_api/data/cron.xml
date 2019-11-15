@@ -81,4 +81,16 @@
             <field name="active" eval="False"/>
         </record>
     </data>
+    <data>
+        <record id="cron_dump_api_data" model="ir.cron">
+            <field name="name">转储接口数据</field>
+            <field name="model_id" ref="cj_api.model_api_message"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_dump_api_data()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+        </record>
+    </data>
 </odoo>

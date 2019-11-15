@@ -88,7 +88,7 @@ class MainDataApi(models.TransientModel):
             raise Exception(resp.text)
 
     def get_data(self, source_code=None):
-        """调用中台接口，获邓基础数据"""
+        """调用中台接口，获取基础数据"""
         config_obj = self.env['api.full.config']
         if source_code:
             queue = config_obj.search([('source_code', '=', source_code)])
