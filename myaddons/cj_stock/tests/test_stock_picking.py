@@ -113,11 +113,10 @@ class TestStockPicking(TransactionCase):
         res.append(template)
         return res
 
-    # def test_create_picking(self):
-    #     """测试创建出库单（1000条）"""
-    #     for i in range(1000):
-    #         self._create_picking()
-
+    def test_create_picking(self):
+        """测试创建出库单（1000条）"""
+        for i in range(1000):
+            self._create_picking()
 
     def test_action_assign_owner(self):
         """测试action_assign_owner"""

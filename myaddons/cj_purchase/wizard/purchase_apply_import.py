@@ -17,9 +17,9 @@ import traceback
 _logger = logging.getLogger(__name__)
 
 
-class PurchasePriceListImport(models.TransientModel):
-    _name = 'purchase.price.list.import'
-    _description = '报价单导入'
+class PurchaseApplyImport(models.TransientModel):
+    _name = 'purchase.apply.import'
+    _description = '采购申请导入'
 
     import_file = fields.Binary('Excel文件', required=True)
     overlay = fields.Boolean('覆盖已存在的数据？', default=True)
@@ -41,7 +41,8 @@ class PurchasePriceListImport(models.TransientModel):
 
         supplierinfo_obj = self.env['product.supplierinfo']
         partner_obj = self.env['res.partner']
-        pt_obj = self.env['product.template']
+        product_obj = self.env['product.product']
+        apply_line_obj = self.env['purchase.apply.line']
 
         file_name = 'import_file.xls'
         with open(file_name, "wb") as f:
@@ -59,51 +60,45 @@ class PurchasePriceListImport(models.TransientModel):
         try:
             # 数据较验
             for line in lines:
-                min_qty = line[3]  # 最小采购量
+                product_qty = line[2]  # 最小采购量
                 price = line[4]  # 价格
 
-                assert is_numeric(min_qty), '在手数量%s必须是数字' % min_qty
+                assert is_numeric(product_qty), '数量%s必须是数字' % product_qty
                 assert is_numeric(price), '价格%s必须是数字' % price
 
             for line in lines:
-                supplier_code = line[0]  # 供应商编码
-                product_code = line[1]  # 商品编码
-                # product_name = line[2]  # 商品名称
-                min_qty = line[3]  # 最小采购量
-                price = line[4]  # 价格
-                date_start = line[5]  # 有效期(开始)
-                date_end = line[6]  # 有效期(截止)
+                    product_code = line[0]  # 商品编码
+                    # product_name = line[1]  # 商品名称
+                    product_qty = line[2]  # 申请数量
+                    supplier_code = line[3]  # 供应商编码
+                    price = line[4]  # 预计单价
 
-                if isinstance(supplier_code, float):
-                    supplier_code = str(int(supplier_code))
+                    if isinstance(supplier_code, float):
+                        supplier_code = str(int(supplier_code))
 
-                if isinstance(product_code, float):
-                    product_code = str(int(product_code))
+                    if isinstance(product_code, float):
+                        product_code = str(int(product_code))
 
-                supplier = partner_obj.search([('code', '=', supplier_code)], limit=1)
-                if not supplier:
-                    raise ValidationError('供应商：%s 不存在' % supplier_code)
+                    product = product_obj.search([('default_code', '=', product_code)], limit=1)
+                    if not product:
+                        raise ValidationError('商品：%s 不存在' % product_code)
 
-                pt = pt_obj.search([('default_code', '=', product_code)], limit=1)
-                if not pt:
-                    raise ValidationError('商品：%s 不存在' % product_code)
+                    supplierinfo_id = False
+                    if supplier_code:
+                        supplierinfo = supplierinfo_obj.search([('name.code', '=', supplier_code), ('product_id', '=', product.id)], limit=1)
 
-                date_start = xlrd.xldate.xldate_as_datetime(date_start, 0)
-                date_end = xlrd.xldate.xldate_as_datetime(date_end, 0)
+                        if not supplierinfo:
+                            raise ValidationError('供应商：%s关于商品：%s的报价不存在' % (supplier_code, product.name))
+                        supplierinfo_id = supplierinfo.id
 
-                supplierinfo_obj.create({
-                    'price_list_id': self._context['active_id'],
-                    'company_id': self.env.user.company_id.id,
+                    apply_line_obj.create({
+                        'apply_id': self._context['active_id'],
+                        'product_id': product.id,
+                        'supplierinfo_id': supplierinfo_id,
+                        'product_qty': product_qty,
+                        'price': price,
 
-                    'name': supplier.id,
-                    'product_tmpl_id': pt.id,
-                    'min_qty': min_qty or 0,
-                    'price': price or 0,
-                    'date_start': date_start,
-                    'date_end': date_end
-                })
-
-
+                    })
 
         except Exception:
             raise
