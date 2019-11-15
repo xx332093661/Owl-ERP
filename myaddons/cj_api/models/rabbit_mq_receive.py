@@ -4,6 +4,7 @@ import logging
 import threading
 import traceback
 import pika
+from pika.exceptions import ChannelClosedByBroker
 
 from odoo import api
 from odoo.tools import config
@@ -109,6 +110,12 @@ class RabbitMQReceiveThread(threading.Thread):
                 channel.basic_consume(self.queue_name, self.callback, auto_ack=True)
                 _logger.info('开始接收mq消息')
                 channel.start_consuming()
+        except ChannelClosedByBroker as e:
+            if e.reply_code == '404':
+                _logger.error('队列：%s不存在！', self.queue_name)
+
+            if e.reply_code == '406':
+                _logger.error(e.reply_text)
 
         except Exception:
             _logger.error('连接MQ服务器出错！')
