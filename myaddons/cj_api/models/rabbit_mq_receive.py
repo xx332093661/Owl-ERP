@@ -73,8 +73,8 @@ class RabbitMQReceiveThread(threading.Thread):
                 self.password = config_parameter_obj.get_param('cj_rabbit_mq_password_id', default='')
                 self.ip = config_parameter_obj.get_param('cj_rabbit_mq_ip_id', default='')
                 self.port = config_parameter_obj.get_param('cj_rabbit_mq_port_id', default='')
-                self.exchange = config_parameter_obj.get_param('cj_rabbit_mq_receive_exchange_id', default='')
-                # self.exchange = EXCHANGES.get(name, '')
+                # self.exchange = config_parameter_obj.get_param('cj_rabbit_mq_receive_exchange_id', default='')
+                self.exchange = EXCHANGES.get(name, '')
                 self.queue_name = name
             except Exception:
                 _logger.error(traceback.format_exc())
@@ -93,17 +93,19 @@ class RabbitMQReceiveThread(threading.Thread):
         try:
             # 连接MQ服务器
             credentials = pika.PlainCredentials(self.username, self.password)
-
-            parameter = pika.ConnectionParameters(host=self.ip,
-                                                  port=self.port,
-                                                  credentials=credentials)
+            parameter = pika.ConnectionParameters(host=self.ip, port=self.port, credentials=credentials)
             connection = pika.BlockingConnection(parameter)
             channel = connection.channel()
-
-            channel.basic_consume(self.queue_name, self.callback, auto_ack=True)
-
-            _logger.info('开始接收mq消息')
-            channel.start_consuming()
+            if self.exchange:
+                channel.exchange_declare(exchange=self.exchange, exchange_type='topic', durable=True)
+                channel.queue_declare(queue=self.queue_name, exclusive=True)
+                channel.queue_bind(exchange=self.exchange, queue=self.queue_name)
+                channel.basic_consume(queue=self.queue_name, on_message_callback=self.callback, auto_ack=True)
+                channel.start_consuming()
+            else:
+                channel.basic_consume(self.queue_name, self.callback, auto_ack=True)
+                _logger.info('开始接收mq消息')
+                channel.start_consuming()
 
         except Exception:
             _logger.error('连接MQ服务器出错！')
