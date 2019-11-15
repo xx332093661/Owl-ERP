@@ -16,8 +16,8 @@ class PurchaseOrderPoint(models.Model):
 
     name = fields.Char('名称', readonly=1, states=READONLY_STATES, track_visibility='onchange')
     company_id = fields.Many2one('res.company', '公司', required=True, readonly=1, states=READONLY_STATES, default=lambda self: self.env.user.company_id.id, track_visibility='onchange', domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
-    warehouse_id = fields.Many2one('stock.warehouse', '仓库', ondelete="cascade", required=True, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('company_id', '=', company_id)]")
-    location_id = fields.Many2one('stock.location', '库位', ondelete="cascade", required=True, readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    warehouse_id = fields.Many2one('stock.warehouse', '仓库', ondelete="cascade", required=0, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('company_id', '=', company_id)]")
+    location_id = fields.Many2one('stock.location', '库位', ondelete="cascade", required=0, readonly=1, states=READONLY_STATES, track_visibility='onchange')
     product_id = fields.Many2one('product.product', '商品', domain=[('type', '=', 'product')], ondelete='cascade', required=True, readonly=1, states=READONLY_STATES, track_visibility='onchange')
     product_uom = fields.Many2one('uom.uom', '单位', related='product_id.uom_id')
     product_min_qty = fields.Integer('安全库存量', readonly=1, states=READONLY_STATES, track_visibility='onchange')
