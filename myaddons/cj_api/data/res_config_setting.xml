@@ -39,12 +39,12 @@
     <data noupdate="1">
         <record id='cj_rabbit_mq_username_id' model='ir.config_parameter'>
 		   <field name="key">cj_rabbit_mq_username_id</field>
-		   <field name="value">erpuser</field>
+		   <field name="value">admin</field>
 		</record>
 
 		<record id='cj_rabbit_mq_password_id' model='ir.config_parameter'>
 		   <field name="key">cj_rabbit_mq_password_id</field>
-		   <field name="value">erpuser*2019</field>
+		   <field name="value">colorful*2018</field>
 		</record>
 
 		<record id='cj_rabbit_mq_ip_id' model='ir.config_parameter'>
