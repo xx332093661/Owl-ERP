@@ -535,11 +535,19 @@ class ApiMessage(models.Model):
             customerLevel: customer_level
         """
         partner_obj = self.env['res.partner']
+        company_obj = self.env['res.company']
 
         content, body = self._deal_content(content)
         for distributor in body:
             state_id = self.get_country_state_id(distributor.get('province'))
             city_id = self.get_city_area_id(distributor['city'], state_id)
+            company_id = False
+            if distributor['companyCode']:
+                company = company_obj.search([('code', '=', distributor['companyCode'])])
+                if not company:
+                    raise MyValidationError('30', '公司编码：%s找不到对应的公司！' % distributor['companyCode'])
+
+                company_id = company.id
 
             val = {
                 'name': distributor['customerName'],
@@ -561,6 +569,7 @@ class ApiMessage(models.Model):
                 'cj_id': distributor['id'],
                 'licence_begin_time': distributor['licenceBeginTime'],  # 营业执照开始时间
                 'state_id': state_id,
+                'company_id': company_id,
 
                 'active': True,
                 'distributor': True,
