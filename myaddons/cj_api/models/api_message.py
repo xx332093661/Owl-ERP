@@ -2329,6 +2329,8 @@ class ApiMessage(models.Model):
         fields_list.pop(fields_list.index('create_uid'))
         fields_list.pop(fields_list.index('write_uid'))
         messages = self.search_read(domain, fields_list, limit=10000, order='id asc')  # 限制10000条数据
+        if not messages:
+            return
 
         # 删除原来的
         ids = [message['id'] for message in messages]
