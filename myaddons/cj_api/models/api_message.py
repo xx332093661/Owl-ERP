@@ -542,7 +542,7 @@ class ApiMessage(models.Model):
             city_id = self.get_city_area_id(distributor['city'], state_id)
 
             val = {
-                'name': distributor['companyName'],
+                'name': distributor['customerName'],
                 'archive_code': distributor['archiveCode'],  # 档案-统一社会信用代码
                 'code': distributor['customerCode'],
                 'customer_group': distributor['customerGroup'],  # 客户组

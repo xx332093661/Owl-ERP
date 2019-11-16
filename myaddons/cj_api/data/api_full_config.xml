@@ -21,7 +21,7 @@
             <field name="company_code">02014</field>
             <field name="source_code">dms_material_info</field>
             <field name="system_code">Owl</field>
-            <field name="secret_key">I70aRj46mtGMSe60PXcEaDJkbELGnRXD</field>
+            <field name="secret_key">x1lhndWZobcvHBcqosTFnHIhSwbDE2yA</field>
             <field name="message_name">MDM-ERP-MATERIAL-QUEUE</field>
             <field name="queue_name">物料</field>
         </record>
