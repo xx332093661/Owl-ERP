@@ -113,11 +113,10 @@ class ApiMessage(models.Model):
             try:
                 s.connect(('8.8.8.8', 80))
                 ip = s.getsockname()[0]
+                if ip != rabbitmq_ip:
+                    return
             finally:
                 s.close()
-
-            if ip != rabbitmq_ip:
-                return
 
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-ORG-QUEUE')    # 组织结构（公司）
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-STORE-QUEUE')    # 门店
