@@ -97,7 +97,7 @@ class RabbitMQReceiveThread(threading.Thread):
             channel = connection.channel()
             if self.exchange:
                 channel.exchange_declare(exchange=self.exchange, exchange_type='topic', durable=True)
-                if self.queue_name in ['WMS-ERP-STOCK-QUEUE']:
+                if self.queue_name in ['WMS-ERP-STOCK-QUEUE', 'WMS-ERP-RETURN-STOCKIN-QUEUE', 'MUSTANG-ERP-ORDER-STATUS-PUSH', 'WMS-ERP-STOCKOUT-QUEUE']:
                     channel.queue_declare(queue=self.queue_name, exclusive=True, durable=True, passive=True)
                 else:
                     channel.queue_declare(queue=self.queue_name, exclusive=True, durable=True, passive=False)
