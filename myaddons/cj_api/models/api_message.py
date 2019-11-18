@@ -62,7 +62,8 @@ PROCESS_ERROR = {
     '36': '退货入库单不存在',
     '37': '退款单号重复',
     '38': '退货入库单重复',
-    '39': '没有盘点明细'
+    '39': '没有盘点明细',
+    '40': '不处理队列'
 }
 
 
@@ -936,6 +937,7 @@ class ApiMessage(models.Model):
         #         return product_cost.cost
         #
         #     raise MyValidationError('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
+        raise MyValidationError('40', '不处理外部仓库库存变更！')
 
         warehouse_obj = self.env['stock.warehouse']
         inventory_obj = self.env['stock.inventory']
@@ -1582,7 +1584,7 @@ class ApiMessage(models.Model):
 
         ##兼容包含STOCK_的类型
         if  not 'STOCK_' in update_type:
-            update_type = 'STOCK_'+update_type
+            update_type = 'STOCK_'+ update_type
 
         # 销售出库
         if update_type == 'STOCK_01002':
