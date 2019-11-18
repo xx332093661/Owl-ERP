@@ -41,15 +41,17 @@ EXCHANGES = {
     'MDM-ERP-MEMBER-QUEUE': '',  # 会员
     'MDM-ERP-WAREHOUSE-QUEUE': '',  # 仓库
     'MDM-ERP-MATERIAL-QUEUE': '',  # 商品
-    'mustang-to-erp-store-stock-push': 'mustang-to-erp-exchange',  # 门店库存
+    'MUSTANG-REFUND-ERP-QUEUE': '',  # 退款单
+
     'WMS-ERP-STOCK-QUEUE': 'ERP_EXCHANGE',  # 外部仓库库存
-    'mustang-to-erp-order-push': 'mustang-to-erp-exchange',  # 订单
     'WMS-ERP-STOCKOUT-QUEUE': 'ERP_EXCHANGE',  # 订单出库
+    'WMS-ERP-RETURN-STOCKIN-QUEUE': 'ERP_EXCHANGE',  # 退货入库单
+
+    'mustang-to-erp-store-stock-push': 'mustang-to-erp-exchange',  # 门店库存
+    'mustang-to-erp-order-push': 'mustang-to-erp-exchange',  # 订单
     'mustang-to-erp-logistics-push': 'mustang-to-erp-exchange',  # 物流信息
     'mustang-to-erp-store-stock-update-record-push': 'mustang-to-erp-exchange',  # 门店库存变更记录
     'MUSTANG-ERP-ORDER-STATUS-PUSH': 'mustang-to-erp-exchange',  # 订单状态
-    'WMS-ERP-RETURN-STOCKIN-QUEUE': 'ERP_EXCHANGE',  # 退货入库单
-    'MUSTANG-REFUND-ERP-QUEUE': '',  # 退款单
 }
 
 
@@ -95,7 +97,7 @@ class RabbitMQReceiveThread(threading.Thread):
             channel = connection.channel()
             if self.exchange:
                 channel.exchange_declare(exchange=self.exchange, exchange_type='topic', durable=True)
-                if self.queue_name == 'WMS-ERP-STOCK-QUEUE':
+                if self.queue_name in ['WMS-ERP-STOCK-QUEUE', 'WMS-ERP-RETURN-STOCKIN-QUEUE', 'MUSTANG-ERP-ORDER-STATUS-PUSH', 'WMS-ERP-STOCKOUT-QUEUE']:
                     channel.queue_declare(queue=self.queue_name, exclusive=True, durable=True, passive=True)
                 else:
                     channel.queue_declare(queue=self.queue_name, exclusive=True, durable=True, passive=False)

@@ -96,6 +96,7 @@
 			<field name='name'>api消息</field>
 			<field name='res_model'>api.message</field>
 			<field name='view_mode'>tree,form</field>
+            <field name="context">{'search_default_message_not_stock': 1}</field>
 		</record>
 
         <record id="action_do_proc_content" model="ir.actions.server">
