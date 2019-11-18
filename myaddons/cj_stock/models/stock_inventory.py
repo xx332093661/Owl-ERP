@@ -336,7 +336,7 @@ class InventoryLine(models.Model):
                     return 'no'
                 return 'yes'
 
-            raise my_validation_error('29', '%s没有成本核算分组' % company.name)
+            # raise my_validation_error('29', '%s没有成本核算分组' % company.name)
 
         def get_cost():
             """计算初次盘点成本"""

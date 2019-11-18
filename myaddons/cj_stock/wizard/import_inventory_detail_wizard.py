@@ -36,7 +36,7 @@ class ImportInventoryDetailWizard(models.TransientModel):
                 return False
 
         product_obj = self.env['product.product']
-        lot_obj = self.env['stock.production.lot']
+        inventory_line_obj = self.env['stock.inventory.line']
 
         file_name = 'import_file.xls'
         with open(file_name, "wb") as f:
@@ -70,6 +70,7 @@ class ImportInventoryDetailWizard(models.TransientModel):
             for line in lines:
                 default_code = line[0]  # 物料编码
                 product_qty = line[2]  # 在手数量(实际数量)
+                cost = line[3]  # 单位成本
 
                 # 验证物料编码
                 product = product_obj.search([('default_code', '=', default_code)])
@@ -77,56 +78,26 @@ class ImportInventoryDetailWizard(models.TransientModel):
                     raise ValidationError('物料编码%s对应商品品不存在！' % default_code)
 
                 inventory_lines = inventory.line_ids.filtered(lambda x: x.product_id.id == product.id)  # 盘点明细(同一个产品，可能存在多行盘点明细)
-                if not inventory_lines:
-                    raise ValidationError('盘点明细中未包含产品：%s')
 
-                # 只有一条盘点记录
-                if len(inventory_lines) == 1:
-                    if inventory_lines.prod_lot_id:
-                        inventory_lines.product_qty = product_qty
-                    else:
-                        # 创建一个新的批次号
-                        lot = lot_obj.search([('name', '=like', 'INV%')], order='id desc', limit=1)
-                        if lot:
-                            lot_name = 'INV' + str(int(lot.name.replace('INV')) + 1).zfill(5)
-                        else:
-                            lot_name = 'INV' + '1'.zfill(5)
+                if inventory_lines:
 
-                        lot = lot_obj.create({
-                            'name': lot_name,
-                            'product_id': product.id
-                        })
-
-                        inventory_lines.write({
-                            'prod_lot_id': lot.id,
-                            'product_qty': product_qty
-                        })
-
-                    continue
-
-                total_qty = sum(inventory_lines.mapped('product_qty'))  # 盘点账面数量总数
-
-                comp = float_compare(product_qty, total_qty, precision_digits=4)
-                if comp == 0:  # 在手数量等于账面数量
-                    pass
+                    inventory_lines.write({
+                        'company_id': inventory.company_id.id,
+                        'location_id': inventory.location_id.id,
+                        'product_qty': product_qty,
+                        'cost': cost,
+                    })
                 else:
-                    # 保证先进先出原则
-                    if comp == 1:  # 在手数量大于账面数量，盘盈部分放在最后一个批次号
-                        sorted(inventory_lines, key=lambda x: x.prod_lot_id.id, reverse=False)  # 按批次号的id升序排列
-                    else:  # 在手数量小于账面数量，盘亏部分放在最开始一个批次号
-                        sorted(inventory_lines, key=lambda x: x.prod_lot_id.id, reverse=True)  # 按批次号的id降序排列
+                    inventory_line_obj.create({
+                        'inventory_id': inventory.id,
+                        'company_id': inventory.company_id.id,
+                        'location_id': inventory.location_id.id,
+                        'product_id': product.id,
+                        'product_qty': product_qty,
+                        'cost': cost,
 
-                    for index, inventory_line in enumerate(inventory_lines):
-                        theoretical_qty = inventory_line.theoretical_qty  # 账面数量
-                        if index == len(inventory_lines) - 1:  # 最开始批次号
-                            qty = product_qty
-                        else:
-                            qty = min(theoretical_qty, product_qty)
-                        inventory_line.product_qty = qty
+                    })
 
-                        product_qty -= qty
-                        if float_compare(product_qty, 0.0, precision_digits=4) <= 0:
-                            break
         except Exception:
             raise
         finally:
