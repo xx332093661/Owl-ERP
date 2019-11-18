@@ -129,7 +129,7 @@ class ApiMessage(models.Model):
 
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-store-stock-push')  # 门店库存
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-order-push')   # 订单
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-order-status-push')   # 订单状态
+        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-ORDER-STATUS-PUSH')   # 订单状态
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-logistics-push')   # 物流信息
         # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-service-list-push')   # 售后服务单
 
@@ -2044,8 +2044,8 @@ class ApiMessage(models.Model):
 
         raise MyValidationError('21', '未找到变更类型：%s' % update_type)
 
-    # 14、mustang-to-erp-order-status-push 订单状态
-    def deal_mustang_to_erp_order_status_push(self, content):  # mustang-to-erp-order-status-push
+    # 14、MUSTANG-ERP-ORDER-STATUS-PUSH 订单状态
+    def deal_mustang_to_erp_order_status_push(self, content):  # MUSTANG-ERP-ORDER-STATUS-PUSH
         """订单状态处理
         只处理订单取消、订单完成
         订单取消：取消订单和收款
