@@ -97,7 +97,7 @@ class RabbitMQReceiveThread(threading.Thread):
             channel = connection.channel()
             if self.exchange:
                 channel.exchange_declare(exchange=self.exchange, exchange_type='topic', durable=True)
-                if self.queue_name in ['WMS-ERP-STOCK-QUEUE', 'WMS-ERP-RETURN-STOCKIN-QUEUE', 'MUSTANG-ERP-ORDER-STATUS-PUSH', 'WMS-ERP-STOCKOUT-QUEUE']:
+                if self.queue_name in ['WMS-ERP-STOCK-QUEUE']:
                     channel.queue_declare(queue=self.queue_name, exclusive=True, durable=True, passive=True)
                 else:
                     channel.queue_declare(queue=self.queue_name, exclusive=True, durable=True, passive=False)
@@ -106,7 +106,7 @@ class RabbitMQReceiveThread(threading.Thread):
                 channel.start_consuming()
             else:
                 channel.basic_consume(self.queue_name, self.callback, auto_ack=True)
-                _logger.info('开始接收mq消息')
+                # _logger.info('开始接收mq消息')
                 channel.start_consuming()
         except ChannelClosedByBroker as e:
             if e.reply_code == '404':
