@@ -22,14 +22,22 @@ class DeliveryCarrier(models.Model):
 
     @api.model
     def _cron_check_delivery_carrier(self, sale_order_id, warehouse_id, logistics_code, weight, quantity):
-        sale_order = self.env['sale.order'].browse(sale_order_id)
-        warehouse = self.env['stock.warehouse'].browse(warehouse_id)
-        fee = self.get_delivery_fee_by_weight(sale_order, warehouse, logistics_code, weight, quantity)
-        _logger.info('@' * 100)
-        _logger.info('发货城市：%s', warehouse.city_id.name)
-        _logger.info('收货省：%s', sale_order.consignee_state_id.name)
-        _logger.info('重量：%s', weight)
-        _logger.info('快递费：%s', fee)
+        """自动确认盘点"""
+        for inventory in self.env['stock.inventory'].search([('state', '=', 'finance_manager_confirm')]):
+            inventory.action_validate()
+
+        self.env.ref('cj_api.cj_mq_thread_cron').active = True
+
+    # @api.model
+    # def _cron_check_delivery_carrier(self, sale_order_id, warehouse_id, logistics_code, weight, quantity):
+    #     sale_order = self.env['sale.order'].browse(sale_order_id)
+    #     warehouse = self.env['stock.warehouse'].browse(warehouse_id)
+    #     fee = self.get_delivery_fee_by_weight(sale_order, warehouse, logistics_code, weight, quantity)
+    #     _logger.info('@' * 100)
+    #     _logger.info('发货城市：%s', warehouse.city_id.name)
+    #     _logger.info('收货省：%s', sale_order.consignee_state_id.name)
+    #     _logger.info('重量：%s', weight)
+    #     _logger.info('快递费：%s', fee)
 
     @api.model
     def default_get(self, fields_list):
