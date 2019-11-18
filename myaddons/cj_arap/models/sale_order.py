@@ -57,8 +57,10 @@ class SaleOrder(models.Model):
             团购单，OA审批通过后调用
         """
         res = super(SaleOrder, self).action_confirm()
-        if self.payment_ids:
-            self.payment_ids.post()  # 确认付款记录
+        for payment in self.payment_ids:
+            payment.post() # 确认付款记录
+        # if self.payment_ids:
+        #     self.payment_ids.post()  # 确认付款记录
 
         self.filtered(lambda x: x.payment_term_id.type == 'first_payment')._generate_invoice_split()  # 先款后货的生成账单分期
         return res
