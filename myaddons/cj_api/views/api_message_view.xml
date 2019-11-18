@@ -66,6 +66,8 @@
                     <filter string="已处理" name="done" domain="[('state', '=', 'done')]"/>
                     <filter string="处理失败" name="error" domain="[('state', '=', 'error')]"/>
                     <separator/>
+                    <filter string="非实时库存" name="message_not_stock" domain="[('message_name', 'not in', ['mustang-to-erp-store-stock-push', 'WMS-ERP-STOCK-QUEUE'])]"/>
+                    <separator/>
                     <filter string="组织机构" name="message_org" domain="[('message_name', '=', 'MDM-ERP-ORG-QUEUE')]"/>
                     <filter string="门店" name="message_store" domain="[('message_name', '=', 'MDM-ERP-STORE-QUEUE')]"/>
                     <filter string="供应商" name="message_supplier" domain="[('message_name', '=', 'MDM-ERP-SUPPLIER-QUEUE')]"/>
