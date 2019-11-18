@@ -63,7 +63,9 @@ PROCESS_ERROR = {
     '37': '退款单号重复',
     '38': '退货入库单重复',
     '39': '没有盘点明细',
-    '40': '不处理队列'
+    '40': '不处理队列',
+    '41': '没有重量',
+    '42': '没有打包明细',
 }
 
 
@@ -1486,8 +1488,7 @@ class ApiMessage(models.Model):
                 if weight:
                     return carrier_obj.get_delivery_fee_by_weight(order, warehouse, logistics_code, weight, quantity)
                 else:
-                    _logger.warning('%s的物流单：%s没有重量！' % (logistics_code, express_code))
-                    return 0
+                    raise MyValidationError('41', '%s的物流单：%s没有重量！' % (logistics_code, express_code))
 
             if logistics_code == 'JDKD':
                 # 计算重量 根据市场惯例，会将实际重量与体积重量比较，取较重者为计费重量，用以计算运费。体积重量(kg)的计算方法为:长度(cm) x 宽度(cm) x 高度/8000。
@@ -1496,7 +1497,7 @@ class ApiMessage(models.Model):
                 if max_weight:
                     return carrier_obj.get_delivery_fee_by_weight(order, warehouse, logistics_code, max_weight, quantity)
                 else:
-                    _logger.warning('%s的物流单：%s没有重量！' % (logistics_code, express_code))
+                    raise MyValidationError('41', '%s的物流单：%s没有重量！' % (logistics_code, express_code))
 
             raise MyValidationError('32', '未能计算出快递费，目前只计算ZTO、YTO、JDKD的')
 
@@ -1528,6 +1529,9 @@ class ApiMessage(models.Model):
         order = order_obj.search([('name', '=', delivery_order_code)])
         if not order:
             raise MyValidationError('14', '出库单号：%s对应的销售订单未找到' % delivery_order_code)
+
+        if not logistics_data['packages']:
+            raise MyValidationError('42', '没有打包明细')
 
         state_id = self.get_country_state_id(logistics_data['province'])  # 省
         city_id = self.get_city_area_id(logistics_data['city'], state_id)  # 市
