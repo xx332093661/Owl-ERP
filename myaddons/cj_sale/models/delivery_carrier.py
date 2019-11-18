@@ -26,7 +26,7 @@ class DeliveryCarrier(models.Model):
         for inventory in self.env['stock.inventory'].search([('state', '=', 'finance_manager_confirm')]):
             inventory.action_validate()
 
-        self.env.ref('cj_api.cj_mq_thread_cron').active = True
+        # self.env.ref('cj_api.cj_mq_thread_cron').active = True
 
     # @api.model
     # def _cron_check_delivery_carrier(self, sale_order_id, warehouse_id, logistics_code, weight, quantity):
