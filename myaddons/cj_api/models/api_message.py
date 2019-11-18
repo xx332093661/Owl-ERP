@@ -840,6 +840,7 @@ class ApiMessage(models.Model):
     # 8、mustang-to-erp-store-stock-push 门店库存
     def deal_mustang_to_erp_store_stock_push(self, content):
         """门店初始化库存"""
+        raise MyValidationError('40', '不处理门店库存！')
         # def get_is_init():
         #     """计算商品是否是初次盘点"""
         #     cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
