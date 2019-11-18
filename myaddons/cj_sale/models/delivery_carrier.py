@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 from math import ceil
+import logging
 
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 from odoo.tools import safe_eval
+
+_logger = logging.getLogger(__name__)
 
 
 class DeliveryCarrier(models.Model):
@@ -22,10 +25,11 @@ class DeliveryCarrier(models.Model):
         sale_order = self.env['sale.order'].browse(sale_order_id)
         warehouse = self.env['stock.warehouse'].browse(warehouse_id)
         fee = self.get_delivery_fee_by_weight(sale_order, warehouse, logistics_code, weight, quantity)
-        print('发货城市：', warehouse.city_id.name)
-        print('收货省：', sale_order.consignee_state_id.name)
-        print('重量：', weight)
-        print('快递费：', fee)
+        _logger.info('@' * 100)
+        _logger.info('发货城市：%s', warehouse.city_id.name)
+        _logger.info('收货省：%s', sale_order.consignee_state_id.name)
+        _logger.info('重量：%s', weight)
+        _logger.info('快递费：%s', fee)
 
     @api.model
     def default_get(self, fields_list):
