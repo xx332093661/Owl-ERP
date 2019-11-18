@@ -23,7 +23,7 @@ class DeliveryCarrier(models.Model):
     @api.model
     def _cron_check_delivery_carrier(self, sale_order_id, warehouse_id, logistics_code, weight, quantity):
         """自动确认盘点"""
-        for inventory in self.env['stock.inventory'].search([('state', '=', 'finance_manager_confirm')]):
+        for inventory in self.env['stock.inventory'].search([('state', '=', 'finance_manager_confirm'), ('id', '!=', 1)]):
             inventory.action_validate()
 
         self.env.ref('cj_api.cj_mq_thread_cron').active = True
