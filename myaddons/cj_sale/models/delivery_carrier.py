@@ -18,6 +18,16 @@ class DeliveryCarrier(models.Model):
     company_id = fields.Many2one('res.company', string='公司', related=False, store=True, readonly=False)
 
     @api.model
+    def _cron_check_delivery_carrier(self, sale_order_id, warehouse_id, logistics_code, weight, quantity):
+        sale_order = self.env['sale.order'].browse(sale_order_id)
+        warehouse = self.env['stock.warehouse'].browse(warehouse_id)
+        fee = self.get_delivery_fee_by_weight(sale_order, warehouse, logistics_code, weight, quantity)
+        print('发货城市：', warehouse.city_id.name)
+        print('收货省：', sale_order.consignee_state_id.name)
+        print('重量：', weight)
+        print('快递费：', fee)
+
+    @api.model
     def default_get(self, fields_list):
         res = super(DeliveryCarrier, self).default_get(fields_list)
         res['product_id'] = self.env.ref('cj_delivery.product_product_delivery').id
@@ -31,7 +41,7 @@ class DeliveryCarrier(models.Model):
             raise ValidationError('发货仓库：%s(%s)没有设置省或者市！' % (warehouse.name, warehouse.code))
 
         consignee_state_id = sale_order.consignee_state_id.id  # 客户收货所在省
-        consignee_city_id = sale_order.consignee_state_id.id  # 客户收货所在市
+        consignee_city_id = sale_order.consignee_city_id.id  # 客户收货所在市
         if not consignee_state_id and not consignee_city_id:
             raise ValidationError('订单：%s收货人信息没有省或者市！' % (sale_order.name, ))
 

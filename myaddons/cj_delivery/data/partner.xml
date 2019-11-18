@@ -21,6 +21,16 @@
             <field name="email">yto@cj.com</field>
             <field name="code">YTO</field>
         </record>
+        <!--京东物流-->
+        <record id="res_partner_jdkd" model="res.partner">
+            <field name="name">JDKD</field>
+            <field name="supplier">1</field>
+            <field eval="0" name="customer"/>
+            <field name="is_company">1</field>
+            <field name="country_id" ref="base.cn"/>
+            <field name="email">jdkd@cj.com</field>
+            <field name="code">JDKD</field>
+        </record>
 
     </data>
 </odoo>

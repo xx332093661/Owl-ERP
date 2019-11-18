@@ -1480,16 +1480,25 @@ class ApiMessage(models.Model):
     # 12、mustang-to-erp-logistics-push 物流信息
     def deal_mustang_to_erp_logistics_push(self, content):
         """物流单处理"""
-        def get_shipping_cost(weight, quantity=0):
+        def get_shipping_cost(weight, length, width, height, quantity=0):
             """计算快递费"""
-            if logistics_code in 'ZTO':
+            if logistics_code in ['ZTO', 'YTO']:
                 if weight:
                     return carrier_obj.get_delivery_fee_by_weight(order, warehouse, logistics_code, weight, quantity)
                 else:
-                    _logger.warning('ZTO的物流单：%s没有重量！' % express_code)
+                    _logger.warning('%s的物流单：%s没有重量！' % (logistics_code, express_code))
                     return 0
 
-            raise MyValidationError('32', '未能计算出快递费，目前只计算ZTO的')
+            if logistics_code == 'JDKD':
+                # 计算重量 根据市场惯例，会将实际重量与体积重量比较，取较重者为计费重量，用以计算运费。体积重量(kg)的计算方法为:长度(cm) x 宽度(cm) x 高度/8000。
+                volume_weight = length * width * height / 8000.0  # 体积重量
+                max_weight = max(weight, volume_weight)
+                if max_weight:
+                    return carrier_obj.get_delivery_fee_by_weight(order, warehouse, logistics_code, max_weight, quantity)
+                else:
+                    _logger.warning('%s的物流单：%s没有重量！' % (logistics_code, express_code))
+
+            raise MyValidationError('32', '未能计算出快递费，目前只计算ZTO、YTO、JDKD的')
 
         partner_obj = self.env['res.partner']
         logistics_obj = self.env['delivery.logistics']
@@ -1526,7 +1535,10 @@ class ApiMessage(models.Model):
         delivery_id = delivery_obj.search([('name', '=', express_code)]).id
 
         package_ids = []
-        total_shipping_cost = 0
+        total_weight = 0  # 总重量
+        total_length = 0  # 总长度
+        total_width = 0  # 总宽度
+        total_height = 10  # 总高度
         for package in logistics_data['packages']:
             item_ids = []
             for item in package['item']:
@@ -1535,15 +1547,22 @@ class ApiMessage(models.Model):
                     raise MyValidationError('09', '商品编码：%s未找到商品' % item['itemCode'])
                 item_ids.append((0, 0, {'product_id': product.id, 'quantity': item['quantity']}))
 
+            length = package['length'] or 0
+            width = package['width'] or 0
+            height = package['height'] or 0
+            weight = package['weight'] or 0
             package_ids.append((0, 0, {
-                'length': package['length'],
-                'height': package['height'],
-                'width': package['width'],
+                'length': length,
+                'height': height,
+                'width': width,
                 'volume': package['volume'],
-                'weight': package['weight'],
+                'weight': weight,
                 'item_ids': item_ids,
             }))
-            total_shipping_cost += get_shipping_cost(package['weight'])
+            total_weight += weight
+            total_length += length
+            total_width += width
+            total_height += height
 
         logistics_obj.create({
             'delivery_id': delivery_id,
@@ -1555,7 +1574,7 @@ class ApiMessage(models.Model):
             'city_id': city_id,
             'area_id': area_id,
             'package_ids': package_ids,
-            'shipping_cost': total_shipping_cost
+            'shipping_cost': get_shipping_cost(total_weight, total_length, total_width, total_height)
         })
 
     # 13、mustang-to-erp-store-stock-update-record-push 门店库存变更记录

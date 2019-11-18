@@ -7,5 +7,66 @@
             <!--<field name="zipcode">330105</field>-->
             <field name="name">成都市</field>
         </record>
+
+        <record id="china_city_cfs" model="res.city">
+            <field name="state_id" ref="l10n_cn.state_NM" />
+            <field name="country_id" ref="base.cn" />
+            <!--<field name="zipcode">330105</field>-->
+            <field name="name">赤峰市</field>
+        </record>
+        <record id="china_city_tls" model="res.city">
+            <field name="state_id" ref="l10n_cn.state_NM" />
+            <field name="country_id" ref="base.cn" />
+            <!--<field name="zipcode">330105</field>-->
+            <field name="name">通辽市</field>
+        </record>
+        <record id="china_city_hlbes" model="res.city">
+            <field name="state_id" ref="l10n_cn.state_NM" />
+            <field name="country_id" ref="base.cn" />
+            <!--<field name="zipcode">330105</field>-->
+            <field name="name">呼伦贝尔市</field>
+        </record>
+        <record id="china_city_xams" model="res.city">
+            <field name="state_id" ref="l10n_cn.state_NM" />
+            <field name="country_id" ref="base.cn" />
+            <!--<field name="zipcode">330105</field>-->
+            <field name="name">兴安盟</field>
+        </record>
+        <record id="china_city_hhhts" model="res.city">
+            <field name="state_id" ref="l10n_cn.state_NM" />
+            <field name="country_id" ref="base.cn" />
+            <!--<field name="zipcode">330105</field>-->
+            <field name="name">呼和浩特市</field>
+        </record>
+        <record id="china_city_bts" model="res.city">
+            <field name="state_id" ref="l10n_cn.state_NM" />
+            <field name="country_id" ref="base.cn" />
+            <!--<field name="zipcode">330105</field>-->
+            <field name="name">包头市</field>
+        </record>
+        <record id="china_city_eedss" model="res.city">
+            <field name="state_id" ref="l10n_cn.state_NM" />
+            <field name="country_id" ref="base.cn" />
+            <!--<field name="zipcode">330105</field>-->
+            <field name="name">鄂尔多斯市</field>
+        </record>
+        <record id="china_city_wlcbs" model="res.city">
+            <field name="state_id" ref="l10n_cn.state_NM" />
+            <field name="country_id" ref="base.cn" />
+            <!--<field name="zipcode">330105</field>-->
+            <field name="name">乌兰察布市</field>
+        </record>
+        <record id="china_city_byzes" model="res.city">
+            <field name="state_id" ref="l10n_cn.state_NM" />
+            <field name="country_id" ref="base.cn" />
+            <!--<field name="zipcode">330105</field>-->
+            <field name="name">巴彦淖尔市</field>
+        </record>
+        <record id="china_city_whs" model="res.city">
+            <field name="state_id" ref="l10n_cn.state_NM" />
+            <field name="country_id" ref="base.cn" />
+            <!--<field name="zipcode">330105</field>-->
+            <field name="name">乌海市</field>
+        </record>
     </data>
 </odoo>
