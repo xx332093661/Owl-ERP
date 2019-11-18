@@ -25,6 +25,7 @@ class DeliveryCarrier(models.Model):
         """自动确认盘点"""
         for inventory in self.env['stock.inventory'].search([('state', '=', 'finance_manager_confirm')]):
             inventory.action_validate()
+            self._cr.commit()
 
         # self.env.ref('cj_api.cj_mq_thread_cron').active = True
 
