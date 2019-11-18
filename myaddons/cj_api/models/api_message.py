@@ -179,7 +179,6 @@ class ApiMessage(models.Model):
 
         total_count = len(messages)
         _logger.info('开始处理{0}条数据'.format(total_count))
-        _logger.info(MQ_SEQUENCE)
 
         sequence_dict = {v: k for k, v in MQ_SEQUENCE.items()}
         res = {}
