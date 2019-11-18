@@ -2045,7 +2045,7 @@ class ApiMessage(models.Model):
         raise MyValidationError('21', '未找到变更类型：%s' % update_type)
 
     # 14、MUSTANG-ERP-ORDER-STATUS-PUSH 订单状态
-    def deal_mustang_to_erp_order_status_push(self, content):  # MUSTANG-ERP-ORDER-STATUS-PUSH
+    def deal_mustang_erp_order_status_push(self, content):  # MUSTANG-ERP-ORDER-STATUS-PUSH
         """订单状态处理
         只处理订单取消、订单完成
         订单取消：取消订单和收款
