@@ -1446,7 +1446,7 @@ class ApiMessage(models.Model):
                     'delivery_qty': qty,  # 本次发货数量
                 })
 
-        res = list(filter(lambda x: float_compare(x['deliver_qty'], x['product_uom_qty'] - x['qty_delivered'], precision_rounding=0.01) == 1, order_lines))
+        res = list(filter(lambda x: float_compare(x['delivery_qty'], x['product_uom_qty'] - x['qty_delivered'], precision_rounding=0.01) == 1, order_lines))
         if res:
             pros = ['[%s]%s' % (product_obj.browse(r['product_id']).default_code, product_obj.browse(r['product_id']).name) for r in res]
             raise MyValidationError('18', '商品：%s发货数量大于待订单数量！' % ('、'.join(pros)))
