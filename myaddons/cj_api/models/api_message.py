@@ -311,7 +311,8 @@ class ApiMessage(models.Model):
                     'error_no': error_no,
                     'error_msg': error_msg
                 })
-            _logger.error(error_trace)
+            # 不显示错误日志
+            # _logger.error(error_trace)
         finally:
             self._cr.execute('RELEASE SAVEPOINT "%s"' % name)
 
