@@ -1086,16 +1086,16 @@ class ApiMessage(models.Model):
 
         def get_partner():
             """计算客户"""
+            pid = self.env.ref('cj_sale.default_cj_partner').id  # 默认客户
+
             if content.get('memberId'):
                 member = partner_obj.search([('code', '=', content['memberId']), ('member', '=', True)], limit=1)
                 if not member:
-                    raise MyValidationError('12', '会员：%s未找到' % content['memberId'])
-
-                pid = member.id
+                    return pid, content.get('memberId')
+                    # raise MyValidationError('12', '会员：%s未找到' % content['memberId'])
+                return member.id, ''
             else:
-                pid = self.env.ref('cj_sale.default_cj_partner').id  # 默认客户
-
-            return pid
+                return pid, ''
 
         def get_parent():
             """获取关联的销售订单"""
@@ -1177,7 +1177,8 @@ class ApiMessage(models.Model):
                 'reason': content.get('reason'),    # 补发货原因（补发货订单特有）
 
                 'sync_state': 'no_need',
-                'state': 'cancel' if content['status'] == '已取消' else 'draft'
+                'state': 'cancel' if content['status'] == '已取消' else 'draft',
+                'member_id': member_id  # 会员ID, 对于全渠道订单，打不到会员，先把会员ID暂存起来，后通过计划任务去计算会员
             }
             return order_obj.create(val)
 
@@ -1258,7 +1259,7 @@ class ApiMessage(models.Model):
 
         company_id = get_company()  # 计算公司
         warehouse_id = get_warehouse()  # 计算仓库(可能是临时仓库)
-        partner_id = get_partner()  # 计算客户
+        partner_id, member_id = get_partner()  # 计算客户
         parent_id = get_parent()    # 关联的销售订单
         order = create_sale_order()  # 创建销售订单
         order_id = order.id

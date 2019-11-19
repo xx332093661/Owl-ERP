@@ -76,6 +76,8 @@ class SaleOrder(models.Model):
     child_ids = fields.One2many('sale.order', 'parent_id', '补发订单')
     reason = fields.Char('补发货原因')
 
+    member_id = fields.Char('会员ID', help='对于全渠道订单，打不到会员，先把会员ID暂存起来，后通过计划任务去计算会员')
+
     # arap_checked = fields.Boolean(string="商品核算", helps="是否完成了该订单的应收应付核算检查", default=False)
     # cost_checked = fields.Boolean(string="物流核算", helps="是否完成了订单商品成本的计算", default=False)
 
