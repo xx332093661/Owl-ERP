@@ -1631,8 +1631,8 @@ class ApiMessage(models.Model):
         update_type = contents[0]['type']  # 变更类型
         order_name = contents[0]['updateCode']  # 变更单号（如果是订单产生的库存变化，那变更类型就是销售出库，变更单号就是订单号）
 
-        ##兼容包含STOCK_的类型
-        if  not 'STOCK_' in update_type:
+        # #兼容包含STOCK_的类型
+        if not 'STOCK_' in update_type:
             update_type = 'STOCK_'+ update_type
 
         # 销售出库
@@ -2100,6 +2100,9 @@ class ApiMessage(models.Model):
             order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
             # 订单取消
             order.action_cancel()
+            # 取消关联的收款
+            for payment in order.payment_ids:
+                payment.cancel()
             # # 将已完成的stock.picking的stock.move的完成数量置为0
             # order.picking_ids.filtered(lambda x: x.state == 'done').mapped('move_lines').write({
             #     'quantity_done': 0
