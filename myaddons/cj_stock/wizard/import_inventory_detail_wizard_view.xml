@@ -29,22 +29,21 @@
             </field>
         </record>
 
-        <!--<record id="action_import_inventory_detail_wizard" model="ir.actions.act_window">-->
-            <!--<field name="name">导入盘点明细</field>-->
-            <!--<field name="res_model">import.inventory.detail.wizard</field>-->
-            <!--<field name="view_type">form</field>-->
-            <!--<field name="view_mode">form</field>-->
-            <!--<field name="target">new</field>-->
-        <!--</record>-->
+        <record id="action_import_inventory_detail_wizard" model="ir.actions.act_window">
+            <field name="name">导入盘点明细</field>
+            <field name="res_model">import.inventory.detail.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
 
-        <act_window
-            id="action_import_inventory_detail_wizard"
-            name="导入盘点明细"
-            res_model="import.inventory.detail.wizard"
-            src_model="stock.inventory"
-            view_mode="form"
-            target="new"
-        />
+        <!--<act_window-->
+            <!--id="action_import_inventory_detail_wizard"-->
+            <!--name="导入盘点明细"-->
+            <!--res_model="import.inventory.detail.wizard"-->
+            <!--src_model="stock.inventory"-->
+            <!--view_mode="form"-->
+            <!--target="new"-->
     </data>
 
 </odoo>
