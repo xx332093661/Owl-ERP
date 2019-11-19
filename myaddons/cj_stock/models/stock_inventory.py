@@ -342,10 +342,18 @@ class InventoryLine(models.Model):
             """计算初次盘点成本"""
             if is_init == 'no':
                 return 0
+
+            # 当前公司
             product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
             if product_cost:
                 return product_cost.cost
 
+            # 上级公司
+            product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
+            if product_cost:
+                return product_cost.cost
+
+            # 无公司
             product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
             if product_cost:
                 return product_cost.cost
@@ -375,8 +383,8 @@ class InventoryLine(models.Model):
         vals.update({
             'is_init': is_init,
         })
-        if not vals.get('cost'):
-            vals['cost'] = get_cost()
+        # if not vals.get('cost'):
+        vals['cost'] = get_cost()
         # 计算是否是初次盘点
         return super(InventoryLine, self).create(vals)
 
