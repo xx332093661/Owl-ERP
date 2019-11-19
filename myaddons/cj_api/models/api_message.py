@@ -1172,7 +1172,7 @@ class ApiMessage(models.Model):
                 'consignee_state_id': consignee_state_id,  # 省
                 'consignee_city_id': consignee_city_id,  # 市
                 'consignee_district_id': consignee_district_id,  # 区(县)
-                'special_order_mark': content.get('specialOrderMark'),  # 订单类型（普通订单：normal，补发货订单：compensate）
+                'special_order_mark': content.get('specialOrderMark') or 'normal',  # 订单类型（普通订单：normal，补发货订单：compensate）
                 'parent_id': parent_id,     # 关联销售订单（补发货订单特有）
                 'reason': content.get('reason'),    # 补发货原因（补发货订单特有）
 
