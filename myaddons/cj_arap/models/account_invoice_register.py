@@ -241,7 +241,8 @@ class AccountInvoiceRegister(models.Model):
         #         })
 
         res.amount = sum(res.line_ids.mapped('invoice_amount'))
-        res.customer_invoice_apply_id.state = 'register'  # 修改客户发票申请状态
+        if res.customer_invoice_apply_id:
+            res.customer_invoice_apply_id.state = 'register'  # 修改客户发票申请状态
 
         return res
 
