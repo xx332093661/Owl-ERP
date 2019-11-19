@@ -56,6 +56,7 @@
             <field name="interval_type">minutes</field>
             <field name="numbercall">-1</field>
             <field name="doall" eval="False"/>
+            <field name="active" eval="False"/>
         </record>
 
         <record id="ir_cron_push_data_to_pos" model="ir.cron">
