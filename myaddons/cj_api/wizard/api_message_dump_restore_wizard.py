@@ -2,7 +2,7 @@
 import csv
 
 from odoo import models, api, fields
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 
 class ApiMessageDumpRestoreWizard(models.TransientModel):
@@ -29,6 +29,17 @@ class ApiMessageDumpRestoreWizard(models.TransientModel):
                     message.pop('create_date', False)
                     message.pop('write_date', False)
                     message.pop('id', False)
+                    error_no = message.pop('error_no', '')
+                    error_msg = message.pop('error_msg', '')
+                    if error_no == 'False':
+                        error_no = ''
+                    if error_msg == 'False':
+                        error_msg = ''
+
+                    message.update({
+                        'error_no': error_no,
+                        'error_msg': error_msg,
+                    })
                     vals_list.append(message)
 
         if vals_list:
@@ -41,7 +52,7 @@ class ApiMessageDumpRestoreWizard(models.TransientModel):
     @api.multi
     def button_download(self):
         """下载"""
-        raise ValidationError('未实现的方法')
+        raise UserError('未实现的方法')
 
 
 class ApiMessageDumpRestoreWizardLine(models.TransientModel):
@@ -49,8 +60,9 @@ class ApiMessageDumpRestoreWizardLine(models.TransientModel):
     _description = '下载或恢复转储的数据'
 
     wizard_id = fields.Many2one('api.message.dump.restore.wizard', '向导')
-    dump_id = fields.Many2one('api.message.dump', '文件名', required=1)
+    dump_id = fields.Many2one('api.message.dump', '文件名', required=0)
     message_names = fields.Text('存储队列', related='dump_id.message_names', readonly=1)
+    state = fields.Selection(string='队列状态', related='dump_id.state', readonly=1)
 
 
 

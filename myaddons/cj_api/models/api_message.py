@@ -14,7 +14,7 @@ import csv
 import os
 
 from odoo import fields, models, api
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 from .rabbit_mq_receive import RabbitMQReceiveThread
 from .rabbit_mq_send import RabbitMQSendThread
 from .rabbit_mq_receive import MQ_SEQUENCE
@@ -84,6 +84,17 @@ class ApiMessageDump(models.Model):
     to_date = fields.Char('截止时间')
     path = fields.Char('文件路径')
     message_names = fields.Text('存储队列')
+    state = fields.Selection([('draft', '未处理'), ('done', '已处理'), ('error', '处理失败')], '队列状态')
+
+    @api.model
+    def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
+        """ 跨公司调拨时，调入仓库可以访问所有的仓库"""
+        if 'line_ids' in self._context:
+            exist_ids = [line[2]['dump_id'] for line in self._context['line_ids'] if line[2]['dump_id']]
+            if exist_ids:
+                args = args or []
+                args.append(('id', 'not in', exist_ids))
+        return super(ApiMessageDump, self)._name_search(name=name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
 
 
 class ApiMessage(models.Model):
@@ -103,6 +114,7 @@ class ApiMessage(models.Model):
     state = fields.Selection([('draft', '未处理'), ('done', '已处理'), ('error', '处理失败')], '状态', default='draft')
     attempts = fields.Integer('失败次数', default=0)
     origin = fields.Selection([('full', '全量'), ('increment', '增量')], '来源', default='increment')
+    create_time = fields.Datetime('消息时间', default=fields.Datetime.now)
 
     @api.model
     def start_mq_thread(self):
@@ -2326,6 +2338,67 @@ class ApiMessage(models.Model):
 
         return product
 
+    def action_dump(self):
+        """转储"""
+        dump_obj = self.env['api.message.dump']
+
+        tz = self.env.user.tz or 'Asia/Shanghai'
+
+        fields_list = list(self._fields.keys())
+        fields_list.pop(fields_list.index('__last_update'))
+        fields_list.pop(fields_list.index('display_name'))
+        fields_list.pop(fields_list.index('create_uid'))
+        fields_list.pop(fields_list.index('write_uid'))
+        messages = self.search_read([('id', 'in', self._context['active_ids'])], fields_list, limit=10000, order='id asc')
+        if not messages:
+            return
+
+        if any([message['state'] == 'draft' for message in messages]):
+            raise ValidationError('草稿状态的记录不能转储！')
+
+        now = datetime.now(tz=pytz.timezone(tz))
+        time = now.strftime("%Y-%m-%d_%H-%M-%S")
+
+        files = []
+        try:
+            # 删除原来的
+            self.search([('id', 'in', self._context['active_ids'])]).unlink()
+
+            # 创建转储记录
+            for state, ms in groupby(sorted(messages, key=lambda x: x['state']), lambda x: x['state']):
+                ms = list(ms)
+                name = '%s-%s.csv' % (time, state, )
+                path = os.path.join(config['data_dir'], name)
+
+                message_names = [message['message_name'] for message in ms]
+                dump_obj.create({
+                    'name': name,
+                    'path': path,
+                    'to_date': now.strftime(DATETIME_FORMAT),
+                    'message_names': '、'.join(list(set(message_names))),
+                    'state': state
+                })
+
+                # 创建文件
+                with open(path, 'w')as f:
+                    writer = csv.DictWriter(f, fieldnames=fields_list)
+                    writer.writeheader()
+                    for message in ms:
+                        writer.writerow(message)
+
+                files.append(path)
+        except:
+            _logger.error('转储记录时发生错误！')
+            _logger.error(traceback.format_exc())
+            for f in files:
+                if os.path.exists(f):
+                    try:
+                        os.remove(f)
+                    except IOError:
+                        pass
+
+            raise UserError('转储记录时出错！')
+
     @api.model
     def _cron_dump_api_data(self, message_name=None, reserve_days=None):
         """转储接口数据
@@ -2367,30 +2440,40 @@ class ApiMessage(models.Model):
         if not messages:
             return
 
-        # 删除原来的
-        ids = [message['id'] for message in messages]
-        self.search([('id', 'in', ids)]).unlink()
-
         now = datetime.now(tz=pytz.timezone(tz))
         time = now.strftime("%Y-%m-%d_%H-%M-%S")
-        name = '%s.csv' % time
+        name = '%s-done.csv' % time
         path = os.path.join(config['data_dir'], name)
 
-        # 创建转储记录
-        message_names = [message['message_name'] for message in messages]
-        self.env['api.message.dump'].create({
-            'name': name,
-            'path': path,
-            'to_date': now.strftime(DATETIME_FORMAT),
-            'message_names': '、'.join(list(set(message_names)))
-        })
+        try:
+            # 删除原来的
+            ids = [message['id'] for message in messages]
+            self.search([('id', 'in', ids)]).unlink()
 
-        # 创建文件
-        with open(path, 'w')as f:
-            writer = csv.DictWriter(f, fieldnames=fields_list)
-            writer.writeheader()
-            for message in messages:
-                writer.writerow(message)
+            # 创建转储记录
+            message_names = [message['message_name'] for message in messages]
+            self.env['api.message.dump'].create({
+                'name': name,
+                'path': path,
+                'to_date': now.strftime(DATETIME_FORMAT),
+                'message_names': '、'.join(list(set(message_names))),
+                'state': 'done'
+            })
+
+            # 创建文件
+            with open(path, 'w')as f:
+                writer = csv.DictWriter(f, fieldnames=fields_list)
+                writer.writeheader()
+                for message in messages:
+                    writer.writerow(message)
+        except:
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                except IOError:
+                    pass
+
+            raise
 
     # # 15、mustang-to-erp-service-list-push 售后服务单
     # def deal_mustang_to_erp_service_list_push(self, content):  # mustang-to-erp-service-list-push
