@@ -121,7 +121,7 @@ class RabbitMQReceiveThread(threading.Thread):
 
     def callback(self, ch, method, properties, body):
         """回调"""
-        _logger.info('队列：%s收到数据:%s' % (self.queue_name, body))
+        # _logger.info('队列：%s收到数据:%s' % (self.queue_name, body))
         try:
             body_json = json.loads(body, encoding='utf-8')
             vals = {
