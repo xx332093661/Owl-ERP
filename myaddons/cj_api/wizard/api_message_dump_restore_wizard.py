@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import csv
+import os
 
 from odoo import models, api, fields
 from odoo.exceptions import ValidationError, UserError
@@ -20,10 +21,12 @@ class ApiMessageDumpRestoreWizard(models.TransientModel):
             raise ValidationError('请选择要恢复或下载的文件！')
 
         vals_list = []
+        files = []
         for line in self.line_ids:
             message_dump = line.dump_id
             path = message_dump.path
-            with open(path, 'r') as f:
+            files.append(path)
+            with open(path, 'r', encoding='utf-8') as f:
                 messages = csv.DictReader(f)
                 for message in messages:
                     message.pop('create_date', False)
@@ -48,6 +51,8 @@ class ApiMessageDumpRestoreWizard(models.TransientModel):
         self.line_ids.mapped('dump_id').unlink()
 
         # 暂时不删除文件
+        for f in files:
+            os.remove(f)
 
     @api.multi
     def button_download(self):

@@ -2368,8 +2368,6 @@ class ApiMessage(models.Model):
         """转储"""
         dump_obj = self.env['api.message.dump']
 
-        tz = self.env.user.tz or 'Asia/Shanghai'
-
         fields_list = list(self._fields.keys())
         fields_list.pop(fields_list.index('__last_update'))
         fields_list.pop(fields_list.index('display_name'))
@@ -2379,26 +2377,32 @@ class ApiMessage(models.Model):
         if not messages:
             return
 
-        if any([message['state'] == 'draft' for message in messages]):
-            raise ValidationError('草稿状态的记录不能转储！')
+        if any([message['state'] == 'draft' or (message['state'] == 'error' and message['attempts'] <= 3) for message in messages]):
+            raise ValidationError('草稿状态或错误次数小于3次的记录不能转储！')
 
+        tz = self.env.user.tz or 'Asia/Shanghai'
         now = datetime.now(tz=pytz.timezone(tz))
         time = now.strftime("%Y-%m-%d_%H-%M-%S")
 
         files = []
         try:
+            # 创建目录，路径：config['data_dir']/config['db_name']/api_message
+            dir_path = os.path.join(self.env['ir.attachment']._filestore(), 'api_message')
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path)
+
             # 删除原来的
             self.search([('id', 'in', self._context['active_ids'])]).unlink()
 
             # 创建转储记录
             for state, ms in groupby(sorted(messages, key=lambda x: x['state']), lambda x: x['state']):
                 ms = list(ms)
-                name = '%s-%s.csv' % (time, state, )
-                path = os.path.join(config['data_dir'], name)
+                file_name = '%s-%s.csv' % (time, state, )
+                path = os.path.join(dir_path, file_name)
 
                 message_names = [message['message_name'] for message in ms]
                 dump_obj.create({
-                    'name': name,
+                    'name': file_name,
                     'path': path,
                     'to_date': now.strftime(DATETIME_FORMAT),
                     'message_names': '、'.join(list(set(message_names))),
@@ -2406,7 +2410,7 @@ class ApiMessage(models.Model):
                 })
 
                 # 创建文件
-                with open(path, 'w')as f:
+                with open(path, 'w', encoding='utf-8')as f:
                     writer = csv.DictWriter(f, fieldnames=fields_list)
                     writer.writeheader()
                     for message in ms:
@@ -2453,7 +2457,7 @@ class ApiMessage(models.Model):
         tz = self.env.user.tz or 'Asia/Shanghai'
         create_date = datetime.now(tz=pytz.timezone(tz)).date() - timedelta(days=reserve_days) - timedelta(hours=8)
 
-        domain = [('create_date', '<', create_date), ('state', '=', 'done')]
+        domain = [('create_time', '<', create_date), ('state', '=', 'done')]
         if message_name:
             domain.extend([('message_name', '=', message_name)])
 
@@ -2467,9 +2471,14 @@ class ApiMessage(models.Model):
             return
 
         now = datetime.now(tz=pytz.timezone(tz))
-        time = now.strftime("%Y-%m-%d_%H-%M-%S")
-        name = '%s-done.csv' % time
-        path = os.path.join(config['data_dir'], name)
+        file_name = '%s-done.csv' % now.strftime("%Y-%m-%d_%H-%M-%S")
+
+        # 创建目录，路径：config['data_dir']/config['db_name']/api_message
+        dir_path = os.path.join(self.env['ir.attachment']._filestore(), 'api_message')
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+
+        path = os.path.join(dir_path, file_name)
 
         try:
             # 删除原来的
@@ -2479,7 +2488,7 @@ class ApiMessage(models.Model):
             # 创建转储记录
             message_names = [message['message_name'] for message in messages]
             self.env['api.message.dump'].create({
-                'name': name,
+                'name': file_name,
                 'path': path,
                 'to_date': now.strftime(DATETIME_FORMAT),
                 'message_names': '、'.join(list(set(message_names))),
@@ -2487,7 +2496,7 @@ class ApiMessage(models.Model):
             })
 
             # 创建文件
-            with open(path, 'w')as f:
+            with open(path, 'w', encoding='utf-8')as f:
                 writer = csv.DictWriter(f, fieldnames=fields_list)
                 writer.writeheader()
                 for message in messages:
