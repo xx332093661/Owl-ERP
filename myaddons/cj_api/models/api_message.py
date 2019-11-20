@@ -125,7 +125,7 @@ class ApiMessage(models.Model):
             try:
                 s.connect(('8.8.8.8', 80))
                 ip = s.getsockname()[0]
-                _logger.info('开启MQ客户端，本机ip：%s', ip)
+                # _logger.info('开启MQ客户端，本机ip：%s', ip)
                 if ip != rabbitmq_ip:
                     return
             finally:
