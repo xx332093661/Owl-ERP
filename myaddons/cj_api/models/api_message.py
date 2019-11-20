@@ -185,17 +185,17 @@ class ApiMessage(models.Model):
             return getattr(x, 'update_code', '')
 
         if not messages:
-            rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去处理RabbitMQ的数据，与开启
-            if rabbitmq_ip:
-                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                try:
-                    s.connect(('8.8.8.8', 80))
-                    ip = s.getsockname()[0]
-                    _logger.info('处理同步数据，本机ip：%s', ip)
-                    if ip != rabbitmq_ip:
-                        return
-                finally:
-                    s.close()
+            # rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去处理RabbitMQ的数据，与开启
+            # if rabbitmq_ip:
+            #     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            #     try:
+            #         s.connect(('8.8.8.8', 80))
+            #         ip = s.getsockname()[0]
+            #         _logger.info('处理同步数据，本机ip：%s', ip)
+            #         if ip != rabbitmq_ip:
+            #             return
+            #     finally:
+            #         s.close()
 
             messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', 3)], order='sequence asc, id asc', limit=3000)
         else:
