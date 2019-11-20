@@ -109,6 +109,7 @@ class RabbitMQReceiveThread(threading.Thread):
                 # _logger.info('开始接收mq消息')
                 channel.start_consuming()
         except ChannelClosedByBroker as e:
+            _logger.error('错误码：%s', e.reply_code)
             if e.reply_code == '404':
                 _logger.error('队列：%s不存在！', self.queue_name)
 
