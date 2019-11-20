@@ -106,8 +106,9 @@
                                 <!--<field name="cj_activity_id" options="{'no_create_edit': True, 'no_create':True}"/>-->
                             </group>
                             <group>
-                                <field name="validity_date" attrs="{'invisible': [('state', 'in', ['sale', 'done'])]}"/>
-                                <field name="confirmation_date" attrs="{'invisible': [('state', 'in', ['draft', 'sent', 'cancel'])]}"/>
+                                <field name="date_order"/>
+                                <!--<field name="validity_date" attrs="{'invisible': [('state', 'in', ['sale', 'done'])]}"/>-->
+                                <!--<field name="confirmation_date" attrs="{'invisible': [('state', 'in', ['draft', 'sent', 'cancel'])]}"/>-->
                                 <field name="pricelist_id" groups="product.group_sale_pricelist"/>
                                 <field name="currency_id" invisible="1"/>
                                 <field name="payment_term_id" options="{'no_create': False}"/>
@@ -325,18 +326,25 @@
                                         <field name="reason"/>
                                     </group>
                                 </group>
-                                <group invisible="1">
-                                    <group string="Shipping Information" name="sale_shipping">
-                                        <field name="warehouse_id" options="{'no_create': True}" groups="stock.group_stock_multi_locations"/>
+                                <group>
+                                    <group>
+                                        <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
                                     </group>
-                                    <group string="Sales Information" name="sales_person">
-                                        <field name="user_id"/>
-                                        <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                                    <group>
+                                        <field name="warehouse_id" options="{'no_create': 1, 'no_open': 1}"/>
                                     </group>
-                                    <!--<group string="Reporting" name="technical" groups="base.group_no_one">-->
-                                        <!--<field groups="base.group_no_one" name="origin"/>-->
+
+                                    <!--<group string="Shipping Information" name="sale_shipping">-->
+                                        <!--<field name="warehouse_id" options="{'no_create': True}" groups="stock.group_stock_multi_locations"/>-->
                                     <!--</group>-->
-                                    <group name="utm_link" groups="base.group_no_one"/>
+                                    <!--<group string="Sales Information" name="sales_person">-->
+                                        <!--<field name="user_id"/>-->
+                                        <!--<field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>-->
+                                    <!--</group>-->
+                                    <!--&lt;!&ndash;<group string="Reporting" name="technical" groups="base.group_no_one">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<field groups="base.group_no_one" name="origin"/>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</group>&ndash;&gt;-->
+                                    <!--<group name="utm_link" groups="base.group_no_one"/>-->
                                 </group>
                             </page>
                         </notebook>
@@ -360,9 +368,9 @@
                     <field name="message_needaction" invisible="1"/>
                     <field name="name" string="订单号"/>
                     <field name="date_order" string="订单日期"/>
+                    <field name="confirmation_date"/>
                     <field name="channel_id" string="渠道"/>
-                    <field name="commitment_date" groups="sale.group_sale_order_dates"/>
-                    <field name="expected_date" groups="sale.group_sale_order_dates"/>
+                    <!--<field name="expected_date" groups="sale.group_sale_order_dates"/>-->
                     <field name="partner_id"/>
                     <field name="special_order_mark"/>
                     <field name="parent_id"/>

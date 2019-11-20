@@ -168,7 +168,7 @@ class SaleOrder(models.Model):
             raise ValidationError('只有财务经理审核的单据才能由总经理拒绝')
 
         self.state = 'general_manager_refuse'
-        self.purchase_apply_id.unlink()  # 删除关联的采购申请
+        self.purchase_apply_id.unlink()  # 删除关联的采购申请`
 
     @api.multi
     def button_general_manager_confirm(self):
