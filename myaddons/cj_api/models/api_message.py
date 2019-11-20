@@ -1972,7 +1972,7 @@ class ApiMessage(models.Model):
                     'store_stock_update_code': 'STOCK_03003',  # 门店库存变更类型
                 }))
             picking = picking_obj.create({
-                'location_id': location_obj.search([('usage', '=', 'inventory')], limit=1).id,  # 源库位(盘点库位)
+                'location_id': location_obj.search([('usage', '=', 'supplier')], limit=1).id,  # 源库位(供应商库位)
                 'location_dest_id': picking_type.default_location_dest_id.id,  # 目的库位(库存库位)
                 'picking_type_id': picking_type.id,  # 作业类型
                 'origin': contents[0]['updateCode'],  # 关联单据
@@ -2006,7 +2006,7 @@ class ApiMessage(models.Model):
 
             picking = picking_obj.create({
                 'location_id': picking_type.default_location_src_id.id,  # 源库位(库存库位)
-                'location_dest_id': location_obj.search([('usage', '=', 'inventory')], limit=1).id,  # 目的库位(客户库位)
+                'location_dest_id': location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 目的库位(客户库位)
                 'picking_type_id': picking_type.id,  # 作业类型
                 'origin': contents[0]['updateCode'],  # 关联单据
                 'company_id': company.id,
