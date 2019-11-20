@@ -97,16 +97,43 @@ class TestPurchaseOrder(TransactionCase):
     def test_action_confirm(self):
         """采购专员确认"""
         self.purchase_order.action_confirm()
+        self.assertEqual('confirm', self.state)
 
     def test_action_cancel(self):
         """测试取消功能"""
         self.purchase_order.action_cancel()
+        self.assertEqual('cancel', self.state)
 
     def test_action_draft(self):
         """测试设为草稿功能"""
         self.purchase_order.action_draft()
+        self.assertEqual('draft', self.state)
 
-    def test_action_manager_confirm(self):
-        """测试采购经理审核"""
-        self.purchase_order.action_manager_confirm()
+    def test_action_sale_manager_confirm(self):
+        """销售经理审核"""
+        self.purchase_order.action_sale_manager_confirm()
+        self.assertEqual('sale_manager_confirm', self.state)
+
+    def test_action_sale_user_confirm(self):
+        """销售专员确认"""
+        self.purchase_order.action_sale_user_confirm()
+        self.assertEqual('sale_user_confirm', self.state)
+
+    def test_action_sale_user_refuse(self):
+        """销售专员驳回采购申请"""
+        self.purchase_order.action_sale_user_refuse()
+        self.assertEqual('sale_user_refuse', self.state)
+
+    def test_action_purchase_manager_confirm(self):
+        """采购经理审批，生成采购订单"""
+        self.purchase_order.action_purchase_manager_confirm()
+        self.assertEqual('purchase_manager_confirm', self.state)
+
+    def test_action_update_price(self):
+        """更新最优价"""
+        self.purchase_order.action_update_price()
+
+    def test_check_state(self):
+        """检查当前申请单的状态"""
+        self.purchase_order.check_state()
 
