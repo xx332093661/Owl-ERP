@@ -110,11 +110,11 @@ class RabbitMQReceiveThread(threading.Thread):
                 channel.start_consuming()
         except ChannelClosedByBroker as e:
             _logger.error('错误码：%s', e.reply_code)
-            if e.reply_code == '404':
-                _logger.error('队列：%s不存在！', self.queue_name)
-
-            if e.reply_code == '406':
-                _logger.error(e.reply_text)
+            # if e.reply_code == '404':
+            #     _logger.error('队列：%s不存在！', self.queue_name)
+            #
+            # if e.reply_code == '406':
+            #     _logger.error(e.reply_text)
 
         except Exception:
             _logger.error('连接MQ服务器出错！')
