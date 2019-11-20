@@ -50,9 +50,9 @@ class ApiMessageDumpRestoreWizard(models.TransientModel):
 
         self.line_ids.mapped('dump_id').unlink()
 
-        # 暂时不删除文件
-        for f in files:
-            os.remove(f)
+        # # 暂时不删除文件(因做了文件夹同步，删不掉)
+        # for f in files:
+        #     os.remove(f)
 
     @api.multi
     def button_download(self):
