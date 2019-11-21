@@ -325,7 +325,7 @@ class ApiMessage(models.Model):
         org_obj = self.env['cj.org']
         company_obj = self.env['res.company']
 
-        _, body = self._deal_content(content)
+        content, body = self._deal_content(content)
         for org in body:
             val = {
                 'cj_id': org['id'],
@@ -354,7 +354,7 @@ class ApiMessage(models.Model):
         company_obj = self.env['res.company'].sudo()
         org_obj = self.env['cj.org']
 
-        _, body = self._deal_content(content)
+        content, body = self._deal_content(content)
         for store in body:
             if store.get('parentOrg'):
                 org = org_obj.search([('cj_id', '=', store['parentOrg'])])
@@ -456,7 +456,7 @@ class ApiMessage(models.Model):
                 })
             return bank.id
 
-        _, body = self._deal_content(content)
+        content, body = self._deal_content(content)
         for supplier in body:
             supplier_group = supplier_group_obj.search([('type', '=', 'supplier'), ('code', '=', supplier['supplierGroup'])])
             if not supplier_group:
@@ -568,7 +568,7 @@ class ApiMessage(models.Model):
         partner_obj = self.env['res.partner']
         company_obj = self.env['res.company']
 
-        _, body = self._deal_content(content)
+        content, body = self._deal_content(content)
         for distributor in body:
             state_id = self.get_country_state_id(distributor.get('province'))
             city_id = self.get_city_area_id(distributor['city'], state_id)
@@ -656,7 +656,7 @@ class ApiMessage(models.Model):
         """
         partner_obj = self.env['res.partner']
 
-        _, body = self._deal_content(content)
+        content, body = self._deal_content(content)
         for member in body:
             name = member['memberName'] or member['mobile'] or member['memberId']
 
@@ -692,7 +692,7 @@ class ApiMessage(models.Model):
         company_obj = self.env['res.company']
         # org_obj = self.env['cj.org'].sudo()
 
-        _, body = self._deal_content(content)
+        content, body = self._deal_content(content)
         for wh in body:
             if not wh['companyCode']:
                 raise MyValidationError('03', '公司编码不能为空！')
@@ -830,7 +830,7 @@ class ApiMessage(models.Model):
         pro_category_product_id = self.env.ref('cj_arap.product_category_product').id  # 成品/半成品类
         pro_category_other_id = self.env.ref('cj_arap.product_category_other').id  # 其他类
 
-        _, body = self._deal_content(content)
+        content, body = self._deal_content(content)
 
         for index, material in enumerate(body):
             uom_id = get_uom_id()
