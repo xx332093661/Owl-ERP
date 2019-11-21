@@ -66,7 +66,7 @@ PROCESS_ERROR = {
     '40': '不处理队列',
     '41': '没有重量',
     '42': '没有打包明细',
-    '43': '退款金额不等于收款金额'
+    '43': '退款金额大于收款金额'
 }
 
 
@@ -1643,7 +1643,7 @@ class ApiMessage(models.Model):
         order_name = contents[0]['updateCode']  # 变更单号（如果是订单产生的库存变化，那变更类型就是销售出库，变更单号就是订单号）
 
         # #兼容包含STOCK_的类型
-        if not 'STOCK_' in update_type:
+        if not update_type.startswith('STOCK_'):
             update_type = 'STOCK_'+ update_type
 
         # 销售出库
@@ -2033,7 +2033,6 @@ class ApiMessage(models.Model):
             picking.button_validate()  # 确认出库
             return
 
-
         # 销售退货冲销
         if update_type == 'STOCK_01003':
             raise MyValidationError('26', '未实现的处理')
@@ -2261,11 +2260,11 @@ class ApiMessage(models.Model):
         if not order:
             raise MyValidationError('14', '订单编号：%s不存在！' % content['orderCode'])
 
-        # 验证退款金额
+        # 验证退款金额(退款金额不能大于收款金额)
         refund_amount = content['refundPrice'] / 100.0
         payment_amount = sum(order.payment_ids.mapped('amount'))
-        if float_compare(refund_amount, payment_amount, precision_rounding=0.01) != 0:
-            raise MyValidationError('43', '退款金额：%s不等于收款金额：%s' % (refund_amount, payment_amount))
+        if float_compare(refund_amount, payment_amount, precision_rounding=0.01) == 1:
+            raise MyValidationError('43', '退款金额：%s不能大于收款金额：%s' % (refund_amount, payment_amount))
 
         # 退货单
         return_id = False
@@ -2296,26 +2295,46 @@ class ApiMessage(models.Model):
         payment_date = content['createTime'].split('T')[0]
         # refund_type = content['refundOrderType']  # 退款类型：all-商品未出库生成的退款单，other-商品出库后生成的退款单
         # if refund_type == 'all':  # 商品未出库生成的退款单，创建付款记录并记账
-        vals_list = []
-        for payment in order.payment_ids:
-            journal_id = payment.journal_id.id
-            vals_list.append({
-                'payment_type': 'outbound',
-                'partner_type': 'supplier',
-                'sale_order_id': order.id,
-                'communication': '销售退款，收款单：%s' % payment.name,  # 支付单号
-                'payment_method_id': self.env.ref('account.account_payment_method_manual_in').id,  # 手动
-                'journal_id': journal_id,
-                'partner_id': partner_id,
-                'amount': payment.amount,
-                'payment_date': payment_date,
-                'company_id': company_id
-                # 'payment_channel': payment['paymentChannel'],   # 支付渠道(app,web,tms)
-                # 'payment_way': payment['paymentWay'],   # 支付方式
-                # 'state': 'cancelled' if content['status'] == '已取消' else 'draft'
-            })
-        payment_res = payment_obj.create(vals_list)
+
+        # TODO 因接口没有提供退款方式，暂时处理成按订单收款记录的第一条记录的收款方式作为退款方式
+        journal_id = order.payment_ids[0].journal_id.id
+        payment_res = payment_obj.create({
+            'payment_type': 'outbound',
+            'partner_type': 'supplier',
+            'sale_order_id': order.id,
+            'communication': '销售退款，收款单：%s' % order.payment_ids[0].name,  # 支付单号
+            'payment_method_id': self.env.ref('account.account_payment_method_manual_in').id,  # 手动
+            'journal_id': journal_id,
+            'partner_id': partner_id,
+            'amount': refund_amount,
+            'payment_date': payment_date,
+            'company_id': company_id
+            # 'payment_channel': payment['paymentChannel'],   # 支付渠道(app,web,tms)
+            # 'payment_way': payment['paymentWay'],   # 支付方式
+            # 'state': 'cancelled' if content['status'] == '已取消' else 'draft'
+        })
         payment_res.post()  # 记账
+
+        # vals_list = []
+        # for payment in order.payment_ids:
+        #     journal_id = payment.journal_id.id
+        #     vals_list.append({
+        #         'payment_type': 'outbound',
+        #         'partner_type': 'supplier',
+        #         'sale_order_id': order.id,
+        #         'communication': '销售退款，收款单：%s' % payment.name,  # 支付单号
+        #         'payment_method_id': self.env.ref('account.account_payment_method_manual_in').id,  # 手动
+        #         'journal_id': journal_id,
+        #         'partner_id': partner_id,
+        #         'amount': payment.amount,
+        #         'payment_date': payment_date,
+        #         'company_id': company_id
+        #         # 'payment_channel': payment['paymentChannel'],   # 支付渠道(app,web,tms)
+        #         # 'payment_way': payment['paymentWay'],   # 支付方式
+        #         # 'state': 'cancelled' if content['status'] == '已取消' else 'draft'
+        #     })
+        # payment_res = payment_obj.create(vals_list)
+        # payment_res.post()  # 记账
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
