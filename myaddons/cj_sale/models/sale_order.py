@@ -32,7 +32,7 @@ class SaleOrder(models.Model):
         ('finance_manager_confirm', '财务经理审核'),
         ('general_manager_confirm', '总经理审批'),
         ('general_manager_refuse', '总经理拒绝'),
-        ('sale', '待出库'),
+        ('sale', '销售订单'),
         ('done', '完成'),
         ('cancel', '取消'),
         # ('purchase', '采购中')
