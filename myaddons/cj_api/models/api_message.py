@@ -7,7 +7,7 @@ import socket
 from datetime import timedelta, datetime
 from pypinyin import lazy_pinyin, Style
 import json
-import random
+# import random
 from itertools import groupby
 import pytz
 import csv
@@ -18,7 +18,7 @@ from odoo.exceptions import ValidationError, UserError
 from .rabbit_mq_receive import RabbitMQReceiveThread
 from .rabbit_mq_send import RabbitMQSendThread
 from .rabbit_mq_receive import MQ_SEQUENCE
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare, float_is_zero, config
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, float_compare, float_is_zero, config
 
 _logger = logging.getLogger(__name__)
 
@@ -219,7 +219,7 @@ class ApiMessage(models.Model):
         for sequence in sorted(res.keys()):
             _logger.info('处理序号：%s，队列类型：%s' % (sequence, sequence_dict[sequence]))
             messages = res[sequence]
-            # 门店库存变更，按update_code分下组，再去执行 todo
+            # 门店库存变更，按update_code分下组，再去执行
             if messages[0].message_name == 'mustang-to-erp-store-stock-update-record-push':
 
                 for update_code, msgs in groupby(sorted(messages, key=group_key), group_key):
@@ -324,7 +324,7 @@ class ApiMessage(models.Model):
         org_obj = self.env['cj.org']
         company_obj = self.env['res.company']
 
-        content, body = self._deal_content(content)
+        _, body = self._deal_content(content)
         for org in body:
             val = {
                 'cj_id': org['id'],
@@ -353,7 +353,7 @@ class ApiMessage(models.Model):
         company_obj = self.env['res.company'].sudo()
         org_obj = self.env['cj.org']
 
-        content, body = self._deal_content(content)
+        _, body = self._deal_content(content)
         for store in body:
             if store.get('parentOrg'):
                 org = org_obj.search([('cj_id', '=', store['parentOrg'])])
@@ -455,7 +455,7 @@ class ApiMessage(models.Model):
                 })
             return bank.id
 
-        content, body = self._deal_content(content)
+        _, body = self._deal_content(content)
         for supplier in body:
             supplier_group = supplier_group_obj.search([('type', '=', 'supplier'), ('code', '=', supplier['supplierGroup'])])
             if not supplier_group:
@@ -567,7 +567,7 @@ class ApiMessage(models.Model):
         partner_obj = self.env['res.partner']
         company_obj = self.env['res.company']
 
-        content, body = self._deal_content(content)
+        _, body = self._deal_content(content)
         for distributor in body:
             state_id = self.get_country_state_id(distributor.get('province'))
             city_id = self.get_city_area_id(distributor['city'], state_id)
@@ -655,7 +655,7 @@ class ApiMessage(models.Model):
         """
         partner_obj = self.env['res.partner']
 
-        content, body = self._deal_content(content)
+        _, body = self._deal_content(content)
         for member in body:
             name = member['memberName'] or member['mobile'] or member['memberId']
 
@@ -689,9 +689,9 @@ class ApiMessage(models.Model):
         """处理仓库数据"""
         warehouse_obj = self.env['stock.warehouse']
         company_obj = self.env['res.company']
-        org_obj = self.env['cj.org'].sudo()
+        # org_obj = self.env['cj.org'].sudo()
 
-        content, body = self._deal_content(content)
+        _, body = self._deal_content(content)
         for wh in body:
             if not wh['companyCode']:
                 raise MyValidationError('03', '公司编码不能为空！')
@@ -784,22 +784,22 @@ class ApiMessage(models.Model):
 
             return uom[0].id
 
-        def get_supplier():
-            """计算商品的供应商"""
-            supplier_codes = material.get('supplierCodes')
-            if not supplier_codes:
-                return False
-
-            ids = []
-            for code in supplier_codes.split():
-                supplier = partner_obj.search([('code', '=', code), ('supplier', '=', True)])
-                if supplier:
-                    ids.append(supplier.id)
-
-            if ids:
-                return [(6, 0, ids)]
-
-            return False
+        # def get_supplier():
+        #     """计算商品的供应商"""
+        #     supplier_codes = material.get('supplierCodes')
+        #     if not supplier_codes:
+        #         return False
+        #
+        #     ids = []
+        #     for code in supplier_codes.split():
+        #         supplier = partner_obj.search([('code', '=', code), ('supplier', '=', True)])
+        #         if supplier:
+        #             ids.append(supplier.id)
+        #
+        #     if ids:
+        #         return [(6, 0, ids)]
+        #
+        #     return False
 
         def get_spec():
             """从attributes计算商品规格"""
@@ -818,7 +818,7 @@ class ApiMessage(models.Model):
         product_obj = self.env['product.template']
         uom_obj = self.env['uom.uom']
         category_obj = self.env['product.category']
-        partner_obj = self.env['res.partner']
+        # partner_obj = self.env['res.partner']
 
         uom_category_id = self.env.ref('uom.product_uom_categ_unit').id  # 单位类别(件)
 
@@ -829,7 +829,7 @@ class ApiMessage(models.Model):
         pro_category_product_id = self.env.ref('cj_arap.product_category_product').id  # 成品/半成品类
         pro_category_other_id = self.env.ref('cj_arap.product_category_other').id  # 其他类
 
-        content, body = self._deal_content(content)
+        _, body = self._deal_content(content)
 
         for index, material in enumerate(body):
             uom_id = get_uom_id()
@@ -870,80 +870,80 @@ class ApiMessage(models.Model):
     def deal_mustang_to_erp_store_stock_push(self, content):
         """门店初始化库存"""
         raise MyValidationError('40', '不处理门店库存！')
-        # def get_is_init():
-        #     """计算商品是否是初次盘点"""
-        #     cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
-        #     if cost_group:
-        #         if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id)]):
-        #             return 'no'
-        #         return 'yes'
+        # # def get_is_init():
+        # #     """计算商品是否是初次盘点"""
+        # #     cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
+        # #     if cost_group:
+        # #         if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id)]):
+        # #             return 'no'
+        # #         return 'yes'
+        # #
+        # #     raise MyValidationError('29', '%s没有成本核算分组' % company.name)
+        # #
+        # # def get_cost():
+        # #     """计算初次盘点成本"""
+        # #     if is_init == 'no':
+        # #         return 0
+        # #     product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+        # #     if product_cost:
+        # #         return product_cost.cost
+        # #
+        # #     raise MyValidationError('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
         #
-        #     raise MyValidationError('29', '%s没有成本核算分组' % company.name)
+        # inventory_obj = self.env['stock.inventory']
+        # inventory_line_obj = self.env['stock.inventory.line']
+        # warehouse_obj = self.env['stock.warehouse']
+        # # cost_group_obj = self.env['account.cost.group']  # 成本核算分组
+        # # valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
+        # # product_cost_obj = self.env['product.cost']  # 商品成本
         #
-        # def get_cost():
-        #     """计算初次盘点成本"""
-        #     if is_init == 'no':
-        #         return 0
-        #     product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
-        #     if product_cost:
-        #         return product_cost.cost
+        # _, body = self._deal_content(content)
         #
-        #     raise MyValidationError('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
-
-        inventory_obj = self.env['stock.inventory']
-        inventory_line_obj = self.env['stock.inventory.line']
-        warehouse_obj = self.env['stock.warehouse']
-        # cost_group_obj = self.env['account.cost.group']  # 成本核算分组
-        # valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
-        # product_cost_obj = self.env['product.cost']  # 商品成本
-
-        content, body = self._deal_content(content)
-
-        body.sort(key=lambda x: x['storeCode'])
-
-        for store_code, store_stocks in groupby(body, lambda x: x['storeCode']):  # storeCode：门店编码
-            if not store_code:
-                raise MyValidationError('07', '门店编码不能为空！')
-
-            warehouse = warehouse_obj.search([('company_id.code', '=', store_code)], limit=1)
-            if not warehouse:
-                raise MyValidationError('08', '门店编码：%s 对应的门店未找到！' % store_code)
-
-            location_id = warehouse.lot_stock_id.id
-            company = warehouse.company_id
-            company_id = company.id
-
-            inventory = inventory_obj.create({
-                'name': '%s初始库存盘点' % warehouse.name,
-                'company_id': company_id,
-                'location_id': location_id,
-                'filter': 'partial',  # 手动选择商品
-            })
-            inventory.action_start()  # 开始盘点
-
-            inventory_id = inventory.id
-
-            vals_list = []
-            for store_stock in store_stocks:
-                product = self.get_product(store_stock['goodsCode'])   # 临时注销
-                product_id = product.id
-                # is_init = get_is_init()  # 商品是否是初次盘点
-                vals_list.append({
-                    'company_id': company_id,
-                    'cost': random.randint(10, 20),  # TODO 测试时，随机初始一个成本
-                    'inventory_id': inventory_id,
-                    # 'is_init': is_init,  # 商品是否是初次盘点
-                    'location_id': location_id,
-                    'prod_lot_id': False,  # 批次号
-                    'product_id': product_id,
-                    'product_uom_id': product.uom_id.id,
-                    'product_qty': store_stock['quantity']
-                })
-            if not vals_list:
-                raise MyValidationError('39', '没有盘点明细')
-
-            inventory_line_obj.with_context(company_id=company_id).create(vals_list)
-            inventory.action_validate()
+        # body.sort(key=lambda x: x['storeCode'])
+        #
+        # for store_code, store_stocks in groupby(body, lambda x: x['storeCode']):  # storeCode：门店编码
+        #     if not store_code:
+        #         raise MyValidationError('07', '门店编码不能为空！')
+        #
+        #     warehouse = warehouse_obj.search([('company_id.code', '=', store_code)], limit=1)
+        #     if not warehouse:
+        #         raise MyValidationError('08', '门店编码：%s 对应的门店未找到！' % store_code)
+        #
+        #     location_id = warehouse.lot_stock_id.id
+        #     company = warehouse.company_id
+        #     company_id = company.id
+        #
+        #     inventory = inventory_obj.create({
+        #         'name': '%s初始库存盘点' % warehouse.name,
+        #         'company_id': company_id,
+        #         'location_id': location_id,
+        #         'filter': 'partial',  # 手动选择商品
+        #     })
+        #     inventory.action_start()  # 开始盘点
+        #
+        #     inventory_id = inventory.id
+        #
+        #     vals_list = []
+        #     for store_stock in store_stocks:
+        #         product = self.get_product(store_stock['goodsCode'])   # 临时注销
+        #         product_id = product.id
+        #         # is_init = get_is_init()  # 商品是否是初次盘点
+        #         vals_list.append({
+        #             'company_id': company_id,
+        #             # 'cost': random.randint(10, 20),
+        #             'inventory_id': inventory_id,
+        #             # 'is_init': is_init,  # 商品是否是初次盘点
+        #             'location_id': location_id,
+        #             'prod_lot_id': False,  # 批次号
+        #             'product_id': product_id,
+        #             'product_uom_id': product.uom_id.id,
+        #             'product_qty': store_stock['quantity']
+        #         })
+        #     if not vals_list:
+        #         raise MyValidationError('39', '没有盘点明细')
+        #
+        #     inventory_line_obj.with_context(company_id=company_id).create(vals_list)
+        #     inventory.action_validate()
 
     # 9、WMS-ERP-STOCK-QUEUE 外部仓库库存
     def deal_wms_erp_stock_queue(self, content):
@@ -969,55 +969,55 @@ class ApiMessage(models.Model):
         #     raise MyValidationError('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
         raise MyValidationError('40', '不处理外部仓库库存变更！')
 
-        warehouse_obj = self.env['stock.warehouse']
-        inventory_obj = self.env['stock.inventory']
-        inventory_line_obj = self.env['stock.inventory.line']
-        # cost_group_obj = self.env['account.cost.group']  # 成本核算分组
-        # valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
-        # product_cost_obj = self.env['product.cost']  # 商品成本
-
-        body = json.loads(content)
-        if not isinstance(body, list):
-            body = [body]
-
-        for warehouse_no, store_stocks in groupby(sorted(body, key=lambda x: x['warehouseNo']), lambda x: x['warehouseNo']):  # storeCode：门店编码
-            warehouse = warehouse_obj.search([('code', '=', warehouse_no)])
-            if not warehouse:
-                raise MyValidationError('11', '仓库：%s 未找到！' % warehouse_no)
-
-            location_id = warehouse.lot_stock_id.id
-            company = warehouse.company_id
-            company_id = company.id
-            inventory = inventory_obj.create({
-                'name': '%s初始库存盘点' % warehouse.name,
-                'company_id': company_id,
-                'location_id': location_id,
-                'filter': 'partial',  # 手动选择商品
-            })
-            inventory.action_start()  # 开始盘点
-
-            inventory_id = inventory.id
-            vals_list = []
-            for store_stock in store_stocks:
-                product = self.get_product(store_stock['goodsNo'])
-                # product_id = product.id
-                # is_init = get_is_init()  # 商品是否是初次盘点
-                vals_list.append({
-                    'company_id': company_id,
-                    'cost': random.randint(10, 20),  # TODO 测试时，随机初始一个成本
-                    'inventory_id': inventory_id,
-                    # 'is_init': is_init,  # 是否是初始化盘点
-                    'location_id': location_id,
-                    'prod_lot_id': False,  # 批次号
-                    'product_id': product.id,
-                    'product_uom_id': product.uom_id.id,
-                    'product_qty': store_stock['totalNum']
-                })
-            if not vals_list:
-                raise MyValidationError('39', '没有盘点明细')
-
-            inventory_line_obj.with_context(company_id=company_id).create(vals_list)
-            inventory.action_validate()
+        # warehouse_obj = self.env['stock.warehouse']
+        # inventory_obj = self.env['stock.inventory']
+        # inventory_line_obj = self.env['stock.inventory.line']
+        # # cost_group_obj = self.env['account.cost.group']  # 成本核算分组
+        # # valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
+        # # product_cost_obj = self.env['product.cost']  # 商品成本
+        #
+        # body = json.loads(content)
+        # if not isinstance(body, list):
+        #     body = [body]
+        #
+        # for warehouse_no, store_stocks in groupby(sorted(body, key=lambda x: x['warehouseNo']), lambda x: x['warehouseNo']):  # storeCode：门店编码
+        #     warehouse = warehouse_obj.search([('code', '=', warehouse_no)])
+        #     if not warehouse:
+        #         raise MyValidationError('11', '仓库：%s 未找到！' % warehouse_no)
+        #
+        #     location_id = warehouse.lot_stock_id.id
+        #     company = warehouse.company_id
+        #     company_id = company.id
+        #     inventory = inventory_obj.create({
+        #         'name': '%s初始库存盘点' % warehouse.name,
+        #         'company_id': company_id,
+        #         'location_id': location_id,
+        #         'filter': 'partial',  # 手动选择商品
+        #     })
+        #     inventory.action_start()  # 开始盘点
+        #
+        #     inventory_id = inventory.id
+        #     vals_list = []
+        #     for store_stock in store_stocks:
+        #         product = self.get_product(store_stock['goodsNo'])
+        #         # product_id = product.id
+        #         # is_init = get_is_init()  # 商品是否是初次盘点
+        #         vals_list.append({
+        #             'company_id': company_id,
+        #             # 'cost': random.randint(10, 20),
+        #             'inventory_id': inventory_id,
+        #             # 'is_init': is_init,  # 是否是初始化盘点
+        #             'location_id': location_id,
+        #             'prod_lot_id': False,  # 批次号
+        #             'product_id': product.id,
+        #             'product_uom_id': product.uom_id.id,
+        #             'product_qty': store_stock['totalNum']
+        #         })
+        #     if not vals_list:
+        #         raise MyValidationError('39', '没有盘点明细')
+        #
+        #     inventory_line_obj.with_context(company_id=company_id).create(vals_list)
+        #     inventory.action_validate()
 
     # 10、mustang-to-erp-order-push 订单
     def deal_mustang_to_erp_order_push(self, content):
@@ -1515,10 +1515,10 @@ class ApiMessage(models.Model):
     # 12、mustang-to-erp-logistics-push 物流信息
     def deal_mustang_to_erp_logistics_push(self, content):
         """物流单处理"""
-        def get_shipping_cost(weight, length, width, height, quantity=0):
+        def get_shipping_cost(weight1, length1, width1, height1, quantity=0):
             """计算快递费"""
             if logistics_code in ['ZTO', 'YTO']:
-                if weight:
+                if weight1:
                     return carrier_obj.get_delivery_fee_by_weight(order, warehouse, logistics_code, weight, quantity)
                 # else:
                 #     raise MyValidationError('41', '%s的物流单：%s没有重量！' % (logistics_code, express_code))
@@ -1527,8 +1527,8 @@ class ApiMessage(models.Model):
 
             if logistics_code == 'JDKD':
                 # 计算重量 根据市场惯例，会将实际重量与体积重量比较，取较重者为计费重量，用以计算运费。体积重量(kg)的计算方法为:长度(cm) x 宽度(cm) x 高度/8000。
-                volume_weight = length * width * height / 8000.0  # 体积重量
-                max_weight = max(weight, volume_weight)
+                volume_weight = length1 * width1 * height1 / 8000.0  # 体积重量
+                max_weight = max(weight1, volume_weight)
                 if max_weight:
                     return carrier_obj.get_delivery_fee_by_weight(order, warehouse, logistics_code, max_weight, quantity)
 
@@ -1645,7 +1645,7 @@ class ApiMessage(models.Model):
 
         # #兼容包含STOCK_的类型
         if not update_type.startswith('STOCK_'):
-            update_type = 'STOCK_'+ update_type
+            update_type = 'STOCK_' + update_type
 
         # 销售出库
         if update_type == 'STOCK_01002':
