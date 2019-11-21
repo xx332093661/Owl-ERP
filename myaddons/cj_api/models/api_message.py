@@ -67,7 +67,8 @@ PROCESS_ERROR = {
     '41': '没有重量',
     '42': '没有打包明细',
     '43': '退款金额大于收款金额',
-    '44': '不处理的订单状态'
+    '44': '不处理的订单状态',
+    '45': '没找到对应的省'
 }
 
 
@@ -2400,8 +2401,9 @@ class ApiMessage(models.Model):
         if name.find('澳门') != -1:
             return state_obj.search([('name', '=', '澳门特别行政区'), ('country_id', '=', country_id)]).id
 
-        _logger.warning('没有找到%s对应的省！' % name)
-        return False
+        raise MyValidationError('45', '%s没找到对应的省' % name)
+        # _logger.warning('没有找到%s对应的省！' % name)
+        # return False
 
     def get_city_area_id(self, name, province_id, parent_id=None):
         """计算市、区id"""
