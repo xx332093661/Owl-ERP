@@ -1227,7 +1227,7 @@ class ApiMessage(models.Model):
                 'company_id': company_id
             }
             payment_res = payment_obj.create(payment_val)
-            if payment_res.state == 'draft':
+            if payment_res.state == 'draft' and order.payment_state == '已支付':
                 payment_res.post()  # 确认支付
 
         def create_sale_order_line(pid, qty, price):
@@ -2116,9 +2116,10 @@ class ApiMessage(models.Model):
             order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
             # 订单取消
             order.action_cancel()
-            # # 取消关联的收款(走退款途径)
-            # for payment in order.payment_ids:
-            #     payment.cancel()
+            # 取消关联的收款(已收至款的走退款途径，草稿状态的取消)
+            for payment in order.payment_ids.filtered(lambda x: x.state == 'draft'):
+                payment.cancel()
+
             # # 将已完成的stock.picking的stock.move的完成数量置为0
             # order.picking_ids.filtered(lambda x: x.state == 'done').mapped('move_lines').write({
             #     'quantity_done': 0
