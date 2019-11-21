@@ -247,8 +247,8 @@ class ApiMessage(models.Model):
 
     @api.multi
     def do_proc_content(self):
-        if any([res.state == 'done' for res in self]):
-            raise ValidationError('处理完成的数据不能再次处理！')
+        if any([res.state == 'done' or (res.state == 'error' and res.attempts < 3) for res in self]):
+            raise ValidationError('完成或失败次数小于3次的记录不能再次处理！')
 
         self.proc_content(self)
 
@@ -2378,7 +2378,7 @@ class ApiMessage(models.Model):
             return
 
         if any([message['state'] == 'draft' or (message['state'] == 'error' and message['attempts'] < 3) for message in messages]):
-            raise ValidationError('草稿状态或错误次数小于3次的记录不能转储！')
+            raise ValidationError('草稿状态或失败次数小于3次的记录不能转储！')
 
         tz = self.env.user.tz or 'Asia/Shanghai'
         now = datetime.now(tz=pytz.timezone(tz))
