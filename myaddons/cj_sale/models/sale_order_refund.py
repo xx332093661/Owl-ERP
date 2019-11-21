@@ -14,8 +14,9 @@ class SaleOrderRefund(models.Model):
     refund_state = fields.Selection([('waiting', '待退款'), ('success', '退款成功')], '退款状态')
     operator = fields.Char('操作人')
     remarks = fields.Char('备注')
-    refund_type = fields.Selection([('(all', '商品未出库生成的退款单'), ('other', '商品出库后生成的退款单')], '退款单类型')
+    refund_type = fields.Selection([('all', '商品未出库生成的退款单'), ('other', '商品出库后生成的退款单')], '退款单类型')
     push_state = fields.Selection([('0', '未推送'), ('1', '已推送')], '推送状态')
+    refund_time = fields.Datetime('退款时间')
 
 
 

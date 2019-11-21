@@ -66,6 +66,7 @@ PROCESS_ERROR = {
     '40': '不处理队列',
     '41': '没有重量',
     '42': '没有打包明细',
+    '43': '退款金额不等于收款金额'
 }
 
 
@@ -1217,12 +1218,17 @@ class ApiMessage(models.Model):
                 'journal_id': journal.id,
                 'partner_id': partner_id,
                 'amount': payment['paidAmount'] / 100,
-                'payment_date': fields.Datetime.to_datetime(payment['paidTime'].replace('T', ' ')).strftime(DATE_FORMAT),
+                # 'payment_date': fields.Datetime.to_datetime(payment['paidTime'].replace('T', ' ')).strftime(DATE_FORMAT),
+                'payment_date': payment['paidTime'].split('T')[0],
                 'payment_channel': payment['paymentChannel'],   # 支付渠道(app,web,tms)
                 'payment_way': payment['paymentWay'],   # 支付方式
-                'state': 'cancelled' if content['status'] == '已取消' else 'draft'
+                'payment_code': payment['paymentCode'],  # 支付单号
+                'state': 'cancelled' if content['status'] == '已取消' else 'draft',
+                'company_id': company_id
             }
-            payment_obj.create(payment_val)
+            payment_res = payment_obj.create(payment_val)
+            if payment_res.state == 'draft':
+                payment_res.post()  # 确认支付
 
         def create_sale_order_line(pid, qty, price):
             """创建订单行"""
@@ -1513,8 +1519,10 @@ class ApiMessage(models.Model):
             if logistics_code in ['ZTO', 'YTO']:
                 if weight:
                     return carrier_obj.get_delivery_fee_by_weight(order, warehouse, logistics_code, weight, quantity)
-                else:
-                    raise MyValidationError('41', '%s的物流单：%s没有重量！' % (logistics_code, express_code))
+                # else:
+                #     raise MyValidationError('41', '%s的物流单：%s没有重量！' % (logistics_code, express_code))
+
+                return 0
 
             if logistics_code == 'JDKD':
                 # 计算重量 根据市场惯例，会将实际重量与体积重量比较，取较重者为计费重量，用以计算运费。体积重量(kg)的计算方法为:长度(cm) x 宽度(cm) x 高度/8000。
@@ -1522,8 +1530,10 @@ class ApiMessage(models.Model):
                 max_weight = max(weight, volume_weight)
                 if max_weight:
                     return carrier_obj.get_delivery_fee_by_weight(order, warehouse, logistics_code, max_weight, quantity)
-                else:
-                    raise MyValidationError('41', '%s的物流单：%s没有重量！' % (logistics_code, express_code))
+
+                return 0
+                # else:
+                #     raise MyValidationError('41', '%s的物流单：%s没有重量！' % (logistics_code, express_code))
 
             raise MyValidationError('32', '未能计算出快递费，目前只计算ZTO、YTO、JDKD的')
 
@@ -2106,9 +2116,9 @@ class ApiMessage(models.Model):
             order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
             # 订单取消
             order.action_cancel()
-            # 取消关联的收款
-            for payment in order.payment_ids:
-                payment.cancel()
+            # # 取消关联的收款(走退款途径)
+            # for payment in order.payment_ids:
+            #     payment.cancel()
             # # 将已完成的stock.picking的stock.move的完成数量置为0
             # order.picking_ids.filtered(lambda x: x.state == 'done').mapped('move_lines').write({
             #     'quantity_done': 0
@@ -2228,7 +2238,7 @@ class ApiMessage(models.Model):
         })
         return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
         new_picking_id, pick_type_id = return_picking._create_returns()
-        picking_obj.browse(new_picking_id).action_done()  # 确认入库
+        picking_obj.browse(new_picking_id).with_context(dont_invoice=True).action_done()  # 确认入库，此处传dont_invoice上下文，不生成应收应付，由退款处理
 
     # 16、MUSTANG-REFUND-ERP-QUEUE 退款单
     def deal_mustang_refund_erp_queue(self, content):
@@ -2236,6 +2246,7 @@ class ApiMessage(models.Model):
         order_obj = self.env['sale.order']
         return_obj = self.env['sale.order.return']  # 销售退货单
         refund_obj = self.env['sale.order.refund']  # 销售退款单
+        payment_obj = self.env['account.payment']
 
         content = json.loads(content)
 
@@ -2249,6 +2260,13 @@ class ApiMessage(models.Model):
         if not order:
             raise MyValidationError('14', '订单编号：%s不存在！' % content['orderCode'])
 
+        # 验证退款金额
+        refund_amount = content['refundPrice'] / 100.0
+        payment_amount = sum(order.payment_ids.mapped('amount'))
+        if float_compare(refund_amount, payment_amount, precision_rounding=0.01) != 0:
+            raise MyValidationError('43', '退款金额：%s不等于收款金额：%s' % (refund_amount, payment_amount))
+
+        # 退货单
         return_id = False
         if content['returnCode']:
             sale_return = return_obj.search([('name', '=', content['returnCode']), ('sale_order_id', '=', order.id)])
@@ -2257,19 +2275,46 @@ class ApiMessage(models.Model):
 
             return_id = sale_return.id
 
+        # 创建退款单
         refund_obj.create({
             'name': content['refundCode'],
             'return_id': return_id,
             'sale_order_id': order.id,
-            'refund_amount': content['refundPrice'] / 100.0,
+            'refund_amount': refund_amount,
             'refund_state': content['refundState'],
             'operator': content['operator'],
             'remarks': content['remarks'],
             'refund_type': content['refundOrderType'],
-            'push_state': content['pushState'],
+            'push_state': str(content['pushState']),
+            'refund_time': (fields.Datetime.to_datetime(content['createTime'].replace('T', ' ')) - timedelta(hours=8)).strftime(DATETIME_FORMAT)
         })
 
-        # TODO 创建退货结算单
+        # 创建付款记录
+        company_id = order.company_id.id
+        partner_id = order.partner_id.id
+        payment_date = content['createTime'].split('T')[0]
+        # refund_type = content['refundOrderType']  # 退款类型：all-商品未出库生成的退款单，other-商品出库后生成的退款单
+        # if refund_type == 'all':  # 商品未出库生成的退款单，创建付款记录并记账
+        vals_list = []
+        for payment in order.payment_ids:
+            journal_id = payment.journal_id.id
+            vals_list.append({
+                'payment_type': 'outbound',
+                'partner_type': 'supplier',
+                'sale_order_id': order.id,
+                'communication': '销售退款，收款单：%s' % payment.name,  # 支付单号
+                'payment_method_id': self.env.ref('account.account_payment_method_manual_in').id,  # 手动
+                'journal_id': journal_id,
+                'partner_id': partner_id,
+                'amount': payment.amount,
+                'payment_date': payment_date,
+                'company_id': company_id
+                # 'payment_channel': payment['paymentChannel'],   # 支付渠道(app,web,tms)
+                # 'payment_way': payment['paymentWay'],   # 支付方式
+                # 'state': 'cancelled' if content['status'] == '已取消' else 'draft'
+            })
+        payment_res = payment_obj.create(vals_list)
+        payment_res.post()  # 记账
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']

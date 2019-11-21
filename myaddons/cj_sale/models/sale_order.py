@@ -44,7 +44,7 @@ class SaleOrder(models.Model):
     delivery_ids = fields.One2many('delivery.order', 'sale_order_id', string='出货单', copy=False, readonly=False)
     logistics_ids = fields.One2many('delivery.logistics', 'order_id', '运单')
     group_flag = fields.Selection([('large', '大数量团购'), ('group', '团购'), ('not', '非团购')], '团购标记', default='not')
-    payment_ids = fields.One2many('account.payment', 'sale_order_id', '收款记录')
+    payment_ids = fields.One2many('account.payment', 'sale_order_id', '收款记录',  domain=lambda self: [('payment_type', '=', 'inbound')])
     return_ids = fields.One2many('sale.order.return', 'sale_order_id', '退货入库单')
     refund_ids = fields.One2many('sale.order.refund', 'sale_order_id', '退款单')
 

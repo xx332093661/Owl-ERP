@@ -57,7 +57,7 @@ class SaleOrder(models.Model):
             团购单，OA审批通过后调用
         """
         res = super(SaleOrder, self).action_confirm()
-        for payment in self.payment_ids:
+        for payment in self.payment_ids.filtered(lambda x: x.state=='draft'):
             payment.post() # 确认付款记录
         # if self.payment_ids:
         #     self.payment_ids.post()  # 确认付款记录

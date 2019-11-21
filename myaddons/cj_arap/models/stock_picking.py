@@ -26,7 +26,8 @@ class StockPicking(models.Model):
         """stock.move的装态为done时自动创建account.invoice(结算单)"""
         if self.sale_id:
             if self.move_lines[0].origin_returned_move_id:  # 销售退货
-                self._generate_sale_refund_invoice()  # 退货处理
+                if 'dont_invoice' not in self._context:  # dont_invoice上下文是在处理销售退货接口时传递的，有此上下文，不进行应收应付相关处理，由退款进行处理
+                    self._generate_sale_refund_invoice()  # 退货处理
             else:
                 self._generate_sale_invoice()
 
