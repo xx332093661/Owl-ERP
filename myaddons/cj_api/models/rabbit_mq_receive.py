@@ -27,10 +27,9 @@ MQ_SEQUENCE = {
     'WMS-ERP-STOCKOUT-QUEUE': 12,  # 订单出库
     'mustang-to-erp-logistics-push': 11,  # 物流信息
     'mustang-to-erp-store-stock-update-record-push': 13,  # 门店库存变更记录
-    'MUSTANG-ERP-ORDER-STATUS-PUSH': 14,  # 订单状态
-    # 'mustang-to-erp-service-list-push': 15,  # 售后服务单
-    'WMS-ERP-RETURN-STOCKIN-QUEUE': 15,  # 退货入库单
-    'MUSTANG-REFUND-ERP-QUEUE': 16,  # 退款单
+    'WMS-ERP-RETURN-STOCKIN-QUEUE': 14,  # 退货入库单
+    'MUSTANG-REFUND-ERP-QUEUE': 15,  # 退款单
+    'MUSTANG-ERP-ORDER-STATUS-PUSH': 16,  # 订单状态
 }
 
 EXCHANGES = {

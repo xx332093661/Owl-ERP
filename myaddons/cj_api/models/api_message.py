@@ -66,7 +66,8 @@ PROCESS_ERROR = {
     '40': '不处理队列',
     '41': '没有重量',
     '42': '没有打包明细',
-    '43': '退款金额大于收款金额'
+    '43': '退款金额大于收款金额',
+    '44': '不处理的订单状态'
 }
 
 
@@ -2079,87 +2080,7 @@ class ApiMessage(models.Model):
 
         raise MyValidationError('21', '未找到变更类型：%s' % update_type)
 
-    # 14、MUSTANG-ERP-ORDER-STATUS-PUSH 订单状态
-    def deal_mustang_erp_order_status_push(self, content):  # MUSTANG-ERP-ORDER-STATUS-PUSH
-        """订单状态处理
-        只处理订单取消、订单完成
-        订单取消：取消订单和收款
-        订单完成：取消未完成的stock.picking
-        """
-        order_obj = self.env['sale.order'].sudo()
-
-        content = json.loads(content)
-
-        order_code = content['body']['orderCode']
-        order_state = content['body']['orderState']
-
-        # 状态是begin-新订单,allocated-已分单,printed-已打单,outbound-已出库不处理
-        if order_state in ['begin', 'printed', 'allocated', 'outbound']:
-            return
-
-        # 1、验证订单
-        order = order_obj.search([('name', '=', order_code)], limit=1)
-        if not order:
-            raise MyValidationError('14', '订单编号：%s对应的订单不存在！' % order_code)
-
-        # 状态是cancelled-已取消，取消订单，取消订单关联的stock.picking和account.payment
-        if order_state == 'cancelled':
-            if order.picking_ids.filtered(lambda x: x.state == 'done'):
-                raise MyValidationError('15', '订单已出库，不能取消！')
-
-            # 去重处理(推送过来的订单状态可能重复)
-            if order.state == 'cancel':
-                return
-
-            # 将未完成的stock.picking取消
-            order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
-            # 订单取消
-            order.action_cancel()
-            # 取消关联的收款(已收至款的走退款途径，草稿状态的取消)
-            for payment in order.payment_ids.filtered(lambda x: x.state == 'draft'):
-                payment.cancel()
-
-            # # 将已完成的stock.picking的stock.move的完成数量置为0
-            # order.picking_ids.filtered(lambda x: x.state == 'done').mapped('move_lines').write({
-            #     'quantity_done': 0
-            # })
-
-        # 状态是finished-已完成，取消订单尚未完成的stock.picking
-        if order_state == 'finished':
-            if not order.picking_ids.filtered(lambda x: x.state == 'done'):
-                raise MyValidationError('16', '订单还未出库，不能完成！')
-
-            # 去重处理(推送过来的订单状态可能重复)
-            if order.state == 'done':
-                return
-
-            # 将未完成的stock.picking取消
-            order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
-
-            order.action_done()
-        #
-        # picking = order.picking_ids.filtered(lambda o: o.state != 'cancel')[:1]
-        #
-        # if order_state == 'outbound':
-        #     # 已出库
-        #     pass
-        # elif order_state == 'finished':
-        #     if not picking:
-        #         raise ValidationError('该订单没有出库单')
-        #     if picking.state != 'done':
-        #         raise ValidationError('出库单未完成')
-        #
-        #     order.action_done()
-        #
-        # elif order_state == 'cancelled':
-        #     if order.state == 'done':
-        #         raise ValidationError('订单已完成，不能取消')
-        #     if picking and picking.state == 'done':
-        #         raise ValidationError('订单已出库，不能取消')
-        #
-        #     order.action_cancel()
-
-    # 15、WMS-ERP-RETURN-STOCKIN-QUEUE 退货入库单
+    # 14、WMS-ERP-RETURN-STOCKIN-QUEUE 退货入库单
     def deal_wms_erp_return_stockin_queue(self, content):
         """退货入库单"""
         # order_obj = self.env['sale.order']
@@ -2240,7 +2161,7 @@ class ApiMessage(models.Model):
         new_picking_id, pick_type_id = return_picking._create_returns()
         picking_obj.browse(new_picking_id).with_context(dont_invoice=True).action_done()  # 确认入库，此处传dont_invoice上下文，不生成应收应付，由退款处理
 
-    # 16、MUSTANG-REFUND-ERP-QUEUE 退款单
+    # 15、MUSTANG-REFUND-ERP-QUEUE 退款单
     def deal_mustang_refund_erp_queue(self, content):
         """退款单"""
         order_obj = self.env['sale.order']
@@ -2262,8 +2183,9 @@ class ApiMessage(models.Model):
 
         # 验证退款金额(退款金额不能大于收款金额)
         refund_amount = content['refundPrice'] / 100.0
-        payment_amount = sum(order.payment_ids.mapped('amount'))
-        if float_compare(refund_amount, payment_amount, precision_rounding=0.01) == 1:
+        payment_amount = sum(order.payment_ids.filtered(lambda x: x.state == 'posted' and x.payment_type == 'inbound').mapped('amount'))  # 收款金额
+        refunded_amount = sum(order.payment_ids.filtered(lambda x: x.state == 'posted' and x.payment_type == 'outbound').mapped('amount'))  # 已退金额
+        if float_compare(refund_amount, payment_amount - refunded_amount, precision_rounding=0.01) == 1:
             raise MyValidationError('43', '退款金额：%s不能大于收款金额：%s' % (refund_amount, payment_amount))
 
         # 退货单
@@ -2335,6 +2257,87 @@ class ApiMessage(models.Model):
         #     })
         # payment_res = payment_obj.create(vals_list)
         # payment_res.post()  # 记账
+
+    # 16、MUSTANG-ERP-ORDER-STATUS-PUSH 订单状态
+    def deal_mustang_erp_order_status_push(self, content):  # MUSTANG-ERP-ORDER-STATUS-PUSH
+        """订单状态处理
+        只处理订单取消、订单完成
+        订单取消：取消订单和收款
+        订单完成：取消未完成的stock.picking
+        """
+        order_obj = self.env['sale.order'].sudo()
+
+        content = json.loads(content)
+
+        order_code = content['body']['orderCode']
+        order_state = content['body']['orderState']
+
+        # 状态是begin-新订单,allocated-已分单,printed-已打单,outbound-已出库不处理
+        if order_state in ['begin', 'printed', 'allocated', 'outbound']:
+            raise MyValidationError('44', '不处理的订单状态：%s' % order_state)
+
+        # 1、验证订单
+        order = order_obj.search([('name', '=', order_code)], limit=1)
+        if not order:
+            raise MyValidationError('14', '订单编号：%s对应的订单不存在！' % order_code)
+
+        # 状态是cancelled-已取消，取消订单，取消订单关联的stock.picking和account.payment
+        if order_state == 'cancelled':
+            # if order.picking_ids.filtered(lambda x: x.state == 'done'):
+            #     raise MyValidationError('15', '订单已出库，不能取消！')
+
+            # 去重处理(推送过来的订单状态可能重复)
+            if order.state == 'cancel':
+                return
+
+            # 将未完成的stock.picking取消
+            order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
+            # 订单取消
+            order.state = 'cancel'
+            # order.action_cancel()
+            # 取消关联的收款(已收至款的走退款途径，草稿状态的取消)
+            for payment in order.payment_ids.filtered(lambda x: x.state == 'draft'):
+                payment.cancel()
+
+            # # 将已完成的stock.picking的stock.move的完成数量置为0
+            # order.picking_ids.filtered(lambda x: x.state == 'done').mapped('move_lines').write({
+            #     'quantity_done': 0
+            # })
+
+        # 状态是finished-已完成，取消订单尚未完成的stock.picking
+        if order_state == 'finished':
+            if not order.picking_ids.filtered(lambda x: x.state == 'done'):
+                raise MyValidationError('16', '订单还未出库，不能完成！')
+
+            # 去重处理(推送过来的订单状态可能重复)
+            if order.state == 'done':
+                return
+
+            # 将未完成的stock.picking取消
+            order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
+
+            order.action_done()
+        #
+        # picking = order.picking_ids.filtered(lambda o: o.state != 'cancel')[:1]
+        #
+        # if order_state == 'outbound':
+        #     # 已出库
+        #     pass
+        # elif order_state == 'finished':
+        #     if not picking:
+        #         raise ValidationError('该订单没有出库单')
+        #     if picking.state != 'done':
+        #         raise ValidationError('出库单未完成')
+        #
+        #     order.action_done()
+        #
+        # elif order_state == 'cancelled':
+        #     if order.state == 'done':
+        #         raise ValidationError('订单已完成，不能取消')
+        #     if picking and picking.state == 'done':
+        #         raise ValidationError('订单已出库，不能取消')
+        #
+        #     order.action_cancel()
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
