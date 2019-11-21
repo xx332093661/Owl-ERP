@@ -2377,7 +2377,7 @@ class ApiMessage(models.Model):
         if not messages:
             return
 
-        if any([message['state'] == 'draft' or (message['state'] == 'error' and message['attempts'] <= 3) for message in messages]):
+        if any([message['state'] == 'draft' or (message['state'] == 'error' and message['attempts'] < 3) for message in messages]):
             raise ValidationError('草稿状态或错误次数小于3次的记录不能转储！')
 
         tz = self.env.user.tz or 'Asia/Shanghai'
