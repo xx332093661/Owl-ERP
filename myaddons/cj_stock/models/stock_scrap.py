@@ -34,9 +34,7 @@ class StockScrapMaster(models.Model):
     name = fields.Char('单号', default='New', readonly=True)
 
     location_id = fields.Many2one('stock.location', '报废库位',
-                                  domain=lambda self: [('usage', '=', 'internal'), ('company_id', 'child_of', self.env.user.company_id.id)],
-                                  required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange',
-                                  default=_get_default_location_id)
+                                  required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
     scrap_location_id = fields.Many2one(
         'stock.location', '废料库位', default=_get_default_scrap_location_id,
         domain="[('scrap_location', '=', True)]", required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
