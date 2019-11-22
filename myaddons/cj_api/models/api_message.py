@@ -1682,19 +1682,24 @@ class ApiMessage(models.Model):
             res = list(filter(lambda x: float_compare(x['deliver_qty'], x['wait_qty'], precision_rounding=0.01) == 1, wait_out_lines))
             if res:
                 pros = ['[%s]%s' % (product_obj.browse(r['product_id']).default_code, product_obj.browse(r['product_id']).name) for r in res]
-                raise MyValidationError('18', '商品：%s发货数量大于待订单数量！' % ('、'.join(pros)))
+                raise MyValidationError('18', '商品：%s发货数量大于待发货数量！' % ('、'.join(pros)))
 
             # 发货数量小于订单数量(因为pos销售出库是一次性的，所以这里可以进行判断)
             res = list(filter(lambda x: float_compare(x['deliver_qty'], x['wait_qty'], precision_rounding=0.01) == -1, wait_out_lines))
             if res:
                 pros = ['[%s]%s' % (product_obj.browse(r['product_id']).default_code, product_obj.browse(r['product_id']).name) for r in res]
-                raise MyValidationError('22', '商品：%s发货数量小于待订单数量！' % ('、'.join(pros)))
+                raise MyValidationError('22', '商品：%s发货数量小于待发货数量！' % ('、'.join(pros)))
 
-            picking = picking_obj.search([('sale_id', '=', sale_order.id)])
+            picking = picking_obj.search([('sale_id', '=', sale_order.id), ('state', '!=', 'done')])
             for content in contents:
                 product = self.get_product(content['goodsCode'])
-                stock_move = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))[0]
-                stock_move.quantity_done = abs(content['quantity'])
+                quantity = content['quantity']  # 出库数量
+                for stock_move in list(filter(lambda x: x.product_id.id == product.id, picking.move_lines)):
+                    qty = min(quantity, stock_move.product_uom_qty)
+                    stock_move.quantity_done = qty
+                    quantity -= qty
+                    if float_is_zero(quantity, precision_rounding=0.001):
+                        break
 
             if picking.state != 'assigned':
                 picking.action_assign()
