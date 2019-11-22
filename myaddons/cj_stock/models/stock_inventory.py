@@ -241,6 +241,12 @@ class StockInventory(models.Model):
             exhausted_vals = self._get_exhausted_inventory_line(products_to_filter, quant_products)
             vals.extend(exhausted_vals)
 
+        # 盘明细的在手数量如果小于0， 则设为0
+        for val in vals:
+            product_qty = val.get('product_qty', 0)
+            if float_compare(product_qty, 0.0, precision_rounding=0.01) == -1:
+                val['product_qty'] = 0
+
         return vals
 
 
