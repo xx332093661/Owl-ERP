@@ -36,7 +36,6 @@ class StockScrapMaster(models.Model):
     location_id = fields.Many2one('stock.location', '报废库位',
                                   domain=lambda self: [('usage', '=', 'internal'), ('company_id', 'child_of', self.env.user.company_id.id)],
                                   required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange',
-
                                   default=_get_default_location_id)
     scrap_location_id = fields.Many2one(
         'stock.location', '废料库位', default=_get_default_scrap_location_id,
@@ -45,8 +44,8 @@ class StockScrapMaster(models.Model):
     date_expected = fields.Datetime('预计日期', default=fields.Datetime.now, readonly=1, states=READONLY_STATES)
     communication = fields.Char(string='报废原因说明', readonly=1, states=READONLY_STATES, track_visibility='onchange')
     state = fields.Selection(STATES, '状态', default='draft', track_visibility='onchange')
-    company_id = fields.Many2one('res.company', '公司', related='location_id.company_id', store=1)
-    # company_id = fields.Many2one('res.company', '公司', default=lambda self: self.env.user.company_id.id, track_visibility='onchange', readonly=1, states=READONLY_STATES, required=1)
+    # company_id = fields.Many2one('res.company', '公司', related='location_id.company_id', store=1)
+    company_id = fields.Many2one('res.company', '公司', default=lambda self: self.env.user.company_id.id, track_visibility='onchange', readonly=1, states=READONLY_STATES, required=1)
 
     move_ids = fields.Many2many('stock.move', string='库存移动', compute='_compute_move_ids')
     line_ids = fields.One2many('stock.scrap', 'master_id', '报废明细', required=1, readonly=1, states=READONLY_STATES)
@@ -170,7 +169,8 @@ class StockScrap(models.Model):
         self.ensure_one()
 
         ml_obj = self.env['stock.move.line']
-        company_id = ml_obj.search([('lot_id', '=', self.lot_id.id)], limit=1).move_id.company_id.id
+        # company_id = ml_obj.search([('lot_id', '=', self.lot_id.id)], limit=1).move_id.company_id.id
+        company_id = self.master_id.company_id.id
 
         return {
             'name': self.name,
