@@ -281,10 +281,10 @@ class InventoryLine(models.Model):
         for line in self:
             compare = float_compare(line.cost, 0.0, precision_digits=2)
             if compare == -1:
-                raise ValidationError('单位成本不能小于0！')
+                raise ValidationError('商品：%s单位成本不能小于0！' % line.product_id.partner_ref)
 
             if float_compare(line.product_qty, 0.0, precision_rounding=line.product_id.uom_id.rounding) == -1:
-                raise ValidationError('实际数量不能小于0！')
+                raise ValidationError('商品：%s实际数量不能小于0！' % line.product_id.partner_ref)
 
             # # 如果公司没有盘点过，则要求输入单位成本
             # if compare == 0 and line.is_init == 'yes':
