@@ -173,5 +173,14 @@
             <field name="code">STOCK_03010</field>
         </record>
 
+        <record id="internal_in" model="stock.inventory.valuation.move.type">
+            <field name="name">内部调拨入库</field>
+            <field name="code">internal_in</field>
+        </record>
+        <record id="internal_out" model="stock.inventory.valuation.move.type">
+            <field name="name">内部调拨出库</field>
+            <field name="code">internal_out</field>
+        </record>
+
     </data>
 </odoo>

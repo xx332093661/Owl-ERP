@@ -1,32 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <record id="view_stock_across_move_tree" model="ir.ui.view">
-            <field name="name">stock.across.move.tree</field>
-            <field name="model">stock.across.move</field>
+        <record id="view_stock_internal_move_tree" model="ir.ui.view">
+            <field name="name">stock.internal.move.tree</field>
+            <field name="model">stock.internal.move</field>
             <field name="arch" type="xml">
                 <tree>
                     <field name="name"/>
                     <field name="date"/>
-                    <field name="origin_sale_order_id"/>
-                    <field name="sale_order_id"/>
-                    <field name="purchase_order_id"/>
+                    <field name="warehouse_out_id"/>
+                    <field name="warehouse_in_id"/>
                     <field name="company_id"/>
                     <field name="state"/>
                 </tree>
             </field>
         </record>
 
-        <record id="view_stock_across_move_form" model="ir.ui.view">
-            <field name="name">stock.across.move.form</field>
-            <field name="model">stock.across.move</field>
+        <record id="view_stock_internal_move_form" model="ir.ui.view">
+            <field name="name">stock.internal.move.form</field>
+            <field name="model">stock.internal.move</field>
             <field name="arch" type="xml">
                 <form>
                     <header>
-                        <button name="%(action_import_across_move_line_wizard)d" string="导入调拨明细" type="action"
-                                states="draft"
-                                class="oe_highlight" groups="stock.group_stock_user"/>
-
                         <button name="action_draft" type="object"
                                 states="confirm" string="设为草稿" groups="stock.group_stock_user"/>
 
@@ -42,13 +37,11 @@
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
-                            <button name="action_view_picking" type="object" class="oe_stat_button" icon="fa-truck" context="{'view_type': 'purchase'}">
-                                <field name="picking_in_count" widget="statinfo" string="调入分拣"/>
-                            </button>
-                            <button name="action_view_picking" type="object" class="oe_stat_button" icon="fa-truck" context="{'view_type': 'sale'}">
-                                <field name="picking_out_count" widget="statinfo" string="调出分拣"/>
+                            <button name="action_view_picking" type="object" class="oe_stat_button" icon="fa-truck">
+                                <field name="picking_count" widget="statinfo" string="分拣单"/>
                             </button>
                         </div>
+
                         <div class="oe_title">
                             <h1><field name="name"/></h1>
                         </div>
@@ -56,50 +49,35 @@
                         <group>
                             <group>
                                 <field name="warehouse_out_id" options="{'no_create': 1, 'no_open': 1}"/>
-                                <field name="cost_type"/>
-                                <field name="cost_increase_rating" attrs="{'invisible': [('cost_type', '!=', 'increase')], 'required': [('cost_type', '=', 'increase')]}"/>
                                 <field name="date"/>
-                                <field name="sale_order_id" options="{'no_create': 1}"/>
-                                <field name="origin_sale_order_id" help="中台接口，全渠道订单出库时，出库仓库的公司与订单公司不一致时，产生跨公司调拨单"/>
                             </group>
                             <group>
-                                <field name="warehouse_in_id" options="{'no_create': 1, 'no_open': 1}" context="{'across_move_all': 1}"/>
-                                <field name="payment_term_id"/>
+                                <field name="warehouse_in_id" options="{'no_create': 1, 'no_open': 1}"/>
                                 <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
-                                <field name="purchase_order_id" options="{'no_create': 1}"/>
                             </group>
                         </group>
                         <notebook>
                             <page string="调拨明细">
-                                <field name="line_ids" context="{'warehouse_out_id': warehouse_out_id, 'cost_type': cost_type, 'cost_increase_rating': cost_increase_rating}">
+                                <field name="line_ids">
                                     <tree editable="top">
                                         <field name="product_id" options="{'no_create': 1, 'no_open': 1}"/>
-                                        <field name="current_cost"/>
                                         <field name="move_qty"/>
-                                        <field name="cost"/>
-                                        <field name="amount" sum="合计"/>
                                     </tree>
                                     <form>
                                         <group col="4">
                                             <field name="product_id"/>
-                                            <field name="current_cost"/>
                                             <field name="move_qty"/>
-                                            <field name="cost"/>
-                                            <field name="amount"/>
                                         </group>
                                     </form>
                                 </field>
                             </page>
                             <page string="调拨差异">
-                                <button name="%(action_across_move_diff_receipt_wizard)d" states="done" string="=>创建收款单" type="action" class="oe_link oe_right"/>
                                 <field name="diff_ids" readonly="1">
                                     <tree>
                                         <field name="product_id"/>
                                         <field name="move_out_qty"/>
                                         <field name="move_in_qty"/>
                                         <field name="diff_qty"/>
-                                        <field name="cost"/>
-                                        <field name="amount" sum="合计"/>
                                     </tree>
                                     <form>
                                         <group col="4">
@@ -107,8 +85,6 @@
                                             <field name="move_out_qty"/>
                                             <field name="move_in_qty"/>
                                             <field name="diff_qty"/>
-                                            <field name="cost"/>
-                                            <field name="amount"/>
                                         </group>
                                     </form>
                                 </field>
@@ -122,9 +98,9 @@
             </field>
         </record>
 
-        <record id="view_stock_across_move_filter" model="ir.ui.view">
-            <field name="name">stock.across.move.filter</field>
-            <field name="model">stock.across.move</field>
+        <record id="view_stock_internal_move_filter" model="ir.ui.view">
+            <field name="name">stock.internal.move.filter</field>
+            <field name="model">stock.internal.move</field>
             <field name="arch" type="xml">
                 <search>
                     <field name="name"/>
@@ -135,21 +111,20 @@
             </field>
         </record>
 
-        <record id="action_stock_across_move" model="ir.actions.act_window">
-            <field name="name">跨公司调拨</field>
-            <field name="res_model">stock.across.move</field>
+        <record id="action_stock_internal_move" model="ir.actions.act_window">
+            <field name="name">内部调拨</field>
+            <field name="res_model">stock.internal.move</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="context">{'across_move_all': 1}</field>
         </record>
 
         <menuitem
-            id="menu_action_stock_across_move"
-            name="跨公司调拨"
+            id="menu_action_stock_internal_move"
+            name="内部调拨"
             parent="stock.menu_stock_warehouse_mgmt"
             groups="stock.group_stock_user"
-            action="action_stock_across_move"
-            sequence="20"/>
+            action="action_stock_internal_move"
+            sequence="21"/>
 
     </data>
 

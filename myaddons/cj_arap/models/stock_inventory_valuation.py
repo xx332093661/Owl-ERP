@@ -127,6 +127,10 @@ class StockInventoryValuationMove(models.Model):
             if store_stock_update_code == 'STOCK_03010':
                 return self.env.ref('cj_stock.STOCK_03010')  # 门店盘返货总仓出库冲销
 
+            # 内部调拨入库
+            if store_stock_update_code == 'STOCK_internal_in':
+                return self.env.ref('cj_stock.internal_in')  # 内部调拨入库
+
             return None
         else:  # 出库
             # 盘亏
@@ -195,6 +199,10 @@ class StockInventoryValuationMove(models.Model):
             # 门店盘盈入库冲销
             if store_stock_update_code == 'STOCK_03008':
                 return self.env.ref('cj_stock.STOCK_03008')  # 门店盘盈入库冲销
+
+            # 内部调拨出库
+            if store_stock_update_code == 'STOCK_internal_out':
+                return self.env.ref('cj_stock.internal_out')  # 内部调拨出库
 
             return None
 
@@ -305,6 +313,10 @@ class StockInventoryValuationMove(models.Model):
             if store_stock_update_code == 'STOCK_03010':
                 return stock_cost
 
+            # 内部调拨入库
+            if store_stock_update_code == 'STOCK_internal_in':
+                return stock_cost
+
         else:  # 出库
             # 盘亏：取stock.move完成那个时间点的stock_cost（库存单位成本）
             if move.inventory_id:  # 关联盘点单
@@ -375,6 +387,10 @@ class StockInventoryValuationMove(models.Model):
 
             # 门店盘盈入库冲销
             if store_stock_update_code == 'STOCK_03008':
+                return stock_cost
+
+            # 内部调拨出库
+            if store_stock_update_code == 'STOCK_internal_out':
                 return stock_cost
 
         return 0

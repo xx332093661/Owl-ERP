@@ -20,6 +20,7 @@ class StockPicking(models.Model):
     # delivery_ids = fields.Many2many('delivery.order', string='物流单', compute='_compute_deliveries', store=True)
     delivery_id = fields.Many2one('delivery.order', string='物流单')
     material_requisition_id = fields.Many2one('stock.material.requisition', '领料单')
+    internal_move_id = fields.Many2one('stock.internal.move', '内部调拨单')
 
     # @api.one
     # def _compute_deliveries(self):
@@ -159,15 +160,29 @@ class StockPicking(models.Model):
     #     return
 
     @api.multi
-    def write(self, vals):
-        res = super(StockPicking, self).write(vals)
+    def action_done(self):
+        res = super(StockPicking, self).action_done()
         for picking in self:
             if picking.state == 'done':
-                picking._generate_across_move_diff()  # 计算跨公司调拨差异
+                picking.generate_across_move_diff()  # 计算跨公司调拨差异
+
+                # 计算内部调拨差异
+                if picking.internal_move_id:
+                    picking.internal_move_id.generate_internal_move_diff()
 
         return res
 
-    def _generate_across_move_diff(self):
+    # @api.multi
+    # def write(self, vals):
+    #     res = super(StockPicking, self).write(vals)
+    #     for picking in self:
+    #         if picking.state == 'done':
+    #             picking.generate_across_move_diff()  # 计算跨公司调拨差异
+    #             picking.generate_internal_move_diff()  # 计算内部调拨差异
+    #
+    #     return res
+
+    def generate_across_move_diff(self):
         """计算跨公司调拨差异"""
         across_move_obj = self.env['stock.across.move']  # 跨公司调拨
 
@@ -181,6 +196,7 @@ class StockPicking(models.Model):
             return
 
         across_move.generate_across_move_diff()
+
 
 
 

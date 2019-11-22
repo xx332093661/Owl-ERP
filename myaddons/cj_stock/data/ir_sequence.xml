@@ -82,5 +82,13 @@
             <field eval="False" name="company_id"/>
             <field name="padding">5</field>
         </record>
+
+        <record id="sequence_stock_internal_move" model="ir.sequence">
+            <field name="name">内部调拨序列</field>
+            <field name="code">stock.internal.move</field>
+            <field name="prefix">SIM</field>
+            <field name="padding">5</field>
+            <field eval="False" name="company_id"/>
+        </record>
     </data>
 </odoo>
