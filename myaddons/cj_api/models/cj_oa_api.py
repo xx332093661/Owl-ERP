@@ -13,7 +13,7 @@ _logger = logging.getLogger(__name__)
 
 # OA允许的接口列表
 OA_CODES_LIST = [
-    'Purchasing_order',     # 采购单
+    'Contract_approval',     # 采购单
     'GroupPurchase_Orders', # 团购单
     'Payment_request',  # 付款单
 ]
@@ -106,10 +106,10 @@ class CjOaApi(models.Model):
 
         val = json.dumps(val)
         headers = {'Content-Type': 'application/json'}
-
+        print(val)
         try:
             response = requests.post(url, val, headers=headers)
-
+            print(response)
             if response.status_code == 200:
 
                 flow_id = int(response.text)
@@ -124,7 +124,7 @@ class CjOaApi(models.Model):
                     'flow_id': flow_id
                 }])
                 return flow_id
-
+            _logger.error(response.text)
             raise Exception('提交OA审批响应错误！')
         except Exception:
             _logger.error('提交OA审批出错！')

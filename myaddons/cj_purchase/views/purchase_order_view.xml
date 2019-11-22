@@ -44,12 +44,12 @@
                     <button name="action_draft" type="object" states="cancel,general_manager_refuse" class="oe_highlight" string="设为草稿" groups="purchase.group_purchase_user"/>
 
                     <button name="action_confirm" type="object" class="oe_highlight" states="draft" string="确认" groups="purchase.group_purchase_user"/><!--采购专员确认-->
-                    <button name="action_manager_confirm" type="object" states="confirm" string="采购经理审核" class="oe_highlight" groups="purchase.group_purchase_manager"/>
-                    <button name="action_finance_manager_confirm" type="object" states="manager_confirm" string="财务经理审核" class="oe_highlight" groups="account.group_account_manager"/>
-                    <button name="action_general_manager_refuse" states="finance_manager_confirm" string="拒绝" type="object" groups="cj_purchase.group_purchase_general_manager"/>
-                    <button name="action_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_purchase.group_purchase_general_manager"/>
-                    <button name="button_approve" states="general_manager_confirm" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/>
-
+                    <!--<button name="action_manager_confirm" type="object" states="oa_accept" string="采购经理审核" class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
+                    <!--<button name="action_finance_manager_confirm" type="object" states="manager_confirm" string="财务经理审核" class="oe_highlight" groups="account.group_account_manager"/>-->
+                    <!--<button name="action_general_manager_refuse" states="finance_manager_confirm" string="拒绝" type="object" groups="cj_purchase.group_purchase_general_manager"/>-->
+                    <!--<button name="action_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_purchase.group_purchase_general_manager"/>-->
+                    <button name="button_approve" states="oa_accept" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/>
+                    <button name="action_commit_approval" type="object" states="confirm" string="提交OA审批" class="oe_highlight"/>
 
                     <!--<button name="action_supplier_send" states="Master_Review" string="下载打印发货单" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
 
@@ -61,7 +61,7 @@
 
                 </xpath>
                 <field name="state" position="attributes">
-                    <attribute name="statusbar_visible">draft,confirm,manager_confirm,finance_manager_confirm,general_manager_confirm,purchase,done</attribute>
+                    <attribute name="statusbar_visible">draft,confirm,oa_sent,purchase,done</attribute>
                 </field>
                 <xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="domain">[('supplier', '=', True), ('state', '=', 'finance_manager_confirm')]</attribute>
@@ -89,9 +89,9 @@
                     <field name="purchase_order_count"/>
                 </field>
 
-                <xpath expr="//field[@name='purchase_order_count']" position="after">
-                    <field name="explain"/>
-                </xpath>
+                <!--<xpath expr="//field[@name='purchase_order_count']" position="after">-->
+                    <!--<field name="explain"/>-->
+                <!--</xpath>-->
 
                 <xpath expr="//page[@name='purchase_delivery_invoice']" position="before">
                     <page string="供应商返利" attrs="{'invisible': [('rebate', '=', False)]}">
