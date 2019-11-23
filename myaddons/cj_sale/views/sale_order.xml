@@ -40,7 +40,7 @@
         </record>
     </data>
 
-
+    <!--全渠道订单-->
     <data>
         <record id="view_order_form_chuanjiu" model="ir.ui.view">
             <field name="name">sale.order.form.chuanjiu</field>

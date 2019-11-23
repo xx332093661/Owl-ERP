@@ -148,8 +148,9 @@ class StockAcrossMove(models.Model):
             'picking_type_id': get_picking_type(),
             'payment_term_id': self.payment_term_id.id,
             'company_id': company_in_id,
-            'origin': sale_order.name,
+            'origin': self.name,
             'notes': '跨店调拨单：%s，关联的采购订单' % self.name,
+            'is_across_move': True,  # 是跨公司调拨
             'order_line': [(0, 0, {
                 'product_id': line.product_id.id,
                 'name': line.product_id.name,

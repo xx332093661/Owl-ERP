@@ -22,3 +22,4 @@ from . import stock_across_move
 # from . import partner
 from . import material_requisition
 from . import stock_internal_move
+from . import purchase_order

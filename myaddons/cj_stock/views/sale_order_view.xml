@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--全渠道订单-->
+    <data>
+        <record id="cj_sale.action_orders_all" model="ir.actions.act_window">
+            <field name="domain">[('group_flag', 'in', ['large', 'not']), ('channel_id.code', '!=', 'across_move')]</field>
+        </record>
+    </data>
+
+    <!--团购单-->
+    <data>
+        <record id="cj_sale.action_orders_groupn" model="ir.actions.act_window">
+            <field name="domain">[('group_flag', '=', 'group'), ('channel_id.code', '!=', 'across_move')]</field>
+        </record>
+    </data>
+
+    <!--跨公司调拨销售订单-->
+    <data>
+        <record id="action_across_move_sale_order" model="ir.actions.act_window">
+            <field name="name">跨公司调拨销售订单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_ids" eval="[(5,0,0), (0,0,{'view_mode':'tree', 'view_id': ref('cj_sale.view_sale_order_all_tree')}), (0,0,{'view_mode':'form', 'view_id': ref('cj_sale.view_order_form_chuanjiu')})]"/>
+            <field name="domain">[('channel_id.code', '=', 'across_move')]</field>
+            <field name="search_view_id" ref="sale.sale_order_view_search_inherit_sale"/>
+            <field name="context">{}</field>
+        </record>
+
+        <menuitem name="跨公司调拨销售订单" id="menu_action_across_move_sale_order" action="action_across_move_sale_order"
+                  parent="cj_sale.menu_sale_operation" sequence="25" groups="sales_team.group_sale_salesman,cj_sale.group_sale_general_manage" />
+
+    </data>
+</odoo>

@@ -47,6 +47,7 @@ class SaleOrder(models.Model):
     payment_ids = fields.One2many('account.payment', 'sale_order_id', '收款记录',  domain=lambda self: [('payment_type', '=', 'inbound')])
     return_ids = fields.One2many('sale.order.return', 'sale_order_id', '退货入库单')
     refund_ids = fields.One2many('sale.order.refund', 'sale_order_id', '退款单')
+    is_gift = fields.Boolean('是赠品订单')
 
     # 中台字段
     user_level = fields.Char("用户等级")

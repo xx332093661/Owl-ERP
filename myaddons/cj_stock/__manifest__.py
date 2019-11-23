@@ -49,6 +49,8 @@
         'views/stock_inventory_diff_receipt_view.xml',
         'views/material_requisition_view.xml',
         'views/stock_internal_move_view.xml',
+        'views/sale_order_view.xml',
+        'views/purchase_order_view.xml',
 
         # 'wizard/valuation_wizard_view.xml',
         'wizard/confirm_empty_delivery_order_wizard_view.xml',
