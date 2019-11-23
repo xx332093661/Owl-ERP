@@ -3,14 +3,14 @@
     <!--全渠道订单-->
     <data>
         <record id="cj_sale.action_orders_all" model="ir.actions.act_window">
-            <field name="domain">[('group_flag', 'in', ['large', 'not']), ('channel_id.code', '!=', 'across_move')]</field>
+            <field name="domain">[('group_flag', 'in', ['large', 'not']), ('channel_id.code', '!=', 'across_move'), ('is_gift', '=', False)]</field>
         </record>
     </data>
 
     <!--团购单-->
     <data>
         <record id="cj_sale.action_orders_groupn" model="ir.actions.act_window">
-            <field name="domain">[('group_flag', '=', 'group'), ('channel_id.code', '!=', 'across_move')]</field>
+            <field name="domain">[('group_flag', '=', 'group'), ('channel_id.code', '!=', 'across_move'), ('is_gift', '=', False)]</field>
         </record>
     </data>
 

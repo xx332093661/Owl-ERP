@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="view_order_form_groupn" model="ir.ui.view">
-        <field name="name">sale.order.form.groupn</field>
+    <record id="view_order_form_gift" model="ir.ui.view">
+        <field name="name">sale.order.form.gift</field>
         <field name="model">sale.order</field>
         <field name="arch" type="xml">
-            <form string="团购单" class="o_sale_order">
+            <form string="赠品订单" class="o_sale_order">
                 <header>
                     <!--<button name="payment_action_capture" type="object" string="更新付款记录" class="oe_highlight"-->
                             <!--attrs="{'invisible': [('authorized_transaction_ids', '=', [])]}"/>-->
@@ -52,9 +52,9 @@
                         <button type="object" name="action_view_delivery" class="oe_stat_button" icon="fa-truck" groups="sales_team.group_sale_salesman">
                             <field name="delivery_count" widget="statinfo" string="出货单"/>
                         </button>
-                        <button name="action_view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o" attrs="{'invisible': [('invoice_count', '=', 0)]}" groups="sales_team.group_sale_salesman">
-                            <field name="invoice_count" widget="statinfo" string="结算单"/>
-                        </button>
+                        <!--<button name="action_view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o" attrs="{'invisible': [('invoice_count', '=', 0)]}" groups="sales_team.group_sale_salesman">-->
+                            <!--<field name="invoice_count" widget="statinfo" string="结算单"/>-->
+                        <!--</button>-->
                     </div>
                     <div class="oe_title">
                         <h1>
@@ -63,20 +63,22 @@
                     </div>
                     <group>
                         <group>
-                            <field name="partner_id"  options="{'no_open': True, 'no_create':True}" domain="[('customer','=',True)]"/>
+                            <field name="partner_id" domain="['|', ('customer','=',True), ('member','=',True)]" options="{'no_open': True, 'no_create':True}"/>
+                            <field name="child_ids" string="关联的订单" required="1" domain="[('partner_id', '=', partner_id), ('state', '!=', 'draft'), ('group_flag', 'in', ['large', 'not'])]"
+                                   options="{'no_open': True, 'no_create':True}" widget="many2many_tags"/>
                             <!--<field name="partner_invoice_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice'}" options="{'always_reload': True}"/>-->
                             <!--<field name="partner_shipping_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'delivery'}" options="{'always_reload': True}"/>-->
-                            <field name="channel_id" options="{'no_create_edit': True, 'no_create':True}"/>
-                            <field name="client_order_ref" string="渠道单号" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="cj_activity_id" options="{'no_create_edit': True, 'no_create':True}" string="营销活动"/>
+                            <!--<field name="channel_id" options="{'no_create_edit': True, 'no_create':True}"/>-->
+                            <!--<field name="client_order_ref" string="渠道单号" attrs="{'readonly': [('state', '!=', 'draft')]}"/>-->
+                            <!--<field name="cj_activity_id" options="{'no_create_edit': True, 'no_create':True}" string="营销活动"/>-->
                         </group>
                         <group>
-                            <field name="validity_date" attrs="{'invisible': [('state', 'in', ['sale', 'done'])]}"/>
-                            <field name="confirmation_date" attrs="{'invisible': [('state', 'in', ['draft', 'sent', 'cancel'])]}"/>
+                            <field name="date_order"/>
+                            <!--<field name="confirmation_date" attrs="{'invisible': [('state', 'in', ['draft', 'sent', 'cancel'])]}"/>-->
                             <field name="pricelist_id" groups="product.group_sale_pricelist"/>
                             <field name="currency_id" invisible="1"/>
-                            <field name="payment_term_id" options="{'no_create': True}"/>
-                            <field name="purchase_apply_id"/>
+                            <!--<field name="payment_term_id" options="{'no_create': True}"/>-->
+                            <!--<field name="purchase_apply_id"/>-->
                         </group>
                     </group>
 
@@ -233,9 +235,9 @@
                             </group>
                             <div class="oe_clear"/>
                         </page>
-                        <page string="支付记录">
-                            <field name="payment_ids" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
-                        </page>
+                        <!--<page string="支付记录">-->
+                            <!--<field name="payment_ids" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                        <!--</page>-->
 
                         <page string="出货信息" name="order_lines">
                             <field name="delivery_ids" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}">
@@ -283,19 +285,20 @@
         </field>
     </record>
 
-    <record id="view_sale_order_groupn_tree" model="ir.ui.view">
-        <field name="name">sale.order.groupn.tree</field>
+    <record id="view_sale_order_gift_tree" model="ir.ui.view">
+        <field name="name">sale.order.gift.tree</field>
         <field name="model">sale.order</field>
         <field name="priority">4</field>
         <field name="arch" type="xml">
-            <tree string="团购订单" class="o_sale_order" decoration-bf="message_needaction==True" decoration-muted="state=='cancel'">
+            <tree string="赠品订单" class="o_sale_order" decoration-bf="message_needaction==True" decoration-muted="state=='cancel'">
+                <field name="partner_id"/>
                 <field name="message_needaction" invisible="1"/>
                 <field name="name" string="订单号"/>
                 <field name="date_order" string="订单日期"/>
-                <field name="channel_id" string="渠道"/>
+                <!--<field name="channel_id" string="渠道"/>-->
                 <!--<field name="commitment_date" groups="sale.group_sale_order_dates"/>-->
                 <!--<field name="expected_date" groups="sale.group_sale_order_dates"/>-->
-                <field name="partner_id"/>
+
                 <field name="user_id"/>
                 <field name="amount_total" sum="Total Tax Included" widget="monetary"/>
                 <field name="currency_id" invisible="1"/>
@@ -305,16 +308,16 @@
     </record>
 
 
-    <record id="action_orders_groupn" model="ir.actions.act_window">
-        <field name="name">团购订单</field>
+    <record id="action_orders_gift" model="ir.actions.act_window">
+        <field name="name">赠品订单</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">sale.order</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
-        <field name="view_ids" eval="[(5,0,0), (0,0,{'view_mode':'tree', 'view_id': ref('view_sale_order_groupn_tree')}), (0,0,{'view_mode':'form', 'view_id': ref('view_order_form_groupn')})]"/>
-        <field name="domain">[('group_flag', '=', 'group'), ('is_gift', '=', False)]</field>
+        <field name="view_ids" eval="[(5,0,0), (0,0,{'view_mode':'tree', 'view_id': ref('view_sale_order_gift_tree')}), (0,0,{'view_mode':'form', 'view_id': ref('view_order_form_gift')})]"/>
+        <field name="domain">[('is_gift', '=', True)]</field>
         <field name="search_view_id" ref="sale.sale_order_view_search_inherit_sale"/>
-        <field name="context">{'group_flag': 'group'}</field>
+        <field name="context">{'default_is_gift': True}</field>
     </record>
 
 
