@@ -2289,8 +2289,8 @@ class ApiMessage(models.Model):
 
         # 状态是cancelled-已取消，取消订单，取消订单关联的stock.picking和account.payment
         if order_state == 'cancelled':
-            # if order.picking_ids.filtered(lambda x: x.state == 'done'):
-            #     raise MyValidationError('15', '订单已出库，不能取消！')
+            if order.picking_ids.filtered(lambda x: x.state == 'done'):
+                raise MyValidationError('15', '订单已出库，不能取消！')
 
             # 去重处理(推送过来的订单状态可能重复)
             if order.state == 'cancel':
@@ -2299,8 +2299,8 @@ class ApiMessage(models.Model):
             # 将未完成的stock.picking取消
             order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
             # 订单取消
-            order.state = 'cancel'
-            # order.action_cancel()
+            # order.state = 'cancel'
+            order.action_cancel()
             # 取消关联的收款(已收至款的走退款途径，草稿状态的取消)
             for payment in order.payment_ids.filtered(lambda x: x.state == 'draft'):
                 payment.cancel()
