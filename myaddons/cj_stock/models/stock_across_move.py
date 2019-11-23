@@ -56,7 +56,10 @@ class StockAcrossMove(models.Model):
     def action_confirm(self):
         """确认"""
         self.ensure_one()
-        if self.company_id.id not in self.env.user.company_id.child_ids.ids:
+        companies = self.env.user.company_id
+        companies |= companies.child_ids
+        company_ids = companies.ids
+        if self.company_id.id not in company_ids:
             raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能确认！')
 
         if not self.line_ids:
@@ -82,7 +85,10 @@ class StockAcrossMove(models.Model):
     def action_draft(self):
         """重置为草稿"""
         self.ensure_one()
-        if self.company_id.id not in self.env.user.company_id.child_ids.ids:
+        companies = self.env.user.company_id
+        companies |= companies.child_ids
+        company_ids = companies.ids
+        if self.company_id.id not in company_ids:
             raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能重置为草稿！')
 
         if self.state != 'confirm':
@@ -102,7 +108,10 @@ class StockAcrossMove(models.Model):
             return types[:1].id
 
         self.ensure_one()
-        if self.company_id.id not in self.env.user.company_id.child_ids.ids:
+        companies = self.env.user.company_id
+        companies |= companies.child_ids
+        company_ids = companies.ids
+        if self.company_id.id not in company_ids:
             raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能审核！')
 
         if self.state != 'confirm':
@@ -196,8 +205,12 @@ class StockAcrossMove(models.Model):
         if self.filtered(lambda x: x.state != 'draft'):
             raise ValidationError('非草稿状态的记录不能删除！')
 
+        companies = self.env.user.company_id
+        companies |= companies.child_ids
+        company_ids = companies.ids
+
         # 限制调用仓库的权限
-        if any([res.company_id.id not in self.env.user.company_id.child_ids.ids for res in self]):
+        if any([res.company_id.id not in company_ids for res in self]):
             raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能删除！')
 
         return super(StockAcrossMove, self).unlink()
@@ -206,7 +219,12 @@ class StockAcrossMove(models.Model):
     def write(self, vals):
         # 限制调用仓库的权限
         if 'cron_update' not in self._context:  # cron_update上下文避免计划任务修改状态报错
-            if any([res.company_id.id not in self.env.user.company_id.child_ids.ids for res in self]):
+
+            companies = self.env.user.company_id
+            companies |= companies.child_ids
+            company_ids = companies.ids
+
+            if any([res.company_id.id not in company_ids for res in self]):
                 raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能修改！')
 
         return super(StockAcrossMove, self).write(vals)
@@ -279,7 +297,7 @@ class StockAcrossMove(models.Model):
         })for diff in filter(lambda x: float_compare(x['move_out_qty'], x['move_in_qty'], precision_digits=3) != 0, across_move)]
 
         if diff_vals:
-            self.diff_ids = diff_vals
+            self.with_context(cron_update=1).diff_ids = diff_vals
 
 
 class StockAcrossMoveLine(models.Model):

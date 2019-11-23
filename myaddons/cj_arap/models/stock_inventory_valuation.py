@@ -432,7 +432,7 @@ class StockInventoryValuationMove(models.Model):
         # 计算在手数量
         qty_available = 0
         for store in cost_group.store_ids:
-            variants_available = product.with_context(owner_company_id=store.id, compute_child1=False)._product_available()
+            variants_available = product.sudo().with_context(owner_company_id=store.id, compute_child1=False)._product_available()
             qty_available += variants_available[product_id]['qty_available']  # 在手数量
 
         # 单位成本
@@ -457,7 +457,7 @@ class StockInventoryValuationMove(models.Model):
             'type': 'in' if is_in else 'out',  # 出入类型
             'stock_type': 'all'
         }]
-        variants_available = product.with_context(owner_company_id=company_id, compute_child1=False)._product_available()
+        variants_available = product.sudo().with_context(owner_company_id=company_id, compute_child1=False)._product_available()
         qty_available = variants_available[product_id]['qty_available']  # 在手数量
         vals_list.append({
             'cost_group_id': cost_group_id,  # 成本组
