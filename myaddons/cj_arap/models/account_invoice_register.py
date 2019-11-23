@@ -38,7 +38,8 @@ class AccountInvoiceRegister(models.Model):
         ]
 
     name = fields.Char('发票号', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
-    partner_id = fields.Many2one('res.partner', '合作伙伴', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="['|', ('customer', '=', True), ('supplier', '=', True)]")
+    partner_id = fields.Many2one('res.partner', '合作伙伴', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange',
+                                 domain="['|', '|', ('customer', '=', True), ('supplier', '=', True), ('member', '=', True)]")
     invoice_date = fields.Date('开票日期', required=1, default=fields.Date.context_today, readonly=1, states=READONLY_STATES)
     amount = fields.Float('开票金额', readonly=1, states=READONLY_STATES, track_visibility='onchange')
     # currency_id = fields.Float('res.currency', string='币种', default=lambda self: self.env.user.company_id.currency_id.id)

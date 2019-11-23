@@ -19,6 +19,7 @@
 
     'data': [
         'security/ir.model.access.csv',
+        'security/rule.xml',
 
         'wizard/account_payment_apply_payment_wizard_view.xml',
         'wizard/account_invoice_register_apply_wizard_view.xml',

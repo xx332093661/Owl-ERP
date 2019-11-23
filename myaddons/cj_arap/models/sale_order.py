@@ -20,7 +20,7 @@ class SaleOrder(models.Model):
         string='支付条款',
         oldname='payment_term',
         readonly=1,
-        required=1, states={'draft': [('readonly', False)]},
+        required=0, states={'draft': [('readonly', False)]},
         domain=[('type', 'not in', ['sale_after_payment', 'cycle_payment', 'joint'])],
         ondelete='restrict')
 
