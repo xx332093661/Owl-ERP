@@ -32,7 +32,7 @@ class SaleOrder(models.Model):
         ('finance_manager_confirm', '财务经理审核'),
         ('general_manager_confirm', '总经理审批'),
         ('general_manager_refuse', '总经理拒绝'),
-        ('sale', '待出库'),
+        ('sale', '销售订单'),
         ('done', '完成'),
         ('cancel', '取消'),
         # ('purchase', '采购中')
@@ -44,7 +44,9 @@ class SaleOrder(models.Model):
     delivery_ids = fields.One2many('delivery.order', 'sale_order_id', string='出货单', copy=False, readonly=False)
     logistics_ids = fields.One2many('delivery.logistics', 'order_id', '运单')
     group_flag = fields.Selection([('large', '大数量团购'), ('group', '团购'), ('not', '非团购')], '团购标记', default='not')
-    payment_ids = fields.One2many('account.payment', 'sale_order_id', '收款记录')
+    payment_ids = fields.One2many('account.payment', 'sale_order_id', '收款记录',  domain=lambda self: [('payment_type', '=', 'inbound')])
+    return_ids = fields.One2many('sale.order.return', 'sale_order_id', '退货入库单')
+    refund_ids = fields.One2many('sale.order.refund', 'sale_order_id', '退款单')
 
     # 中台字段
     user_level = fields.Char("用户等级")
@@ -70,11 +72,14 @@ class SaleOrder(models.Model):
     consignee_city_id = fields.Many2one('res.city', '市')
     consignee_district_id = fields.Many2one('res.city', '区(县)')
     special_order_mark = fields.Selection([('normal', '普通订单'), ('compensate', '补发货订单')], '订单类型', default='normal')
-    # origin = fields.Char('关联的销售订单')
+    parent_id = fields.Many2one('sale.order', '关联的销售订单')
+    child_ids = fields.One2many('sale.order', 'parent_id', '补发订单')
     reason = fields.Char('补发货原因')
 
-    arap_checked = fields.Boolean(string="商品核算", helps="是否完成了该订单的应收应付核算检查", default=False)
-    cost_checked = fields.Boolean(string="物流核算", helps="是否完成了订单商品成本的计算", default=False)
+    member_id = fields.Char('会员ID', help='对于全渠道订单，打不到会员，先把会员ID暂存起来，后通过计划任务去计算会员')
+
+    # arap_checked = fields.Boolean(string="商品核算", helps="是否完成了该订单的应收应付核算检查", default=False)
+    # cost_checked = fields.Boolean(string="物流核算", helps="是否完成了订单商品成本的计算", default=False)
 
     sync_state = fields.Selection([('no_need', '无需同步'), ('not', '未同步'), ('success', '已同步'), ('error', '同步失败')], '同步中台状态', default='not')
 
@@ -163,7 +168,7 @@ class SaleOrder(models.Model):
             raise ValidationError('只有财务经理审核的单据才能由总经理拒绝')
 
         self.state = 'general_manager_refuse'
-        self.purchase_apply_id.unlink()  # 删除关联的采购申请
+        self.purchase_apply_id.unlink()  # 删除关联的采购申请`
 
     @api.multi
     def button_general_manager_confirm(self):
@@ -286,3 +291,16 @@ class SaleOrder(models.Model):
 
         # todo 大数量团购处理
         return super(SaleOrder, self).create(val)
+
+    @api.model
+    def _cron_compute_member(self):
+        """全渠道订单：计算订单会员"""
+        partner_obj = self.env['res.partner']
+        for order in self.search([('member_id', '!=', False)]):
+            partner = partner_obj.search([('code', '=', order.member_id), ('member', '=', True)])
+            if partner:
+                order.write({
+                    'partner_id': partner.id,
+                    'member_id': False
+                })
+

@@ -504,7 +504,7 @@ class PurchaseApplyLine(models.Model):
     product_id = fields.Many2one('product.product', '商品')
     product_uom = fields.Many2one('uom.uom', string='单位', related='product_id.uom_id')
     partner_id = fields.Many2one('res.partner', '供应商', required=0, domain=[('supplier', '=', True), ('parent_id', '=', False)], ondelete='cascade')
-    supplierinfo_id = fields.Many2one('product.supplierinfo', '供应商', domain="[('product_id', '=', product_id), ('price_list_id.state', '=', 'done')]")
+    supplierinfo_id = fields.Many2one('product.supplierinfo', '供应商', domain="[('product_id', '=', product_id), ('price_list_id.state', '=', 'done')]", ondelete='restrict')
     product_qty = fields.Float('申请数量', default=1)
     price = fields.Float('预计单价')
     amount = fields.Float('预计成本', compute='_compute_amount', store=1)

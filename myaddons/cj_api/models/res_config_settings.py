@@ -28,11 +28,11 @@ class ResConfigSettings(models.TransientModel):
     pos_purchase_call_url = fields.Char('采购订单调用地址', required=1, config_parameter='pos_purchase_call_url')
 
     main_data_api_url = fields.Char('主数据全量接口URL', required=1, config_parameter='main_data_api_url')
-    main_data_api_dms_material_info = fields.Char('主数据-物料接口Key设置', required=1, config_parameter='main_data_api_dms_material_info')
-    main_data_api_auth_org = fields.Char('主数据-组织接口Key设置', required=1, config_parameter='main_data_api_auth_org')
-    main_data_api_dms_warehouse = fields.Char('主数据-仓库接口Key设置', required=1, config_parameter='main_data_api_dms_warehouse')
-    main_data_api_dms_store = fields.Char('主数据-门店接口Key设置', required=1, config_parameter='main_data_api_dms_store')
-    main_data_api_auth_distributor_member = fields.Char('主数据-分销商接口Key设置', required=1, config_parameter='main_data_api_auth_distributor_member')
+    # main_data_api_dms_material_info = fields.Char('主数据-物料接口Key设置', required=1, config_parameter='main_data_api_dms_material_info')
+    # main_data_api_auth_org = fields.Char('主数据-组织接口Key设置', required=1, config_parameter='main_data_api_auth_org')
+    # main_data_api_dms_warehouse = fields.Char('主数据-仓库接口Key设置', required=1, config_parameter='main_data_api_dms_warehouse')
+    # main_data_api_dms_store = fields.Char('主数据-门店接口Key设置', required=1, config_parameter='main_data_api_dms_store')
+    # main_data_api_auth_distributor_member = fields.Char('主数据-分销商接口Key设置', required=1, config_parameter='main_data_api_auth_distributor_member')
 
     @api.model
     def get_values(self):
@@ -62,11 +62,11 @@ class ResConfigSettings(models.TransientModel):
         pos_purchase_call_url = get_param_value('pos_purchase_call_url')
 
         main_data_api_url = get_param_value('main_data_api_url')
-        main_data_api_dms_material_info = get_param_value('main_data_api_dms_material_info')
-        main_data_api_auth_org = get_param_value('main_data_api_auth_org')
-        main_data_api_dms_warehouse = get_param_value('main_data_api_dms_warehouse')
-        main_data_api_dms_store = get_param_value('main_data_api_dms_store')
-        main_data_api_auth_distributor_member = get_param_value('main_data_api_auth_distributor_member')
+        # main_data_api_dms_material_info = get_param_value('main_data_api_dms_material_info')
+        # main_data_api_auth_org = get_param_value('main_data_api_auth_org')
+        # main_data_api_dms_warehouse = get_param_value('main_data_api_dms_warehouse')
+        # main_data_api_dms_store = get_param_value('main_data_api_dms_store')
+        # main_data_api_auth_distributor_member = get_param_value('main_data_api_auth_distributor_member')
 
 
 
@@ -87,10 +87,10 @@ class ResConfigSettings(models.TransientModel):
             pos_interface_state=pos_interface_state,
             pos_purchase_call_url=pos_purchase_call_url,
             main_data_api_url = main_data_api_url,
-            main_data_api_dms_material_info =main_data_api_dms_material_info,
-            main_data_api_auth_org = main_data_api_auth_org,
-            main_data_api_dms_warehouse = main_data_api_dms_warehouse,
-            main_data_api_dms_store = main_data_api_dms_store,
-            main_data_api_auth_distributor_member = main_data_api_auth_distributor_member,
+            # main_data_api_dms_material_info =main_data_api_dms_material_info,
+            # main_data_api_auth_org = main_data_api_auth_org,
+            # main_data_api_dms_warehouse = main_data_api_dms_warehouse,
+            # main_data_api_dms_store = main_data_api_dms_store,
+            # main_data_api_auth_distributor_member = main_data_api_auth_distributor_member,
         )
         return res

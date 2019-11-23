@@ -34,9 +34,24 @@
             <field name="sequence" eval="50"/>
         </record>
 
+        <!--创建主数据菜单，包括商品、客户、供应商等子菜单-->
+        <menuitem id="menu_account_main" name="主数据"
+                  parent="account.menu_finance" sequence="4"
+                  groups="account.group_account_user"/>
+
+        <!--<menuitem id="menu_account_main_product" name="商品"-->
+                  <!--action="account.product_product_action_sellable"-->
+                  <!--parent="menu_account_main" sequence="10"/>-->
+        <!--<menuitem id="menu_account_main_customer" name="客户"-->
+                  <!--action="base.action_partner_customer_form"-->
+                  <!--parent="menu_account_main" sequence="20"/>-->
+        <!--<menuitem id="menu_account_main_supplier" name="供应商"-->
+                  <!--action="base.action_partner_supplier_form"-->
+                  <!--parent="menu_account_main" sequence="30"/>-->
+
         <!--增加采购菜单-->
         <menuitem id="menu_account_purchase" name="采购"
-            parent="account.menu_finance" sequence="4"/>
+            parent="account.menu_finance" sequence="5"/>
 
         <menuitem name="供应商"
                   id="menu_action_partner_supplier"
@@ -63,7 +78,10 @@
 
         <!--增加销售菜单-->
         <menuitem id="menu_account_sale" name="销售"
-            parent="account.menu_finance" sequence="5"/>
+            parent="account.menu_finance" sequence="6"/>
+
+        <menuitem name="客户" id="menu_action_sale_kh" action="base.action_partner_form"
+                  parent="menu_account_sale" sequence="5"/>
 
          <menuitem id="menu_sale_order"
             name="全渠道订单"
@@ -98,23 +116,11 @@
             <field name="active" eval="False"/>
         </record>
 
-        <!--创建主数据菜单，包括商品、客户、供应商等子菜单-->
-        <menuitem id="menu_account_main" name="主数据"
-                  parent="account.menu_finance" sequence="1"
-                  groups="account.group_account_user"/>
-        <menuitem id="menu_account_main_product" name="商品"
-                  action="account.product_product_action_sellable"
-                  parent="menu_account_main" sequence="10"/>
-        <menuitem id="menu_account_main_customer" name="客户"
-                  action="base.action_partner_customer_form"
-                  parent="menu_account_main" sequence="20"/>
-        <menuitem id="menu_account_main_supplier" name="供应商"
-                  action="base.action_partner_supplier_form"
-                  parent="menu_account_main" sequence="30"/>
+
 
         <!--增加仓库菜单-->
         <menuitem id="menu_account_stock" name="仓库"
-            parent="account.menu_finance" sequence="6"/>
+            parent="account.menu_finance" sequence="7"/>
 
     </data>
 </odoo>

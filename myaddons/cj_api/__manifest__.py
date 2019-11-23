@@ -16,7 +16,7 @@
         'data/res_config_setting.xml',
         'data/cron.xml',
         'data/uom_data.xml',
-
+        'data/api_full_config.xml',
 
         'security/api_security.xml',
         'security/ir.model.access.csv',
@@ -27,6 +27,10 @@
         'views/cj_oa_api_view.xml',
 
         'views/menu_view.xml',
+        'views/api_full_config_view.xml',
+        'views/api_message_dump_view.xml',
+
+        'wizard/api_message_dump_restore_wizard_view.xml',
 
 
 

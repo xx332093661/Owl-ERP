@@ -1,448 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--川酒信息-->
-    <data noupdate="1">
-        <!--川酒信息：采购专员-->
-        <function id="partner_cj_purchase_user" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '川酒信息：采购专员',
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'cgzy@cj.com',
-            }"/>
-        </function>
-        <function id="user_cj_purchase_user" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'cgzy@cj.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'login': 'cgzy@cj.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02014')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('purchase.group_purchase_user')])],
-            }"/>
-        </function>
-
-        <!--川酒信息：采购经理-->
-        <function id="partner_cj_purchase_manager" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '川酒信息：采购经理',
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'cgjl@cj.com',
-            }"/>
-        </function>
-        <function id="user_cj_purchase_manager" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'cgjl@cj.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'login': 'cgjl@cj.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02014')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('purchase.group_purchase_manager')])],
-            }"/>
-        </function>
-
-        <!--川酒信息：采购总经理-->
-        <function id="partner_cj_purchase_general_manager" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '川酒信息：采购总经理',
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'cgzjl@cj.com',
-            }"/>
-        </function>
-        <function id="user_cj_purchase_general_manager" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'cgzjl@cj.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'login': 'cgzjl@cj.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02014')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('purchase.group_purchase_manager')])],
-            }"/>
-        </function>
-
-        <!--川酒信息：销售专员-->
-        <function id="partner_cj_sale_user" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '川酒信息：销售专员',
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'xszy@cj.com',
-            }"/>
-        </function>
-        <function id="user_cj_sale_user" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'xszy@cj.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'login': 'xszy@cj.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02014')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('sales_team.group_sale_salesman')])],
-            }"/>
-        </function>
-
-        <!--川酒信息：销售经理-->
-        <function id="partner_cj_sale_manager" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '川酒信息：销售经理',
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'xsjl@cj.com',
-            }"/>
-        </function>
-        <function id="user_cj_sale_manager" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'xsjl@cj.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'login': 'xsjl@cj.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02014')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('sales_team.group_sale_manager')])],
-            }"/>
-        </function>
-
-        <!--川酒信息：销售总经理-->
-        <function id="partner_cj_sale_general_manager" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '川酒信息：销售总经理',
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'xszjl@cj.com',
-            }"/>
-        </function>
-        <function id="user_cj_sale_general_manager" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'xszjl@cj.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'login': 'xszjl@cj.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02014')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('cj_sale.group_sale_general_manage')])],
-            }"/>
-        </function>
-
-        <!--川酒信息：仓库专员-->
-        <function id="partner_cj_stock_user" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '川酒信息：仓库专员',
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'ckzy@cj.com',
-            }"/>
-        </function>
-        <function id="user_cj_stock_user" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'ckzy@cj.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'login': 'ckzy@cj.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02014')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('stock.group_stock_user')])],
-            }"/>
-        </function>
-
-        <!--川酒信息：仓库经理-->
-        <function id="partner_cj_stock_manager" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '川酒信息：仓库经理',
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'ckjl@cj.com',
-            }"/>
-        </function>
-        <function id="user_cj_stock_manager" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'ckjl@cj.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'login': 'ckjl@cj.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02014')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('stock.group_stock_manager')])],
-            }"/>
-        </function>
-
-        <!--川酒信息：财务专员-->
-        <function id="partner_cj_account_invoice" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '川酒信息：财务专员',
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'cwzy@cj.com',
-            }"/>
-        </function>
-        <function id="user_cj_account_invoice" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'cwzy@cj.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'login': 'cwzy@cj.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02014')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('account.group_account_invoice')])],
-            }"/>
-        </function>
-
-        <!--川酒信息：财务经理-->
-        <function id="partner_cj_account_manager" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '川酒信息：财务经理',
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'cwjl@cj.com',
-            }"/>
-        </function>
-        <function id="user_cj_account_manager" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'cwjl@cj.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
-                'login': 'cwjl@cj.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02014')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('account.group_account_manager')])],
-            }"/>
-        </function>
-
-    </data>
-
     <!--泸州电商-->
     <data noupdate="1">
-        <!--泸州电商：采购专员-->
-        <function id="partner_lz_purchase_user" model="res.partner" name="create">
+        <!--泸州电商：王晓峰(销售经理：销售+采购)-->
+        <function id="partner_02020_100302" model="res.partner" name="create">
             <value model="res.partner" eval="{
-                'name': '泸州电商：采购专员',
+                'name': '王晓峰',
                 'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
                 'customer': False,
                 'supplier': False,
                 'is_company': False,
-                'email': 'cgzy@lz.com',
+                'email': '100302@02020.com',
             }"/>
         </function>
-        <function id="user_lz_purchase_user" model="res.users" name="create">
+        <function id="user_02020_100302" model="res.users" name="create">
             <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'cgzy@lz.com')]).id,
+                'partner_id': obj().env['res.partner'].search([('email', '=', '100302@02020.com')]).id,
                 'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'login': 'cgzy@lz.com',
-                'password': '123456',
+                'login': '100302',
+                'password': 'wangxf@123456',
+                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
+                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('sales_team.group_sale_manager'), ref('purchase.group_purchase_manager')])],
+            }"/>
+        </function>
+
+        <!--泸州电商：姜博媛(采购专员：采购权限)-->
+        <function id="partner_02020_100802" model="res.partner" name="create">
+            <value model="res.partner" eval="{
+                'name': '姜博媛',
+                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
+                'customer': False,
+                'supplier': False,
+                'is_company': False,
+                'email': '100802@02020.com',
+            }"/>
+        </function>
+        <function id="user_02020_100802" model="res.users" name="create">
+            <value model="res.users" eval="{
+                'partner_id': obj().env['res.partner'].search([('email', '=', '100802@02020.com')]).id,
+                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
+                'login': '100802',
+                'password': 'jiangby@123456',
                 'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
                 'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('purchase.group_purchase_user')])],
             }"/>
         </function>
 
-        <!--泸州电商：采购经理-->
-        <function id="partner_lz_purchase_manager" model="res.partner" name="create">
+        <!--泸州电商：陈攀(销售专员：销售（订单创建和查看权限）+库存（用户权限，创建领料及退料单的权限)-->
+        <function id="partner_02020_100856" model="res.partner" name="create">
             <value model="res.partner" eval="{
-                'name': '泸州电商：采购经理',
+                'name': '陈攀',
                 'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
                 'customer': False,
                 'supplier': False,
                 'is_company': False,
-                'email': 'cgjl@lz.com',
+                'email': '100856@02020.com',
             }"/>
         </function>
-        <function id="user_lz_purchase_manager" model="res.users" name="create">
+        <function id="user_02020_100856" model="res.users" name="create">
             <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'cgjl@lz.com')]).id,
+                'partner_id': obj().env['res.partner'].search([('email', '=', '100856@02020.com')]).id,
                 'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'login': 'cgjl@lz.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('purchase.group_purchase_manager')])],
-            }"/>
-        </function>
-
-        <!--泸州电商：采购总经理-->
-        <function id="partner_lz_purchase_general_manager" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '泸州电商：采购总经理',
-                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'cgzjl@lz.com',
-            }"/>
-        </function>
-        <function id="user_lz_purchase_general_manager" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'cgzjl@lz.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'login': 'cgzjl@lz.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('purchase.group_purchase_manager')])],
-            }"/>
-        </function>
-
-        <!--泸州电商：销售专员-->
-        <function id="partner_lz_sale_user" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '泸州电商：销售专员',
-                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'xszy@lz.com',
-            }"/>
-        </function>
-        <function id="user_lz_sale_user" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'xszy@lz.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'login': 'xszy@lz.com',
-                'password': '123456',
+                'login': '100856',
+                'password': 'chenp@123456',
                 'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
                 'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('sales_team.group_sale_salesman')])],
             }"/>
         </function>
 
-        <!--泸州电商：销售经理-->
-        <function id="partner_lz_sale_manager" model="res.partner" name="create">
+        <!--泸州电商：陈洋(销售专员：销售（订单创建和查看权限）+库存（用户权限，创建领料及退料单的权限)-->
+        <function id="partner_02020_100368" model="res.partner" name="create">
             <value model="res.partner" eval="{
-                'name': '泸州电商：销售经理',
+                'name': '陈洋',
                 'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
                 'customer': False,
                 'supplier': False,
                 'is_company': False,
-                'email': 'xsjl@lz.com',
+                'email': '100368@02020.com',
             }"/>
         </function>
-        <function id="user_lz_sale_manager" model="res.users" name="create">
+        <function id="user_02020_100368" model="res.users" name="create">
             <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'xsjl@lz.com')]).id,
+                'partner_id': obj().env['res.partner'].search([('email', '=', '100368@02020.com')]).id,
                 'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'login': 'xsjl@lz.com',
-                'password': '123456',
+                'login': '100368',
+                'password': 'cheny@123456',
                 'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('sales_team.group_sale_manager')])],
+                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('sales_team.group_sale_salesman')])],
             }"/>
         </function>
 
-        <!--泸州电商：销售总经理-->
-        <function id="partner_lz_sale_general_manager" model="res.partner" name="create">
+        <!--泸州电商：颜之泉(销售专员：销售（订单创建和查看权限）+库存（用户权限，创建领料及退料单的权限)-->
+        <function id="partner_02020_100361" model="res.partner" name="create">
             <value model="res.partner" eval="{
-                'name': '泸州电商：销售总经理',
+                'name': '颜之泉',
                 'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
                 'customer': False,
                 'supplier': False,
                 'is_company': False,
-                'email': 'xszjl@lz.com',
+                'email': '100361@02020.com',
             }"/>
         </function>
-        <function id="user_lz_sale_general_manager" model="res.users" name="create">
+        <function id="user_02020_100361" model="res.users" name="create">
             <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'xszjl@lz.com')]).id,
+                'partner_id': obj().env['res.partner'].search([('email', '=', '100361@02020.com')]).id,
                 'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'login': 'xszjl@lz.com',
-                'password': '123456',
+                'login': '100361',
+                'password': 'yanzq@123456',
                 'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('cj_sale.group_sale_general_manage')])],
-            }"/>
-        </function>
-
-        <!--泸州电商：仓库专员-->
-        <function id="partner_lz_stock_user" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '泸州电商：仓库专员',
-                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'ckzy@lz.com',
-            }"/>
-        </function>
-        <function id="user_lz_stock_user" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'ckzy@lz.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'login': 'ckzy@lz.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('stock.group_stock_user')])],
-            }"/>
-        </function>
-
-        <!--泸州电商：仓库经理-->
-        <function id="partner_lz_stock_manager" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '泸州电商：仓库经理',
-                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'ckjl@lz.com',
-            }"/>
-        </function>
-        <function id="user_lz_stock_manager" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'ckjl@lz.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'login': 'ckjl@lz.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('stock.group_stock_manager')])],
-            }"/>
-        </function>
-
-        <!--泸州电商：财务专员-->
-        <function id="partner_lz_account_invoice" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '泸州电商：财务专员',
-                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'cwzy@lz.com',
-            }"/>
-        </function>
-        <function id="user_lz_account_invoice" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'cwzy@lz.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'login': 'cwzy@lz.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('account.group_account_invoice')])],
-            }"/>
-        </function>
-
-        <!--泸州电商：财务经理-->
-        <function id="partner_lz_account_manager" model="res.partner" name="create">
-            <value model="res.partner" eval="{
-                'name': '泸州电商：财务经理',
-                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'customer': False,
-                'supplier': False,
-                'is_company': False,
-                'email': 'cwjl@lz.com',
-            }"/>
-        </function>
-        <function id="user_lz_account_manager" model="res.users" name="create">
-            <value model="res.users" eval="{
-                'partner_id': obj().env['res.partner'].search([('email', '=', 'cwjl@lz.com')]).id,
-                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
-                'login': 'cwjl@lz.com',
-                'password': '123456',
-                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
-                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('account.group_account_manager')])],
+                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('sales_team.group_sale_salesman')])],
             }"/>
         </function>
 

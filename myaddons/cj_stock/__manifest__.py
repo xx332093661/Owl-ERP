@@ -38,7 +38,7 @@
         'views/product_view.xml',
         'views/sale_order_line_view.xml',
         'views/res_partner_view.xml',
-        'views/delivery_order_view.xml',
+        # 'views/delivery_order_view.xml',
         'views/stock_consumable_consu_view.xml',
         'views/stock_consumable_apply_view.xml',
         'views/stock_across_move_view.xml',
@@ -48,6 +48,7 @@
         'views/stock_across_move_diff_receipt_view.xml',
         'views/stock_inventory_diff_receipt_view.xml',
         'views/material_requisition_view.xml',
+        'views/stock_internal_move_view.xml',
 
         # 'wizard/valuation_wizard_view.xml',
         'wizard/confirm_empty_delivery_order_wizard_view.xml',

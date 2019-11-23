@@ -83,6 +83,10 @@ class StockInventoryValuationMove(models.Model):
             if move.material_requisition_id:
                 return self.env.ref('cj_stock.requisition_in')  # 领料退库
 
+            # 采购退货补货
+            if move.picking_id.order_replenishment_id:
+                return self.env.ref('cj_stock.replenishment')  # 采购退货补货
+
             # 门店销售退货(此类型，接口数据能追溯的的销售订单，归到销售退货(sale_delivery)类型，查找不到的用此类型)
             if store_stock_update_code == 'STOCK_01001':
                 return self.env.ref('cj_stock.STOCK_01001')  # 门店销售退货
@@ -122,6 +126,10 @@ class StockInventoryValuationMove(models.Model):
             # 门店盘返货总仓出库冲销
             if store_stock_update_code == 'STOCK_03010':
                 return self.env.ref('cj_stock.STOCK_03010')  # 门店盘返货总仓出库冲销
+
+            # 内部调拨入库
+            if store_stock_update_code == 'STOCK_internal_in':
+                return self.env.ref('cj_stock.internal_in')  # 内部调拨入库
 
             return None
         else:  # 出库
@@ -192,6 +200,10 @@ class StockInventoryValuationMove(models.Model):
             if store_stock_update_code == 'STOCK_03008':
                 return self.env.ref('cj_stock.STOCK_03008')  # 门店盘盈入库冲销
 
+            # 内部调拨出库
+            if store_stock_update_code == 'STOCK_internal_out':
+                return self.env.ref('cj_stock.internal_out')  # 内部调拨出库
+
             return None
 
     def _compute_unit_cost(self, move, is_in, cost_group_id, product_id):
@@ -257,6 +269,10 @@ class StockInventoryValuationMove(models.Model):
             if move.material_requisition_id:
                 return stock_cost
 
+            # 采购退货补货
+            if move.picking_id.order_replenishment_id:
+                return stock_cost  # 采购退货补货
+
             # 门店销售退货(此类型，接口数据能追溯的的销售订单，归到销售退货(sale_delivery)类型，查找不到的用此类型)
             if store_stock_update_code == 'STOCK_01001':
                 return stock_cost
@@ -295,6 +311,10 @@ class StockInventoryValuationMove(models.Model):
 
             # 门店盘返货总仓出库冲销
             if store_stock_update_code == 'STOCK_03010':
+                return stock_cost
+
+            # 内部调拨入库
+            if store_stock_update_code == 'STOCK_internal_in':
                 return stock_cost
 
         else:  # 出库
@@ -369,6 +389,10 @@ class StockInventoryValuationMove(models.Model):
             if store_stock_update_code == 'STOCK_03008':
                 return stock_cost
 
+            # 内部调拨出库
+            if store_stock_update_code == 'STOCK_internal_out':
+                return stock_cost
+
         return 0
 
     def move2valuation(self, move):
@@ -408,7 +432,7 @@ class StockInventoryValuationMove(models.Model):
         # 计算在手数量
         qty_available = 0
         for store in cost_group.store_ids:
-            variants_available = product.with_context(owner_company_id=store.id, compute_child1=False)._product_available()
+            variants_available = product.sudo().with_context(owner_company_id=store.id, compute_child1=False)._product_available()
             qty_available += variants_available[product_id]['qty_available']  # 在手数量
 
         # 单位成本
@@ -433,7 +457,7 @@ class StockInventoryValuationMove(models.Model):
             'type': 'in' if is_in else 'out',  # 出入类型
             'stock_type': 'all'
         }]
-        variants_available = product.with_context(owner_company_id=company_id, compute_child1=False)._product_available()
+        variants_available = product.sudo().with_context(owner_company_id=company_id, compute_child1=False)._product_available()
         qty_available = variants_available[product_id]['qty_available']  # 在手数量
         vals_list.append({
             'cost_group_id': cost_group_id,  # 成本组

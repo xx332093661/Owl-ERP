@@ -21,7 +21,7 @@ class SaleOrder(models.Model):
         oldname='payment_term',
         readonly=1,
         required=1, states={'draft': [('readonly', False)]},
-        domain=[('type', 'not in', ['sale_after_payment', 'cycle_payment'])],
+        domain=[('type', 'not in', ['sale_after_payment', 'cycle_payment', 'joint'])],
         ondelete='restrict')
 
     invoice_ids = fields.One2many('account.invoice', 'sale_id', '内部结算单')
@@ -57,8 +57,10 @@ class SaleOrder(models.Model):
             团购单，OA审批通过后调用
         """
         res = super(SaleOrder, self).action_confirm()
-        if self.payment_ids:
-            self.payment_ids.post()  # 确认付款记录
+        for payment in self.payment_ids.filtered(lambda x: x.state=='draft'):
+            payment.post() # 确认付款记录
+        # if self.payment_ids:
+        #     self.payment_ids.post()  # 确认付款记录
 
         self.filtered(lambda x: x.payment_term_id.type == 'first_payment')._generate_invoice_split()  # 先款后货的生成账单分期
         return res

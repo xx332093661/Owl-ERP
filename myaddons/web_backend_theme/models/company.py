@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
-from odoo import fields, models
+import base64
+import os
+
+from odoo import fields, models, tools
 
 
 class Company(models.Model):
     _inherit = 'res.company'
 
+    def _default_background(self):
+        path = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'static', 'src', 'img', 'cover', 'cover_sunrise.jpg'))
+        return base64.b64encode(open(path, 'rb') .read())
+
     about_company = fields.Html('关于')
-    app_background_image = fields.Binary('App背景图', default='/web_backend_theme/static/src/img/cover/cover_sunrise.jpg', attachment=True)
+    # app_background_image = fields.Binary('App背景图', default='/web_backend_theme/static/src/img/cover/cover_sunrise.jpg', attachment=True)
+    app_background_image = fields.Binary('App背景图', default=_default_background, attachment=True)
     theme = fields.Selection([
         ('orange', '橙色'),
         ('gray_black', '灰黑色'),

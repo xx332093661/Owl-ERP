@@ -24,6 +24,10 @@
             <field name="arch" type="xml">
                 <form string="付款申请">
                     <header>
+                        <button name="action_draft" type="object" states="confirm" string="设为草稿"
+                                groups="purchase.group_purchase_user"/>
+                        <button name="action_draft" type="object" states="oa_refuse" string="设为草稿" class="oe_highlight"
+                                groups="purchase.group_purchase_user"/>
                         <button name="action_confirm" type="object" states="draft" string="确认" class="oe_highlight"
                                 groups="purchase.group_purchase_user"/>
                         <button name="action_confirm_commit_approval" type="object" states="draft" string="确认并提交OA审批"
@@ -31,13 +35,8 @@
 
                         <button name="action_commit_approval" type="object" states="confirm" string="提交OA审批" class="oe_highlight"
                                 groups="purchase.group_purchase_user"/>
-                        <button name="action_draft" type="object" states="confirm" string="设为草稿"
-                                groups="purchase.group_purchase_user"/>
-                        <button name="action_draft" type="object" states="oa_refuse" string="设为草稿" class="oe_highlight"
-                                groups="purchase.group_purchase_user"/>
-
-                        <button name="%(action_account_payment_apply_payment_wizard)d" type="action" states="oa_accept,paying" string="登记付款" class="oe_highlight"
-                                groups="account.group_account_invoice"/>
+                        <!--<button name="action_account_payment_apply_payment_wizard" type="action" states="oa_accept,paying" string="登记付款" class="oe_highlight"-->
+                                <!--groups="account.group_account_invoice"/>-->
                         <field name="state" widget="statusbar" statusbar_visible="draft,confirm,oa_sent,oa_accept,paying,done"/>
                     </header>
 
@@ -48,6 +47,7 @@
                                 采购订单
                             </button>
                             <button type="object" name="action_view_account_invoice"
+                                    groups="account.group_account_invoice"
                                     attrs="{'invisible': [('invoice_ids', '=', [])]}" class="oe_stat_button" icon="fa-pencil-square-o" >
                                 账单
                             </button>
@@ -59,41 +59,32 @@
                            <group>
                                 <field name="partner_id" options="{'no_create': 1, 'no_open': 1}"/>
                                 <field name="apply_date"/>
-                                <field name="amount" readonly="1"/>
+                                <field name="amount"/>
+                               <field name="pay_type"/>
+                               <field name="pay_name" attrs="{'required': [('pay_type', '=', 'bank')], 'invisible': [('pay_type', '!=', 'bank')]}"/>
+                               <field name="pay_bank" attrs="{'required': [('pay_type', '=', 'bank')], 'invisible': [('pay_type', '!=', 'bank')]}"/>
+                               <field name="pay_account" attrs="{'required': [('pay_type', '=', 'bank')], 'invisible': [('pay_type', '!=', 'bank')]}"/>
                            </group>
                            <group>
                                <field name="invoice_register_id"
-                                      domain="[('partner_id', '=', partner_id), ('state', '=', 'manager_confirm'), ('payment_apply_ids', '=', False)]"
-                                      required="1"
+                                      context="{'default_type': 'in_invoice'}"
                                       options="{'no_create': 1}"/>
                                <field name="payment_date"/>
+                               <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
 
-                                <label for="purchase_order_ids" attrs="{'invisible': [('purchase_order_ids', '=', [])]}"/>
-                                <div attrs="{'invisible': [('purchase_order_ids', '=', [])]}">
+                                <label for="purchase_order_ids"/>
+                                <div>
                                     <field name="purchase_order_ids" widget="many2many_tags" class="oe_inline"/>
-                                    <button name="action_view_purchase_order" type="object" string="查看" class="oe_link"/>
+                                    <button name="action_view_purchase_order" type="object" string="查看" class="oe_link" attrs="{'invisible': [('purchase_order_ids', '=', [])]}"/>
                                 </div>
 
-                                <label for="invoice_ids" attrs="{'invisible': [('invoice_ids', '=', [])]}"/>
-                                <div attrs="{'invisible': [('invoice_ids', '=', [])]}">
+                                <label for="invoice_ids" groups="account.group_account_invoice"/>
+                                <div groups="account.group_account_invoice">
                                     <field name="invoice_ids" widget="many2many_tags" class="oe_inline"/>
-                                    <button name="action_view_account_invoice" type="object" string="查看" class="oe_link"/>
+                                    <button name="action_view_account_invoice" type="object" string="查看" class="oe_link" attrs="{'invisible': [('invoice_ids', '=', [])]}"/>
                                 </div>
-                               <!--<field name="payment_id"/>-->
-                               <field name="pay_type"/>
-                               <field name="pay_name"/>
-                               <field name="pay_bank"/>
-                               <field name="pay_account"/>
                            </group>
                        </group>
-                       <notebook>
-                           <page string="账单分期">
-                               <field name="invoice_split_ids"/>
-                           </page>
-                           <page string="付款记录">
-                               <field name="payment_ids"/>
-                           </page>
-                       </notebook>
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_ids" widget="mail_thread"/>
@@ -123,7 +114,6 @@
             <field name="res_model">account.payment.apply</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="context">{'search_default_state_undone': 1, 'search_default_group_partner': 1}</field>
         </record>
 
         <menuitem action="action_account_payment_apply"
@@ -136,7 +126,6 @@
             <field name="res_model">account.payment.apply</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="context">{'search_default_state_undone': 1, 'search_default_partner_id': active_id}</field>
         </record>
 
         <!--在采购/操作/采购订单菜单后增加付款申请菜单-->

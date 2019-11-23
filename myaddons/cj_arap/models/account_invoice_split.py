@@ -7,6 +7,10 @@ READONLY_STATES = {
     'draft': [('readonly', False)]
 }
 
+STATES = [
+    ('draft', '草稿'), ('open', '打开'), ('paiding', '支付中'), ('paid', '已支付'), ('cancel', '已取消')
+]
+
 
 class AccountInvoiceSplit(models.Model):
     _name = 'account.invoice.split'
@@ -21,12 +25,11 @@ class AccountInvoiceSplit(models.Model):
     date_invoice = fields.Date(string='开单日期', readonly=1, states=READONLY_STATES)
     date_due = fields.Date('到期日期', readonly=1, states=READONLY_STATES)
     amount = fields.Float('待付金额', readonly=1, states=READONLY_STATES)
+    paid_amount = fields.Float('已支付', readonly=1, states=READONLY_STATES)
+    wait_amount = fields.Float('等待付款金额', compute='_compute_wait_amount')
     partner_id = fields.Many2one('res.partner', string='供应商', readonly=1, states=READONLY_STATES)
     company_id = fields.Many2one('res.company', string='公司', readonly=1, states=READONLY_STATES)
-    state = fields.Selection([('draft', '草稿'), ('open', '打开'), ('paid', '已支付'), ('cancel', '已取消')], '状态', default='draft')
-
-    # reconciled = fields.Boolean(string='Paid/Reconciled',)
-    paid_amount = fields.Float('已支付', readonly=1, states=READONLY_STATES)
+    state = fields.Selection(STATES, '状态', default='draft')
 
     comment = fields.Char('备注', readonly=1, states=READONLY_STATES)
     type = fields.Selection([('invoice', '账单'), ('first_payment', '预付款')], '付款类别', readonly=1, states=READONLY_STATES)
@@ -36,6 +39,28 @@ class AccountInvoiceSplit(models.Model):
     invoice_register_ids = fields.Many2many('account.invoice.register', 'account_invoice_register_split_rel', 'split_id', 'register_id', '发票登记', readonly=1, states=READONLY_STATES)
 
     customer_invoice_apply_id = fields.Many2one('account.customer.invoice.apply', '客户发票申请', readonly=1)
+
+    @api.multi
+    def _compute_wait_amount(self):
+        """计算供应商等待付款的金额
+        即开具了发票，还没有付款的金额
+        """
+        register_line_obj = self.env['account.invoice.register.line']  # 供应商发票登记
+        apply_line_obj = self.env['account.customer.invoice.apply.line']  # 客户发票申请
+        for res in self:
+            if res.state not in ['paiding', 'open']:
+                continue
+
+            if res.purchase_order_id:
+                lines = register_line_obj.search([('invoice_split_id', '=', res.id), ('register_id.state', '!=', 'paid')])
+
+                res.wait_amount = sum(lines.mapped('invoice_amount'))
+
+            if res.sale_order_id:
+                lines = apply_line_obj.search([('invoice_split_id', '=', res.id), ('apply_id.state', '!=', 'done')])
+
+                res.wait_amount = sum(lines.mapped('invoice_amount'))
+
 
     @api.model
     def create(self, vals):
@@ -64,12 +89,19 @@ class AccountInvoiceSplit(models.Model):
 
             return float_round(invoice.residual_signed * p[1], precision_rounding=rounding, rounding_method='HALF-UP')
 
+        def compute_amount_first_payment(p, i):
+            """计算支付金额"""
+            if i == len(payment_term_list) - 1:  # 最后一条记录，返回未支付的，其余按比例计算
+                return residual_signed - amount_total
+
+            return float_round(residual_signed * p[1], precision_rounding=rounding, rounding_method='HALF-UP')
+
         payment_term = invoice.payment_term_id
         date_invoice = invoice.date_invoice
         currency_id = invoice.currency_id.id
         rounding = invoice.currency_id.rounding
 
-        if payment_term.type == 'cycle_payment': # 滚单结算，忽略所有付款规则
+        if payment_term.type == 'cycle_payment':  # 滚单结算，忽略所有付款规则
             payment_term_list = [(date_invoice, 1.0)]
         else:
             payment_term_list = payment_term.with_context(currency_id=currency_id).compute(value=1, date_ref=date_invoice)[0]
@@ -78,8 +110,13 @@ class AccountInvoiceSplit(models.Model):
         vals_list = []
         amount_total = 0.0
         i = 0
+        residual_signed = invoice.residual_signed
+        residual_signed += sum(invoice.invoice_split_ids.mapped('paid_amount'))
         for index, pt in enumerate(payment_term_list):
-            amount = compute_amount(pt, index)
+            if payment_term.type == 'first_payment':
+                amount = compute_amount_first_payment(pt, index)
+            else:
+                amount = compute_amount(pt, index)
             amount_total += amount
             if payment_term.type == 'first_payment' and index == 0:  # 先款后货，略过第一条规则
                 i += 1

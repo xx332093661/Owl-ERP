@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 from math import ceil
+import logging
+import socket
 
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
-from odoo.tools import safe_eval
+from odoo.tools import safe_eval, config
+
+_logger = logging.getLogger(__name__)
 
 
 class DeliveryCarrier(models.Model):
@@ -16,6 +20,38 @@ class DeliveryCarrier(models.Model):
     country_ids = fields.Many2many('res.country', 'delivery_carrier_country_rel', 'carrier_id', 'country_id',
                                    '国家', default=lambda self: self.env.ref('base.cn').ids)
     company_id = fields.Many2one('res.company', string='公司', related=False, store=True, readonly=False)
+
+    @api.model
+    def _cron_check_delivery_carrier(self, sale_order_id, warehouse_id, logistics_code, weight, quantity):
+        """自动确认盘点"""
+        rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去处理RabbitMQ的数据，与开启
+        if rabbitmq_ip:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            try:
+                s.connect(('8.8.8.8', 80))
+                ip = s.getsockname()[0]
+                _logger.info('处理盘点，本机ip：%s', ip)
+                if ip == rabbitmq_ip:
+                    return
+            finally:
+                s.close()
+
+        for inventory in self.env['stock.inventory'].search([('state', '=', 'finance_manager_confirm')], limit=1):
+            inventory.action_validate()
+            self.env.cr.commit()
+
+        # self.env.ref('cj_api.cj_mq_thread_cron').active = True
+
+    # @api.model
+    # def _cron_check_delivery_carrier(self, sale_order_id, warehouse_id, logistics_code, weight, quantity):
+    #     sale_order = self.env['sale.order'].browse(sale_order_id)
+    #     warehouse = self.env['stock.warehouse'].browse(warehouse_id)
+    #     fee = self.get_delivery_fee_by_weight(sale_order, warehouse, logistics_code, weight, quantity)
+    #     _logger.info('@' * 100)
+    #     _logger.info('发货城市：%s', warehouse.city_id.name)
+    #     _logger.info('收货省：%s', sale_order.consignee_state_id.name)
+    #     _logger.info('重量：%s', weight)
+    #     _logger.info('快递费：%s', fee)
 
     @api.model
     def default_get(self, fields_list):
@@ -31,7 +67,7 @@ class DeliveryCarrier(models.Model):
             raise ValidationError('发货仓库：%s(%s)没有设置省或者市！' % (warehouse.name, warehouse.code))
 
         consignee_state_id = sale_order.consignee_state_id.id  # 客户收货所在省
-        consignee_city_id = sale_order.consignee_state_id.id  # 客户收货所在市
+        consignee_city_id = sale_order.consignee_city_id.id  # 客户收货所在市
         if not consignee_state_id and not consignee_city_id:
             raise ValidationError('订单：%s收货人信息没有省或者市！' % (sale_order.name, ))
 

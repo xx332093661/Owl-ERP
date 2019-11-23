@@ -7,7 +7,7 @@ import random
 import pytz
 import hashlib
 
-from odoo import models
+from odoo import models, fields
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
 from .rabbit_mq_receive import MQ_SEQUENCE  # mq消息处理顺序
 from odoo.exceptions import ValidationError
@@ -15,64 +15,18 @@ from odoo.exceptions import ValidationError
 _logger = logging.getLogger(__name__)
 
 
-# mq消息处理顺序
-# QUEUE_NAME = {
-#     "auth_org": "MDM-ERP-ORG-QUEUE",  # 组织机构
-#     "dms_store": "MDM-ERP-STORE-QUEUE",  # 门店
-#     "dms_material_info": "MDM-ERP-MATERIAL-QUEUE",  # 商品
-#     "dms_warehouse": "MDM-ERP-WAREHOUSE-QUEUE",  # 仓库
-#     "auth_distributor_member": "MDM-ERP-MEMBER-QUEUE",  # 会员
-# }
-QUEUE_NAME = [
-    {
-        'company_code': '02014',
-        'source_code': 'auth_org',
-        'system_code': 'Owl',
-        'secret_key': 'F6xN4G1SEIUnT7cgqPzQ8eMznjsjmsKS',
-        'message_name': 'MDM-ERP-ORG-QUEUE',
-        'queue_name': '组织机构'
-    },
-    {
-        'company_code': '02014',
-        'source_code': 'dms_store',
-        'system_code': 'Owl',
-        'secret_key': 'au03Jg4NhWCBGhDMkK8A0Q9A70E3ki7C',
-        'message_name': 'MDM-ERP-STORE-QUEUE',
-        'queue_name': '门店'
-    },
-    {
-        'company_code': '02014',
-        'source_code': 'dms_material_info',
-        'system_code': 'Owl',
-        'secret_key': 'I70aRj46mtGMSe60PXcEaDJkbELGnRXD',
-        'message_name': 'MDM-ERP-MATERIAL-QUEUE',
-        'queue_name': '物料'
-    },
-    {
-        'company_code': '02020',
-        'source_code': 'dms_warehouse',
-        'system_code': 'Owl',
-        'secret_key': 'Li790zOlnHyutDeXEeNaS4Eh8oy7aHwM',
-        'message_name': 'MDM-ERP-WAREHOUSE-QUEUE',
-        'queue_name': '仓库'
-    },
-    {
-        'company_code': '02014',
-        'source_code': 'auth_distributor_member',
-        'system_code': 'Owl',
-        'secret_key': 'KDRaLF56VY9tGfdPr5EFskby0zznXdZE',
-        'message_name': 'MDM-ERP-MEMBER-QUEUE',
-        'queue_name': '会员'
-    },
-    {
-        'company_code': '02014,02020',
-        'source_code': 'auth_distributor',
-        'system_code': 'Owl',
-        'secret_key': 'Vc4hRNwaTYjrHSL0dFzue7bXMpnc170x',
-        'message_name': 'MDM-ERP-DISTRIBUTOR-QUEUE',
-        'queue_name': '经销商'
-    }
-]
+class ApiFullConfig(models.Model):
+    _name = 'api.full.config'
+    _description = '全量接口配置'
+    _rec_name = 'queue_name'
+
+    company_code = fields.Char('companyCodes', required=1)
+    source_code = fields.Char('sourceCode', required=1)
+    system_code = fields.Char('systemCode', required=1, default='Owl')
+    secret_key = fields.Char('secretKey', required=1)
+    message_name = fields.Char('messageName', required=1)
+    queue_name = fields.Char('queueName', required=1)
+    active = fields.Boolean('归档', default=True)
 
 
 def random_str():
@@ -105,27 +59,27 @@ class MainDataApi(models.TransientModel):
         tz = self.env.user.tz or 'Asia/Shanghai'
         date_now = datetime.now(tz=pytz.timezone(tz))
         data = {
-            "systemCode": queue['system_code'],
-            "companyCodes": queue['company_code'],
-            "sourceCode": queue['source_code'],
+            "systemCode": queue.system_code,
+            "companyCodes": queue.company_code,
+            "sourceCode": queue.source_code,
             "requestTime": date_now.strftime(DATETIME_FORMAT),
             "randomStr": random_str()
         }
-        data['signature'] = signature(data, queue['secret_key'])
+        data['signature'] = signature(data, queue.secret_key)
 
         headers = {'Content-Type': 'application/json'}
         resp = requests.post(url, json.dumps(data), headers=headers)
         if resp.status_code == 200:
             content = resp.json()
             if content.get('code') and content.get('msg'):
-                _logger.error('同步全量数据：%s发生错误，错误信息：', queue['queue_name'], content['msg'])
+                _logger.error('同步全量数据：%s发生错误，错误信息：%s', queue.queue_name, content['msg'])
                 return
 
             vals = {
                 'message_type': 'rabbit_mq',
-                'message_name': queue['message_name'],
+                'message_name': queue.message_name,
                 'content': json.dumps(resp.json(), ensure_ascii=False, indent=4),
-                'sequence': MQ_SEQUENCE.get(queue['message_name'], 100),
+                'sequence': MQ_SEQUENCE.get(queue.message_name, 100),
                 'origin': 'full',  # 来源
             }
             self.env['api.message'].create(vals)
@@ -134,13 +88,15 @@ class MainDataApi(models.TransientModel):
             raise Exception(resp.text)
 
     def get_data(self, source_code=None):
-        """调用中台接口，获邓基础数据"""
+        """调用中台接口，获取基础数据"""
+        config_obj = self.env['api.full.config']
         if source_code:
-            queue = list(filter(lambda x: x['source_code'] == source_code, QUEUE_NAME))
+            queue = config_obj.search([('source_code', '=', source_code)])
             if queue:
-                self.get_data_by_code(queue[0])
+                self.get_data_by_code(queue)
             else:
                 raise ValidationError('队列不存在！')
+
         else:
-            for queue in QUEUE_NAME:
+            for queue in config_obj.search([]):
                 self.get_data_by_code(queue)

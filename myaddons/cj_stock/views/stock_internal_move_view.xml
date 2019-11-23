@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_stock_internal_move_tree" model="ir.ui.view">
+            <field name="name">stock.internal.move.tree</field>
+            <field name="model">stock.internal.move</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="warehouse_out_id"/>
+                    <field name="warehouse_in_id"/>
+                    <field name="company_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_stock_internal_move_form" model="ir.ui.view">
+            <field name="name">stock.internal.move.form</field>
+            <field name="model">stock.internal.move</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_draft" type="object"
+                                states="confirm" string="设为草稿" groups="stock.group_stock_user"/>
+
+                        <button name="action_confirm" string="确认" type="object"
+                                states="draft"
+                                class="oe_highlight" groups="stock.group_stock_user"/>
+
+                        <button name="action_manager_confirm" string="经理审核" type="object"
+                                states="confirm"
+                                class="oe_highlight" groups="stock.group_stock_manager"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,manager_confirm,out_in_confirm,done" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_picking" type="object" class="oe_stat_button" icon="fa-truck">
+                                <field name="picking_count" widget="statinfo" string="分拣单"/>
+                            </button>
+                        </div>
+
+                        <div class="oe_title">
+                            <h1><field name="name"/></h1>
+                        </div>
+
+                        <group>
+                            <group>
+                                <field name="warehouse_out_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="date"/>
+                            </group>
+                            <group>
+                                <field name="warehouse_in_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="调拨明细">
+                                <field name="line_ids">
+                                    <tree editable="top">
+                                        <field name="product_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                        <field name="move_qty"/>
+                                    </tree>
+                                    <form>
+                                        <group col="4">
+                                            <field name="product_id"/>
+                                            <field name="move_qty"/>
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="调拨差异">
+                                <field name="diff_ids" readonly="1">
+                                    <tree>
+                                        <field name="product_id"/>
+                                        <field name="move_out_qty"/>
+                                        <field name="move_in_qty"/>
+                                        <field name="diff_qty"/>
+                                    </tree>
+                                    <form>
+                                        <group col="4">
+                                            <field name="product_id"/>
+                                            <field name="move_out_qty"/>
+                                            <field name="move_in_qty"/>
+                                            <field name="diff_qty"/>
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_stock_internal_move_filter" model="ir.ui.view">
+            <field name="name">stock.internal.move.filter</field>
+            <field name="model">stock.internal.move</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <group expand="0" string="Group By">
+                        <filter string="状态" name="group_state" domain="[]" context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_stock_internal_move" model="ir.actions.act_window">
+            <field name="name">内部调拨</field>
+            <field name="res_model">stock.internal.move</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem
+            id="menu_action_stock_internal_move"
+            name="内部调拨"
+            parent="stock.menu_stock_warehouse_mgmt"
+            groups="stock.group_stock_user"
+            action="action_stock_internal_move"
+            sequence="21"/>
+
+    </data>
+
+</odoo>

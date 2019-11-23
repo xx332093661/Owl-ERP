@@ -56,7 +56,7 @@ class RabbitMQSendThread(threading.Thread):
             self.channel = connection.channel()
 
             self.channel.exchange_declare(exchange=self.exchange, exchange_type='direct')
-            self.channel.queue_declare('MDM-ERP-COST001-QUEUE')  # erp商品成本推送
+            self.channel.queue_declare('MDM-ERP-COST001-QUEUE', durable=True)  # erp商品成本推送
 
             self.channel.queue_bind(exchange=self.exchange,  # 绑定exchange
                                     queue='MDM-ERP-COST001-QUEUE')

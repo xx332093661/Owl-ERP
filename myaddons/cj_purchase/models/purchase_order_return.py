@@ -191,14 +191,14 @@ class PurchaseOrderReturn(models.Model):
                 'product_id': line.product_id.id,
                 'quantity': abs(line['return_qty']),
                 'move_id': stock_move.id,
-                'to_refund': False  # 退货退款
+                'to_refund': True  # 退货退款
             }))
 
         val = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).default_get(list(return_picking_obj._fields))
         val.update({
             'product_return_moves': return_vals,
         })
-        return_picking = return_picking_obj.create(val)
+        return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(val)
         new_picking_id, picking_type_id = return_picking._create_returns()
 
         self.return_picking_ids = [(6, 0, [new_picking_id])]
@@ -230,7 +230,7 @@ class PurchaseOrderReturn(models.Model):
                 'partner_id': order.dest_address_id.id,
                 'move_dest_ids': [(4, x) for x in order_line.move_dest_ids.ids],
                 'state': 'draft',
-                'purchase_line_id': order_line.id,
+                # 'purchase_line_id': order_line.id,
                 'company_id': order.company_id.id,
                 'price_unit': price_unit,
                 'picking_type_id': order.picking_type_id.id,

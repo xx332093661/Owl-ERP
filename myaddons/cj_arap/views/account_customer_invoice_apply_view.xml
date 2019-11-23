@@ -10,7 +10,7 @@
                     <field name="partner_id"/>
                     <field name="apply_date"/>
                     <field name="amount"/>
-                    <field name="sale_id"/>
+                    <field name="invoice_register_id"/>
                     <field name="state"/>
                 </tree>
             </field>
@@ -35,12 +35,12 @@
                         <button name="action_finance_manager_confirm" type="object" states="manager_confirm" string="财务经理审核" class="oe_highlight"
                                 groups="account.group_account_manager"/>
 
-                        <button name="%(action_customer_invoice_apply_register_wizard)d" type="action" string="发票登记" class="oe_highlight"
-                                context="{'default_partner_id': partner_id}"
-                                attrs="{'invisible': ['|', ('invoice_register_ids', '!=', []), ('state', '!=', 'finance_manager_confirm')]}"
-                                groups="account.group_account_invoice"/>
+                        <!--<button name="%(action_customer_invoice_apply_register_wizard)d" type="action" string="发票登记" class="oe_highlight"-->
+                                <!--context="{'default_partner_id': partner_id}"-->
+                                <!--attrs="{'invisible': ['|', ('invoice_register_ids', '!=', []), ('state', '!=', 'finance_manager_confirm')]}"-->
+                                <!--groups="account.group_account_invoice"/>-->
 
-                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,manager_confirm,finance_manager_confirm,done"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,manager_confirm,finance_manager_confirm,register,paiding,done"/>
                     </header>
 
                    <sheet>
@@ -52,45 +52,59 @@
                        <group>
                            <group>
                                 <field name="partner_id" options="{'no_create': 1, 'no_open': 1}"/>
-                                <field name="sale_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <!--<field name="sale_id" options="{'no_create': 1, 'no_open': 1}"/>-->
                                 <field name="amount" readonly="1"/>
-                               <field name="id" invisible="1"/>
+                               <field name="invoice_register_id"/>
                            </group>
                            <group>
                                <field name="apply_date"/>
                                 <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
-                               <field name="invoice_register_ids" widget="many2many_tags" readonly="1"/>
+
                            </group>
                        </group>
                        <notebook>
-                           <page string="账单分期">
-                               <field name="invoice_split_ids"
-                                      domain="[('sale_order_id', '=', sale_id), ('sale_order_id', '!=', False), ('customer_invoice_apply_id', '=', False)]"
-                                      context="{'form_view_ref': 'cj_arap.view_account_invoice_split_sale_form', 'tree_view_ref': 'cj_arap.view_account_invoice_split_sale_tree'}"
-                                      widget="many2many">
-                                    <tree string="账单分期" create="1" edit="0" delete="1"
-                                    decoration-success="state=='open'" decoration-muted="state=='paid'">
-                                        <field name="name"/>
-                                        <field name="invoice_id"/>
-                                        <field name="date_invoice"/>
-                                        <field name="date_due"/>
-                                        <field name="amount" sum="Total" string="总额"/>
-                                        <field name="paid_amount" sum="总额" string="已收款"/>
-                                        <field name="partner_id" string="客户"/>
-                                        <field name="company_id"/>
-                                        <field name="comment"/>
-                                        <!--<field name="type" string="收款类别"/>-->
-                                        <!--<field name="apply_id"/>-->
-                                        <field name="sale_order_id"/>
-                                        <field name="customer_invoice_apply_id"/>
-                                        <!--<field name="payment_id" string="收款单"/>-->
-                                        <field name="state"/>
-                                    </tree>
+                           <page string="开单明细">
+                               <field name="line_ids">
+                                   <tree editable="bottom">
+                                       <field name="invoice_split_id" options="{'no_create': 1}"/>
+                                       <field name="date_invoice"/>
+                                       <field name="date_due"/>
+                                       <field name="amount"/>
+                                       <field name="paid_amount"/>
+                                       <field name="sale_order_id"/>
+                                       <field name="state"/>
+                                       <field name="invoice_amount"/>
+                                   </tree>
                                </field>
                            </page>
-                           <page string="收款记录">
-                               <field name="payment_ids"/>
-                           </page>
+                           <!--<page string="账单分期">-->
+                               <!--<field name="invoice_split_ids"-->
+                                      <!--domain="[('sale_order_id', '=', sale_id), ('sale_order_id', '!=', False), ('customer_invoice_apply_id', '=', False)]"-->
+                                      <!--context="{'form_view_ref': 'cj_arap.view_account_invoice_split_sale_form', 'tree_view_ref': 'cj_arap.view_account_invoice_split_sale_tree'}"-->
+                                      <!--widget="many2many">-->
+                                    <!--<tree string="账单分期" create="1" edit="0" delete="1"-->
+                                    <!--decoration-success="state=='open'" decoration-muted="state=='paid'">-->
+                                        <!--<field name="name"/>-->
+                                        <!--<field name="invoice_id"/>-->
+                                        <!--<field name="date_invoice"/>-->
+                                        <!--<field name="date_due"/>-->
+                                        <!--<field name="amount" sum="Total" string="总额"/>-->
+                                        <!--<field name="paid_amount" sum="总额" string="已收款"/>-->
+                                        <!--<field name="partner_id" string="客户"/>-->
+                                        <!--<field name="company_id"/>-->
+                                        <!--<field name="comment"/>-->
+                                        <!--&lt;!&ndash;<field name="type" string="收款类别"/>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<field name="apply_id"/>&ndash;&gt;-->
+                                        <!--<field name="sale_order_id"/>-->
+                                        <!--<field name="customer_invoice_apply_id"/>-->
+                                        <!--&lt;!&ndash;<field name="payment_id" string="收款单"/>&ndash;&gt;-->
+                                        <!--<field name="state"/>-->
+                                    <!--</tree>-->
+                               <!--</field>-->
+                           <!--</page>-->
+                           <!--<page string="收款记录">-->
+                               <!--<field name="payment_ids"/>-->
+                           <!--</page>-->
                        </notebook>
                     </sheet>
                     <div class="oe_chatter">
@@ -107,7 +121,7 @@
                 <search string="客户发票申请">
                     <field name="name" string="单号"/>
                     <field name="partner_id" string="客户"/>
-                    <field name="sale_id" string="订单号"/>
+                    <!--<field name="sale_id" string="订单号"/>-->
                     <filter string="未完成" name="state_undone" domain="[('state','!=','done')]"/>
                     <group expand="0" string="Group By">
                         <filter string="客户" name="group_partner" domain="[]" context="{'group_by':'partner_id'}"/>

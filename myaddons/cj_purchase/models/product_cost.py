@@ -12,7 +12,7 @@ class ProductCost(models.Model):
     product_id = fields.Many2one('product.product', '商品', required=1)
     cost = fields.Float('成本', required=1)
 
-    company_code = fields.Char('公司代码', help='导入时用')
+    # company_code = fields.Char('公司代码', help='导入时用')
     product_code = fields.Char('物料编码', help='导入时用')
 
     _sql_constraints = [('company_product_uniq', 'unique (company_id, product_id)', '商品重复!')]
@@ -27,26 +27,24 @@ class ProductCost(models.Model):
     def create(self, vals):
         # 导入处理
         if 'import_file' in self._context:
-            if not vals.get('company_id'):
-                company_obj = self.env['res.company']
+            if not vals.get('product_id'):
                 product_obj = self.env['product.product']
 
-                company_id = False
-                company_code = vals.pop('company_code', False)
-                if company_code:
-                    company = company_obj.search([('code', '=', company_code)])
-                    if not company:
-                        raise ValidationError('公司编码：%s对应的公司没有找到！' % company_code)
-                    company_id = company.id
+                product_code = vals.pop('product_code', False)
+                if not product_code:
+                    raise ValidationError('请导入物料编码！')
 
-                product_code = vals.pop('product_code')
-                product = product_obj.search([('default_code', '=', product_code)])
+                product = product_obj.search([('default_code', '=', str(product_code))])
                 if not product:
                     raise ValidationError('物料编码：%s没有找到对应的商品！' % product_code)
 
-                vals.upate({
-                    'company_id': company_id,
-                    'product_id': product.id
-                })
+                vals['product_id'] = product.id
 
         return super(ProductCost, self).create(vals)
+
+    @api.model
+    def get_import_templates(self):
+        return [{
+            'label': '模板下载',
+            'template': '/cj_purchase/static/template/商品成本模板.xlsx'
+        }]

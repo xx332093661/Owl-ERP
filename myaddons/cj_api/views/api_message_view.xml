@@ -5,7 +5,7 @@
 			<field name='model'>api.message</field>
 			<field name='arch' type='xml'>
 				<tree decoration-info="state == 'draft'" decoration-danger="state == 'error'" decoration-success="state == 'done'">
-					<field name="create_date" string="消息时间"/>
+					<field name="create_time" string="消息时间"/>
                     <field name="message_type"/>
                     <field name="message_name"/>
                     <field name="state"/>
@@ -30,7 +30,7 @@
                         <group>
                             <group>
                                 <field name="message_type" readonly="1"/>
-                                <field name="create_date" string="消息时间" readonly="1"/>
+                                <field name="create_time" string="消息时间" readonly="1"/>
                                 <field name="error_no" readonly="1"/>
                                 <field name="attempts"/>
                             </group>
@@ -66,6 +66,8 @@
                     <filter string="已处理" name="done" domain="[('state', '=', 'done')]"/>
                     <filter string="处理失败" name="error" domain="[('state', '=', 'error')]"/>
                     <separator/>
+                    <filter string="非实时库存" name="message_not_stock" domain="[('message_name', 'not in', ['mustang-to-erp-store-stock-push', 'WMS-ERP-STOCK-QUEUE'])]"/>
+                    <separator/>
                     <filter string="组织机构" name="message_org" domain="[('message_name', '=', 'MDM-ERP-ORG-QUEUE')]"/>
                     <filter string="门店" name="message_store" domain="[('message_name', '=', 'MDM-ERP-STORE-QUEUE')]"/>
                     <filter string="供应商" name="message_supplier" domain="[('message_name', '=', 'MDM-ERP-SUPPLIER-QUEUE')]"/>
@@ -79,8 +81,13 @@
                     <filter string="物流信息" name="message_logistics" domain="[('message_name', '=', 'mustang-to-erp-logistics-push')]"/>
                     <filter string="外部仓出库" name="message_stockout" domain="[('message_name', '=', 'WMS-ERP-STOCKOUT-QUEUE')]"/>
                     <filter string="门店库存变更" name="message_store_stock_update" domain="[('message_name', '=', 'mustang-to-erp-store-stock-update-record-push')]"/>
-                    <filter string="全渠道订单状态" name="message_order_state" domain="[('message_name', '=', 'mustang-to-erp-order-status-push')]"/>
-                    <filter string="售后服务单" name="message_service" domain="[('message_name', '=', 'mustang-to-erp-service-list-push')]"/>
+                    <filter string="全渠道订单状态" name="message_order_state" domain="[('message_name', '=', 'MUSTANG-ERP-ORDER-STATUS-PUSH')]"/>
+                    <!--<filter string="售后服务单" name="message_service" domain="[('message_name', '=', 'mustang-to-erp-service-list-push')]"/>-->
+                    <filter string="退货入库单" name="message_service" domain="[('message_name', '=', 'WMS-ERP-RETURN-STOCKIN-QUEUE')]"/>
+                    <filter string="退款单" name="message_service" domain="[('message_name', '=', 'MUSTANG-REFUND-ERP-QUEUE')]"/>
+                    <group expand="0" string="Group By...">
+                        <filter string="消息名称" name="group_message_name" domain="[]" context="{'group_by':'message_name'}"/>
+                   </group>
                 </search>
             </field>
         </record>
@@ -89,6 +96,7 @@
 			<field name='name'>api消息</field>
 			<field name='res_model'>api.message</field>
 			<field name='view_mode'>tree,form</field>
+            <field name="context">{'search_default_message_not_stock': 1}</field>
 		</record>
 
         <record id="action_do_proc_content" model="ir.actions.server">
@@ -97,6 +105,16 @@
             <field name="binding_model_id" ref="model_api_message"/>
             <field name="state">code</field>
             <field name="code">action=records.do_proc_content()</field>
+        </record>
+    </data>
+
+    <data>
+        <record id="action_batch_done" model="ir.actions.server">
+            <field name="name">转储</field>
+            <field name="model_id" ref="model_api_message"/>
+            <field name="state">code</field>
+            <field name="code">records.action_dump()</field>
+            <field name="binding_model_id" ref="model_api_message"/>
         </record>
     </data>
 </odoo>

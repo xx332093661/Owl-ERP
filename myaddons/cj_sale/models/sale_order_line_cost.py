@@ -40,13 +40,13 @@ class SaleOrder(models.Model):
     gross_profit_rate = fields.Float('毛利率', compute='_compute_gross_profit_rate', store=1, digits=(16, DIGITS))
 
     @api.multi
-    @api.depends('cost_ids')
+    @api.depends('cost_ids', 'child_ids')
     def _compute_goods_cost(self):
         """计算订单总成本"""
         # cost_obj = self.env['sale.order.line.cost']
         for order in self:
-            goods_cost = sum(order.cost_ids.mapped('total_cost'))
-            # goods_cost = sum([cost.cost * cost.product_qty for cost in cost_obj.search([('order_id', '=', order.id)])])
+            # 订单成本 + 补发成本
+            goods_cost = sum(order.cost_ids.mapped('total_cost')) + sum(order.child_ids.mapped('cost_ids').mapped('total_cost'))
             if float_compare(goods_cost, order.goods_cost, precision_rounding=0.001) != 0:
                 order.goods_cost = goods_cost
 
@@ -55,7 +55,8 @@ class SaleOrder(models.Model):
     def _compute_shipping_cost(self):
         """计算订单物流成本"""
         for order in self:
-            shipping_cost = sum(order.logistics_ids.mapped('shipping_cost'))
+            # 订单物流 + 补发订单物流
+            shipping_cost = sum(order.logistics_ids.mapped('shipping_cost')) + sum(order.child_ids.mapped('logistics_ids').mapped('shipping_cost'))
             if float_compare(shipping_cost, order.shipping_cost, precision_rounding=0.001) != 0:
                 order.shipping_cost = shipping_cost
 

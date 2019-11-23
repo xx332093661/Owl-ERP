@@ -7,15 +7,13 @@ access_cj_sale_activity_user,c_.sale_activity user,model_cj_sale_activity,sales_
 access_cj_sale_activity_line_all,cj_sale_activity_line all,model_cj_sale_activity_line,base.group_user,1,0,0,0
 access_cj_sale_activity_line_user,cj_sale_activity_line user,model_cj_sale_activity_line,sales_team.group_sale_salesman,1,1,1,1
 
-access_aftersale_order,access_aftersale_order,model_aftersale_order,base.group_user,1,1,1,0
-access_aftersale_order_line,access_aftersale_order_line,model_aftersale_order_line,base.group_user,1,1,1,1
 access_delivery_order_user,delivery_order user,model_delivery_order,base.group_user,1,0,0,0
 access_delivery_order_salesman,delivery_order salesman,model_delivery_order,sales_team.group_sale_salesman,1,1,1,0
-access_delivery_order_stock_user,delivery_order stock_user,model_delivery_order,stock.group_stock_user,1,1,1,0
+
 access_delivery_package_box_user,delivery_package_box user,model_delivery_package_box,base.group_user,1,0,0,0
-access_delivery_package_box_stock_user,delivery_package_box stock_user,model_delivery_package_box,stock.group_stock_user,1,1,1,1
+
 access_delivery_order_line_user,delivery_order_line user,model_delivery_order_line,base.group_user,1,0,0,0
-access_delivery_order_line_stock_user,delivery_order_line stock_user,model_delivery_order_line,stock.group_stock_user,1,1,1,0
+
 
 access_sale_order_line_cost,sale.channels,model_sale_order_line_cost,base.group_user,1,1,1,0
 
@@ -34,5 +32,11 @@ access_stock_picking_general_manage,stock_picking general_manage,stock.model_sto
 access_stock_move_general_manage,stock_move general_manage,stock.model_stock_move,group_sale_general_manage,1,1,1,0
 access_account_invoice_general_manage,account_invoice general_manage,account.model_account_invoice,group_sale_general_manage,1,0,0,0
 access_account_payment_general_manage,account_payment general_manage,account.model_account_payment,group_sale_general_manage,1,0,0,0
+
+access_sale_order_return_all,sale_order_return all,model_sale_order_return,base.group_user,1,0,0,0
+access_sale_order_return_line_all,sale_order_return_line all,model_sale_order_return_line,base.group_user,1,0,0,0
+access_sale_order_refund_all,sale_order_refund all,model_sale_order_refund,base.group_user,1,0,0,0
+access_sale_order_refund_all,sale_order_refund all,model_sale_order_refund,base.group_system,1,0,1,0
+
 
 

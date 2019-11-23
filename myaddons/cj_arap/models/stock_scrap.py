@@ -57,7 +57,7 @@ class StockScrapMaster(models.Model):
                 'payment_id': False,
                 'journal_id': journal_id,
                 'name': '报废:%s' % line.product_id.name,
-                'account_id': line.product_id.product_tmpl_id._get_product_accounts()['expense'].id,
+                'account_id': line.product_id.product_tmpl_id.with_context(force_company=company.id)._get_product_accounts()['expense'].id,
                 'currency_id': self.company_id.currency_id.id,
                 'product_id': line.product_id.id,
                 'product_uom_id': line.product_id.uom_id.id

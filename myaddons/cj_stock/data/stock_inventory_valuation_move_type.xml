@@ -66,6 +66,11 @@
             <field name="code">requisition_in</field>
         </record>
 
+        <record id="replenishment" model="stock.inventory.valuation.move.type">
+            <field name="name">采购退货补货</field>
+            <field name="code">replenishment</field>
+        </record>
+
         <!--此类型可能用不到，归到销售出库(sale_delivery)-->
         <record id="STOCK_01002" model="stock.inventory.valuation.move.type">
             <field name="name">门店销售出库</field>
@@ -166,6 +171,15 @@
         <record id="STOCK_03010" model="stock.inventory.valuation.move.type">
             <field name="name">门店盘返货总仓出库冲销</field>
             <field name="code">STOCK_03010</field>
+        </record>
+
+        <record id="internal_in" model="stock.inventory.valuation.move.type">
+            <field name="name">内部调拨入库</field>
+            <field name="code">internal_in</field>
+        </record>
+        <record id="internal_out" model="stock.inventory.valuation.move.type">
+            <field name="name">内部调拨出库</field>
+            <field name="code">internal_out</field>
         </record>
 
     </data>

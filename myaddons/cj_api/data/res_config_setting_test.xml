@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <!--上传中台-->
+    <data noupdate="1">
+        <record id='cj_sync_url_id' model='ir.config_parameter'>
+		   <field name="key">cj_sync_url_id</field>
+		   <field name="value">0</field>
+		</record>
+
+        <record id='cj_sync_username_id' model='ir.config_parameter'>
+		   <field name="key">cj_sync_username_id</field>
+		   <field name="value">0</field>
+		</record>
+
+        <record id='cj_sync_password_id' model='ir.config_parameter'>
+		   <field name="key">cj_sync_password_id</field>
+		   <field name="value">0</field>
+		</record>
+    </data>
+
+    <data noupdate="1">
+        <record id='shop_api_upload_url_id' model='ir.config_parameter'>
+		   <field name="key">shop_api_upload_url_id</field>
+		   <field name="value">0</field>
+		</record>
+
+        <record id='shop_api_upload_aes_key_id' model='ir.config_parameter'>
+		   <field name="key">shop_api_upload_aes_key_id</field>
+		   <field name="value">0</field>
+		</record>
+
+        <record id='shop_api_upload_key_id' model='ir.config_parameter'>
+		   <field name="key">shop_api_upload_key_id</field>
+		   <field name="value">0</field>
+		</record>
+    </data>
+
+    <!--RabbitMQ-->
+    <data noupdate="1">
+        <record id='cj_rabbit_mq_username_id' model='ir.config_parameter'>
+		   <field name="key">cj_rabbit_mq_username_id</field>
+		   <field name="value">admin</field>
+		</record>
+
+		<record id='cj_rabbit_mq_password_id' model='ir.config_parameter'>
+		   <field name="key">cj_rabbit_mq_password_id</field>
+		   <field name="value">colorful*2018</field>
+		</record>
+
+		<record id='cj_rabbit_mq_ip_id' model='ir.config_parameter'>
+		   <field name="key">cj_rabbit_mq_ip_id</field>
+		   <field name="value">10.16.0.10</field>
+		</record>
+
+		<record id='cj_rabbit_mq_port_id' model='ir.config_parameter'>
+		   <field name="key">cj_rabbit_mq_port_id</field>
+		   <field name="value">15672</field>
+		</record>
+
+		<record id='cj_rabbit_mq_send_exchange_id' model='ir.config_parameter'>
+		   <field name="key">cj_rabbit_mq_send_exchange_id</field>
+		   <field name="value">MDM-EXCHANGE-MUSTANG</field>
+		</record>
+
+		<record id='cj_rabbit_mq_receive_exchange_id' model='ir.config_parameter'>
+		   <field name="key">cj_rabbit_mq_receive_exchange_id</field>
+		   <field name="value">MDM-EXCHANGE-MUSTANG1</field>
+		</record>
+    </data>
+
+    <!--OA-->
+    <data noupdate="1">
+        <record id="icp_oa_url" model="ir.config_parameter">
+            <field name="key">icp_oa_url</field>
+            <field name="value">10.16.0.31</field>
+        </record>
+
+        <record id="icp_oa_token_username" model="ir.config_parameter">
+            <field name="key">icp_oa_token_username</field>
+            <field name="value">ERP</field>
+        </record>
+
+        <record id="icp_oa_token_password" model="ir.config_parameter">
+            <field name="key">icp_oa_token_password</field>
+            <field name="value">123456</field>
+        </record>
+
+        <record id="icp_oa_sender_login_name" model="ir.config_parameter">
+            <field name="key">icp_oa_sender_login_name</field>
+            <field name="value">100364</field>
+        </record>
+
+    </data>
+
+    <!--POS接口-->
+    <data noupdate="1">
+        <!--POS接口状态-->
+        <record id="icp_user_oa" model="ir.config_parameter">
+            <field name="key">pos_interface_state</field>
+            <field name="value">on</field>
+        </record>
+
+    </data>
+
+    <!--全量数据接口-->
+	<data noupdate="1">
+        <!--url-->
+        <record id="main_data_api_url" model="ir.config_parameter">
+            <field name="key">main_data_api_url</field>
+            <field name="value">http://10.16.0.19:8080/base/message</field>
+        </record>
+        <!--&lt;!&ndash;物料&ndash;&gt;-->
+        <!--<record id="main_data_api_dms_material_info" model="ir.config_parameter">-->
+            <!--<field name="key">main_data_api_dms_material_info</field>-->
+            <!--<field name="value">I70aRj46mtGMSe60PXcEaDJkbELGnRXD</field>-->
+        <!--</record>-->
+        <!--&lt;!&ndash;组织机构&ndash;&gt;-->
+		  <!--<record id="main_data_api_auth_org" model="ir.config_parameter">-->
+            <!--<field name="key">main_data_api_auth_org</field>-->
+            <!--<field name="value">F6xN4G1SEIUnT7cgqPzQ8eMznjsjmsKS</field>-->
+        <!--</record>-->
+        <!--&lt;!&ndash;仓库&ndash;&gt;-->
+		 <!--<record id="main_data_api_dms_warehouse" model="ir.config_parameter">-->
+            <!--<field name="key">main_data_api_dms_warehouse</field>-->
+            <!--<field name="value">Li790zOlnHyutDeXEeNaS4Eh8oy7aHwM</field>-->
+        <!--</record>-->
+        <!--&lt;!&ndash;门店&ndash;&gt;-->
+		 <!--<record id="main_data_api_dms_store" model="ir.config_parameter">-->
+            <!--<field name="key">main_data_api_dms_store</field>-->
+            <!--<field name="value">au03Jg4NhWCBGhDMkK8A0Q9A70E3ki7C</field>-->
+        <!--</record>-->
+        <!--&lt;!&ndash;会员&ndash;&gt;-->
+		 <!--<record id="main_data_api_auth_distributor_member" model="ir.config_parameter">-->
+            <!--<field name="key">main_data_api_auth_distributor_member</field>-->
+            <!--<field name="value">KDRaLF56VY9tGfdPr5EFskby0zznXdZE</field>-->
+        <!--</record>-->
+
+
+    </data>
+
+</openerp>
+

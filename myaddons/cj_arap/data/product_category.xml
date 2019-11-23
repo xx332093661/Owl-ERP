@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!--修改原有分类的显示名称-->
-    <data noupdate="0">
+    <data noupdate="1">
         <function model="product.category" name="write">
             <value eval="[ref('product.product_category_all', raise_if_not_found=False)]"/>
             <value eval="{'name': '全部'}"/>

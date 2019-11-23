@@ -241,6 +241,12 @@ class StockInventory(models.Model):
             exhausted_vals = self._get_exhausted_inventory_line(products_to_filter, quant_products)
             vals.extend(exhausted_vals)
 
+        # 盘明细的在手数量如果小于0， 则设为0
+        for val in vals:
+            product_qty = val.get('product_qty', 0)
+            if float_compare(product_qty, 0.0, precision_rounding=0.01) == -1:
+                val['product_qty'] = 0
+
         return vals
 
 
@@ -281,10 +287,10 @@ class InventoryLine(models.Model):
         for line in self:
             compare = float_compare(line.cost, 0.0, precision_digits=2)
             if compare == -1:
-                raise ValidationError('单位成本不能小于0！')
+                raise ValidationError('商品：%s单位成本不能小于0！' % line.product_id.partner_ref)
 
             if float_compare(line.product_qty, 0.0, precision_rounding=line.product_id.uom_id.rounding) == -1:
-                raise ValidationError('实际数量不能小于0！')
+                raise ValidationError('商品：%s实际数量不能小于0！' % line.product_id.partner_ref)
 
             # # 如果公司没有盘点过，则要求输入单位成本
             # if compare == 0 and line.is_init == 'yes':
@@ -336,16 +342,24 @@ class InventoryLine(models.Model):
                     return 'no'
                 return 'yes'
 
-            raise my_validation_error('29', '%s没有成本核算分组' % company.name)
+            # raise my_validation_error('29', '%s没有成本核算分组' % company.name)
 
         def get_cost():
             """计算初次盘点成本"""
             if is_init == 'no':
                 return 0
+
+            # 当前公司
             product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
             if product_cost:
                 return product_cost.cost
 
+            # 上级公司
+            product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
+            if product_cost:
+                return product_cost.cost
+
+            # 无公司
             product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
             if product_cost:
                 return product_cost.cost
@@ -375,8 +389,8 @@ class InventoryLine(models.Model):
         vals.update({
             'is_init': is_init,
         })
-        if not vals.get('cost'):
-            vals['cost'] = get_cost()
+        # if not vals.get('cost'):
+        vals['cost'] = get_cost()
         # 计算是否是初次盘点
         return super(InventoryLine, self).create(vals)
 

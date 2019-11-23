@@ -36,6 +36,14 @@
             <field name="view_mode">form</field>
             <field name="target">new</field>
         </record>
+
+        <!--<act_window-->
+            <!--id="action_import_inventory_detail_wizard"-->
+            <!--name="导入盘点明细"-->
+            <!--res_model="import.inventory.detail.wizard"-->
+            <!--src_model="stock.inventory"-->
+            <!--view_mode="form"-->
+            <!--target="new"-->
     </data>
 
 </odoo>

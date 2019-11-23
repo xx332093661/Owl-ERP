@@ -25,7 +25,8 @@ class SupplierInfo(models.Model):
 
         if self._context.get('purchase_apply_line'):
             for obj in self:
-                name = obj.name.name + ' 价格:' + str(obj.price)
+                name = '%s 最小量：%s 价格：%s' % (obj.name.name, obj.min_qty, obj.price)
+                # name = obj.name.name + ' 价格:' + str(obj.price)
                 result.append((obj.id, name))
         else:
             result = super(SupplierInfo, self).name_get()
@@ -37,5 +38,6 @@ class SupplierInfo(models.Model):
             tz = 'Asia/Shanghai'
             date = datetime.now(tz=pytz.timezone(tz)).date()
             args = args or []
-            args.extend(['&', '|', ('date_start', '=', False), ('date_start', '<=', date), '|', ('date_end', '=', False), ('date_end', '>=', date), ('price_list_id.state', '=', 'done')])
+            args.extend(['&', '|', ('date_start', '=', False), ('date_start', '<=', date), '|', ('date_end', '=', False), ('date_end', '>=', date)])
+            args.extend([('min_qty', '<=', self._context['product_qty'])])
         return super(SupplierInfo, self)._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)

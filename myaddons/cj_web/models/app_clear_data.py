@@ -335,8 +335,9 @@ class AppClearData(models.Model):
             ['account.move', ],
             ['account.payment.apply', ],
             ['account.invoice.apply', ],
-            ['account.invoice.split', ],
+            ['account.invoice.register.line'],
             ['account.invoice.register', ],
+            ['account.invoice.split', ],
             ['account.account.summary', ],
         ]
         try:
