@@ -26,7 +26,7 @@ class AccountCustomerInvoiceApply(models.Model):
 
     name = fields.Char('单号', readonly=1, default='New')
     partner_id = fields.Many2one('res.partner', '客户', required=1, readonly=1,
-                                 domain="['|', ('customer', '=', True), ('supplier', '=', True)]",
+                                 domain="['|', ('customer', '=', True), '|', ('supplier', '=', True), ('member', '=', True)]",
                                  states=READONLY_STATES, track_visibility='onchange')
     apply_date = fields.Date('申请日期',
                              readonly=1,
