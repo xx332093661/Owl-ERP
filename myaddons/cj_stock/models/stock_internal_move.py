@@ -211,7 +211,7 @@ class StockInternalMove(models.Model):
                 })
 
         # 调入的商品数量
-        for move in self.picking_ids.filtered(lambda x: x.picking_type_id.code == 'outgoing').mapped('incoming').filtered(lambda x: x.state == 'done'):
+        for move in self.picking_ids.filtered(lambda x: x.picking_type_id.code == 'incoming').mapped('move_lines').filtered(lambda x: x.state == 'done'):
             res = list(filter(lambda x: x['product_id'] == move.product_id.id, across_move))
             if res:
                 res[0]['move_in_qty'] += move.quantity_done
