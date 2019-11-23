@@ -92,7 +92,7 @@
             <field name="res_model">account.invoice.split</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="domain">[('purchase_order_id', '!=', False)]</field>
+            <field name="domain">[('invoice_id.type', '=', 'in_invoice')]</field>
         </record>
 
         <menuitem id="menu_account_account_invoice_split" action="account_account_invoice_split"
@@ -208,7 +208,7 @@
             <field name="res_model">account.invoice.split</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="domain">[('sale_order_id', '!=', False)]</field>
+            <field name="domain">[('invoice_id.type', '=', 'out_invoice')]</field>
             <field name="search_view_id" ref="view_account_invoice_split_sale_search"/>
             <!--<field name="context">{'search_default_state_unpaid': 1, 'search_default_group_partner': 1}</field>-->
         </record>
