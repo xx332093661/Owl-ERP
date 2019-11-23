@@ -34,14 +34,22 @@ class ApiMessageDumpRestoreWizard(models.TransientModel):
                     message.pop('id', False)
                     error_no = message.pop('error_no', '')
                     error_msg = message.pop('error_msg', '')
+                    interface_param = message.pop('interface_param', '')
+                    interface_url = message.pop('interface_url', '')
                     if error_no == 'False':
                         error_no = ''
                     if error_msg == 'False':
                         error_msg = ''
+                    if interface_param == 'False':
+                        interface_param = ''
+                    if interface_url == 'False':
+                        interface_url = ''
 
                     message.update({
                         'error_no': error_no,
                         'error_msg': error_msg,
+                        'interface_param': interface_param,
+                        'interface_url': interface_url,
                     })
                     vals_list.append(message)
 
