@@ -30,7 +30,7 @@
         'data/partner.xml',
         'data/oa_approval_callback.xml',
         'data/decimal_precision.xml',
-        'data/ir_cron.xml',
+        # 'data/ir_cron.xml',
 
         'views/sale_channels.xml',
         'views/sale_activity.xml',

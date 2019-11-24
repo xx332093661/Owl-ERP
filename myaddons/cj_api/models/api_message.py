@@ -1095,11 +1095,25 @@ class ApiMessage(models.Model):
             if content.get('memberId'):
                 member = partner_obj.search([('code', '=', content['memberId']), ('member', '=', True)], limit=1)
                 if not member:
-                    return pid, content.get('memberId')
-                    # raise MyValidationError('12', '会员：%s未找到' % content['memberId'])
-                return member.id, ''
+                    val = {
+                        'code': content['memberId'],
+                        'name': content['memberId'],
+                        # 'phone': member['mobile'],
+                        # 'growth_value': member['growthValue'],
+                        # 'member_level': member['level'],
+                        # 'email': member['email'],
+                        # 'register_channel': member['registerChannel'],
+                        # 'create_time': (fields.Datetime.to_datetime(member['registerTime']) - timedelta(hours=8)).strftime(DATETIME_FORMAT) if member['registerTime'] else False,
+
+                        'active': True,
+                        'member': True,  # 是否会员
+                        'customer': False,
+                        'supplier': False
+                    }
+                    member = partner_obj.create(val)
+                return member.id
             else:
-                return pid, ''
+                return pid
 
         def get_parent():
             """获取关联的销售订单"""
@@ -1182,7 +1196,6 @@ class ApiMessage(models.Model):
 
                 'sync_state': 'no_need',
                 'state': 'cancel' if content['status'] == '已取消' else 'draft',
-                'member_id': member_id  # 会员ID, 对于全渠道订单，打不到会员，先把会员ID暂存起来，后通过计划任务去计算会员
             }
             return order_obj.create(val)
 
@@ -1268,7 +1281,7 @@ class ApiMessage(models.Model):
 
         company_id = get_company()  # 计算公司
         warehouse_id = get_warehouse()  # 计算仓库(可能是临时仓库)
-        partner_id, member_id = get_partner()  # 计算客户
+        partner_id = get_partner()  # 计算客户
         parent_id = get_parent()    # 关联的销售订单
         order = create_sale_order()  # 创建销售订单
         order_id = order.id

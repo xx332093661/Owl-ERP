@@ -293,15 +293,3 @@ class SaleOrder(models.Model):
         # todo 大数量团购处理
         return super(SaleOrder, self).create(val)
 
-    @api.model
-    def _cron_compute_member(self):
-        """全渠道订单：计算订单会员"""
-        partner_obj = self.env['res.partner']
-        for order in self.search([('member_id', '!=', False)]):
-            partner = partner_obj.search([('code', '=', order.member_id), ('member', '=', True)])
-            if partner:
-                order.write({
-                    'partner_id': partner.id,
-                    'member_id': False
-                })
-
