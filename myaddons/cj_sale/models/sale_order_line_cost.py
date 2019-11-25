@@ -324,7 +324,7 @@ class SaleOrderLine(models.Model):
         订单行销售额：line.price_subtotal
         """
         for line in self:
-            if float_is_zero(line.cost_price, precision_rounding=0.01):
+            if float_is_zero(line.cost_price, precision_rounding=0.01) or float_is_zero(line.qty_delivered, precision_rounding=0.01):
                 continue
             gross_profit_rate = line.gross_profit / (line.cost_price * line.qty_delivered) * 100
             if float_compare(gross_profit_rate, line.gross_profit_rate, precision_digits=DIGITS) != 0:
