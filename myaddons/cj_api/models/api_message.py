@@ -1594,8 +1594,8 @@ class ApiMessage(models.Model):
         if not order:
             raise MyValidationError('14', '出库单号：%s对应的销售订单未找到' % delivery_order_code)
 
-        if not logistics_data['packages']:
-            raise MyValidationError('42', '没有打包明细')
+        # if not logistics_data['packages']:
+        #     raise MyValidationError('42', '没有打包明细')
 
         state_id = self.get_country_state_id(logistics_data['province'])  # 省
         city_id = self.get_city_area_id(logistics_data['city'], state_id)  # 市
