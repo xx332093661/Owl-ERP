@@ -221,6 +221,7 @@
                             </group>
                             <group class="oe_subtotal_footer oe_left" colspan="4" name="sale_profit" string="成本核算">
                                 <group>
+                                    <field name="write_off_amount"/>
                                     <field name="goods_cost"/>
                                     <field name="packing_cost" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
                                     <field name="gross_profit"/>
@@ -312,7 +313,7 @@
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="view_ids" eval="[(5,0,0), (0,0,{'view_mode':'tree', 'view_id': ref('view_sale_order_groupn_tree')}), (0,0,{'view_mode':'form', 'view_id': ref('view_order_form_groupn')})]"/>
-        <field name="domain">[('group_flag', '=', 'group'), ('is_gift', '=', False)]</field>
+        <field name="domain">[('group_flag', '=', 'group'), ('special_order_mark', '=', 'normal')]</field>
         <field name="search_view_id" ref="sale.sale_order_view_search_inherit_sale"/>
         <field name="context">{'group_flag': 'group'}</field>
     </record>

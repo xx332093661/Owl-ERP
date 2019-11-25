@@ -47,7 +47,7 @@ class SaleOrder(models.Model):
     payment_ids = fields.One2many('account.payment', 'sale_order_id', '收款记录',  domain=lambda self: [('payment_type', '=', 'inbound')])
     return_ids = fields.One2many('sale.order.return', 'sale_order_id', '退货入库单')
     refund_ids = fields.One2many('sale.order.refund', 'sale_order_id', '退款单')
-    is_gift = fields.Boolean('是赠品订单')
+    # is_gift = fields.Boolean('是赠品订单')
 
     # 中台字段
     user_level = fields.Char("用户等级")
@@ -72,7 +72,7 @@ class SaleOrder(models.Model):
     consignee_state_id = fields.Many2one('res.country.state', '省')
     consignee_city_id = fields.Many2one('res.city', '市')
     consignee_district_id = fields.Many2one('res.city', '区(县)')
-    special_order_mark = fields.Selection([('normal', '普通订单'), ('compensate', '补发货订单')], '订单类型', default='normal')
+    special_order_mark = fields.Selection([('normal', '普通订单'), ('compensate', '补发货订单'), ('gift', '赠品')], '订单类型', default='normal')
     parent_id = fields.Many2one('sale.order', '关联的销售订单')
     child_ids = fields.One2many('sale.order', 'parent_id', '补发订单')
     reason = fields.Char('补发货原因')

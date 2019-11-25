@@ -1,52 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--销售订单搜索视图修改-->
+    <!--补发订单-->
     <data>
-        <record id="view_sale_order_filter" model="ir.ui.view">
-            <field name="name">sale.order.search.inherit.sale</field>
-            <field name="model">sale.order</field>
-            <field name="inherit_id" ref="sale.sale_order_view_search_inherit_sale"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='user_id']" position="replace"/>
-                <xpath expr="//field[@name='team_id']" position="replace"/>
-                <xpath expr="//field[@name='analytic_account_id']" position="replace"/>
-
-                <xpath expr="//filter[@name='to_invoice']" position="replace"/>
-                <xpath expr="//filter[@name='upselling']" position="replace"/>
-                <!--<xpath expr="//filter[@name='order_date']" position="replace"/>-->
-                <xpath expr="//filter[@name='my_sale_orders_filter']" position="replace"/>
-                <xpath expr="//filter[@name='activities_my']" position="replace"/>
-                <xpath expr="//filter[@name='activities_overdue']" position="replace"/>
-                <xpath expr="//filter[@name='activities_today']" position="replace"/>
-                <xpath expr="//filter[@name='activities_upcoming_all']" position="replace"/>
-                <xpath expr="//field[@name='partner_id']" position="after">
-                    <field name="channel_id" string="销售渠道" operator="child_of"/>
-                    <separator/>
-                    <filter string="订单日期" name="order_date" date="date_order"/>
-                    <separator/>
-                    <filter string="天猫" name="channel_tmall" domain="['|', ('channel_id.parent_id.code', '=', 'tmall'), ('channel_id.code', '=', 'tmall')]"/>
-                    <filter string="淘宝" name="channel_taobao" domain="['|', ('channel_id.parent_id.code', '=', 'taobao'), ('channel_id.code', '=', 'taobao')]"/>
-                    <filter string="京东" name="channel_jd" domain="['|', ('channel_id.parent_id.code', '=', 'jd'), ('channel_id.code', '=', 'jd')]"/>
-                    <filter string="POS" name="channel_pos" domain="['|', ('channel_id.parent_id.code', '=', 'pos'), ('channel_id.code', '=', 'pos')]"/>
-                    <filter string="售酒机" name="channel_enomatic" domain="['|', ('channel_id.parent_id.code', '=', 'enomatic'), ('channel_id.code', '=', 'enomatic')]"/>
-                    <filter string="其他" name="channel_other" domain="['&amp;', ('channel_id.parent_id.code', 'not in', ['tmall', 'taobao', 'jd', 'pos', 'enomatic']), ('channel_id.code', 'not in', ['tmall', 'taobao', 'jd', 'pos', 'enomatic'])]"/>
-                </xpath>
-
-                <xpath expr="//filter[@name='salesperson']" position="replace"/>
-                <xpath expr="//filter[@name='order_month']" position="after">
-                        <filter string="渠道" name="group_channel_id" domain="[]" context="{'group_by':'channel_id'}"/>
-                </xpath>
-            </field>
-        </record>
-    </data>
-
-    <!--全渠道订单-->
-    <data>
-        <record id="view_order_form_chuanjiu" model="ir.ui.view">
-            <field name="name">sale.order.form.chuanjiu</field>
+        <record id="view_order_form_compensate" model="ir.ui.view">
+            <field name="name">sale.order.compensate.form</field>
             <field name="model">sale.order</field>
             <field name="arch" type="xml">
-                <form  string="全渠道订单" class="o_sale_order" create="0" delete="0" edit="0">
+                <form  string="补发订单" class="o_sale_order" create="0" delete="0" edit="0">
                     <header>
                         <!--<button name="payment_action_capture" type="object" string="更新付款记录" class="oe_highlight"-->
                                 <!--attrs="{'invisible': [('authorized_transaction_ids', '=', [])]}"/>-->
@@ -84,10 +44,10 @@
                             <button type="object" name="action_view_delivery" class="oe_stat_button" icon="fa-truck" groups="base.group_user">
                                 <field name="delivery_count" widget="statinfo" string="出货单"/>
                             </button>
-                            <button name="action_view_invoice" type="object" class="oe_stat_button"
-                                    icon="fa-pencil-square-o" attrs="{'invisible': [('invoice_count', '=', 0)]}">
-                                <field name="invoice_count" widget="statinfo" string="结算单"/>
-                            </button>
+                            <!--<button name="action_view_invoice" type="object" class="oe_stat_button"-->
+                                    <!--icon="fa-pencil-square-o" attrs="{'invisible': [('invoice_count', '=', 0)]}">-->
+                                <!--<field name="invoice_count" widget="statinfo" string="结算单"/>-->
+                            <!--</button>-->
                         </div>
                         <div class="oe_title">
                             <h1>
@@ -111,7 +71,8 @@
                                 <!--<field name="confirmation_date" attrs="{'invisible': [('state', 'in', ['draft', 'sent', 'cancel'])]}"/>-->
                                 <field name="pricelist_id" groups="product.group_sale_pricelist"/>
                                 <field name="currency_id" invisible="1"/>
-                                <field name="payment_term_id" options="{'no_create': False}"/>
+                                <field name="payment_term_id" options="{'no_create': False}" invisible="1"/>
+                                <field name="parent_id"/>
                             </group>
                         </group>
                         <notebook>
@@ -263,9 +224,9 @@
                                 </group>
                                 <div class="oe_clear"/>
                             </page>
-                            <page string="支付记录">
-                                <field name="payment_ids"/>
-                            </page>
+                            <!--<page string="支付记录">-->
+                                <!--<field name="payment_ids"/>-->
+                            <!--</page>-->
 
                             <page string="出货信息" name="delivery_ids">
                                 <field name="delivery_ids">
@@ -290,10 +251,10 @@
                                     </group>
                                 </group>
                             </page>
-                            <page string="退货退款">
-                                <field name="return_ids"/>
-                                <field name="refund_ids"/>
-                            </page>
+                            <!--<page string="退货退款">-->
+                                <!--<field name="return_ids"/>-->
+                                <!--<field name="refund_ids"/>-->
+                            <!--</page>-->
 
                             <page string="其他信息" name="other_information">
                                 <group string="同步信息" col="6" colspan="4">
@@ -356,12 +317,12 @@
             </field>
         </record>
 
-        <record id="view_sale_order_all_tree" model="ir.ui.view">
-            <field name="name">sale.order.tree</field>
+        <record id="view_sale_order_compensate_tree" model="ir.ui.view">
+            <field name="name">sale.order.compensate.tree</field>
             <field name="model">sale.order</field>
             <field name="priority">4</field>
             <field name="arch" type="xml">
-                <tree string="全渠道订单" class="o_sale_order" decoration-bf="message_needaction==True" decoration-muted="state=='cancel'" create="0" delete="0" edit="0">
+                <tree string="补发订单" class="o_sale_order" decoration-bf="message_needaction==True" decoration-muted="state=='cancel'" create="0" delete="0" edit="0">
                     <field name="message_needaction" invisible="1"/>
                     <field name="name" string="订单号"/>
                     <field name="date_order" string="订单日期"/>
@@ -370,7 +331,7 @@
                     <!--<field name="expected_date" groups="sale.group_sale_order_dates"/>-->
                     <field name="partner_id"/>
                     <!--<field name="special_order_mark"/>-->
-                    <!--<field name="parent_id"/>-->
+                    <field name="parent_id"/>
                     <field name="amount_total" sum="Total Tax Included" widget="monetary"/>
                     <field name="currency_id" invisible="1"/>
                     <field name="state"/>
@@ -378,14 +339,14 @@
             </field>
         </record>
 
-        <record id="action_orders_all" model="ir.actions.act_window">
-            <field name="name">全渠道订单</field>
+        <record id="action_orders_compensate" model="ir.actions.act_window">
+            <field name="name">补发订单</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">sale.order</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="view_ids" eval="[(5,0,0), (0,0,{'view_mode':'tree', 'view_id': ref('view_sale_order_all_tree')}), (0,0,{'view_mode':'form', 'view_id': ref('view_order_form_chuanjiu')})]"/>
-            <field name="domain">[('group_flag', 'in', ['large', 'not']), ('special_order_mark', '=', 'normal')]</field>
+            <field name="view_ids" eval="[(5,0,0), (0,0,{'view_mode':'tree', 'view_id': ref('view_sale_order_compensate_tree')}), (0,0,{'view_mode':'form', 'view_id': ref('view_order_form_compensate')})]"/>
+            <field name="domain">[('special_order_mark', '=', 'compensate')]</field>
             <field name="search_view_id" ref="sale.sale_order_view_search_inherit_sale"/>
             <field name="context">{}</field>
         </record>

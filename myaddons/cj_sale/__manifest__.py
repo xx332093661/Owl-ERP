@@ -41,6 +41,9 @@
         'views/res_config_setting_view.xml',
         'views/delivery_carrier_view.xml',
         'views/sale_order_gift_view.xml',
+        'views/sale_order_return_view.xml',
+        'views/sale_order_refund_view.xml',
+        'views/sale_order_compensate_view.xml',
 
         'wizard/sale_purchase_confirm_view.xml',
 
@@ -49,8 +52,7 @@
         'views/menu_view.xml',
         'views/member_view.xml',
         'views/partner_view.xml',
-        'views/sale_order_return_view.xml',
-        'views/sale_order_refund_view.xml',
+
 
     ],
     'auto_install': True,

@@ -66,6 +66,7 @@
                             <field name="partner_id" domain="['|', ('customer','=',True), ('member','=',True)]" options="{'no_open': True, 'no_create':True}"/>
                             <field name="child_ids" string="关联的订单" required="1" domain="[('partner_id', '=', partner_id), ('state', '!=', 'draft'), ('group_flag', 'in', ['large', 'not'])]"
                                    options="{'no_open': True, 'no_create':True}" widget="many2many_tags"/>
+                            <field name="special_order_mark" invisible="1"/>
                             <!--<field name="partner_invoice_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice'}" options="{'always_reload': True}"/>-->
                             <!--<field name="partner_shipping_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'delivery'}" options="{'always_reload': True}"/>-->
                             <!--<field name="channel_id" options="{'no_create_edit': True, 'no_create':True}"/>-->
@@ -223,6 +224,7 @@
                             </group>
                             <group class="oe_subtotal_footer oe_left" colspan="4" name="sale_profit" string="成本核算">
                                 <group>
+                                    <field name="write_off_amount"/>
                                     <field name="goods_cost"/>
                                     <field name="packing_cost" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
                                     <field name="gross_profit"/>
@@ -315,9 +317,9 @@
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="view_ids" eval="[(5,0,0), (0,0,{'view_mode':'tree', 'view_id': ref('view_sale_order_gift_tree')}), (0,0,{'view_mode':'form', 'view_id': ref('view_order_form_gift')})]"/>
-        <field name="domain">[('is_gift', '=', True)]</field>
+        <field name="domain">[('special_order_mark', '=', 'gift')]</field>
         <field name="search_view_id" ref="sale.sale_order_view_search_inherit_sale"/>
-        <field name="context">{'default_is_gift': True}</field>
+        <field name="context">{'default_special_order_mark': 'gift'}</field>
     </record>
 
 
