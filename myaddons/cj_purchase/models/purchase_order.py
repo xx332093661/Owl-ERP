@@ -435,7 +435,7 @@ class PurchaseOrder(models.Model):
         cost_group = cost_group_obj.search([('store_ids', 'in', [self.company_id.id])], limit=1)
         if cost_group:
             for line in order_lines:
-                stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group.id)
+                stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group.id, self.company_id.id)
                 if line.price_unit > stock_cost:
                     cost_notice.append('%s当前采购价格为%s元，比当前库存成本价高%s%%' % (
                     line.product_id.name, line.price_unit, (line.price_unit - stock_cost) * 100 / stock_cost))

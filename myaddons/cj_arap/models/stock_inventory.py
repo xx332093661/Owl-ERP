@@ -41,7 +41,7 @@ class StockInventory(models.Model):
         product_id = product.id
 
         _, cost_group_id = self.company_id.get_cost_group_id()
-        stock_cost = valuation_move_obj.get_product_cost(product_id, cost_group_id)
+        stock_cost = valuation_move_obj.get_product_cost(product_id, cost_group_id, self.company_id.id)
         if not stock_cost:
             _logger.warning('盘点确认创建库存分录时，商品：%s的当前成本为0！盘点单(stock.inventory)ID：%s' % (product.partner_ref, self.id))
 
