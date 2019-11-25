@@ -16,7 +16,13 @@ class SupplierContract(models.Model):
     _inherit = ['mail.thread']
     _order = 'id desc'
 
-    name = fields.Char('合同编号', index=1, readonly=1, states=READONLY_STATES, required=1, track_visibility='onchange', copy=0,)
+    def _get_name(self):
+        """默认name字段值"""
+        sequence_code = 'supplier.contract'
+        apply_date = fields.Date.context_today(self.with_context(tz='Asia/Shanghai'))
+        return self.env['ir.sequence'].with_context(ir_sequence_date=apply_date).next_by_code(sequence_code)
+
+    name = fields.Char('合同编号', index=1, readonly=0, states=READONLY_STATES, required=1, track_visibility='onchange', copy=0, default=_get_name)
     partner_id = fields.Many2one('res.partner', '供应商', required=1, readonly=1, states=READONLY_STATES, ondelete='restrict', track_visibility='onchange', domain="[('supplier','=',True), ('state', '=', 'finance_manager_confirm')]")
     payment_term_id = fields.Many2one('account.payment.term', '付款方式', readonly=1, states=READONLY_STATES)
     purchase_sate = fields.Selection([('normal', '正常进货'), ('pause', '暂停进货')], '进货状态', readonly=1, states=READONLY_STATES, track_visibility='onchange', default='normal',)
