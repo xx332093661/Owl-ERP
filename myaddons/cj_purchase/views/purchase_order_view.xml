@@ -95,9 +95,9 @@
                     <field name="purchase_order_count"/>
                 </field>
 
-                <!--<xpath expr="//field[@name='purchase_order_count']" position="after">-->
-                    <!--<field name="explain"/>-->
-                <!--</xpath>-->
+                <xpath expr="//field[@name='purchase_order_count']" position="after">
+                    <field name="explain"/>
+                </xpath>
 
                 <xpath expr="//page[@name='purchase_delivery_invoice']" position="before">
                     <page string="供应商返利" attrs="{'invisible': [('rebate', '=', False)]}">

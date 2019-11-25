@@ -25,14 +25,22 @@
         </field>
     </record>
 
-    <act_window
-            id="action_purchase_apply_import_wizard"
-            name="批量导入"
-            res_model="purchase.apply.import"
-            src_model="purchase.apply"
-            view_mode="form"
-            target="new"
-        />
+    <record id="action_purchase_apply_import_wizard" model="ir.actions.act_window">
+        <field name="name">批量导入</field>
+        <field name="res_model">purchase.apply.import</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!--<act_window-->
+            <!--id="action_purchase_apply_import_wizard"-->
+            <!--name="批量导入"-->
+            <!--res_model="purchase.apply.import"-->
+            <!--src_model="purchase.apply"-->
+            <!--view_mode="form"-->
+            <!--target="new"-->
+        <!--/>-->
 
 
 
