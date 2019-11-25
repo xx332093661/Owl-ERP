@@ -5,6 +5,7 @@
 			<field name='model'>api.message</field>
 			<field name='arch' type='xml'>
 				<tree decoration-info="state == 'draft'" decoration-danger="state == 'error'" decoration-success="state == 'done'">
+                    <field name="sequence"/>
 					<field name="create_time" string="消息时间"/>
                     <field name="message_type"/>
                     <field name="message_name"/>

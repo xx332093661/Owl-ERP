@@ -1119,7 +1119,7 @@ class ApiMessage(models.Model):
             """获取关联的销售订单"""
             if not order_code:
                 return False
-            parent_order = order_obj.search([('code', '=', order_code)], limit=1)
+            parent_order = order_obj.search([('name', '=', order_code)], limit=1)
             if not parent_order:
                 return False  # TODO 前期补发订单可能找不到关联的订单
                 # raise MyValidationError('14', '关联的销售订单：%s没有找到！' % order_code)

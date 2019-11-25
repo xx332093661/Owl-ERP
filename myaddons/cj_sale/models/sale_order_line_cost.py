@@ -77,32 +77,30 @@ class SaleOrder(models.Model):
     def _compute_write_off_amount(self):
         """计算商品核销额
         订单的核销额 = （所有订单的总销售额）/ 所有订单的成本 * 当前订单的成本
-        如果是补发订单或赠品订单：订单的核销额 = 订单的成本
         所有订单的总销售额：amount_total
         所有订单的成本：total_cost
         当前订单的成本：order.total_cost
         """
         for order in self:
-            print(order.name)
-            special_order_mark = order.special_order_mark  # 订单类型  [('normal', '普通订单'), ('compensate', '补发货订单'), ('gift', '赠品')]
-            # 补发订单或赠品订单
-            if special_order_mark in ['compensate', 'gift']:
-                if float_compare(order.total_cost, order.write_off_amount, precision_digits=DIGITS) != 0:
-                    order.write_off_amount = order.total_cost
-            else:
-                orders = self.env['sale.order']
-                orders |= order
-                orders |= order.parent_id
-                orders |= order.child_ids
+            # special_order_mark = order.special_order_mark  # 订单类型  [('normal', '普通订单'), ('compensate', '补发货订单'), ('gift', '赠品')]
+            # # 补发订单或赠品订单
+            # if special_order_mark in ['compensate', 'gift']:
+            #     if float_compare(order.total_cost, order.write_off_amount, precision_digits=DIGITS) != 0:
+            #         order.write_off_amount = order.total_cost
+            # else:
+            orders = self.env['sale.order']
+            orders |= order
+            orders |= order.parent_id
+            orders |= order.child_ids
 
-                amount_total = sum(orders.mapped('amount_total'))  # 所有订单的总销售额
-                total_cost = sum(orders.mapped('total_cost'))  # 所有订单的总成本
-                if float_is_zero(total_cost, precision_rounding=0.01):
-                    continue
+            amount_total = sum(orders.mapped('amount_total'))  # 所有订单的总销售额
+            total_cost = sum(orders.mapped('total_cost'))  # 所有订单的总成本
+            if float_is_zero(total_cost, precision_rounding=0.01):
+                continue
 
-                write_off_amount = amount_total / total_cost * order.total_cost  # 当前订单的核销额
-                if float_compare(write_off_amount, order.write_off_amount, precision_digits=DIGITS) != 0:
-                    order.write_off_amount = write_off_amount
+            write_off_amount = amount_total / total_cost * order.total_cost  # 当前订单的核销额
+            if float_compare(write_off_amount, order.write_off_amount, precision_digits=DIGITS) != 0:
+                order.write_off_amount = write_off_amount
 
     @api.multi
     @api.depends('total_cost', 'write_off_amount')
@@ -176,6 +174,9 @@ class SaleOrderLine(models.Model):
             order_goods_cost = order.goods_cost  # 订单商品成本
             goods_cost = line.goods_cost  # 订单行商品成本
 
+            if float_is_zero(order_goods_cost, precision_rounding=0.01):
+                continue
+
             shipping_cost = order_shipping_cost / order_goods_cost * goods_cost
             if float_compare(shipping_cost, line.shipping_cost, precision_digits=DIGITS) != 0:
                 line.shipping_cost = shipping_cost
@@ -195,6 +196,9 @@ class SaleOrderLine(models.Model):
             order_goods_cost = order.goods_cost  # 订单商品成本
             goods_cost = line.goods_cost  # 订单行商品成本
 
+            if float_is_zero(order_goods_cost, precision_rounding=0.01):
+                continue
+
             box_cost = order_box_cost / order_goods_cost * goods_cost
             if float_compare(box_cost, line.box_cost, precision_digits=DIGITS) != 0:
                 line.box_cost = box_cost
@@ -213,6 +217,9 @@ class SaleOrderLine(models.Model):
             order_packing_cost = order.packing_cost  # 订单纸箱成本
             order_goods_cost = order.goods_cost  # 订单商品成本
             goods_cost = line.goods_cost  # 订单行商品成本
+
+            if float_is_zero(order_goods_cost, precision_rounding=0.01):
+                continue
 
             packing_cost = order_packing_cost / order_goods_cost * goods_cost
             if float_compare(packing_cost, line.packing_cost, precision_digits=DIGITS) != 0:
