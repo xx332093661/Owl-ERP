@@ -433,7 +433,7 @@ class PurchaseOrder(models.Model):
             raise ValidationError('只有审核的单据才可以提交OA审批！')
 
         module = importlib.import_module('odoo.addons.cj_api.models.tools')
-        digital_to_chinese = module.digital_to_chinese
+
         try:
             order_lines = self.mapped('order_line')
             code = 'Contract_approval'
@@ -509,3 +509,11 @@ class PurchaseOrder(models.Model):
             _logger.error('采购订单提交OA审批出错！')
             _logger.error(traceback.format_exc())
             raise UserError('提交OA审批出错！')
+
+    def _update_oa_approval_state(self, flow_id, refuse=False):
+        """OA审批通过回调"""
+        apply = self.search([('flow_id', '=', flow_id)])
+        if refuse:
+            apply.state = 'oa_refuse'  # 审批拒绝
+        else:
+            apply.state = 'oa_accept'  # 审批通过
