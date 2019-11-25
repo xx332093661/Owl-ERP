@@ -816,6 +816,17 @@ class ApiMessage(models.Model):
                 if attr.get('name') == '规格':
                     return attr.get('value')
 
+        def get_cost_type():
+            """计算核算类型
+            香烟类型为门店核算，其他为公司核算
+            """
+            big_class = material.get('bigClass', '').strip()
+            if big_class == '香烟':
+                return 'store'
+
+            return 'company'
+
+
         product_obj = self.env['product.template']
         uom_obj = self.env['uom.uom']
         category_obj = self.env['product.category']
@@ -854,6 +865,7 @@ class ApiMessage(models.Model):
                 # 'seller_ids': get_supplier(),  # 供应商
                 'type': 'product',  # 产品类型
                 'tracking': 'none',  # 追溯
+                'cost_type': get_cost_type(), # 核算类型
             }
 
             product = product_obj.search([('default_code', '=', material['materialCode'])])
