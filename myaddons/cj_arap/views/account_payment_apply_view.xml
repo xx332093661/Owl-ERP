@@ -133,6 +133,6 @@
                   id="menu_action_account_payment_apply_purchase"
                   groups="purchase.group_purchase_user"
                   parent="cj_purchase.menu_purchase_operation"
-                  sequence="5"/>
+                  sequence="50"/>
     </data>
 </odoo>
