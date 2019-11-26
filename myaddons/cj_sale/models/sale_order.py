@@ -268,14 +268,14 @@ class SaleOrder(models.Model):
             if line['product_uom_qty'] > qty:
                 raise ValidationError('商品：%s订单数量：%s不能大于营销活动的剩余数量：%s！' % (product_name, line['product_uom_qty'], qty))
 
-    @api.model
-    def default_get(self, fields_list):
-        res = super(SaleOrder, self).default_get(fields_list)
-        default_special_order_mark = self._context.get('default_special_order_mark')
-        if default_special_order_mark == 'gift':
-            res['payment_term_id'] = self.env.ref('account.account_payment_term_immediate').id  # 赠品订单立即付款
-
-        return res
+    # @api.model
+    # def default_get(self, fields_list):
+    #     res = super(SaleOrder, self).default_get(fields_list)
+    #     default_special_order_mark = self._context.get('default_special_order_mark')
+    #     if default_special_order_mark == 'gift':
+    #         res['payment_term_id'] = self.env.ref('account.account_payment_term_immediate').id  # 赠品订单立即付款
+    #
+    #     return res
 
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
@@ -298,6 +298,11 @@ class SaleOrder(models.Model):
         """团购标记处理"""
         if self._context.get('group_flag') == 'group':
             val.update({'group_flag': 'group'})
+
+        # 赠品订单立即付款
+        default_special_order_mark = self._context.get('default_special_order_mark')
+        if default_special_order_mark == 'gift':
+            val['payment_term_id'] = self.env.ref('account.account_payment_term_immediate').id
 
         # todo 大数量团购处理
         return super(SaleOrder, self).create(val)

@@ -178,6 +178,28 @@
             }"/>
         </function>
 
+        <!--川酒信息：出纳-->
+        <function id="partner_cj_account_cashier" model="res.partner" name="create">
+            <value model="res.partner" eval="{
+                'name': '川酒信息：出纳',
+                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
+                'customer': False,
+                'supplier': False,
+                'is_company': False,
+                'email': 'cl@cj.com',
+            }"/>
+        </function>
+        <function id="user_cj_account_cashier" model="res.users" name="create">
+            <value model="res.users" eval="{
+                'partner_id': obj().env['res.partner'].search([('email', '=', 'cl@cj.com')]).id,
+                'company_id': obj().env['res.company'].search([('code', '=', '02014')]).id,
+                'login': 'cl@cj.com',
+                'password': '123456',
+                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02014')]).id])]).ids)],
+                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('cj_arap.group_account_cashier')])],
+            }"/>
+        </function>
+
         <!--川酒信息：财务专员-->
         <function id="partner_cj_account_invoice" model="res.partner" name="create">
             <value model="res.partner" eval="{
@@ -399,6 +421,28 @@
                 'password': '123456',
                 'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
                 'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('stock.group_stock_manager')])],
+            }"/>
+        </function>
+
+        <!--泸州电商：出纳-->
+        <function id="partner_lz_account_cashier" model="res.partner" name="create">
+            <value model="res.partner" eval="{
+                'name': '泸州电商：出纳',
+                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
+                'customer': False,
+                'supplier': False,
+                'is_company': False,
+                'email': 'cl@lz.com',
+            }"/>
+        </function>
+        <function id="user_lz_account_cashier" model="res.users" name="create">
+            <value model="res.users" eval="{
+                'partner_id': obj().env['res.partner'].search([('email', '=', 'cl@lz.com')]).id,
+                'company_id': obj().env['res.company'].search([('code', '=', '02020')]).id,
+                'login': 'cl@lz.com',
+                'password': '123456',
+                'company_ids': [(6, 0, obj().env['res.company'].search([('id', 'child_of', [obj().env['res.company'].search([('code', '=', '02020')]).id])]).ids)],
+                'groups_id': [(6,0,[ref('base.group_user'), ref('base.group_partner_manager'), ref('cj_arap.group_account_cashier')])],
             }"/>
         </function>
 
