@@ -44,6 +44,8 @@ class CjSend(models.Model):
         port = config_parameter_obj.get_param('cj_rabbit_mq_port_id', default='')
         exchange = config_parameter_obj.get_param('cj_rabbit_mq_send_exchange_id', default='')
 
+        _logger.info('发送数据，开始连接MQ服务器')
+
         credentials = pika.PlainCredentials(username, password)
         parameter = pika.ConnectionParameters(host=ip, port=port, credentials=credentials)
         connection = pika.BlockingConnection(parameter)
@@ -52,12 +54,15 @@ class CjSend(models.Model):
         channel.queue_declare('MDM-ERP-COST001-QUEUE', durable=True)
         channel.queue_bind(exchange=exchange, queue='MDM-ERP-COST001-QUEUE')
 
+        _logger.info('发送数据，连接MQ服务器成功！')
+
         res = self.get_product_cost(product_cost_date)
 
         if not res:
             return
 
         channel.basic_publish(exchange=exchange, routing_key='MDM-ERP-COST001-QUEUE', body=json.dumps(res))
+        _logger.info('发送数据成功！')
 
         # msg = {
         #     'routing_key': 'MDM-ERP-COST001-QUEUE',
