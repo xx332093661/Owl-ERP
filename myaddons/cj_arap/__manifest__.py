@@ -18,6 +18,7 @@
     'depends': ['cj_stock'],
 
     'data': [
+        'security/security.xml',
         'security/ir.model.access.csv',
         'security/rule.xml',
 

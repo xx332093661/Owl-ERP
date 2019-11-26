@@ -106,10 +106,8 @@ class CjOaApi(models.Model):
 
         val = json.dumps(val)
         headers = {'Content-Type': 'application/json'}
-        print(val)
         try:
             response = requests.post(url, val, headers=headers)
-            print(response)
             if response.status_code == 200:
 
                 flow_id = int(response.text)
@@ -224,16 +222,10 @@ class CjOaApi(models.Model):
     # 
     #     # files = {'file123': ('1.txt', {'file':open('D:\\test_data\\summer_test_data_05.txt','rb')})}
     #     file_name = '123'
-    #     print(upload_file)
     #     start = get_start_data()
     #     end = bytes("\r\n--" + FILE_BOUNDARY + "--\r\n", encoding="utf8")
-    #     print(type(start))
-    #     print(type(open(upload_file, 'rb')))
     #     files = {'file': start + open(upload_file, 'rb') + end}
-    #     print('file')
-    #     print(files)
     #     r = requests.post(url, files=files, headers=headers)
-    #     print(r.text)
 
 
 
