@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from odoo import models, api
 from datetime import datetime, timedelta
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare, config
 from .rabbit_mq_send import SEND_QUEUE
 
 import logging
 import json
 import pytz
+import socket
 
 
 _logger = logging.getLogger(__name__)
@@ -18,6 +19,18 @@ class CjSend(models.Model):
 
     @api.model
     def do_send(self, product_cost_date=None):
+        rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去连RabbitMQ
+        if rabbitmq_ip:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            try:
+                s.connect(('8.8.8.8', 80))
+                ip = s.getsockname()[0]
+                # _logger.info('开启MQ客户端，本机ip：%s', ip)
+                if ip != rabbitmq_ip:
+                    return
+            finally:
+                s.close()
+
         self.send_product_cost(product_cost_date)
 
     def send_product_cost(self, product_cost_date=None):
