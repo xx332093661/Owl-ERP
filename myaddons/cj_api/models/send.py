@@ -63,6 +63,7 @@ class CjSend(models.Model):
 
         channel.basic_publish(exchange=exchange, routing_key='MDM-ERP-COST001-QUEUE', body=json.dumps(res))
         _logger.info('发送数据成功！')
+        connection.close()
 
         # msg = {
         #     'routing_key': 'MDM-ERP-COST001-QUEUE',
