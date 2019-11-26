@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import pika
+
 from odoo import models, api
 from datetime import datetime, timedelta
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare, config
@@ -35,16 +37,33 @@ class CjSend(models.Model):
 
     def send_product_cost(self, product_cost_date=None):
         """发送商品成本"""
+        config_parameter_obj = self.env['ir.config_parameter'].sudo()
+        username = config_parameter_obj.get_param('cj_rabbit_mq_username_id', default='')
+        password = config_parameter_obj.get_param('cj_rabbit_mq_password_id', default='')
+        ip = config_parameter_obj.get_param('cj_rabbit_mq_ip_id', default='')
+        port = config_parameter_obj.get_param('cj_rabbit_mq_port_id', default='')
+        exchange = config_parameter_obj.get_param('cj_rabbit_mq_send_exchange_id', default='')
+
+        credentials = pika.PlainCredentials(username, password)
+        parameter = pika.ConnectionParameters(host=ip, port=port, credentials=credentials)
+        connection = pika.BlockingConnection(parameter)
+        channel = connection.channel()
+        channel.exchange_declare(exchange=self.exchange, exchange_type='direct')
+        channel.queue_declare('MDM-ERP-COST001-QUEUE', durable=True)
+        channel.queue_bind(exchange=exchange, queue='MDM-ERP-COST001-QUEUE')
+
         res = self.get_product_cost(product_cost_date)
 
         if not res:
             return
 
-        msg = {
-            'routing_key': 'MDM-ERP-COST001-QUEUE',
-            'body': json.dumps(res)
-        }
-        SEND_QUEUE.put(msg)
+        channel.basic_publish(exchange=exchange, routing_key='MDM-ERP-COST001-QUEUE', body=json.dumps(res))
+
+        # msg = {
+        #     'routing_key': 'MDM-ERP-COST001-QUEUE',
+        #     'body': json.dumps(res)
+        # }
+        # SEND_QUEUE.put(msg)
 
     def get_product_cost(self, date=None):
         """获取前一天的成本价

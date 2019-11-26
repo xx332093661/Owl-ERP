@@ -156,7 +156,7 @@ class ApiMessage(models.Model):
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-RETURN-STOCKIN-QUEUE')   # 退货入库单数据
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-REFUND-ERP-QUEUE')   # 退款单数据
 
-        self.start_mq_thread_by_name('RabbitMQSendThread', 'rabbit_mq_send_thread')
+        # self.start_mq_thread_by_name('RabbitMQSendThread', 'rabbit_mq_send_thread')
 
     @staticmethod
     def start_mq_thread_by_name(class_name, thread_name):
