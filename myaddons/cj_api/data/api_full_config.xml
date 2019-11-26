@@ -26,7 +26,7 @@
             <field name="queue_name">物料</field>
         </record>
         <record id='api_full_config4' model='api.full.config'>
-            <field name="company_code">02020</field>
+            <field name="company_code">02020,02014</field>
             <field name="source_code">dms_warehouse</field>
             <field name="system_code">Owl</field>
             <field name="secret_key">Li790zOlnHyutDeXEeNaS4Eh8oy7aHwM</field>
