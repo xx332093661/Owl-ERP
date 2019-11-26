@@ -56,8 +56,8 @@ class CjSend(models.Model):
         connection = pika.BlockingConnection(parameter)
         channel = connection.channel()
         channel.exchange_declare(exchange=exchange, exchange_type='direct')
-        # channel.queue_declare('MDM-ERP-COST001-QUEUE', durable=True)
-        # channel.queue_bind(exchange=exchange, queue='MDM-ERP-COST001-QUEUE')
+        channel.queue_declare('MDM-ERP-COST001-QUEUE', durable=True)
+        channel.queue_bind(exchange=exchange, queue='MDM-ERP-COST001-QUEUE')
 
         _logger.info('发送数据，连接MQ服务器成功！')
 
