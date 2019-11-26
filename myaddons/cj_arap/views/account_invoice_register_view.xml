@@ -206,6 +206,12 @@
                   groups="account.group_account_invoice"
                   sequence="18"/>
 
+        <!--在采购/操作/采购订单菜单后增加供应商发票登记-->
+        <menuitem action="action_account_invoice_register"
+                  id="menu_action_account_invoice_register_purchase"
+                  groups="purchase.group_purchase_user"
+                  parent="cj_purchase.menu_purchase_operation"
+                  sequence="49"/>
 
     </data>
 
