@@ -23,8 +23,8 @@
             <field name="arch" type="xml">
                 <form>
                     <header>
-                        <button name="action_draft" type="object" states="confirm,general_manager_refuse" string="设为草稿" groups="stock.group_stock_user"/>
-                        <button name="action_confirm" string="确认" type="object" states="draft" class="oe_highlight" groups="stock.group_stock_user"/>
+                        <button name="action_draft" type="object" states="confirm,general_manager_refuse" string="设为草稿" groups="stock.group_stock_user,sales_team.group_sale_salesman"/>
+                        <button name="action_confirm" string="确认" type="object" states="draft" class="oe_highlight" groups="stock.group_stock_user,sales_team.group_sale_salesman"/>
 
                         <button name="action_manager_confirm" string="经理审核" type="object" states="confirm" class="oe_highlight" groups="stock.group_stock_manager"/>
 
@@ -149,6 +149,13 @@
                   action="action_stock_material_requisition"
                   groups="stock.group_stock_user,cj_sale.group_sale_general_manage"
                   name="领料单" parent="stock.menu_stock_warehouse_mgmt" sequence="110"/>
+
+        <!--在销售/操作/客户发票申请后增加领料单菜单-->
+        <menuitem action="action_stock_material_requisition"
+                  id="menu_action_stock_material_requisition_sale"
+                  groups="sales_team.group_sale_salesman"
+                  parent="cj_sale.menu_sale_operation"
+                  sequence="110"/>
     </data>
 
     <!--退料单-->
@@ -177,7 +184,7 @@
                     <header>
                         <button name="action_confirm_return" string="确认" type="object"
                                 states="draft"
-                                class="oe_highlight" groups="stock.group_stock_user"/>
+                                class="oe_highlight" groups="stock.group_stock_user,sales_team.group_sale_salesman"/>
 
                         <field name="state" widget="statusbar" statusbar_visible="draft,picking,done" readonly="1"/>
                     </header>
@@ -256,6 +263,13 @@
                   action="action_stock_material_requisition_return"
                   groups="stock.group_stock_user"
                   name="退料单" parent="stock.menu_stock_warehouse_mgmt" sequence="111"/>
+
+        <!--在销售/操作/客户发票申请后增加退料单菜单-->
+        <menuitem action="action_stock_material_requisition_return"
+                  id="menu_action_stock_material_requisition_return_sale"
+                  groups="sales_team.group_sale_salesman"
+                  parent="cj_sale.menu_sale_operation"
+                  sequence="120"/>
 
     </data>
 
