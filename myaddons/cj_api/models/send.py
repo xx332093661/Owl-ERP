@@ -37,12 +37,17 @@ class CjSend(models.Model):
 
     def send_product_cost(self, product_cost_date=None):
         """发送商品成本"""
+        res = self.get_product_cost(product_cost_date)
+
+        if not res:
+            return
+
         config_parameter_obj = self.env['ir.config_parameter'].sudo()
         username = config_parameter_obj.get_param('cj_rabbit_mq_username_id', default='')
         password = config_parameter_obj.get_param('cj_rabbit_mq_password_id', default='')
         ip = config_parameter_obj.get_param('cj_rabbit_mq_ip_id', default='')
         port = config_parameter_obj.get_param('cj_rabbit_mq_port_id', default='')
-        exchange = config_parameter_obj.get_param('cj_rabbit_mq_send_exchange_id', default='')
+        exchange = config_parameter_obj.get_param('cj_rabbit_mq_send_exchange_id', default='')  # MDM-EXCHANGE-MUSTANG
 
         _logger.info('发送数据，开始连接MQ服务器')
 
@@ -55,11 +60,6 @@ class CjSend(models.Model):
         # channel.queue_bind(exchange=exchange, queue='MDM-ERP-COST001-QUEUE')
 
         _logger.info('发送数据，连接MQ服务器成功！')
-
-        res = self.get_product_cost(product_cost_date)
-
-        if not res:
-            return
 
         channel.basic_publish(exchange=exchange, routing_key='MDM-ERP-COST001-QUEUE', body=json.dumps(res))
         _logger.info('发送数据成功！')
