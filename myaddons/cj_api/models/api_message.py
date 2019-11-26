@@ -1197,9 +1197,9 @@ class ApiMessage(models.Model):
                 'product_amount': content.get('productAmount') / 100,  # 商品总金额
                 'total_amount': content.get('totalAmount') / 100,  # 订单总金额
 
-                'consignee_name': consignee['consigneeName'],  # 收货人名字
-                'consignee_mobile': consignee['consigneeMobile'],  # 收货人电话
-                'address': consignee['fullAddress'],  # 收货人地址
+                'consignee_name': consignee.get('consigneeName'),  # 收货人名字
+                'consignee_mobile': consignee.get('consigneeMobile'),  # 收货人电话
+                'address': consignee.get('fullAddress'),  # 收货人地址
                 'consignee_state_id': consignee_state_id,  # 省
                 'consignee_city_id': consignee_city_id,  # 市
                 'consignee_district_id': consignee_district_id,  # 区(县)
@@ -1214,7 +1214,7 @@ class ApiMessage(models.Model):
 
         def create_payment():
             """创建支付"""
-            payment_way = payment['paymentWay']  # 支付方式
+            payment_way = payment['paymentWay'].strip()  # 支付方式
             if payment_way == '对公转账':
                 journal_code = 'DG'
             elif payment_way == '内部代金券':
