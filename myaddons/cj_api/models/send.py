@@ -50,7 +50,7 @@ class CjSend(models.Model):
         parameter = pika.ConnectionParameters(host=ip, port=port, credentials=credentials)
         connection = pika.BlockingConnection(parameter)
         channel = connection.channel()
-        channel.exchange_declare(exchange=self.exchange, exchange_type='direct')
+        channel.exchange_declare(exchange=exchange, exchange_type='direct')
         channel.queue_declare('MDM-ERP-COST001-QUEUE', durable=True)
         channel.queue_bind(exchange=exchange, queue='MDM-ERP-COST001-QUEUE')
 
