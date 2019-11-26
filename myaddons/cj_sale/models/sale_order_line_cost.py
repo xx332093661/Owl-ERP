@@ -31,17 +31,17 @@ class SaleOrder(models.Model):
 
     cost_ids = fields.One2many('sale.order.line.cost', 'order_id', '销售订单明细成本')
 
-    write_off_amount = fields.Float('订单核销额', compute='_compute_write_off_amount', store=1, digits=(16, DIGITS))
+    write_off_amount = fields.Float('订单核销额', compute='_compute_write_off_amount', store=1, digits=(16, DIGITS), help='所有订单的总销售额 / 所有订单的成本 * 当前订单的成本')
 
     goods_cost = fields.Float('商品成本', compute='_compute_goods_cost', store=1, digits=(16, DIGITS))
     shipping_cost = fields.Float(string="物流成本", compute='_compute_shipping_cost', store=1, digits=(16, DIGITS))
     box_cost = fields.Float(string="纸箱成本")
     packing_cost = fields.Float(string="打包成本")
 
-    total_cost = fields.Float('总成本', compute='_compute_total_cost', store=1, digits=(16, DIGITS))
+    total_cost = fields.Float('总成本', compute='_compute_total_cost', store=1, digits=(16, DIGITS), help='总成本=订单商品成本+订单物流成本+订单纸箱成本+订单打包成本')
 
-    gross_profit = fields.Float('毛利', compute='_compute_gross_profit', store=1, digits=(16, DIGITS))
-    gross_profit_rate = fields.Float('毛利率', compute='_compute_gross_profit_rate', store=1, digits=(16, DIGITS))
+    gross_profit = fields.Float('毛利', compute='_compute_gross_profit', store=1, digits=(16, DIGITS), help='订单毛利 = 订单核销额 - 订单总成本')
+    gross_profit_rate = fields.Float('毛利率', compute='_compute_gross_profit_rate', store=1, digits=(16, DIGITS), help='订单毛利率 = 订单毛利 / 订单核销额 * 100')
 
     @api.multi
     @api.depends('cost_ids')
@@ -76,7 +76,7 @@ class SaleOrder(models.Model):
     @api.depends('amount_total', 'total_cost', 'child_ids.amount_total', 'child_ids.total_cost', 'parent_id.amount_total', 'parent_id.total_cost')
     def _compute_write_off_amount(self):
         """计算商品核销额
-        订单的核销额 = （所有订单的总销售额）/ 所有订单的成本 * 当前订单的成本
+        订单的核销额 = 所有订单的总销售额 / 所有订单的成本 * 当前订单的成本
         所有订单的总销售额：amount_total
         所有订单的成本：total_cost
         当前订单的成本：order.total_cost
@@ -138,16 +138,16 @@ class SaleOrderLine(models.Model):
     cost_ids = fields.One2many('sale.order.line.cost', 'line_id', '销售订单行商品成本明细')
 
     goods_cost = fields.Float('商品成本', compute='_compute_goods_cost', store=1, digits=(16, DIGITS))
-    shipping_cost = fields.Float("物流成本", compute='_compute_shipping_cost', store=1, digits=(16, DIGITS))
+    shipping_cost = fields.Float("物流成本", compute='_compute_shipping_cost', store=1, digits=(16, DIGITS), help='订单行物流成本 = 订单物流成本 / 订单商品成本 * 订单行商品成本')
     box_cost = fields.Float("纸箱成本", compute='_compute_box_cost', store=1, digits=(16, DIGITS))
     packing_cost = fields.Float("打包成本", compute='_compute_packing_cost', store=1, digits=(16, DIGITS))
 
     total_cost = fields.Float('总成本', compute='_compute_total_cost', store=1, digits=(16, DIGITS))
 
-    unit_cost = fields.Float('单位成本', compute='_compute_unit_cost', store=1, digits=(16, DIGITS))
-    cost_price = fields.Float('核销单价', compute='_compute_cost_price', store=1, digits=(16, DIGITS))
-    gross_profit = fields.Float('毛利', compute='_compute_gross_profit', store=1, digits=(16, DIGITS))
-    gross_profit_rate = fields.Float('毛利率', compute='_compute_gross_profit_rate', store=1, digits=(16, DIGITS))
+    unit_cost = fields.Float('单位成本', compute='_compute_unit_cost', store=1, digits=(16, DIGITS), help='单位成本 = 订单行总成本/ 发货数量')
+    cost_price = fields.Float('核销单价', compute='_compute_cost_price', store=1, digits=(16, DIGITS), help='a、订单行销售单价等于0：核销单价= 订单核销额 / 订单总成本 * 订单行单位成本\nb、订单行销售单价大于0：核销单价= 订单核销额 / 订单销售总额 * 订单行销售单价')
+    gross_profit = fields.Float('毛利', compute='_compute_gross_profit', store=1, digits=(16, DIGITS), help='订单行毛利 = 订单行核销单价 * 订单行数量 - 订单行总成本')
+    gross_profit_rate = fields.Float('毛利率', compute='_compute_gross_profit_rate', store=1, digits=(16, DIGITS), help='商品行毛利率 = 订单行毛利 / (订单行核销单价 * 订单行数量) * 100')
 
     @api.multi
     @api.depends('cost_ids')
@@ -237,7 +237,9 @@ class SaleOrderLine(models.Model):
     @api.multi
     @api.depends('total_cost', 'qty_delivered')
     def _compute_unit_cost(self):
-        """计算订单行单位成本"""
+        """计算订单行单位成本
+        单位成本 = 订单行总成本/ 发货数量
+        """
         for line in self:
             if float_is_zero(line.qty_delivered, precision_digits=DIGITS):
                 continue

@@ -78,7 +78,7 @@
                             <!--<field name="confirmation_date" attrs="{'invisible': [('state', 'in', ['draft', 'sent', 'cancel'])]}"/>-->
                             <field name="pricelist_id" groups="product.group_sale_pricelist"/>
                             <field name="currency_id" invisible="1"/>
-                            <!--<field name="payment_term_id" options="{'no_create': True}"/>-->
+                            <field name="payment_term_id" invisible="1"/>
                             <!--<field name="purchase_apply_id"/>-->
                         </group>
                     </group>
@@ -204,6 +204,8 @@
                                     <field name="customer_lead" invisible="1"/>
                                     <field name="currency_id" invisible="1"/>
                                     <field name="price_tax" invisible="1"/>
+                                    <!--<field name="warehouse_id" invisible="1"/>-->
+                                    <!--<field name="owner_id" invisible="1"/>-->
                                     <field name="goods_cost"/>
                                     <field name="shipping_cost"/>
                                     <field name="box_cost"/>

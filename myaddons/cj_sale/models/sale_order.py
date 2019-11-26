@@ -269,6 +269,15 @@ class SaleOrder(models.Model):
                 raise ValidationError('商品：%s订单数量：%s不能大于营销活动的剩余数量：%s！' % (product_name, line['product_uom_qty'], qty))
 
     @api.model
+    def default_get(self, fields_list):
+        res = super(SaleOrder, self).default_get(fields_list)
+        default_special_order_mark = self._context.get('default_special_order_mark')
+        if default_special_order_mark == 'gift':
+            res['payment_term_id'] = self.env.ref('account.account_payment_term_immediate').id  # 赠品订单立即付款
+
+        return res
+
+    @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
         """禁止销售总经理和财务修改单据"""
         result = super(SaleOrder, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)

@@ -61,5 +61,22 @@ class SaleOrderLine(models.Model):
     #             'price_subtotal': taxes['total_excluded'] - line.discount_amount - line.discount_pop - line.discount_coupon - line.discount_grant,
     #         })
 
+    def product_id_change(self):
+        res = super(SaleOrderLine, self).product_id_change()
+
+        default_special_order_mark = self._context.get('default_special_order_mark')
+        if default_special_order_mark == 'gift':
+            self.price_unit = 0
+        return res
+
+    def product_uom_change(self):
+        res = super(SaleOrderLine, self).product_uom_change()
+
+        default_special_order_mark = self._context.get('default_special_order_mark')
+        if default_special_order_mark == 'gift':
+            self.price_unit = 0
+        return res
+
+
 
 

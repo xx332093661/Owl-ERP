@@ -12,7 +12,7 @@
     'version': '0.1',
     'depends': ['base'],
     'data': [
-        # 'data/test_users.xml',
+        'data/test_users.xml',
         # 'data/users.xml',
     ],
     'demo': [
