@@ -213,9 +213,10 @@ class AccountPayment(models.Model):
             vals['invoice_register_id'] = apply.invoice_register_id.id
 
         if default_payment_type == 'inbound':  # 收款
-            invoice_register = self.env['account.invoice.register'].browse(vals['invoice_register_id'])  # 发票登记
-            vals['amount'] = invoice_register.amount
-            vals['customer_invoice_apply_id'] = invoice_register.customer_invoice_apply_id.id
+            if vals.get('invoice_register_id'):
+                invoice_register = self.env['account.invoice.register'].browse(vals['invoice_register_id'])  # 发票登记
+                vals['amount'] = invoice_register.amount
+                vals['customer_invoice_apply_id'] = invoice_register.customer_invoice_apply_id.id
 
         res = super(AccountPayment, self).create(vals)
         if default_payment_type == 'outbound':  # 付款
@@ -224,8 +225,10 @@ class AccountPayment(models.Model):
             res.invoice_register_id.state = 'wait_pay'
 
         if default_payment_type == 'inbound':  # 收款
-            res.invoice_register_id.state = 'wait_pay'
-            res.customer_invoice_apply_id.state = 'paiding'
+            if res.invoice_register_id:
+                res.invoice_register_id.state = 'wait_pay'
+            if res.customer_invoice_apply_id:
+                res.customer_invoice_apply_id.state = 'paiding'
 
         # if res.sale_order_id:
         #     if res.sale_order_id.state == 'oa_refuse':
@@ -245,7 +248,8 @@ class AccountPayment(models.Model):
         for res in self:
             if res.apply_id:
                 res.apply_id.state = 'oa_accept'
-            res.invoice_register_id.state = 'manager_confirm'
+            if res.invoice_register_id:
+                res.invoice_register_id.state = 'manager_confirm'
             if res.customer_invoice_apply_id:
                 res.customer_invoice_apply_id.state = 'register'
 
@@ -340,24 +344,28 @@ class AccountPayment(models.Model):
                     self.write({'invoice_ids': [(4, invoice.id, None)]})
 
         if default_payment_type == 'inbound':  # 收款
-            self.invoice_register_id.state = 'paid'  # 修改发票登记的状态
-            self.customer_invoice_apply_id.state = 'done'
+            if self.invoice_register_id:
+                self.invoice_register_id.state = 'paid'  # 修改发票登记的状态
+            if self.customer_invoice_apply_id:
+                self.customer_invoice_apply_id.state = 'done'
             # self.customer_invoice_apply_id.state = 'done'
-            for line in self.invoice_register_id.line_ids:
-                invoice_split = line.invoice_split_id  # 账单分期
-                amount_residual = invoice_split.amount - invoice_split.paid_amount  # 账单分期未支付余额
 
-                vals = {'paid_amount': invoice_split.paid_amount + line.invoice_amount}
-                if float_compare(amount_residual, line.invoice_amount, precision_digits=2) == 0:  # 如果核销完，修改账单分期状态
-                    vals['state'] = 'paid'
+            if self.invoice_register_id:
+                for line in self.invoice_register_id.line_ids:
+                    invoice_split = line.invoice_split_id  # 账单分期
+                    amount_residual = invoice_split.amount - invoice_split.paid_amount  # 账单分期未支付余额
 
-                invoice_split.write(vals)
+                    vals = {'paid_amount': invoice_split.paid_amount + line.invoice_amount}
+                    if float_compare(amount_residual, line.invoice_amount, precision_digits=2) == 0:  # 如果核销完，修改账单分期状态
+                        vals['state'] = 'paid'
 
-                invoice = invoice_split.invoice_id
-                if invoice:
-                    aml = self.move_line_ids.filtered(lambda x: x.credit > 0)
-                    invoice.register_payment(aml, amount=line.invoice_amount)
-                    self.write({'invoice_ids': [(4, invoice.id, None)]})
+                    invoice_split.write(vals)
+
+                    invoice = invoice_split.invoice_id
+                    if invoice:
+                        aml = self.move_line_ids.filtered(lambda x: x.credit > 0)
+                        invoice.register_payment(aml, amount=line.invoice_amount)
+                        self.write({'invoice_ids': [(4, invoice.id, None)]})
 
 
             # invoice_split_all_done = all([r.state in ['paid', 'cancel'] for r in self.invoice_split_ids])  # 所有账单分期支付完成
