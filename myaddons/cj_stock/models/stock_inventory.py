@@ -265,22 +265,55 @@ class InventoryLine(models.Model):
     def _onchange_product_id(self):
         if not self.company_id or not self.product_id:
             return
+
         cost_group_obj = self.env['account.cost.group']  # 成本核算分组
         valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
         product_cost_obj = self.env['product.cost']  # 商品成本
 
-        cost_group = cost_group_obj.search([('store_ids', '=', self.company_id.id)])
-        if cost_group:
-            if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', self.product_id.id), ('stock_type', '=', 'all')]):
+        product_id = self.product_id.id
+        company = self.company_id
+        company_id = company.id
+
+        cost_type = self.product_id.cost_type  # 核算类型 store：门店  company：公司
+        if cost_type == 'store':
+            domain = [('product_id', '=', product_id), ('company_id', '=', company_id), ('stock_type', '=', 'only')]
+            valuation_move = valuation_move_obj.search(domain)
+            if valuation_move:
                 self.is_init = 'no'
             else:
                 self.is_init = 'yes'
-                product_cost = product_cost_obj.search([('company_id', '=', self.company_id.id), ('product_id', '=', self.product_id.id)], order='id desc', limit=1)
-                if product_cost:
-                    self.cost = product_cost.cost
-            return
+                # 当前公司
+                product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                # 上级公司
+                if not product_cost:
+                    product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                # 无公司
+                if not product_cost:
+                    product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
 
-        raise ValidationError('公司：%s没有成本核算组！' % self.company_id.name)
+                if product_cost:
+                    return product_cost.cost
+        # 公司核算
+        else:
+            cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
+            if not cost_group:
+                raise ValidationError('公司：%s没有成本核算组！' % company.name)
+
+            if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id), ('stock_type', '=', 'all')]):
+                self.is_init = 'no'
+            else:
+                self.is_init = 'yes'
+                # 当前公司
+                product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                # 上级公司
+                if not product_cost:
+                    product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                # 无公司
+                if not product_cost:
+                    product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
+
+                if product_cost:
+                    return product_cost.cost
 
     @api.constrains('cost', 'product_qty')
     def _check_cost_product_qty(self):
@@ -334,37 +367,77 @@ class InventoryLine(models.Model):
 
     @api.model
     def create(self, vals):
-        def get_is_init():
-            """计算商品是否是初次盘点"""
-            cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
-            if cost_group:
-                if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id)]):
-                    return 'no'
-                return 'yes'
+        def get_init_cost():
+            """计算商品是否是初次盘点和初次盘点的成本"""
+            cost = 0
+            cost_type = product.cost_type # 核算类型 store：门店  company：公司
+            if cost_type == 'store':
+                domain = [('product_id', '=', product_id), ('company_id', '=', company_id), ('stock_type', '=', 'only')]
+                valuation_move = valuation_move_obj.search(domain)
+                if valuation_move:
+                    is_init = 'no'
+                else:
+                    is_init = 'yes'
 
-            # raise my_validation_error('29', '%s没有成本核算分组' % company.name)
+                if is_init == 'yes':
+                    # 当前公司
+                    product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                    # 上级公司
+                    if not product_cost:
+                        product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                    # 无公司
+                    if not product_cost:
+                        product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
+                    if not product_cost:
+                        raise my_validation_error('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
+                    cost = product_cost.cost
 
-        def get_cost():
-            """计算初次盘点成本"""
-            if is_init == 'no':
-                return 0
+            else:
+                cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
+                if not cost_group:
+                    raise my_validation_error('29', '%s没有成本核算分组' % company.name)
 
-            # 当前公司
-            product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
-            if product_cost:
-                return product_cost.cost
+                if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id), ('stock_type', '=', 'all')]):
+                    is_init = 'no'
+                else:
+                    is_init = 'yes'
+                    # 当前公司
+                    product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                    # 上级公司
+                    if not product_cost:
+                        product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                    # 无公司
+                    if not product_cost:
+                        product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
 
-            # 上级公司
-            product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
-            if product_cost:
-                return product_cost.cost
+                    if not product_cost:
+                        raise my_validation_error('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
 
-            # 无公司
-            product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
-            if product_cost:
-                return product_cost.cost
+                    cost = product_cost.cost
 
-            raise my_validation_error('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
+            return is_init, cost
+
+        # def get_cost():
+        #     """计算初次盘点成本"""
+        #     if is_init == 'no':
+        #         return 0
+        #
+        #     # 当前公司
+        #     product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+        #     if product_cost:
+        #         return product_cost.cost
+        #
+        #     # 上级公司
+        #     product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
+        #     if product_cost:
+        #         return product_cost.cost
+        #
+        #     # 无公司
+        #     product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
+        #     if product_cost:
+        #         return product_cost.cost
+        #
+        #     raise my_validation_error('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
 
         module = importlib.import_module('odoo.addons.cj_api.models.api_message')
         my_validation_error = module.MyValidationError
@@ -385,13 +458,12 @@ class InventoryLine(models.Model):
         company = company_obj.browse(company_id)
         product = product_obj.browse(product_id)
 
-        is_init = get_is_init()
+        _is_init, init_cost = get_init_cost()  # 计算商品是否是初次盘点和初次盘点的成本
         vals.update({
-            'is_init': is_init,
+            'is_init': _is_init,
+            'cost': init_cost
         })
-        # if not vals.get('cost'):
-        vals['cost'] = get_cost()
-        # 计算是否是初次盘点
+
         return super(InventoryLine, self).create(vals)
 
 
