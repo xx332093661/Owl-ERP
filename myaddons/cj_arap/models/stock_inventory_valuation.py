@@ -253,17 +253,17 @@ class StockInventoryValuationMove(models.Model):
                 return stock_cost
 
             # 采购入库/跨公司调入/易耗品入库
-            # 采购入库：成本取对应采购订单明细的采购价
-            # 跨公司调入：成本取对应采购订单明细的采购价
-            # 易耗品入库：成本取对应采购订单明细的采购价
+            # 采购入库：成本取对应采购订单明细的采购价(不含税)
+            # 跨公司调入：成本取对应采购订单明细的采购价(不含税)
+            # 易耗品入库：成本取对应采购订单明细的采购价(不含税)
             if move.purchase_line_id:  # 采购明细
                 if across_move_obj.search([('purchase_order_id', '=', move.purchase_line_id.order_id.id)]):
-                    return move.purchase_line_id.price_unit  # 跨公司调入
+                    return move.purchase_line_id.untax_price_unit  # 跨公司调入
 
                 if consu_apply_obj.search([('purchase_order_id', '=', move.purchase_line_id.order_id.id)]):
-                    return move.purchase_line_id.price_unit  # 易耗品入库
+                    return move.purchase_line_id.untax_price_unit  # 易耗品入库
 
-                return move.purchase_line_id.price_unit  # 采购入库
+                return move.purchase_line_id.untax_price_unit  # 采购入库
 
             # 领料退库
             if move.material_requisition_id:
