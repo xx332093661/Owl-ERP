@@ -462,8 +462,8 @@ class ApiMessage(models.Model):
             if not supplier_group:
                 raise MyValidationError('34', '供应商组：%s没有找到！' % supplier['supplierGroup'])
 
-            state_id = self.get_country_state_id(supplier['province'])
-            city_id = self.get_city_area_id(supplier['city'], state_id)
+            state_id = self.get_country_state_id(supplier['provinceName'])
+            city_id = self.get_city_area_id(supplier['cityName'], state_id)
             val = {
                 'supplier': True,
                 'customer': False,
@@ -478,10 +478,10 @@ class ApiMessage(models.Model):
                 'legal_entity': supplier['legalEntity'],  # 法人
                 'legal_entity_id_card': supplier['legalEntityId'],  # 法人身份证号
                 'status': supplier['status'],  # 川酒状态(('0', '正常'), ('1', '冻结'), ('2', '废弃'))
-                'country_id': self.get_country_id(supplier['country']),  # 国家
+                'country_id': self.get_country_id(supplier['countryName']),  # 国家
                 'state_id': state_id,  # 省份
                 'city_id': city_id,  # 城市
-                'street2': supplier['area'],  # 区县
+                'street2': supplier['areaName'],  # 区县
                 'street': supplier['address'],  # 街道地址
             }
 
