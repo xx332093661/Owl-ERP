@@ -5,10 +5,9 @@ from datetime import timedelta, datetime
 from odoo import fields, models, api
 from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_is_zero
 from odoo.addons.cj_arap.models.account_payment_term import PAYMENT_TERM_TYPE
 
-import importlib
 import logging
 import traceback
 
@@ -152,7 +151,7 @@ class PurchaseOrder(models.Model):
         if not self.order_line:
             raise ValidationError('请输入要采购的商品！')
 
-        if any([line.product_uom_qty < 0 for line in self.order_line]):
+        if any([line.product_uom_qty <= 0 for line in self.order_line]):
             raise ValidationError('采购数量必须大于0！')
 
         self.state = 'confirm'
@@ -390,6 +389,12 @@ class PurchaseOrder(models.Model):
             picking_type = picking_type_obj.search([('warehouse_id.company_id', '=', self.company_id.id), ('code', '=', 'incoming')], limit=1)
             self.picking_type_id = picking_type.id
 
+        # 修改订单明细的税
+        if self.company_id:
+            company_id = self.company_id.id
+            for line in self.order_line:
+                line.taxes_id = [(5, 0)]
+
         return {}
 
     @api.onchange('contract_id')
@@ -437,9 +442,13 @@ class PurchaseOrder(models.Model):
         if cost_group:
             for line in order_lines:
                 stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group.id, self.company_id.id)
-                if line.price_unit > stock_cost:
-                    cost_notice.append('%s当前采购价格为%s元，比当前库存成本价高%s%%' % (
-                    line.product_id.name, line.price_unit, (line.price_unit - stock_cost) * 100 / stock_cost))
+                print(stock_cost)
+                if float_is_zero(stock_cost, precision_rounding=0.001):
+                    cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s' % (line.product_id.partner_ref, line.price_unit, stock_cost))
+                else:
+                    if line.price_unit > stock_cost:
+                        cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s，比当前库存成本价高%s%%' % (
+                        line.product_id.partner_ref, line.price_unit, stock_cost, (line.price_unit - stock_cost) * 100 / stock_cost))
 
         cost_notice = '\n'.join(cost_notice)
 

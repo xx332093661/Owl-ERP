@@ -85,12 +85,14 @@ access_account_invoice_line_cashier,account.invoice.line.cashier,account.model_a
 access_account_invoice_tax_cashier,account.invoice.tax cashier,account.model_account_invoice_tax,cj_arap.group_account_cashier,1,0,0,0
 access_account_move_cashier,account.move cashier,account.model_account_move,cj_arap.group_account_cashier,1,1,1,1
 access_account_move_line_cashier,account.move.line cashier,account.model_account_move_line,cj_arap.group_account_cashier,1,1,1,1
-access_account_partial_reconcile_cashier,account.partial.reconcile cashier,account.model_account_partial_reconcile,cj_arap.group_account_cashier,1,0,0,0
+access_account_partial_reconcile_cashier,account.partial.reconcile cashier,account.model_account_partial_reconcile,cj_arap.group_account_cashier,1,1,1,0
 access_account_journal_cashier,account.journal cashier,account.model_account_journal,cj_arap.group_account_cashier,1,0,0,0
 access_account_payment_method_cashier,account.payment.method cashier,account.model_account_payment_method,cj_arap.group_account_cashier,1,0,0,0
 access_account_invoice_register_cashier,account_invoice_register cashier,model_account_invoice_register,cj_arap.group_account_cashier,1,0,0,0
 access_account_customer_invoice_apply_cashier,account_customer_invoice_apply cashier,model_account_customer_invoice_apply,cj_arap.group_account_cashier,1,0,0,0
 access_account_account_type_cashier,account.account.type cashier,account.model_account_account_type,cj_arap.group_account_cashier,1,0,0,0
+
+access_account_partial_reconcile_stock_user,account.partial.reconcile stock_user,account.model_account_partial_reconcile,stock.group_stock_user,1,1,1,0
 
 
 
