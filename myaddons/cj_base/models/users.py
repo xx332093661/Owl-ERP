@@ -7,6 +7,8 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
     _name = 'res.users'
 
+    oa_code = fields.Char('OA编号')
+
     notification_type = fields.Selection([
         ('email', '通过电子邮件处理'),
         ('inbox', '在Odoo中处理')],
