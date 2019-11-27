@@ -181,39 +181,43 @@
                                     <field name="product_custom_attribute_value_ids" invisible="1"/>
                                     <field name="product_no_variant_attribute_value_ids" invisible="1"/>
                                     <field name="name" widget="section_and_note_text"  invisible="1"/>
-                                    <field name="product_uom_qty" string="数量" context="{'partner_id': parent.partner_id, 'quantity': product_uom_qty, 'pricelist': parent.pricelist_id, 'uom': product_uom,  'company_id': parent.company_id}"/>
-                                    <field name="qty_delivered" attrs="{'column_invisible': [('parent.state', 'not in', ['sale', 'done'])],'readonly': [('qty_delivered_method', '!=', 'manual')]}"/>
+                                    <field name="product_uom_qty" string="订单数"
+                                           context="{'partner_id': parent.partner_id, 'quantity': product_uom_qty, 'pricelist': parent.pricelist_id, 'uom': product_uom,  'company_id': parent.company_id}"/>
+                                    <field name="qty_delivered" string="发货数" attrs="{'column_invisible': [('parent.state', 'not in', ['sale', 'done'])],'readonly': [('qty_delivered_method', '!=', 'manual')]}"/>
                                     <field name="qty_delivered_manual" invisible="1"/>
                                     <field name="qty_delivered_method" invisible="1"/>
-                                    <field name="qty_invoiced" attrs="{'column_invisible': [('parent.state', 'not in', ['sale', 'done'])]}"/>
+                                    <field name="qty_invoiced" string="开票数" attrs="{'column_invisible': [('parent.state', 'not in', ['sale', 'done'])]}"/>
                                     <field name="qty_to_invoice" invisible="1"/>
                                     <field name="product_uom" force_save="1"
+                                           invisible="1"
                                            attrs="{'readonly': [('state', 'in', ('sale','done', 'cancel'))],'required': [('display_type', '=', False)]}"
                                            context="{'company_id': parent.company_id}" groups="uom.group_uom"
                                            options="{'no_open': True}"/>
-                                    <field name="analytic_tag_ids" groups="analytic.group_analytic_tags" widget="many2many_tags"/>
+                                    <field name="analytic_tag_ids" groups="analytic.group_analytic_tags" widget="many2many_tags" invisible="1"/>
                                     <field name="price_unit" attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}"/>
                                     <field name="tax_id" widget="many2many_tags" options="{'no_create': True}"
                                            domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]"
-                                           attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}" invisible="1"/>
+                                           attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}" invisible="0"/>
                                     <field name="discount" groups="sale.group_discount_per_so_line" invisible="1"/>
-                                    <field name="price_subtotal" widget="monetary" groups="account.group_show_line_subtotals_tax_excluded"/>
-                                    <field name="price_total" widget="monetary" groups="account.group_show_line_subtotals_tax_included"/>
+                                    <field name="untax_price_unit"/>
+                                    <field name="price_tax" string="税金"/>
+                                    <field name="price_subtotal" string="不含税小计"/>
+                                    <field name="price_total" string="含税合计"/>
                                     <field name="state" invisible="1"/>
                                     <field name="invoice_status" invisible="1"/>
                                     <field name="customer_lead" invisible="1"/>
                                     <field name="currency_id" invisible="1"/>
-                                    <field name="price_tax" invisible="1"/>
+                                    <!--<field name="price_tax" invisible="1"/>-->
                                     <!--<field name="warehouse_id" invisible="1"/>-->
                                     <!--<field name="owner_id" invisible="1"/>-->
                                     <field name="goods_cost"/>
                                     <field name="shipping_cost"/>
-                                    <field name="box_cost"/>
-                                    <field name="packing_cost"/>
+                                    <!--<field name="box_cost"/>-->
+                                    <!--<field name="packing_cost"/>-->
                                     <field name="unit_cost"/>
                                     <field name="cost_price"/>
                                     <field name="gross_profit"/>
-                                    <field name="gross_profit_rate"/>
+                                    <!--<field name="gross_profit_rate"/>-->
                                 </tree>
                             </field>
                             <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
@@ -228,11 +232,11 @@
                                 <group>
                                     <field name="write_off_amount"/>
                                     <field name="goods_cost"/>
-                                    <field name="packing_cost" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
+                                    <!--<field name="packing_cost" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
                                     <field name="gross_profit"/>
                                 </group>
                                 <group>
-                                    <field name="box_cost" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
+                                    <!--<field name="box_cost" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
                                     <field name="shipping_cost"/>
                                     <field name="gross_profit_rate"/>
                                 </group>
@@ -304,7 +308,9 @@
                 <!--<field name="expected_date" groups="sale.group_sale_order_dates"/>-->
 
                 <field name="user_id"/>
-                <field name="amount_total" sum="Total Tax Included" widget="monetary"/>
+                <field name="amount_tax" string="税金" sum="Total"/>
+                <field name="amount_untaxed" string="不含税合计" sum="Total"/>
+                <field name="amount_total" sum="Total Tax Included" widget="monetary" string="含税合计"/>
                 <field name="currency_id" invisible="1"/>
                 <field name="state"/>
             </tree>
