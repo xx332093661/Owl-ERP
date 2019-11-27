@@ -1260,6 +1260,10 @@ class ApiMessage(models.Model):
 
         def create_sale_order_line(pid, qty, price):
             """创建订单行"""
+            tax_id = False
+            tax = tax_obj.search([('company_id', '=', company_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
+            if tax:
+                tax_id = [(6, 0, tax.ids)]
             order_line = order_line_obj.create({
                 'order_id': order_id,
                 'product_id': pid,
@@ -1267,6 +1271,7 @@ class ApiMessage(models.Model):
                 'price_unit': price,
                 'warehouse_id': warehouse_id,
                 'owner_id': company_id,
+                'tax_id': tax_id
             })
             return order_line
 
@@ -1278,6 +1283,7 @@ class ApiMessage(models.Model):
         channels_obj = self.env['sale.channels']
         partner_obj = self.env['res.partner']
         journal_obj = self.env['account.journal']
+        tax_obj = self.env['account.tax']
 
         content = json.loads(content)
 
