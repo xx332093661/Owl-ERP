@@ -4,7 +4,7 @@
     <!-- sales tax included -->
     <record id="l10n_chart_cj_sales_included_13" model="account.tax.template">
         <field name="chart_template_id" ref="l10n_chart_cj"/>
-        <field name="name">税收13％（含）</field>
+        <field name="name">税收13％</field>
         <field name="description">税收13％</field>
         <field name="amount">13</field>
         <field name="amount_type">percent</field>
@@ -17,7 +17,7 @@
 
     <record id="l10n_chart_cj_sales_included_16" model="account.tax.template">
         <field name="chart_template_id" ref="l10n_chart_cj"/>
-        <field name="name">税收16％（含）</field>
+        <field name="name">税收16％</field>
         <field name="description">税收16％</field>
         <field name="amount">16</field>
         <field name="amount_type">percent</field>
@@ -29,7 +29,7 @@
     </record>
     <record id="l10n_chart_cj_sales_included_06" model="account.tax.template">
         <field name="chart_template_id" ref="l10n_chart_cj"/>
-        <field name="name">税收6％（含）</field>
+        <field name="name">税收6％</field>
         <field name="description">税收6％</field>
         <field name="amount">6</field>
         <field name="amount_type">percent</field>
@@ -43,7 +43,7 @@
     <!-- sales tax excluded -->
     <!--<record id="l10n_chart_cj_sales_excluded_13" model="account.tax.template">-->
         <!--<field name="chart_template_id" ref="l10n_chart_cj"/>-->
-        <!--<field name="name">税收13％（含）</field>-->
+        <!--<field name="name">税收13％</field>-->
         <!--<field name="description">税收13％</field>-->
         <!--<field name="amount">13</field>-->
         <!--<field name="amount_type">percent</field>-->
@@ -55,7 +55,7 @@
     <!--</record>-->
     <!--<record id="l10n_chart_cj_sales_excluded_16" model="account.tax.template">-->
         <!--<field name="chart_template_id" ref="l10n_chart_cj"/>-->
-        <!--<field name="name">税收16％（含）</field>-->
+        <!--<field name="name">税收16％</field>-->
         <!--<field name="description">税收16％</field>-->
         <!--<field name="amount">16</field>-->
         <!--<field name="amount_type">percent</field>-->
@@ -67,7 +67,7 @@
     <!--</record>-->
     <!--<record id="l10n_chart_cj_sales_excluded_06" model="account.tax.template">-->
         <!--<field name="chart_template_id" ref="l10n_chart_cj"/>-->
-        <!--<field name="name">税收6％（含）</field>-->
+        <!--<field name="name">税收6％</field>-->
         <!--<field name="description">税收6％</field>-->
         <!--<field name="amount">6</field>-->
         <!--<field name="amount_type">percent</field>-->
@@ -82,7 +82,7 @@
     <!-- purchase tax excluded -->
     <record id="l10n_chart_cj_purchase_excluded_09" model="account.tax.template">
         <field name="chart_template_id" ref="l10n_chart_cj"/>
-        <field name="name">税收9％（含）</field>
+        <field name="name">税收9％</field>
         <field name="description">税收9％</field>
         <field name="amount">9</field>
         <field name="amount_type">percent</field>
@@ -94,7 +94,7 @@
     </record>
     <record id="l10n_chart_cj_purchase_excluded_13" model="account.tax.template">
         <field name="chart_template_id" ref="l10n_chart_cj"/>
-        <field name="name">税收13％（含）</field>
+        <field name="name">税收13％</field>
         <field name="description">税收13％</field>
         <field name="amount">13</field>
         <field name="amount_type">percent</field>
@@ -106,7 +106,7 @@
     </record>
     <record id="l10n_chart_cj_purchase_excluded_10" model="account.tax.template">
         <field name="chart_template_id" ref="l10n_chart_cj"/>
-        <field name="name">税收10％（含）</field>
+        <field name="name">税收10％</field>
         <field name="description">税收10％</field>
         <field name="amount">10</field>
         <field name="amount_type">percent</field>
@@ -118,7 +118,7 @@
     </record>
     <record id="l10n_chart_cj_purchase_excluded_16" model="account.tax.template">
         <field name="chart_template_id" ref="l10n_chart_cj"/>
-        <field name="name">税收16％（含）</field>
+        <field name="name">税收16％</field>
         <field name="description">税收16％</field>
         <field name="amount">16</field>
         <field name="amount_type">percent</field>
@@ -130,7 +130,7 @@
     </record>
     <record id="l10n_chart_cj_purchase_excluded_03" model="account.tax.template">
         <field name="chart_template_id" ref="l10n_chart_cj"/>
-        <field name="name">税收3％（含）</field>
+        <field name="name">税收3％</field>
         <field name="description">税收3％</field>
         <field name="amount">3</field>
         <field name="amount_type">percent</field>
@@ -142,7 +142,7 @@
     </record>
     <record id="l10n_chart_cj_purchase_excluded_05" model="account.tax.template">
         <field name="chart_template_id" ref="l10n_chart_cj"/>
-        <field name="name">税收5％（含）</field>
+        <field name="name">税收5％</field>
         <field name="description">税收5％</field>
         <field name="amount">5</field>
         <field name="amount_type">percent</field>
@@ -154,7 +154,7 @@
     </record>
     <record id="l10n_chart_cj_purchase_excluded_06" model="account.tax.template">
         <field name="chart_template_id" ref="l10n_chart_cj"/>
-        <field name="name">税收6％（含）</field>
+        <field name="name">税收6％</field>
         <field name="description">税收6％</field>
         <field name="amount">6</field>
         <field name="amount_type">percent</field>
