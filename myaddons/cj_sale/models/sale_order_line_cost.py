@@ -8,15 +8,16 @@ DIGITS = 3
 class SaleOrderLineCost(models.Model):
     _name = 'sale.order.line.cost'
     _description = '销售订单明细成本'
+    _order = 'order_id desc, line_id'
 
     line_id = fields.Many2one('sale.order.line', '订单明细', index=1)
     order_id = fields.Many2one('sale.order', '销售订单', index=1)
     product_id = fields.Many2one('product.product', '商品', index=1)
     product_qty = fields.Float('数量')
-    cost = fields.Float('成本')
+    cost = fields.Float('成本', digits=(16, DIGITS))
     done_datetime = fields.Datetime('完成时间')
     company_id = fields.Many2one('res.company', '公司')
-    total_cost = fields.Float('商品成本', compute='_compute_total_cost', store=1)
+    total_cost = fields.Float('商品成本', compute='_compute_total_cost', store=1, digits=(16, DIGITS))
     move_id = fields.Many2one('stock.move', '库存移动', index=1)
 
     @api.multi
@@ -46,7 +47,7 @@ class SaleOrder(models.Model):
     gross_profit_rate = fields.Float('毛利率', compute='_compute_gross_profit_rate', store=1, digits=(16, DIGITS), help='订单毛利率 = 订单毛利 / 订单核销额 * 100')
 
     @api.multi
-    @api.depends('cost_ids')
+    @api.depends('cost_ids', 'cost_ids.total_cost')
     def _compute_goods_cost(self):
         """计算订单商品成本(不含税)"""
         for order in self:
@@ -173,7 +174,7 @@ class SaleOrderLine(models.Model):
     gross_profit_rate = fields.Float('毛利率', compute='_compute_gross_profit_rate', store=1, digits=(16, DIGITS), help='商品行毛利率 = 订单行毛利 / (订单行核销单价 * 订单行数量) * 100')
 
     @api.multi
-    @api.depends('cost_ids')
+    @api.depends('cost_ids', 'cost_ids.total_cost')
     def _compute_goods_cost(self):
         """计算订单行商品成本(不含税)"""
         # cost_obj = self.env['sale.order.line.cost']

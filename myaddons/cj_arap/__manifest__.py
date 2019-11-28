@@ -38,7 +38,6 @@
         'views/account_invoice_split_view.xml',
         'views/account_payment_term_view.xml',
         'views/account_move_line_view.xml',
-        # 'views/account_account_summary_view.xml',
         'views/account_journal_view.xml',
         'views/res_partner_view.xml',
         'views/stock_consumable_consu_view.xml',
