@@ -2,14 +2,14 @@
 import xlrd
 import xlwt
 
-workbook = xlrd.open_workbook(r'D:\川酒二期\初始资料\信息科技公司成本汇总表（整理版） - 副本.xls')
+workbook = xlrd.open_workbook(r'E:\Owl-ERP\myaddons\tmp_data\信息科技公司成本汇总表（整理版）.xls')
 sheet = workbook.sheet_by_index(0)
 lines = [sheet.row_values(row_index) for row_index in range(sheet.nrows) if row_index >= 1]
 
 products = []
 repeat = []
 for line in lines:
-    default_code = line[1]  # 物料编码
+    default_code = line[0]  # 物料编码
     name = line[2]  # 商品名称
     cost = line[3]  # 成本
     product = list(filter(lambda x: x['default_code'] == default_code, products))
