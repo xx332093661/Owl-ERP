@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, api, fields
+from odoo.addons import decimal_precision as dp
 from odoo.exceptions import ValidationError
 
 
@@ -10,7 +11,8 @@ class ProductCost(models.Model):
 
     company_id = fields.Many2one('res.company', '公司', required=0, domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
     product_id = fields.Many2one('product.product', '商品', required=1)
-    cost = fields.Float('成本', required=1)
+    cost = fields.Float('成本', required=1, digits=dp.get_precision('Inventory valuation'))  # 4位小数
+    start_time = fields.Datetime('开始时间', default=fields.Datetime.now)
 
     company_code = fields.Char('公司代码', help='导入时用')
     product_code = fields.Char('物料编码', help='导入时用')

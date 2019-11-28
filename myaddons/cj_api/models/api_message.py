@@ -250,8 +250,12 @@ class ApiMessage(models.Model):
 
     @api.multi
     def do_proc_content(self):
-        if any([res.state == 'done' or (res.state == 'error' and res.attempts < 3) for res in self]):
-            raise ValidationError('完成或失败次数小于3次的记录不能再次处理！')
+        if any([res.state == 'done' for res in self]):
+            raise ValidationError('完成状态的记录不能再次处理！')
+
+        if self.env.ref('cj_api.cj_mq_thread_cron').active:
+            if any([res.state in ['draft', 'done'] or (res.state == 'error' and res.attempts < 3) for res in self]):
+                raise ValidationError('草稿状态、失败次数小于3次的记录不能再次处理！')
 
         self.proc_content(self)
 
