@@ -258,7 +258,7 @@ class InventoryLine(models.Model):
     _inherit = 'stock.inventory.line'
 
     company_id = fields.Many2one('res.company', '公司', index=1, readonly=0, related=False, required=0)  # 删除与主表的关联
-    cost = fields.Float('单位成本', digits=dp.get_precision('Product Price'))
+    cost = fields.Float('单位成本', digits=dp.get_precision('Inventory valuation'))
     is_init = fields.Selection([('yes', '是'), ('no', '否')], '是否是初始库存盘点', readonly=1, default='no')
 
     @api.onchange('product_id', 'company_id')
@@ -380,17 +380,20 @@ class InventoryLine(models.Model):
                     is_init = 'yes'
 
                 if is_init == 'yes':
-                    # 当前公司
-                    product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
-                    # 上级公司
-                    if not product_cost:
-                        product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
-                    # 无公司
-                    if not product_cost:
-                        product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
-                    if not product_cost:
-                        raise my_validation_error('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
-                    cost = product_cost.cost
+                    if vals.get('cost'):
+                        cost = vals['cost']
+                    else:
+                        # 当前公司
+                        product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                        # 上级公司
+                        if not product_cost:
+                            product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                        # 无公司
+                        if not product_cost:
+                            product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
+                        if not product_cost:
+                            raise my_validation_error('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
+                        cost = product_cost.cost
 
             else:
                 cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
@@ -401,19 +404,22 @@ class InventoryLine(models.Model):
                     is_init = 'no'
                 else:
                     is_init = 'yes'
-                    # 当前公司
-                    product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
-                    # 上级公司
-                    if not product_cost:
-                        product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
-                    # 无公司
-                    if not product_cost:
-                        product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
+                    if vals.get('cost'):
+                        cost = vals['cost']
+                    else:
+                        # 当前公司
+                        product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                        # 上级公司
+                        if not product_cost:
+                            product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                        # 无公司
+                        if not product_cost:
+                            product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
 
-                    if not product_cost:
-                        raise my_validation_error('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
+                        if not product_cost:
+                            raise my_validation_error('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
 
-                    cost = product_cost.cost
+                        cost = product_cost.cost
 
             return is_init, cost
 
