@@ -22,7 +22,7 @@ class ProductCost(models.Model):
     @api.constrains('cost')
     def _check_cost(self):
         for res in self:
-            if res.cost <= 0:
+            if res.cost < 0:
                 raise ValidationError('商品成本必须大于0！')
 
     @api.model

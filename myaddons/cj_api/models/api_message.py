@@ -938,7 +938,7 @@ class ApiMessage(models.Model):
                 raise MyValidationError('39', '没有盘点明细')
 
             inventory_line_obj.with_context(company_id=company_id).create(vals_list)
-            inventory.action_validate()
+            # inventory.action_validate()
 
     # 9、WMS-ERP-STOCK-QUEUE 外部仓库库存
     def deal_wms_erp_stock_queue(self, content):
@@ -990,7 +990,7 @@ class ApiMessage(models.Model):
                 raise MyValidationError('39', '没有盘点明细')
 
             inventory_line_obj.with_context(company_id=company_id).create(vals_list)
-            inventory.action_validate()
+            # inventory.action_validate()
 
     # 10、mustang-to-erp-order-push 订单
     def deal_mustang_to_erp_order_push(self, content):
