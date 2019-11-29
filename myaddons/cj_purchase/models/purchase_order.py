@@ -142,6 +142,11 @@ class PurchaseOrder(models.Model):
     contract_id = fields.Many2one('supplier.contract', '供应商合同', required=0, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('partner_id', '=', partner_id), ('valid', '=', True)]")
     flow_id = fields.Char('OA审批流ID', track_visibility='onchange')
 
+    @api.model
+    def create(self, vals):
+        vals['name'] = self.env['ir.sequence'].next_by_code('purchase.order.code')
+        return super(PurchaseOrder, self).create(vals)
+
     @api.multi
     def action_confirm(self):
         """采购专员确认"""
