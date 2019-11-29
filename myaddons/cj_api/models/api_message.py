@@ -886,111 +886,111 @@ class ApiMessage(models.Model):
     # 8、mustang-to-erp-store-stock-push 门店库存
     def deal_mustang_to_erp_store_stock_push(self, content):
         """门店初始化库存"""
-        # raise MyValidationError('40', '不处理门店库存！')
+        raise MyValidationError('40', '不处理门店库存！')
 
-        inventory_obj = self.env['stock.inventory']
-        inventory_line_obj = self.env['stock.inventory.line']
-        warehouse_obj = self.env['stock.warehouse']
-
-        _, body = self._deal_content(content)
-
-        body.sort(key=lambda x: x['storeCode'])
-
-        for store_code, store_stocks in groupby(body, lambda x: x['storeCode']):  # storeCode：门店编码
-            if not store_code:
-                raise MyValidationError('07', '门店编码不能为空！')
-
-            warehouse = warehouse_obj.search([('company_id.code', '=', store_code)], limit=1)
-            if not warehouse:
-                raise MyValidationError('08', '门店编码：%s 对应的门店未找到！' % store_code)
-
-            location_id = warehouse.lot_stock_id.id
-            company = warehouse.company_id
-            company_id = company.id
-
-            inventory = inventory_obj.create({
-                'name': '%s初始库存盘点' % warehouse.name,
-                'company_id': company_id,
-                'location_id': location_id,
-                'filter': 'partial',  # 手动选择商品
-            })
-            inventory.action_start()  # 开始盘点
-
-            inventory_id = inventory.id
-
-            vals_list = []
-            for store_stock in store_stocks:
-                product = self.get_product(store_stock['goodsCode'])   # 临时注销
-                product_id = product.id
-                # is_init = get_is_init()  # 商品是否是初次盘点
-                vals_list.append({
-                    'company_id': company_id,
-                    # 'cost': random.randint(10, 20),
-                    'inventory_id': inventory_id,
-                    # 'is_init': is_init,  # 商品是否是初次盘点
-                    'location_id': location_id,
-                    'prod_lot_id': False,  # 批次号
-                    'product_id': product_id,
-                    'product_uom_id': product.uom_id.id,
-                    'product_qty': store_stock['quantity']
-                })
-            if not vals_list:
-                raise MyValidationError('39', '没有盘点明细')
-
-            inventory_line_obj.with_context(company_id=company_id).create(vals_list)
-            # inventory.action_validate()
+        # inventory_obj = self.env['stock.inventory']
+        # inventory_line_obj = self.env['stock.inventory.line']
+        # warehouse_obj = self.env['stock.warehouse']
+        #
+        # _, body = self._deal_content(content)
+        #
+        # body.sort(key=lambda x: x['storeCode'])
+        #
+        # for store_code, store_stocks in groupby(body, lambda x: x['storeCode']):  # storeCode：门店编码
+        #     if not store_code:
+        #         raise MyValidationError('07', '门店编码不能为空！')
+        #
+        #     warehouse = warehouse_obj.search([('company_id.code', '=', store_code)], limit=1)
+        #     if not warehouse:
+        #         raise MyValidationError('08', '门店编码：%s 对应的门店未找到！' % store_code)
+        #
+        #     location_id = warehouse.lot_stock_id.id
+        #     company = warehouse.company_id
+        #     company_id = company.id
+        #
+        #     inventory = inventory_obj.create({
+        #         'name': '%s初始库存盘点' % warehouse.name,
+        #         'company_id': company_id,
+        #         'location_id': location_id,
+        #         'filter': 'partial',  # 手动选择商品
+        #     })
+        #     inventory.action_start()  # 开始盘点
+        #
+        #     inventory_id = inventory.id
+        #
+        #     vals_list = []
+        #     for store_stock in store_stocks:
+        #         product = self.get_product(store_stock['goodsCode'])   # 临时注销
+        #         product_id = product.id
+        #         # is_init = get_is_init()  # 商品是否是初次盘点
+        #         vals_list.append({
+        #             'company_id': company_id,
+        #             # 'cost': random.randint(10, 20),
+        #             'inventory_id': inventory_id,
+        #             # 'is_init': is_init,  # 商品是否是初次盘点
+        #             'location_id': location_id,
+        #             'prod_lot_id': False,  # 批次号
+        #             'product_id': product_id,
+        #             'product_uom_id': product.uom_id.id,
+        #             'product_qty': store_stock['quantity']
+        #         })
+        #     if not vals_list:
+        #         raise MyValidationError('39', '没有盘点明细')
+        #
+        #     inventory_line_obj.with_context(company_id=company_id).create(vals_list)
+        #     # inventory.action_validate()
 
     # 9、WMS-ERP-STOCK-QUEUE 外部仓库库存
     def deal_wms_erp_stock_queue(self, content):
         """外部仓库库存数据队列"""
-        # raise MyValidationError('40', '不处理外部仓库库存变更！')
+        raise MyValidationError('40', '不处理外部仓库库存变更！')
 
-        warehouse_obj = self.env['stock.warehouse']
-        inventory_obj = self.env['stock.inventory']
-        inventory_line_obj = self.env['stock.inventory.line']
-
-        body = json.loads(content)
-        if not isinstance(body, list):
-            body = [body]
-
-        for warehouse_no, store_stocks in groupby(sorted(body, key=lambda x: x['warehouseNo']), lambda x: x['warehouseNo']):  # storeCode：门店编码
-            warehouse = warehouse_obj.search([('code', '=', warehouse_no)])
-            if not warehouse:
-                raise MyValidationError('11', '仓库：%s 未找到！' % warehouse_no)
-
-            location_id = warehouse.lot_stock_id.id
-            company = warehouse.company_id
-            company_id = company.id
-            inventory = inventory_obj.create({
-                'name': '%s初始库存盘点' % warehouse.name,
-                'company_id': company_id,
-                'location_id': location_id,
-                'filter': 'partial',  # 手动选择商品
-            })
-            inventory.action_start()  # 开始盘点
-
-            inventory_id = inventory.id
-            vals_list = []
-            for store_stock in store_stocks:
-                product = self.get_product(store_stock['goodsNo'])
-                # product_id = product.id
-                # is_init = get_is_init()  # 商品是否是初次盘点
-                vals_list.append({
-                    'company_id': company_id,
-                    # 'cost': random.randint(10, 20),
-                    'inventory_id': inventory_id,
-                    # 'is_init': is_init,  # 是否是初始化盘点
-                    'location_id': location_id,
-                    'prod_lot_id': False,  # 批次号
-                    'product_id': product.id,
-                    'product_uom_id': product.uom_id.id,
-                    'product_qty': store_stock['totalNum']
-                })
-            if not vals_list:
-                raise MyValidationError('39', '没有盘点明细')
-
-            inventory_line_obj.with_context(company_id=company_id).create(vals_list)
-            # inventory.action_validate()
+        # warehouse_obj = self.env['stock.warehouse']
+        # inventory_obj = self.env['stock.inventory']
+        # inventory_line_obj = self.env['stock.inventory.line']
+        #
+        # body = json.loads(content)
+        # if not isinstance(body, list):
+        #     body = [body]
+        #
+        # for warehouse_no, store_stocks in groupby(sorted(body, key=lambda x: x['warehouseNo']), lambda x: x['warehouseNo']):  # storeCode：门店编码
+        #     warehouse = warehouse_obj.search([('code', '=', warehouse_no)])
+        #     if not warehouse:
+        #         raise MyValidationError('11', '仓库：%s 未找到！' % warehouse_no)
+        #
+        #     location_id = warehouse.lot_stock_id.id
+        #     company = warehouse.company_id
+        #     company_id = company.id
+        #     inventory = inventory_obj.create({
+        #         'name': '%s初始库存盘点' % warehouse.name,
+        #         'company_id': company_id,
+        #         'location_id': location_id,
+        #         'filter': 'partial',  # 手动选择商品
+        #     })
+        #     inventory.action_start()  # 开始盘点
+        #
+        #     inventory_id = inventory.id
+        #     vals_list = []
+        #     for store_stock in store_stocks:
+        #         product = self.get_product(store_stock['goodsNo'])
+        #         # product_id = product.id
+        #         # is_init = get_is_init()  # 商品是否是初次盘点
+        #         vals_list.append({
+        #             'company_id': company_id,
+        #             # 'cost': random.randint(10, 20),
+        #             'inventory_id': inventory_id,
+        #             # 'is_init': is_init,  # 是否是初始化盘点
+        #             'location_id': location_id,
+        #             'prod_lot_id': False,  # 批次号
+        #             'product_id': product.id,
+        #             'product_uom_id': product.uom_id.id,
+        #             'product_qty': store_stock['totalNum']
+        #         })
+        #     if not vals_list:
+        #         raise MyValidationError('39', '没有盘点明细')
+        #
+        #     inventory_line_obj.with_context(company_id=company_id).create(vals_list)
+        #     # inventory.action_validate()
 
     # 10、mustang-to-erp-order-push 订单
     def deal_mustang_to_erp_order_push(self, content):
