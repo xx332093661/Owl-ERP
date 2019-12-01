@@ -68,7 +68,8 @@ PROCESS_ERROR = {
     '42': '没有打包明细',
     '43': '退款金额大于收款金额',
     '44': '不处理的订单状态',
-    '45': '没找到对应的省'
+    '45': '没找到对应的省',
+    '46': '订单公司与出库仓库的公司不一样'
 }
 
 
@@ -1330,9 +1331,6 @@ class ApiMessage(models.Model):
                 order.action_confirm()
                 order.picking_ids.filtered(lambda x: x.state == 'draft').action_confirm()  # 确认草稿状态的stock.picking
                 picking = order.picking_ids[0]
-                for move in picking.move_lines:
-                    move.quantity_done = move.product_uom_qty
-
                 # 检查可用状态
                 if picking.state != 'assigned':
                     picking.action_assign()
@@ -1340,7 +1338,10 @@ class ApiMessage(models.Model):
                 if picking.state != 'assigned':
                     raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
-                picking.action_done()  # 确认出库
+                for move in picking.move_lines:
+                    move.quantity_done = move.product_uom_qty
+
+                picking.button_validate()  # 确认出库
                 order.action_done()  # 完成订单
 
     # 11、WMS-ERP-STOCKOUT-QUEUE 订单出库
@@ -1470,11 +1471,15 @@ class ApiMessage(models.Model):
         # 4、订单确认
         if order.state == 'draft':
             # 同一家公司的不同仓库，更改订单的仓库
-            if order.warehouse_id.id != warehouse.id and order.company_id.id == warehouse.company_id.id:
-                order.warehouse_id = warehouse.id
-                order.order_line.write({
-                    'warehouse_id': warehouse.id
-                })
+            if order.warehouse_id.id != warehouse.id:
+                if order.company_id.id == warehouse.company_id.id:
+                    order.warehouse_id = warehouse.id
+                    order.order_line.write({
+                        'warehouse_id': warehouse.id
+                    })
+                else:
+                    raise MyValidationError('46', '订单公司与出库仓库的公司不一样')
+
             order.action_confirm()
 
         order.picking_ids.filtered(lambda x: x.state == 'draft').action_confirm()  # 确认草稿状态的stock.picking
@@ -1484,11 +1489,17 @@ class ApiMessage(models.Model):
         assert len(picking) == 1, '订单对应的stock.picking状态错误！'
         picking = picking[0]
 
+        if picking.state != 'assigned':
+            picking.action_assign()
+
+        if picking.state != 'assigned':
+            raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
         for line in delivery_lines:
             product_uom_qty = line['product_uom_qty']
 
             for move in filter(lambda x: x.product_id.id == line['product_id'], picking.move_lines):
-                qty = min(move.product_uom_qty, product_uom_qty)
+                qty = min(move.reserved_availability, product_uom_qty)
                 if float_is_zero(qty, precision_rounding=0.001):
                     continue
 
@@ -1497,14 +1508,7 @@ class ApiMessage(models.Model):
                 if float_is_zero(product_uom_qty, precision_rounding=0.001):
                     break
         # 6、出库
-        # 检查可用状态
-        if picking.state != 'assigned':
-            picking.action_assign()
-
-        if picking.state != 'assigned':
-            raise MyValidationError('19', '%s未完成出库！' % picking.name)
-
-        picking.action_done()  # 确认出库
+        picking.button_validate()  # 确认出库
         picking.delivery_id = delivery_id
 
     # 12、mustang-to-erp-logistics-push 物流信息
@@ -1685,11 +1689,17 @@ class ApiMessage(models.Model):
                 raise MyValidationError('22', '商品：%s发货数量小于待发货数量！' % ('、'.join(pros)))
 
             picking = picking_obj.search([('sale_id', '=', sale_order.id), ('state', '!=', 'done')])
+            if picking.state != 'assigned':
+                picking.action_assign()
+
+            if picking.state != 'assigned':
+                raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
             for content in wait_out_lines:
                 product_id = content['product_id']
                 quantity = content['deliver_qty']  # 出库数量
                 for stock_move in list(filter(lambda x: x.product_id.id == product_id, picking.move_lines)):
-                    qty = min(quantity, stock_move.product_uom_qty)
+                    qty = min(quantity, stock_move.reserved_availability)
                     stock_move.quantity_done = qty
                     quantity -= qty
                     if float_is_zero(quantity, precision_rounding=0.001):
@@ -1704,12 +1714,6 @@ class ApiMessage(models.Model):
             #         quantity -= qty
             #         if float_is_zero(quantity, precision_rounding=0.001):
             #             break
-
-            if picking.state != 'assigned':
-                picking.action_assign()
-
-            if picking.state != 'assigned':
-                raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
             picking.button_validate()  # 确认出库
             sale_order.action_done()  # 完成订单
@@ -1847,7 +1851,7 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity']),
+                    # 'quantity_done': abs(content['quantity']),
                     'store_stock_update_code': 'STOCK_03001',  # 门店库存变更类型
                 }))
 
@@ -1866,6 +1870,9 @@ class ApiMessage(models.Model):
 
             if picking.state != 'assigned':
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
+            for stock_move in picking.move_lines:
+                stock_move.quantity_done = stock_move.product_uom_qty
 
             picking.button_validate()  # 确认出库
             return
@@ -1951,7 +1958,7 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity']),
+                    # 'quantity_done': abs(content['quantity']),
                     'store_stock_update_code': 'STOCK_03007',  # 门店库存变更类型
                 }))
             picking = picking_obj.create({
@@ -1969,6 +1976,9 @@ class ApiMessage(models.Model):
 
             if picking.state != 'assigned':
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
+            for stock_move in picking.move_lines:
+                stock_move.quantity_done = stock_move.product_uom_qty
 
             picking.button_validate()  # 确认出库
             return
@@ -2021,7 +2031,7 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity']),
+                    # 'quantity_done': abs(content['quantity']),
                     'store_stock_update_code': 'STOCK_03004',  # 门店库存变更类型
                 }))
 
@@ -2040,6 +2050,9 @@ class ApiMessage(models.Model):
 
             if picking.state != 'assigned':
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
+            for stock_move in picking.move_lines:
+                stock_move.quantity_done = stock_move.product_uom_qty
 
             picking.button_validate()  # 确认出库
             return
