@@ -1685,15 +1685,25 @@ class ApiMessage(models.Model):
                 raise MyValidationError('22', '商品：%s发货数量小于待发货数量！' % ('、'.join(pros)))
 
             picking = picking_obj.search([('sale_id', '=', sale_order.id), ('state', '!=', 'done')])
-            for content in contents:
-                product = self.get_product(content['goodsCode'])
-                quantity = content['quantity']  # 出库数量
-                for stock_move in list(filter(lambda x: x.product_id.id == product.id, picking.move_lines)):
+            for content in wait_out_lines:
+                product_id = content['product_id']
+                quantity = content['deliver_qty']  # 出库数量
+                for stock_move in list(filter(lambda x: x.product_id.id == product_id, picking.move_lines)):
                     qty = min(quantity, stock_move.product_uom_qty)
                     stock_move.quantity_done = qty
                     quantity -= qty
                     if float_is_zero(quantity, precision_rounding=0.001):
                         break
+
+            # for content in contents:
+            #     product = self.get_product(content['goodsCode'])
+            #     quantity = content['quantity']  # 出库数量
+            #     for stock_move in list(filter(lambda x: x.product_id.id == product.id, picking.move_lines)):
+            #         qty = min(quantity, stock_move.product_uom_qty)
+            #         stock_move.quantity_done = qty
+            #         quantity -= qty
+            #         if float_is_zero(quantity, precision_rounding=0.001):
+            #             break
 
             if picking.state != 'assigned':
                 picking.action_assign()
