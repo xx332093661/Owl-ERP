@@ -1193,6 +1193,8 @@ class ApiMessage(models.Model):
                 journal_code = 'ONL'
             elif payment_way == '支付宝支付':
                 journal_code = 'ALI'
+            elif payment_way == '美团支付':
+                journal_code = 'MT'
             else:
                 raise MyValidationError('13', '未知的支付方式：%s' % payment_way)
 
@@ -1295,7 +1297,7 @@ class ApiMessage(models.Model):
                             if i == 0:
                                 first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
                             else:
-                                create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_subtotal)
+                                create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_total)
                     else:
                         create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
                 else:
@@ -1306,7 +1308,7 @@ class ApiMessage(models.Model):
                             if i == 0:
                                 first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
                             else:
-                                create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_subtotal)
+                                create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_total)
                     else:
                         create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
             else:
@@ -1317,7 +1319,7 @@ class ApiMessage(models.Model):
                         if i == 0:
                             first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
                         else:
-                            create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_subtotal)
+                            create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_total)
                 else:
                     create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
 
@@ -2081,6 +2083,9 @@ class ApiMessage(models.Model):
     # 14、WMS-ERP-RETURN-STOCKIN-QUEUE 退货入库单
     def deal_wms_erp_return_stockin_queue(self, content):
         """退货入库单"""
+        def stock_in():
+            """在没有找到销售订单的情况下，做一张入库单"""
+
         # order_obj = self.env['sale.order']
         delivery_obj = self.env['delivery.order']  # 出货单
         return_obj = self.env['sale.order.return']
@@ -2195,6 +2200,12 @@ class ApiMessage(models.Model):
 
             return_id = sale_return.id
 
+        refund_time = datetime.now()
+        try:
+            refund_time = datetime.fromtimestamp(content['createTime'] / 1000.0)
+        except:
+            pass
+
         # 创建退款单
         refund_obj.create({
             'name': content['refundCode'],
@@ -2206,13 +2217,14 @@ class ApiMessage(models.Model):
             'remarks': content['remarks'],
             'refund_type': content['refundOrderType'],
             'push_state': str(content['pushState']),
-            'refund_time': (fields.Datetime.to_datetime(content['createTime'].replace('T', ' ')) - timedelta(hours=8)).strftime(DATETIME_FORMAT)
+            # 'refund_time': (fields.Datetime.to_datetime(content['createTime'].replace('T', ' ')) - timedelta(hours=8)).strftime(DATETIME_FORMAT)
+            'refund_time': refund_time
         })
 
         # 创建付款记录
         company_id = order.company_id.id
         partner_id = order.partner_id.id
-        payment_date = content['createTime'].split('T')[0]
+        payment_date = refund_time.date()
         # refund_type = content['refundOrderType']  # 退款类型：all-商品未出库生成的退款单，other-商品出库后生成的退款单
         # if refund_type == 'all':  # 商品未出库生成的退款单，创建付款记录并记账
 
