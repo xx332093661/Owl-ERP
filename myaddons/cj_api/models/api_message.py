@@ -1335,7 +1335,8 @@ class ApiMessage(models.Model):
                 if picking.state != 'assigned':
                     picking.action_assign()
 
-                if picking.state != 'assigned':
+                if any([move.state != 'assigned' for move in picking.move_lines]):
+                    # if picking.state != 'assigned':
                     raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
                 for move in picking.move_lines:
@@ -1492,7 +1493,8 @@ class ApiMessage(models.Model):
         if picking.state != 'assigned':
             picking.action_assign()
 
-        if picking.state != 'assigned':
+        if any([move.state != 'assigned' for move in picking.move_lines]):
+            # if picking.state != 'assigned':
             raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
         for line in delivery_lines:
@@ -1692,7 +1694,8 @@ class ApiMessage(models.Model):
             if picking.state != 'assigned':
                 picking.action_assign()
 
-            if picking.state != 'assigned':
+            if any([move.state != 'assigned' for move in picking.move_lines]):
+            # if picking.state != 'assigned':
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
             for content in wait_out_lines:
@@ -1868,7 +1871,8 @@ class ApiMessage(models.Model):
             if picking.state != 'assigned':
                 picking.action_assign()
 
-            if picking.state != 'assigned':
+            if any([move.state != 'assigned' for move in picking.move_lines]):
+            # if picking.state != 'assigned':
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
             for stock_move in picking.move_lines:
@@ -1974,7 +1978,8 @@ class ApiMessage(models.Model):
             if picking.state != 'assigned':
                 picking.action_assign()
 
-            if picking.state != 'assigned':
+            if any([move.state != 'assigned' for move in picking.move_lines]):
+            # if picking.state != 'assigned':
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
             for stock_move in picking.move_lines:
@@ -2048,7 +2053,8 @@ class ApiMessage(models.Model):
             if picking.state != 'assigned':
                 picking.action_assign()
 
-            if picking.state != 'assigned':
+            if any([move.state != 'assigned' for move in picking.move_lines]):
+            # if picking.state != 'assigned':
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
             for stock_move in picking.move_lines:

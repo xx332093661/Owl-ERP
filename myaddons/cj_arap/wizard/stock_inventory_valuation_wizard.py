@@ -68,7 +68,7 @@ class StockInventoryValuationWizard(models.TransientModel):
 
     @api.multi
     def button_ok(self):
-        domain = [('stock_type', '=', self.stock_type)]
+        domain = [('stock_type', '=', self.stock_type)]  # [('all', '成本核算组'), ('only', '当前公司')]
         context = {}
         if self.stock_type == 'all':
             domain.append(('cost_group_id', '=', self.cost_group_id.id))
@@ -96,13 +96,25 @@ class StockInventoryValuationWizard(models.TransientModel):
                 'domain': domain
             }
 
-        movies = self.env['stock.inventory.valuation.move'].search(domain, order='company_id,product_id,date,id')
-        keys_in_groupby = ['company_id', 'product_id', 'date']
+        if self.stock_type == 'only':
+            movies = self.env['stock.inventory.valuation.move'].search(domain, order='company_id,product_id,date,id')
+            keys_in_groupby = ['company_id', 'product_id', 'date']
+            # keys_in_groupby = ['cost_group_id', 'product_id', 'date']
 
-        ids = []
-        for _, ms in groupby(movies, key=itemgetter(*keys_in_groupby)):  # _ = (company, product, date)
-            ms = list(ms)
-            ids.append(ms[-1].id)
+            ids = []
+            for _, ms in groupby(movies, key=itemgetter(*keys_in_groupby)):  # _ = (company, product, date)
+                ms = list(ms)
+                ids.append(ms[-1].id)
+        else:
+            exist_product_ids = []
+            ids = []
+            movies = self.env['stock.inventory.valuation.move'].search(domain, order='id desc')
+            for move in movies:
+                product_id = move.product_id.id
+                if product_id not in exist_product_ids:
+                    exist_product_ids.append(product_id)
+                    ids.append(move.id)
+
 
         return {
             'type': 'ir.actions.act_window',
