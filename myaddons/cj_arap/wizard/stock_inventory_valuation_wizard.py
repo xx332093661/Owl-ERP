@@ -6,10 +6,13 @@ import os
 from itertools import groupby
 from operator import itemgetter
 import xlrd
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
 from xlrd import XLRDError
 
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError, UserError
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 
 _logger = logging.getLevelName(__name__)
 
@@ -24,10 +27,10 @@ class StockInventoryValuationWizard(models.TransientModel):
 
     cost_group_id = fields.Many2one('account.cost.group', '成本核算组')
 
-    company_ids = fields.Many2many('res.company', string='公司', default=lambda self: self.env.user.company_id.ids)
-    date_from = fields.Date('开始日期', default=lambda self: fields.Date.context_today(self).strftime('%Y-%m-01'))
+    company_ids = fields.Many2many('res.company', string='公司')
+    date_from = fields.Date('开始日期', default=lambda self: (datetime.now() - relativedelta(months=1)).strftime(DATE_FORMAT))
 
-    show_type = fields.Selection([('all', '所有细节'), ('day', '每天截止')], '显示类型', default='all', required=1)
+    show_type = fields.Selection([('all', '所有细节'), ('day', '每天截止')], '显示类型', default='day', required=1)
 
     product_ids = fields.Many2many('product.product', string='产品')
     product_file = fields.Binary('导入查询的商品')
@@ -96,24 +99,24 @@ class StockInventoryValuationWizard(models.TransientModel):
                 'domain': domain
             }
 
-        if self.stock_type == 'only':
-            movies = self.env['stock.inventory.valuation.move'].search(domain, order='company_id,product_id,date,id')
-            keys_in_groupby = ['company_id', 'product_id', 'date']
-            # keys_in_groupby = ['cost_group_id', 'product_id', 'date']
-
-            ids = []
-            for _, ms in groupby(movies, key=itemgetter(*keys_in_groupby)):  # _ = (company, product, date)
-                ms = list(ms)
-                ids.append(ms[-1].id)
-        else:
-            exist_product_ids = []
-            ids = []
-            movies = self.env['stock.inventory.valuation.move'].search(domain, order='id desc')
-            for move in movies:
-                product_id = move.product_id.id
-                if product_id not in exist_product_ids:
-                    exist_product_ids.append(product_id)
-                    ids.append(move.id)
+        # if self.stock_type == 'only':
+        #     movies = self.env['stock.inventory.valuation.move'].search(domain, order='company_id,product_id,date,id')
+        #     keys_in_groupby = ['company_id', 'product_id', 'date']
+        #     # keys_in_groupby = ['cost_group_id', 'product_id', 'date']
+        #
+        #     ids = []
+        #     for _, ms in groupby(movies, key=itemgetter(*keys_in_groupby)):  # _ = (company, product, date)
+        #         ms = list(ms)
+        #         ids.append(ms[-1].id)
+        # else:
+        exist_product_ids = []
+        ids = []
+        movies = self.env['stock.inventory.valuation.move'].search(domain, order='id desc')
+        for move in movies:
+            product_id = move.product_id.id
+            if product_id not in exist_product_ids:
+                exist_product_ids.append(product_id)
+                ids.append(move.id)
 
 
         return {
