@@ -4,12 +4,13 @@ import pytz
 from lxml import etree
 from itertools import groupby
 import importlib
+import socket
 
 from odoo import models, fields, api, _
 from odoo.addons import decimal_precision as dp
 from odoo.exceptions import ValidationError, UserError
 from odoo.addons.stock.models.stock_inventory import Inventory
-from odoo.tools import float_compare, float_round
+from odoo.tools import float_compare, float_round, config
 
 INV_STATE = [
     ('draft', '草稿'),
@@ -248,6 +249,23 @@ class StockInventory(models.Model):
                 val['product_qty'] = 0
 
         return vals
+
+    def _cron_done_inventory(self):
+        """自动完成盘点"""
+        rabbitmq_ip = config.get('rabbitmq_ip', False)  # 用哪个ip去连RabbitMQ
+        if rabbitmq_ip:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            try:
+                s.connect(('8.8.8.8', 80))
+                ip = s.getsockname()[0]
+                # _logger.info('开启MQ客户端，本机ip：%s', ip)
+                if ip == rabbitmq_ip:
+                    return
+            finally:
+                s.close()
+
+        for res in self.search([('state', '=', 'finance_manager_confirm')]):
+            res.action_validate()
 
 
 class InventoryLine(models.Model):
