@@ -1310,6 +1310,11 @@ class StockPicking(models.Model):
 
             # 创建账单
             invoice = self._generate_purchase_invoice_create(purchase, order_line, payment_term)
+            # 关联先款后货的分期
+            self.env['account.invoice.split'].search([('purchase_order_id', '=', invoice.purchase_id.id), ('invoice_id', '=', False)]).write({
+                'invoice_id': invoice.id
+            })
+            invoice.invoice_split_ids.unlink()
             # 打开账单
             self._generate_purchase_invoice_open(invoice)
             # 计算未核销的预付款， 核销预付款
@@ -1332,10 +1337,7 @@ class StockPicking(models.Model):
             #     for aml in lines:
             #         invoice.assign_outstanding_credit(aml.id)
 
-            # 关联先款后货的分期
-            self.env['account.invoice.split'].search([('purchase_order_id', '=', invoice.purchase_id.id), ('invoice_id', '=', False)]).write({
-                'invoice_id': invoice.id
-            })
+
 
             # 创建账单分期
             self._generate_purchase_invoice_create_invoice_split(invoice)
