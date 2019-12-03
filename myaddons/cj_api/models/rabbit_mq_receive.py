@@ -24,13 +24,12 @@ MQ_SEQUENCE = {
     'mustang-to-erp-store-stock-push': 8,  # 门店库存
     'WMS-ERP-STOCK-QUEUE': 9,  # 外部仓库库存
     'mustang-to-erp-order-push': 10,  # 订单
-    'WMS-ERP-STOCKOUT-QUEUE': 12,  # 订单出库
-    'mustang-to-erp-logistics-push': 11,  # 物流信息
+    'WMS-ERP-STOCKOUT-QUEUE': 11,  # 订单出库
+    'mustang-to-erp-logistics-push': 12,  # 物流信息
     'mustang-to-erp-store-stock-update-record-push': 13,  # 门店库存变更记录
-    'MUSTANG-ERP-ORDER-STATUS-PUSH': 14,  # 订单状态
-    # 'mustang-to-erp-service-list-push': 15,  # 售后服务单
-    'WMS-ERP-RETURN-STOCKIN-QUEUE': 15,  # 退货入库单
-    'MUSTANG-REFUND-ERP-QUEUE': 16,  # 退款单
+    'WMS-ERP-RETURN-STOCKIN-QUEUE': 14,  # 退货入库单
+    'MUSTANG-REFUND-ERP-QUEUE': 15,  # 退款单
+    'MUSTANG-ERP-ORDER-STATUS-PUSH': 16,  # 订单状态
 }
 
 EXCHANGES = {
@@ -97,10 +96,11 @@ class RabbitMQReceiveThread(threading.Thread):
             channel = connection.channel()
             if self.exchange:
                 channel.exchange_declare(exchange=self.exchange, exchange_type='topic', durable=True)
-                if self.queue_name in ['WMS-ERP-STOCK-QUEUE', 'WMS-ERP-RETURN-STOCKIN-QUEUE', 'MUSTANG-ERP-ORDER-STATUS-PUSH', 'WMS-ERP-STOCKOUT-QUEUE']:
-                    channel.queue_declare(queue=self.queue_name, exclusive=True, durable=True, passive=True)
-                else:
-                    channel.queue_declare(queue=self.queue_name, exclusive=True, durable=True, passive=False)
+                channel.queue_declare(queue=self.queue_name, exclusive=True, durable=True, passive=True)
+                # if self.queue_name in ['WMS-ERP-STOCK-QUEUE', 'WMS-ERP-RETURN-STOCKIN-QUEUE', 'MUSTANG-ERP-ORDER-STATUS-PUSH', 'WMS-ERP-STOCKOUT-QUEUE']:
+                #     channel.queue_declare(queue=self.queue_name, exclusive=True, durable=True, passive=True)
+                # else:
+                #     channel.queue_declare(queue=self.queue_name, exclusive=True, durable=True, passive=False)
                 channel.queue_bind(exchange=self.exchange, queue=self.queue_name)
                 channel.basic_consume(queue=self.queue_name, on_message_callback=self.callback, auto_ack=True)
                 channel.start_consuming()
@@ -109,11 +109,12 @@ class RabbitMQReceiveThread(threading.Thread):
                 # _logger.info('开始接收mq消息')
                 channel.start_consuming()
         except ChannelClosedByBroker as e:
-            if e.reply_code == '404':
-                _logger.error('队列：%s不存在！', self.queue_name)
-
-            if e.reply_code == '406':
-                _logger.error(e.reply_text)
+            _logger.error('错误码：%s', e.reply_code)
+            # if e.reply_code == '404':
+            #     _logger.error('队列：%s不存在！', self.queue_name)
+            #
+            # if e.reply_code == '406':
+            #     _logger.error(e.reply_text)
 
         except Exception:
             _logger.error('连接MQ服务器出错！')
@@ -121,7 +122,7 @@ class RabbitMQReceiveThread(threading.Thread):
 
     def callback(self, ch, method, properties, body):
         """回调"""
-        _logger.info('队列：%s收到数据:%s' % (self.queue_name, body))
+        # _logger.info('队列：%s收到数据:%s' % (self.queue_name, body))
         try:
             body_json = json.loads(body, encoding='utf-8')
             vals = {

@@ -28,7 +28,7 @@ class SaleActivity(models.Model):
     principal = fields.Many2one(comodel_name='res.users', string='发起人', default=lambda self: self.env.user.id, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain=lambda self: [('company_id', 'child_of', [self.env.user.company_id.id])])
     description = fields.Text(string='活动描述', readonly=1, states=READONLY_STATES, track_visibility='onchange')
 
-    start_time = fields.Datetime(string='开始时间', default=fields.datetime.now(), readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    start_time = fields.Datetime(string='开始时间', default=fields.Datetime.now, readonly=1, states=READONLY_STATES, track_visibility='onchange')
     end_time = fields.Datetime(string='结束时间', readonly=1, states=READONLY_STATES, track_visibility='onchange')
 
     channels_ids = fields.Many2many('sale.channels', string='营销渠道', readonly=1, states=READONLY_STATES, track_visibility='onchange')

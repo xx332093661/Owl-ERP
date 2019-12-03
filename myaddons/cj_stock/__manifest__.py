@@ -17,7 +17,7 @@
         'security/rule.xml',
         'security/security.xml',
 
-        'wizard/import_delivery_order_package_wizard_view.xml',
+        # 'wizard/import_delivery_order_package_wizard_view.xml',
         'wizard/import_consumable_consu_line_wizard_view.xml',
         'wizard/import_consumable_apply_line_wizard_view.xml',
         'wizard/import_inventory_detail_wizard_view.xml',
@@ -48,9 +48,12 @@
         'views/stock_across_move_diff_receipt_view.xml',
         'views/stock_inventory_diff_receipt_view.xml',
         'views/material_requisition_view.xml',
+        'views/stock_internal_move_view.xml',
+        'views/sale_order_view.xml',
+        'views/purchase_order_view.xml',
 
         # 'wizard/valuation_wizard_view.xml',
-        'wizard/confirm_empty_delivery_order_wizard_view.xml',
+        # 'wizard/confirm_empty_delivery_order_wizard_view.xml',
 
 
         'data/ir_cron.xml',

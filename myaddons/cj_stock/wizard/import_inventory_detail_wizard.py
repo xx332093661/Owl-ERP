@@ -80,7 +80,6 @@ class ImportInventoryDetailWizard(models.TransientModel):
                 inventory_lines = inventory.line_ids.filtered(lambda x: x.product_id.id == product.id)  # 盘点明细(同一个产品，可能存在多行盘点明细)
 
                 if inventory_lines:
-
                     inventory_lines.write({
                         'company_id': inventory.company_id.id,
                         'location_id': inventory.location_id.id,
@@ -95,7 +94,6 @@ class ImportInventoryDetailWizard(models.TransientModel):
                         'product_id': product.id,
                         'product_qty': product_qty,
                         'cost': cost,
-
                     })
 
         except Exception:

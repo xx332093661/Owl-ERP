@@ -90,11 +90,6 @@
             <field name="view_mode">tree,form</field>
         </record>
 
-          <menuitem id="menu_action_sale_order_return"
-            name="退货入库单"
-            action="action_sale_order_return"
-            parent="menu_sale_operation"
-            sequence="11" groups="sales_team.group_sale_salesman" />
 
     </data>
 </odoo>

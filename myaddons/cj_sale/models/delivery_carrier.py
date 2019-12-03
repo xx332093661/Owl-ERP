@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from math import ceil
 import logging
+import socket
 
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
-from odoo.tools import safe_eval
+from odoo.tools import safe_eval, config
 
 _logger = logging.getLogger(__name__)
 
@@ -23,6 +24,18 @@ class DeliveryCarrier(models.Model):
     @api.model
     def _cron_check_delivery_carrier(self, sale_order_id, warehouse_id, logistics_code, weight, quantity):
         """自动确认盘点"""
+        rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去处理RabbitMQ的数据，与开启
+        if rabbitmq_ip:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            try:
+                s.connect(('8.8.8.8', 80))
+                ip = s.getsockname()[0]
+                _logger.info('处理盘点，本机ip：%s', ip)
+                if ip == rabbitmq_ip:
+                    return
+            finally:
+                s.close()
+
         for inventory in self.env['stock.inventory'].search([('state', '=', 'finance_manager_confirm')], limit=1):
             inventory.action_validate()
             self.env.cr.commit()

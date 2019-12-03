@@ -15,6 +15,7 @@ class ProductTemplate(models.Model):
     spec = fields.Char('规格')
     status = fields.Selection([('1', '在用'), ('2', '禁止采购'), ('3', '禁止调拨'), ('4', '淘汰')], '业务状态')
     # supplier_ids = fields.Many2many('res.partner', 'product_supplier_res', 'product_temp_id', 'supplier_id', '供应商')
+    cost_type = fields.Selection([('company', '公司核算'), ('store', '门店核算')], '核算类型', default='company')
 
     @api.model
     def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):

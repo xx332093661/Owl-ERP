@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-
 import pytz
 
 from odoo import fields, models, api
+from odoo.addons import decimal_precision as dp
 from odoo.exceptions import ValidationError
 
 
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
+    taxes_id = fields.Many2many('account.tax', string='税')
     payment_term_id = fields.Many2one('account.payment.term', '支付条款', required=1)
+    product_qty = fields.Float(string='数量', digits=dp.get_precision('Product Unit of Measure'), required=True, default=1)
+    untax_price_unit = fields.Float('不含税价', compute='_compute_untax_price_unit', store=1)
+    # amount_tax = fields.Float('税金', compute='_compute_amount_tax', store=1)
 
     @api.onchange('product_id')
     def onchange_product_id(self):
@@ -35,6 +39,22 @@ class PurchaseOrderLine(models.Model):
             res = self.env['purchase.order.point'].search(domain, limit=1, order='id desc')
             if res:
                 self.product_qty = res.purchase_min_qty
+
+        # 默认税
+        if company_id:
+            if self.product_id.supplier_taxes_id:
+                if company_id == self.env.user.company_id.id:
+                    self.taxes_id = [(5, 0), (6, 0, self.product_id.supplier_taxes_id[0].ids)]
+                else:
+                    tax = self.env['account.tax'].search(
+                        [('company_id', '=', company_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', self.product_id.supplier_taxes_id[0].amount)])
+                    if tax:
+                        self.taxes_id = [(5, 0), (6, 0, tax.ids)]
+
+            if not self.taxes_id:
+                tax = self.env['account.tax'].search([('company_id', '=', company_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
+                if tax:
+                    self.taxes_id = [(5, 0), (6, 0, tax.ids)]
 
         if not self.payment_term_id and self._context.get('payment_term_id'):
             self.payment_term_id = self._context['payment_term_id']
@@ -92,4 +112,17 @@ class PurchaseOrderLine(models.Model):
                 self.price_unit = supplierinfo.price
 
         return result
+
+    @api.multi
+    @api.depends('price_unit', 'taxes_id')
+    def _compute_untax_price_unit(self):
+        """计算不含税单价"""
+        for line in self:
+            tax_rate = 0  # 税率
+            if line.taxes_id:
+                tax_rate = line.taxes_id[0].amount
+
+            line.untax_price_unit = line.price_unit / (1 + tax_rate / 100.0)
+
+
 

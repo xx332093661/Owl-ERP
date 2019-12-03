@@ -17,5 +17,29 @@
             <field name="padding">5</field>
             <field eval="False" name="company_id"/>
         </record>
+
+        <record id="sequence_supplier_contract" model="ir.sequence">
+            <field name="name">合同编号</field>
+            <field name="code">supplier.contract</field>
+            <!--<field name="prefix">APA/%(range_year)s/</field>-->
+            <field name="prefix">CN-%(year)s-</field>
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field eval="True" name="use_date_range"/>
+            <field eval="False" name="company_id"/>
+            <field name="padding">3</field>
+        </record>
+
+        <record id="sequence_purchase_order_code" model="ir.sequence">
+            <field name="name">采购订单编号</field>
+            <field name="code">purchase.order.code</field>
+            <!--<field name="prefix">APA/%(range_year)s/</field>-->
+            <field name="prefix">PO-ERP-%(year)s%(month)s%(day)s-</field>
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field eval="True" name="use_date_range"/>
+            <field eval="False" name="company_id"/>
+            <field name="padding">3</field>
+        </record>
     </data>
 </odoo>

@@ -3,16 +3,17 @@ import logging
 import requests
 import json
 import traceback
+import base64
 
 from odoo import fields, models, api
 from datetime import datetime
-
+from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
 # OA允许的接口列表
 OA_CODES_LIST = [
-    'Purchasing_order',     # 采购单
+    'Contract_approval',     # 采购单
     'GroupPurchase_Orders', # 团购单
     'Payment_request',  # 付款单
 ]
@@ -97,6 +98,7 @@ class CjOaApi(models.Model):
             'senderLoginName': '100364',
             'subject': subject,
             'token': token,
+            'param': '1',
             'data': json.dumps(data, indent=4),
             'transfertype': 'json',
         }
@@ -104,10 +106,8 @@ class CjOaApi(models.Model):
 
         val = json.dumps(val)
         headers = {'Content-Type': 'application/json'}
-
         try:
             response = requests.post(url, val, headers=headers)
-
             if response.status_code == 200:
 
                 flow_id = int(response.text)
@@ -122,7 +122,7 @@ class CjOaApi(models.Model):
                     'flow_id': flow_id
                 }])
                 return flow_id
-
+            _logger.error(response.text)
             raise Exception('提交OA审批响应错误！')
         except Exception:
             _logger.error('提交OA审批出错！')
@@ -180,6 +180,53 @@ class CjOaApi(models.Model):
             else:
                 if (time_now - obj.create_date).days > 10:
                     obj.approval_result = 'overdue'
+
+    # @api.model
+    # def oa_upload_attach(self, res_model, res_field, res_id):
+    #     param_obj = self.env['ir.config_parameter'].sudo()
+    #     attachment_obj = self.env['ir.attachment']
+    # 
+    #     FILE_BOUNDARY = '-----'
+    # 
+    #     def get_start_data():
+    #         sb = '--'
+    #         sb += FILE_BOUNDARY
+    #         sb += '\r\n'
+    #         sb += "Content-Disposition: form-data; \r\n name=\"1\"; filename=\"" + file_name + "\"\r\n"
+    #         sb += 'Content-Type: msoffice\r\n\r\n'
+    #         return bytes(sb, encoding = "utf8")
+    # 
+    # 
+    #     url = param_obj.get_param('icp_oa_url')
+    # 
+    #     token = self.oa_get_token()
+    #     if not token:
+    #         raise Exception('获取OA访问令牌出错！')
+    # 
+    #     headers = {
+    #         'contentType': 'charset=utf-8',
+    #         'Content-Type': "multipart/form-data;boundary=" + FILE_BOUNDARY,
+    #     }
+    # 
+    #     url = "{0}/seeyon/rest/attachment?token={1}&applicationCategory=0&extensions=&firstSave=true".format(url, token)
+    # 
+    #     attachment = attachment_obj.search([('res_model', '=', res_model),
+    #                                         ('res_field', '=', res_field),
+    #                                         ('res_id', '=', res_id)], limit=1)
+    #     if not attachment:
+    #         raise ValidationError('请上传要文件')
+    # 
+    #     upload_file = attachment_obj._full_path(attachment.store_fname)
+    # 
+    #     # f.write(base64.b64decode(upload_file))
+    # 
+    #     # files = {'file123': ('1.txt', {'file':open('D:\\test_data\\summer_test_data_05.txt','rb')})}
+    #     file_name = '123'
+    #     start = get_start_data()
+    #     end = bytes("\r\n--" + FILE_BOUNDARY + "--\r\n", encoding="utf8")
+    #     files = {'file': start + open(upload_file, 'rb') + end}
+    #     r = requests.post(url, files=files, headers=headers)
+
 
 
 class OaApprovalCallback(models.Model):

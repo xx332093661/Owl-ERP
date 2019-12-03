@@ -8,3 +8,4 @@ from . import res_partner
 from . import product
 from . import warehouse
 from . import res_city
+from . import mail_thread

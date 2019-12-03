@@ -20,7 +20,7 @@ class PurchaseOrder(models.Model):
 
     @api.model
     def push_data_to_pos(self):
-        """将采购订单推送到门店
+        """将门店的采购订单或入库至省仓的采购订单推送到门店
         传入参数：{
             data: [{
                 'store_code': 门店代码
@@ -50,7 +50,7 @@ class PurchaseOrder(models.Model):
             _logger.warning('同步采购订单到POS，采购订单调用地址调用POS地址未设置')
             return
 
-        orders = self.search([('company_id.type', '=', 'store'), ('state', 'in', ['purchase', 'done']), ('send_pos_state', 'in', ['draft', 'error'])])
+        orders = self.search([('company_id.type', '=', 'store'), ('picking_type_id.warehouse_id.code', '=', '51005'), ('state', 'in', ['purchase', 'done']), ('send_pos_state', 'in', ['draft', 'error'])])
 
         data = []
         for order in orders:

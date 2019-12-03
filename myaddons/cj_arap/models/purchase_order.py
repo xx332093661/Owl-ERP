@@ -71,17 +71,26 @@ class PurchaseOrder(models.Model):
             'domain': [('id', 'in', ids)],
         }
 
-    @api.multi
-    def button_approve(self, force=False):
+    # @api.multi
+    # def button_approve(self, force=False):
+    #     """采购订单经OA审批通过后，如果订单的支付条款是预付款(先款后货)，则取支付条款规则第一条记录，来计算并创建供应商账单，并打开供应商账单，
+    #     """
+    #     res = super(PurchaseOrder, self).button_approve(force=force)
+    #     self._generate_invoice_split()  # 先款后货的生成账单分期
+    #     # self.filtered(lambda x: x.payment_term_id.type == 'first_payment')._generate_invoice_split()  # 先款后货的生成账单分期  TODO 订单行的支付条款
+    #     return res
+
+    def _update_oa_approval_state(self, flow_id, refuse=False):
         """采购订单经OA审批通过后，如果订单的支付条款是预付款(先款后货)，则取支付条款规则第一条记录，来计算并创建供应商账单，并打开供应商账单，
         """
-        res = super(PurchaseOrder, self).button_approve(force=force)
-        self._generate_invoice_split()  # 先款后货的生成账单分期
+        super(PurchaseOrder, self)._update_oa_approval_state(flow_id, refuse)
+        if not refuse:  # OA审批通过
+            self.search([('flow_id', '=', flow_id)])._generate_invoice_split()  # 先款后货的生成账单分期
         # self.filtered(lambda x: x.payment_term_id.type == 'first_payment')._generate_invoice_split()  # 先款后货的生成账单分期  TODO 订单行的支付条款
-        return res
 
     def _generate_invoice_split(self):
         """先款后货的生成账单分期"""
+
         order_lines = self.order_line.filtered(lambda x: x.payment_term_id.type == 'first_payment')
         if not order_lines:
             return
@@ -94,7 +103,7 @@ class PurchaseOrder(models.Model):
             lines = list(lines)
             payment_term_list = payment_term.compute(value=1, date_ref=date_invoice)[0]
             payment_term_list.sort(key=lambda x: x[0])  # 按到期日期升序排序
-            amount_total = sum(line.price_subtotal for line in lines)
+            amount_total = sum(line.price_total for line in lines)
             amount = amount_total * payment_term_list[0][1]  # 账单行金额
 
             if float_compare(amount, 0.0, precision_rounding=0.01) > 0:

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--采购订单-->
+    <data>
+        <record id="purchase.purchase_rfq" model="ir.actions.act_window">
+            <field name="domain">[('is_across_move', '=', False)]</field>
+            <!--<field name="view_mode">tree,form</field>-->
+        </record>
+    </data>
+
+    <!--跨公司调拨采购订单-->
+    <data>
+        <record id="action_across_move_purchase_order" model="ir.actions.act_window">
+            <field name="name">跨公司调拨采购订单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <!--<field name="view_ids" eval="[(5,0,0), (0,0,{'view_mode':'tree', 'view_id': ref('cj_sale.view_sale_order_all_tree')}), (0,0,{'view_mode':'form', 'view_id': ref('cj_sale.view_order_form_chuanjiu')})]"/>-->
+            <field name="domain">[('is_across_move', '=', True)]</field>
+            <!--<field name="search_view_id" ref="sale.sale_order_view_search_inherit_sale"/>-->
+            <field name="context">{'is_across_move': 1}</field>
+        </record>
+
+        <menuitem name="跨公司调拨采购订单" id="menu_action_across_move_purchase_order" action="action_across_move_purchase_order"
+                  parent="cj_purchase.menu_purchase_operation" sequence="35" groups="purchase.group_purchase_user,cj_purchase.group_purchase_general_manager" />
+
+    </data>
+
+</odoo>

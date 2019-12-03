@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <record id="purchase_order_tree" model="ir.ui.view">
+            <field name="name">purchase.order.tree</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='date_planned']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='amount_untaxed']" position="attributes">
+                    <attribute name="string">不含税合计</attribute>
+                </xpath>
+                <xpath expr="//field[@name='amount_untaxed']" position="before">
+                    <field name="amount_tax" string="税金" sum="Total"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_total']" position="attributes">
+                    <attribute name="string">含税合计</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+    <data>
+        <record id="purchase.purchase_rfq" model="ir.actions.act_window">
+            <!--<field name="domain">[('is_across_move', '=', False)]</field>-->
+            <field name="view_mode">tree,form</field>
+        </record>
+    </data>
+    <data>
         <record id="view_purchase_order_form" model="ir.ui.view">
             <field name="name">view_purchase_order_form</field>
             <field name="model">purchase.order</field>
@@ -44,12 +71,12 @@
                     <button name="action_draft" type="object" states="cancel,general_manager_refuse" class="oe_highlight" string="设为草稿" groups="purchase.group_purchase_user"/>
 
                     <button name="action_confirm" type="object" class="oe_highlight" states="draft" string="确认" groups="purchase.group_purchase_user"/><!--采购专员确认-->
-                    <button name="action_manager_confirm" type="object" states="confirm" string="采购经理审核" class="oe_highlight" groups="purchase.group_purchase_manager"/>
-                    <button name="action_finance_manager_confirm" type="object" states="manager_confirm" string="财务经理审核" class="oe_highlight" groups="account.group_account_manager"/>
-                    <button name="action_general_manager_refuse" states="finance_manager_confirm" string="拒绝" type="object" groups="cj_purchase.group_purchase_general_manager"/>
-                    <button name="action_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_purchase.group_purchase_general_manager"/>
-                    <button name="button_approve" states="general_manager_confirm" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/>
-
+                    <!--<button name="action_manager_confirm" type="object" states="oa_accept" string="采购经理审核" class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
+                    <!--<button name="action_finance_manager_confirm" type="object" states="manager_confirm" string="财务经理审核" class="oe_highlight" groups="account.group_account_manager"/>-->
+                    <!--<button name="action_general_manager_refuse" states="finance_manager_confirm" string="拒绝" type="object" groups="cj_purchase.group_purchase_general_manager"/>-->
+                    <!--<button name="action_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_purchase.group_purchase_general_manager"/>-->
+                    <button name="button_approve" states="oa_accept" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/>
+                    <button name="action_commit_approval" type="object" states="confirm" string="提交OA审批" class="oe_highlight"/>
 
                     <!--<button name="action_supplier_send" states="Master_Review" string="下载打印发货单" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
 
@@ -61,7 +88,7 @@
 
                 </xpath>
                 <field name="state" position="attributes">
-                    <attribute name="statusbar_visible">draft,confirm,manager_confirm,finance_manager_confirm,general_manager_confirm,purchase,done</attribute>
+                    <attribute name="statusbar_visible">draft,confirm,oa_sent,purchase,done</attribute>
                 </field>
                 <xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="domain">[('supplier', '=', True), ('state', '=', 'finance_manager_confirm')]</attribute>
@@ -76,6 +103,7 @@
                 <field name="date_order" position="after">
                     <field name="apply_id" options="{'no_create': 1}" readonly="1"/>
                     <field name="contract_id" options="{'no_create': 1}" required="1"/>
+                    <field name="flow_id" readonly="1"/>
                 </field>
                 <field name="incoterm_id" position="after">
                     <field name="payment_time" widget="float_time"/>
@@ -129,10 +157,32 @@
                     <field name="payment_term_id"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/tree/field[@name='taxes_id']" position="attributes">
-                    <attribute name="invisible">1</attribute>
+                    <attribute name="domain">[('company_id', '=', parent.company_id), ('type_tax_use', '=', 'purchase')]</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='taxes_id']" position="after">
+                    <field name="untax_price_unit"/>
+                    <field name="price_tax" string="税金"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/tree/field[@name='company_id']" position="attributes">
                     <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='date_planned']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='price_subtotal']" position="attributes">
+                    <attribute name="string">不含税小计</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='qty_received']" position="attributes">
+                    <attribute name="string">收货数量</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='product_qty']" position="attributes">
+                    <attribute name="string">订购数量</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
+                    <field name="price_total" string="含税合计"/>
                 </xpath>
 
                 <!--采购明细增加partner_id的上下文，以方便默认payment_term_id字段值-->

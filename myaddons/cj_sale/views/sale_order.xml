@@ -40,7 +40,7 @@
         </record>
     </data>
 
-
+    <!--全渠道订单-->
     <data>
         <record id="view_order_form_chuanjiu" model="ir.ui.view">
             <field name="name">sale.order.form.chuanjiu</field>
@@ -76,7 +76,7 @@
                         <!--
                         <button name="action_unlock" type="object" string="Unlock" states="done" groups="sales_team.group_sale_manager"/>
                         -->
-                        <field name="state" widget="statusbar" statusbar_visible="draft,cancel,done"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,cancel,sale,done"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -96,18 +96,19 @@
                         </div>
                         <group>
                             <group>
-                                <field name="partner_id" widget="res_partner_many2one" domain="[('customer','=',True)]" context="{'search_default_customer':1}" options="{'always_reload': True}"/>
+                                <field name="partner_id" options="{'no_open': True, 'no_create':True}"/>
                                 <!--<field name="partner_invoice_id" groups="sale.group_delivery_invoice_address"-->
                                        <!--context="{'default_type':'invoice'}" options="{'always_reload': True}"/>-->
                                 <!--<field name="partner_shipping_id" groups="sale.group_delivery_invoice_address"-->
                                        <!--context="{'default_type':'delivery'}" options="{'always_reload': True}"/>-->
-                                <field name="channel_id" options="{'no_create_edit': True, 'no_create':True}"/>
+                                <field name="channel_id" options="{'no_open': True, 'no_create':True}"/>
                                 <!--<field name="client_order_ref" string="渠道单号"/>-->
                                 <!--<field name="cj_activity_id" options="{'no_create_edit': True, 'no_create':True}"/>-->
                             </group>
                             <group>
-                                <field name="validity_date" attrs="{'invisible': [('state', 'in', ['sale', 'done'])]}"/>
-                                <field name="confirmation_date" attrs="{'invisible': [('state', 'in', ['draft', 'sent', 'cancel'])]}"/>
+                                <field name="date_order"/>
+                                <!--<field name="validity_date" attrs="{'invisible': [('state', 'in', ['sale', 'done'])]}"/>-->
+                                <!--<field name="confirmation_date" attrs="{'invisible': [('state', 'in', ['draft', 'sent', 'cancel'])]}"/>-->
                                 <field name="pricelist_id" groups="product.group_sale_pricelist"/>
                                 <field name="currency_id" invisible="1"/>
                                 <field name="payment_term_id" options="{'no_create': False}"/>
@@ -115,7 +116,7 @@
                         </group>
                         <notebook>
                             <page string="订单明细" name="order_lines">
-                                <field name="order_line" widget="section_and_note_one2many" mode="tree,kanban" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}">
+                                <field name="order_line">
                                     <form>
                                         <field name="display_type" invisible="1"/>
                                         <field name="sequence" invisible="1"/>
@@ -195,50 +196,52 @@
                                         for the members of some usability groups (packaging, event):
                                         Indeed in those cases we need a dialog because there are additional fields to input.
                                     -->
-                                    <tree string="Sales Order Lines" editable="bottom" decoration-info="(not display_type and invoice_status == 'to invoice')">
+                                    <tree>
                                         <field name="sequence" widget="handle"/>
                                         <!-- We do not display the type because we don't want the user to be bothered with that information if he has no section or note. -->
                                         <field name="display_type" invisible="1"/>
                                         <field name="product_updatable" invisible="1"/>
-                                        <field name="product_id"
-                                               attrs="{'readonly': [('product_updatable', '=', False)],'required': [('display_type', '=', False)]}"
-                                               force_save="1"
-                                               context="{'partner_id': parent.partner_id,'quantity': product_uom_qty,'pricelist': parent.pricelist_id,'uom':product_uom,'company_id': parent.company_id,'default_lst_price': price_unit,'default_description_sale': name}"/>
                                         <field name="product_custom_attribute_value_ids" invisible="1"/>
                                         <field name="product_no_variant_attribute_value_ids" invisible="1"/>
                                         <field name="name" widget="section_and_note_text" invisible="1"/>
-                                        <field name="product_uom_qty" string="数量" context="{'partner_id': parent.partner_id,'quantity': product_uom_qty,'pricelist': parent.pricelist_id,'uom': product_uom, 'company_id': parent.company_id}"/>
-                                        <field name="qty_delivered" attrs="{'column_invisible': [('parent.state', 'not in', ['sale', 'done'])],'readonly': [('qty_delivered_method', '!=', 'manual')]}"/>
+
+                                        <field name="product_id"/>
+
+                                        <field name="product_uom_qty" string="订单数" context="{'partner_id': parent.partner_id,'quantity': product_uom_qty,'pricelist': parent.pricelist_id,'uom': product_uom, 'company_id': parent.company_id}"/>
+                                        <field name="qty_delivered"
+                                               string="发货数"
+                                               attrs="{'column_invisible': [('parent.state', 'not in', ['sale', 'done'])],'readonly': [('qty_delivered_method', '!=', 'manual')]}"/>
                                         <field name="qty_delivered_manual" invisible="1"/>
                                         <field name="qty_delivered_method" invisible="1"/>
-                                        <field name="qty_invoiced" attrs="{'column_invisible': [('parent.state', 'not in', ['sale', 'done'])]}"/>
+                                        <field name="qty_invoiced" attrs="{'column_invisible': [('parent.state', 'not in', ['sale', 'done'])]}" string="开票数"/>
+
                                         <field name="qty_to_invoice" invisible="1"/>
-                                        <field name="product_uom" force_save="1"
+                                        <field name="product_uom" force_save="1" invisible="1"
                                                attrs="{'readonly': [('state', 'in', ('sale','done', 'cancel'))], 'required': [('display_type', '=', False)]}"
-                                               context="{'company_id': parent.company_id}" groups="uom.group_uom"
+                                               context="{'company_id': parent.company_id}"
                                                options="{'no_open': True}"/>
-                                        <field name="analytic_tag_ids" groups="analytic.group_analytic_tags" widget="many2many_tags"/>
+                                        <field name="analytic_tag_ids" widget="many2many_tags" invisible="1"/>
                                         <field name="price_unit" attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}"/>
-                                        <field name="tax_id" widget="many2many_tags" options="{'no_create': True}"
-                                               domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]"
-                                               attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}" invisible="1"/>
+                                        <field name="tax_id" widget="many2many_tags"/>
+                                        <field name="untax_price_unit"/>
+                                        <field name="price_tax" string="税金"/>
+                                        <field name="price_subtotal" string="不含税小计"/>
+                                        <field name="price_total" string="含税合计"/>
+
                                         <field name="discount" groups="sale.group_discount_per_so_line" invisible="1"/>
                                         <field name="discount_amount" invisible="1"/>
-                                        <field name="price_subtotal" widget="monetary" groups="account.group_show_line_subtotals_tax_excluded"/>
-                                        <field name="price_total" widget="monetary" groups="account.group_show_line_subtotals_tax_included"/>
                                         <field name="state" invisible="1"/>
                                         <field name="invoice_status" invisible="1"/>
                                         <field name="customer_lead" invisible="1"/>
                                         <field name="currency_id" invisible="1"/>
-                                        <field name="price_tax" invisible="1"/>
                                         <field name="goods_cost"/>
                                         <field name="shipping_cost"/>
-                                        <field name="box_cost"/>
-                                        <field name="packing_cost"/>
+                                        <!--<field name="box_cost"/>-->
+                                        <!--<field name="packing_cost"/>-->
                                         <field name="unit_cost"/>
                                         <field name="cost_price"/>
                                         <field name="gross_profit"/>
-                                        <field name="gross_profit_rate"/>
+                                        <!--<field name="gross_profit_rate"/>-->
                                     </tree>
                                 </field>
                                 <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
@@ -252,12 +255,13 @@
                                 <!--<field name="note" class="oe_inline"/>-->
                                 <group class="oe_subtotal_footer oe_left" colspan="4" name="sale_profit" string="成本核算">
                                     <group>
+                                        <field name="write_off_amount"/>
                                         <field name="goods_cost"/>
-                                        <field name="packing_cost"/>
+                                        <!--<field name="packing_cost"/>-->
                                         <field name="gross_profit"/>
                                     </group>
                                     <group>
-                                        <field name="box_cost"/>
+                                        <!--<field name="box_cost"/>-->
                                         <field name="shipping_cost"/>
                                         <field name="gross_profit_rate"/>
                                     </group>
@@ -325,18 +329,25 @@
                                         <field name="reason"/>
                                     </group>
                                 </group>
-                                <group invisible="1">
-                                    <group string="Shipping Information" name="sale_shipping">
-                                        <field name="warehouse_id" options="{'no_create': True}" groups="stock.group_stock_multi_locations"/>
+                                <group>
+                                    <group>
+                                        <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
                                     </group>
-                                    <group string="Sales Information" name="sales_person">
-                                        <field name="user_id"/>
-                                        <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                                    <group>
+                                        <field name="warehouse_id" options="{'no_create': 1, 'no_open': 1}"/>
                                     </group>
-                                    <!--<group string="Reporting" name="technical" groups="base.group_no_one">-->
-                                        <!--<field groups="base.group_no_one" name="origin"/>-->
+
+                                    <!--<group string="Shipping Information" name="sale_shipping">-->
+                                        <!--<field name="warehouse_id" options="{'no_create': True}" groups="stock.group_stock_multi_locations"/>-->
                                     <!--</group>-->
-                                    <group name="utm_link" groups="base.group_no_one"/>
+                                    <!--<group string="Sales Information" name="sales_person">-->
+                                        <!--<field name="user_id"/>-->
+                                        <!--<field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>-->
+                                    <!--</group>-->
+                                    <!--&lt;!&ndash;<group string="Reporting" name="technical" groups="base.group_no_one">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<field groups="base.group_no_one" name="origin"/>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</group>&ndash;&gt;-->
+                                    <!--<group name="utm_link" groups="base.group_no_one"/>-->
                                 </group>
                             </page>
                         </notebook>
@@ -354,18 +365,20 @@
             <field name="name">sale.order.tree</field>
             <field name="model">sale.order</field>
             <field name="priority">4</field>
-            <field name="domain">[('state', 'in', ('draft', 'comfirm','delivered','done'))]</field>
             <field name="arch" type="xml">
-                <tree string="Quotation" class="o_sale_order" decoration-bf="message_needaction==True" decoration-muted="state=='cancel'" create="0" delete="0" edit="0">
+                <tree string="全渠道订单" class="o_sale_order" decoration-bf="message_needaction==True" decoration-muted="state=='cancel'" create="0" delete="0" edit="0">
                     <field name="message_needaction" invisible="1"/>
                     <field name="name" string="订单号"/>
                     <field name="date_order" string="订单日期"/>
+                    <field name="confirmation_date"/>
                     <field name="channel_id" string="渠道"/>
-                    <field name="commitment_date" groups="sale.group_sale_order_dates"/>
-                    <field name="expected_date" groups="sale.group_sale_order_dates"/>
+                    <!--<field name="expected_date" groups="sale.group_sale_order_dates"/>-->
                     <field name="partner_id"/>
-                    <field name="user_id"/>
-                    <field name="amount_total" sum="Total Tax Included" widget="monetary"/>
+                    <!--<field name="special_order_mark"/>-->
+                    <!--<field name="parent_id"/>-->
+                    <field name="amount_tax" string="税金" sum="Total"/>
+                    <field name="amount_untaxed" string="不含税合计" sum="Total"/>
+                    <field name="amount_total" sum="Total Tax Included" widget="monetary" string="含税合计"/>
                     <field name="currency_id" invisible="1"/>
                     <field name="state"/>
                 </tree>
@@ -379,10 +392,11 @@
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field name="view_ids" eval="[(5,0,0), (0,0,{'view_mode':'tree', 'view_id': ref('view_sale_order_all_tree')}), (0,0,{'view_mode':'form', 'view_id': ref('view_order_form_chuanjiu')})]"/>
-            <field name="domain">[('group_flag', 'in', ['large', 'not'])]</field>
+            <field name="domain">[('group_flag', 'in', ['large', 'not']), ('special_order_mark', '=', 'normal')]</field>
             <field name="search_view_id" ref="sale.sale_order_view_search_inherit_sale"/>
             <field name="context">{}</field>
         </record>
     </data>
+
 
 </odoo>

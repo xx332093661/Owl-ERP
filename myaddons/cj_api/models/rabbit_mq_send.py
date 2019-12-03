@@ -50,7 +50,7 @@ class RabbitMQSendThread(threading.Thread):
             # 连接MQ服务器
             credentials = pika.PlainCredentials(self.username, self.password)
             parameter = pika.ConnectionParameters(host=self.ip,
-                                                  # port=self.port,
+                                                  port=self.port,
                                                   credentials=credentials)
             connection = pika.BlockingConnection(parameter)
             self.channel = connection.channel()
@@ -70,7 +70,7 @@ class RabbitMQSendThread(threading.Thread):
         while 1:
             _logger.info('等待发送mq数据')
             msg = SEND_QUEUE.get(block=True)
-            _logger.info('发送数据:%s' % msg)
+            _logger.info('开始发送数据')
             self.channel.basic_publish(exchange=self.exchange,
                                        routing_key=msg['routing_key'],
                                        body=msg['body'])

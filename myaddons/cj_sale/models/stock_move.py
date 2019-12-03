@@ -31,7 +31,7 @@ class StockMove(models.Model):
         # 成本组
         _, cost_group_id = self.company_id.get_cost_group_id()
         # 单位成本
-        stock_cost = self.env['stock.inventory.valuation.move'].get_product_cost(self.product_id.id, cost_group_id)  # 当前成本
+        stock_cost = self.env['stock.inventory.valuation.move'].get_product_cost(self.product_id.id, cost_group_id, self.company_id.id)  # 当前成本
         cost_obj.create({
             'order_id': order_line.order_id.id,
             'line_id': order_line.id,

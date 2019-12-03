@@ -20,7 +20,7 @@ class SaleOrder(models.Model):
         string='支付条款',
         oldname='payment_term',
         readonly=1,
-        required=1, states={'draft': [('readonly', False)]},
+        required=0, states={'draft': [('readonly', False)]},
         domain=[('type', 'not in', ['sale_after_payment', 'cycle_payment', 'joint'])],
         ondelete='restrict')
 
@@ -57,7 +57,7 @@ class SaleOrder(models.Model):
             团购单，OA审批通过后调用
         """
         res = super(SaleOrder, self).action_confirm()
-        for payment in self.payment_ids:
+        for payment in self.payment_ids.filtered(lambda x: x.state=='draft'):
             payment.post() # 确认付款记录
         # if self.payment_ids:
         #     self.payment_ids.post()  # 确认付款记录

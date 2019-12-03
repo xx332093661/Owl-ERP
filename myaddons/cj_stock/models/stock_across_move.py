@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from itertools import groupby
-
+from collections import Counter
 import pytz
 
 from odoo import fields, models, api
@@ -45,13 +45,6 @@ class StockAcrossMove(models.Model):
     origin_sale_order_id = fields.Many2one('sale.order', '来源', readonly=1, track_visibility='onchange')
     # origin_type = fields.Selection([('purchase', '采购'), ('sale', '销售')], '来源类型')
 
-    @api.multi
-    @api.constrains('warehouse_in_id', 'warehouse_out_id')
-    def _check_warehouse(self):
-        for move in self:
-            if move.warehouse_in_id and move.warehouse_out_id and move.warehouse_in_id.id == move.warehouse_out_id.id:
-                raise ValidationError('调出仓库和调入仓库不能一样！')
-
     @api.onchange('company_id')
     def _onchange_company_id(self):
         self.warehouse_out_id = False
@@ -59,66 +52,26 @@ class StockAcrossMove(models.Model):
         if self.company_id:
             self.warehouse_out_id = self.env['stock.warehouse'].search([('company_id', '=', self.company_id.id)], limit=1).id
 
-    # @api.onchange()
-    # def _onchange_warehouse(self):
-    #     if self.warehouse_out_id and self.warehouse_in_id and self.warehouse_in_id.id != self.warehouse_out_id.id:
-    #         res = self.search([('warehouse_out_id', '=', self.warehouse_out_id.id), ('warehouse_in_id', '=', self.warehouse_in_id.id)], limit=1, order='id desc')
-    #         if res:
-    #             self.payment_term_id = res.payment_term_id.id
-
-    @api.model
-    def create(self, vals):
-        """默认name字段"""
-        vals['name'] = self.env['ir.sequence'].next_by_code('stock.across.move')
-
-        res = super(StockAcrossMove, self).create(vals)
-
-        # 修改明细的当前成本字段值
-        valuation_move_obj = self.env['stock.inventory.valuation.move']
-
-        _, cost_group_id = res.warehouse_out_id.company_id.get_cost_group_id()
-        for line in res.line_ids:
-            stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group_id)
-            line.current_cost = stock_cost
-
-        return res
-
-    @api.multi
-    def unlink(self):
-        if self.filtered(lambda x: x.state != 'draft'):
-            raise ValidationError('非草稿状态的记录不能删除！')
-
-        # 限制调用仓库的权限
-        if any([res.company_id.id not in self.env.user.company_id.child_ids.ids for res in self]):
-            raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能删除！')
-
-        return super(StockAcrossMove, self).unlink()
-
-    @api.multi
-    def write(self, vals):
-        # 限制调用仓库的权限
-        if 'cron_update' not in self._context:  # cron_update上下文避免计划任务修改状态报错
-            if any([res.company_id.id not in self.env.user.company_id.child_ids.ids for res in self]):
-                raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能修改！')
-
-        return super(StockAcrossMove, self).write(vals)
-
-    @api.multi
-    def action_view_picking(self):
-        if self._context['view_type'] == 'sale':
-            return self.sale_order_id.action_view_delivery()
-
-        return self.purchase_order_id.action_view_picking()
-
     @api.multi
     def action_confirm(self):
         """确认"""
         self.ensure_one()
-        if self.company_id.id not in self.env.user.company_id.child_ids.ids:
+        companies = self.env.user.company_id
+        companies |= companies.child_ids
+        company_ids = companies.ids
+        if self.company_id.id not in company_ids:
             raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能确认！')
 
         if not self.line_ids:
             raise ValidationError("请输入调拨明细！")
+
+        # 重复商品
+        res = Counter([line.product_id.id for line in self.line_ids])
+        repeat = list(filter(lambda x: res[x] > 1, res.keys()))
+        if repeat:
+            names = self.env['product.product'].browse(repeat).mapped('partner_ref')
+            names = '、'.join(names)
+            raise ValidationError('商品：%s重复调拨！' % names)
 
         if self.state != 'draft':
             raise ValidationError('只有草稿的单据才能确认！')
@@ -132,7 +85,10 @@ class StockAcrossMove(models.Model):
     def action_draft(self):
         """重置为草稿"""
         self.ensure_one()
-        if self.company_id.id not in self.env.user.company_id.child_ids.ids:
+        companies = self.env.user.company_id
+        companies |= companies.child_ids
+        company_ids = companies.ids
+        if self.company_id.id not in company_ids:
             raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能重置为草稿！')
 
         if self.state != 'confirm':
@@ -152,7 +108,10 @@ class StockAcrossMove(models.Model):
             return types[:1].id
 
         self.ensure_one()
-        if self.company_id.id not in self.env.user.company_id.child_ids.ids:
+        companies = self.env.user.company_id
+        companies |= companies.child_ids
+        company_ids = companies.ids
+        if self.company_id.id not in company_ids:
             raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能审核！')
 
         if self.state != 'confirm':
@@ -189,8 +148,9 @@ class StockAcrossMove(models.Model):
             'picking_type_id': get_picking_type(),
             'payment_term_id': self.payment_term_id.id,
             'company_id': company_in_id,
-            'origin': sale_order.name,
+            'origin': self.name,
             'notes': '跨店调拨单：%s，关联的采购订单' % self.name,
+            'is_across_move': True,  # 是跨公司调拨
             'order_line': [(0, 0, {
                 'product_id': line.product_id.id,
                 'name': line.product_id.name,
@@ -209,6 +169,66 @@ class StockAcrossMove(models.Model):
             'sale_order_id': sale_order.id,
             'purchase_order_id': purchase_order.id,
         })
+
+    @api.multi
+    def action_view_picking(self):
+        if self._context['view_type'] == 'sale':
+            return self.sale_order_id.action_view_delivery()
+
+        return self.purchase_order_id.action_view_picking()
+
+    @api.multi
+    @api.constrains('warehouse_in_id', 'warehouse_out_id')
+    def _check_warehouse(self):
+        for move in self:
+            if move.warehouse_in_id and move.warehouse_out_id and move.warehouse_in_id.id == move.warehouse_out_id.id:
+                raise ValidationError('调出仓库和调入仓库不能一样！')
+
+    @api.model
+    def create(self, vals):
+        """默认name字段"""
+        vals['name'] = self.env['ir.sequence'].next_by_code('stock.across.move')
+
+        res = super(StockAcrossMove, self).create(vals)
+
+        # 修改明细的当前成本字段值
+        valuation_move_obj = self.env['stock.inventory.valuation.move']
+
+        _, cost_group_id = res.warehouse_out_id.company_id.get_cost_group_id()
+        for line in res.line_ids:
+            stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group_id)
+            line.current_cost = stock_cost
+
+        return res
+
+    @api.multi
+    def unlink(self):
+        if self.filtered(lambda x: x.state != 'draft'):
+            raise ValidationError('非草稿状态的记录不能删除！')
+
+        companies = self.env.user.company_id
+        companies |= companies.child_ids
+        company_ids = companies.ids
+
+        # 限制调用仓库的权限
+        if any([res.company_id.id not in company_ids for res in self]):
+            raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能删除！')
+
+        return super(StockAcrossMove, self).unlink()
+
+    @api.multi
+    def write(self, vals):
+        # 限制调用仓库的权限
+        if 'cron_update' not in self._context:  # cron_update上下文避免计划任务修改状态报错
+
+            companies = self.env.user.company_id
+            companies |= companies.child_ids
+            company_ids = companies.ids
+
+            if any([res.company_id.id not in company_ids for res in self]):
+                raise ValidationError('部分单据调出仓库公司非当前用户所属公司，不能修改！')
+
+        return super(StockAcrossMove, self).write(vals)
 
     @api.model
     def _cron_across_move_state(self):
@@ -278,7 +298,7 @@ class StockAcrossMove(models.Model):
         })for diff in filter(lambda x: float_compare(x['move_out_qty'], x['move_in_qty'], precision_digits=3) != 0, across_move)]
 
         if diff_vals:
-            self.diff_ids = diff_vals
+            self.with_context(cron_update=1).diff_ids = diff_vals
 
 
 class StockAcrossMoveLine(models.Model):
@@ -299,7 +319,7 @@ class StockAcrossMoveLine(models.Model):
     def _check_move_qty(self):
         """数量必须大于0"""
         for line in self:
-            if float_compare(line.move_qty, 0.0, precision_rounding=0.0001) <= 0:
+            if float_compare(line.move_qty, 0.0, precision_rounding=0.01) <= 0:
                 raise ValidationError('调拨数量必须大于0！')
 
     # @api.multi
@@ -362,9 +382,7 @@ class StockAcrossMoveDiffReceipt(models.Model):
     _order = 'id desc'
 
     name = fields.Char('单据号', readonly=1, default='New')
-    date = fields.Date('单据日期',
-                             default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')),
-                             readonly=1, states=READONLY_STATES)
+    date = fields.Date('单据日期', default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')), readonly=1, states=READONLY_STATES)
     company_id = fields.Many2one('res.company', '公司', readonly=1, track_visibility='onchange')
     move_id = fields.Many2one('stock.across.move', '跨公司调拨', ondelete='restrict', index=1, required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
     partner_id = fields.Many2one('res.partner', required=1, string='伙伴', readonly=1, states=READONLY_STATES, track_visibility='onchange')
@@ -579,7 +597,7 @@ class StockAcrossMoveDiffReceipt(models.Model):
             'name': '调拨差异：%s收款' % self.move_id.name,  # 参考/说明(自动产生)
             'partner_bank_id': False,  # 银行账户
             'partner_id': partner.id,  # 业务伙伴(供应商)
-            'refund_invoice_id': False,  # 为红字发票开票(退款账单关联的账单) TODO 待计算退货
+            'refund_invoice_id': False,  # 为红字发票开票(退款账单关联的账单)
             'sent': False,  # 已汇
             'source_email': False,  # 源电子邮件
             # 'tax_line_ids': [],  # 税额明细行
@@ -594,7 +612,7 @@ class StockAcrossMoveDiffReceipt(models.Model):
             'stock_picking_id': False,
         }
         invoice = self.env['account.invoice'].sudo().create(vals)
-        invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
+        # invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
         # 打开结算单
         invoice.action_invoice_open()  # 打开并登记凭证
         # 创建分期

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_import_product_cost_wizard_form" model="ir.ui.view">
+            <field name="name">import.product.cost.wizard form</field>
+            <field name="model">import.product.cost.wizard</field>
+            <field name="arch" type="xml">
+                <form string="导入商品成本向导">
+                    <sheet>
+                        <group>
+                            <label for="import_file"/>
+                            <div>
+                                <field name="import_file" nolabel="1"/>
+                            </div>
+                            <!--<field name="overlay"/>-->
+                        </group>
+                        <group>
+                            <label for="id" string="模板下载"/>
+                            <div>
+                                <a href="/cj_stock/static/template/import_inventory_detail.xlsx" target="_blank">下载</a>
+                            </div>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string='导入' name="button_ok" type="object" class="btn-primary"/>
+                        <button string="取消" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!--<record id="action_import_product_cost_wizard" model="ir.actions.act_window">-->
+            <!--<field name="name">导入盘点明细</field>-->
+            <!--<field name="res_model">import.product.cost.wizard</field>-->
+            <!--<field name="view_type">form</field>-->
+            <!--<field name="view_mode">form</field>-->
+            <!--<field name="target">new</field>-->
+        <!--</record>-->
+
+        <!--<act_window-->
+            <!--id="action_import_product_cost_wizard"-->
+            <!--name="导入商品成本"-->
+            <!--res_model="import.product.cost.wizard"-->
+            <!--src_model="stock.inventory"-->
+            <!--view_mode="form"-->
+            <!--target="new"/>-->
+    </data>
+
+</odoo>
+
+
+

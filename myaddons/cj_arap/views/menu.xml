@@ -25,6 +25,11 @@
         <record id="account.menu_finance_entries_actions" model="ir.ui.menu">
             <field name="groups_id" eval="[(4, ref('base.group_erp_manager'))]"/>
         </record>
+
+        <!--应收应付菜单增加出纳访问-->
+        <record id="account.menu_finance" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('cj_arap.group_account_cashier'))]"/>
+        </record>
         <!--应收应付\会计凭证菜单序号调整-->
         <record id="account.menu_finance_entries" model="ir.ui.menu">
             <field name="sequence" eval="10"/>
@@ -51,6 +56,7 @@
 
         <!--增加采购菜单-->
         <menuitem id="menu_account_purchase" name="采购"
+                  groups="account.group_account_invoice"
             parent="account.menu_finance" sequence="5"/>
 
         <menuitem name="供应商"
@@ -78,6 +84,7 @@
 
         <!--增加销售菜单-->
         <menuitem id="menu_account_sale" name="销售"
+                  groups="account.group_account_invoice"
             parent="account.menu_finance" sequence="6"/>
 
         <menuitem name="客户" id="menu_action_sale_kh" action="base.action_partner_form"
@@ -120,6 +127,7 @@
 
         <!--增加仓库菜单-->
         <menuitem id="menu_account_stock" name="仓库"
+                  groups="account.group_account_invoice"
             parent="account.menu_finance" sequence="7"/>
 
     </data>
