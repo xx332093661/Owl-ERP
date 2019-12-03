@@ -519,9 +519,9 @@ class StockInventoryValuationMove(models.Model):
                     cost = 0
             else:
                 cost = valuation_move.stock_cost  # # 库存单位成本
-                if use_unit_cost:
-                    if float_is_zero(cost, precision_rounding=0.0001):
-                        cost = valuation_move.unit_cost
+                # if use_unit_cost:
+                if float_is_zero(cost, precision_rounding=0.0001):
+                    cost = valuation_move.unit_cost
 
             # stock_cost = valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
         else:  # 公司核算
@@ -543,9 +543,9 @@ class StockInventoryValuationMove(models.Model):
                     cost = 0
             else:
                 cost = valuation_move.stock_cost  # 库存单位成本
-                if use_unit_cost:
-                    if float_is_zero(cost, precision_rounding=0.0001):
-                        cost = valuation_move.unit_cost
+                # if use_unit_cost:
+                if float_is_zero(cost, precision_rounding=0.0001):
+                    cost = valuation_move.unit_cost
 
             # stock_cost = valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
 

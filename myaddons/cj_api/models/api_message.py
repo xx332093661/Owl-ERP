@@ -244,8 +244,8 @@ class ApiMessage(models.Model):
                     elif message.message_type == 'rabbit_mq':
                         message.deal_mq_content()  # 处理rabbitmq接收到的数据
 
-                    # if total_count > 100 and index % 10 == 9:
-                    #     self.env.cr.commit()
+                    if total_count > 100 and index % 10 == 9:
+                        self.env.cr.commit()
 
         _logger.info('数据处理完毕')
 
