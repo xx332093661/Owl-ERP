@@ -222,7 +222,8 @@ class AccountPayment(models.Model):
         if default_payment_type == 'outbound':  # 付款
             # 修改关联的付款申请的状态为paying(付款中)
             res.apply_id.state = 'paying'
-            res.invoice_register_id.state = 'wait_pay'
+            if res.invoice_register_id:
+                res.invoice_register_id.state = 'wait_pay'
 
         if default_payment_type == 'inbound':  # 收款
             if res.invoice_register_id:
@@ -325,23 +326,24 @@ class AccountPayment(models.Model):
         default_payment_type = self._context.get('default_payment_type')
         if default_payment_type == 'outbound':  # 付款
             self.apply_id.state = 'done'  # 修改付款申请状态
-            self.invoice_register_id.state = 'paid'  # 修改发票登记的状态
-            # 修改账单分期的状态和付款金额
-            for line in self.invoice_register_id.line_ids:
-                invoice_split = line.invoice_split_id  # 账单分期
-                amount_residual = invoice_split.amount - invoice_split.paid_amount  # 账单分期未支付余额
+            if self.invoice_register_id:
+                self.invoice_register_id.state = 'paid'  # 修改发票登记的状态
+                # 修改账单分期的状态和付款金额
+                for line in self.invoice_register_id.line_ids:
+                    invoice_split = line.invoice_split_id  # 账单分期
+                    amount_residual = invoice_split.amount - invoice_split.paid_amount  # 账单分期未支付余额
 
-                vals = {'paid_amount': invoice_split.paid_amount + line.invoice_amount}
-                if float_compare(amount_residual, line.invoice_amount, precision_digits=2) == 0:  # 如果核销完，修改账单分期状态
-                    vals['state'] = 'paid'
+                    vals = {'paid_amount': invoice_split.paid_amount + line.invoice_amount}
+                    if float_compare(amount_residual, line.invoice_amount, precision_digits=2) == 0:  # 如果核销完，修改账单分期状态
+                        vals['state'] = 'paid'
 
-                invoice_split.write(vals)
+                    invoice_split.write(vals)
 
-                invoice = invoice_split.invoice_id
-                if invoice:
-                    aml = self.move_line_ids.filtered(lambda x: x.debit > 0)
-                    invoice.register_payment(aml, amount=line.invoice_amount)
-                    self.write({'invoice_ids': [(4, invoice.id, None)]})
+                    invoice = invoice_split.invoice_id
+                    if invoice:
+                        aml = self.move_line_ids.filtered(lambda x: x.debit > 0)
+                        invoice.register_payment(aml, amount=line.invoice_amount)
+                        self.write({'invoice_ids': [(4, invoice.id, None)]})
 
         if default_payment_type == 'inbound':  # 收款
             if self.invoice_register_id:

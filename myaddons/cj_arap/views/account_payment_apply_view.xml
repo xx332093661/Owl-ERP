@@ -10,6 +10,7 @@
                     <field name="partner_id"/>
                     <field name="apply_date"/>
                     <field name="payment_date"/>
+                    <field name="purchase_order_id"/>
                     <field name="invoice_register_id"/>
                     <field name="amount"/>
                     <field name="state"/>
@@ -66,6 +67,7 @@
                                <field name="pay_account" attrs="{'required': [('pay_type', '=', 'bank')], 'invisible': [('pay_type', '!=', 'bank')]}"/>
                            </group>
                            <group>
+                               <field name="purchase_order_id" options="{'no_create': 1}"/>
                                <field name="invoice_register_id"
                                       context="{'default_type': 'in_invoice'}"
                                       options="{'no_create': 1}"/>

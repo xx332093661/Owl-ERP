@@ -63,7 +63,7 @@
                     <field name="unit_cost"/>
                     <field name="qty_available"/>
                     <field name="stock_cost"/>
-                    <field name="stock_value"/>
+                    <field name="stock_value" sum="合计"/>
                     <!--<field name="move_id"/>-->
                 </tree>
             </field>

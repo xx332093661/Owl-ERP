@@ -447,7 +447,6 @@ class PurchaseOrder(models.Model):
         if cost_group:
             for line in order_lines:
                 stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group.id, self.company_id.id)
-                print(stock_cost)
                 if float_is_zero(stock_cost, precision_rounding=0.001):
                     cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s' % (line.product_id.partner_ref, line.price_unit, stock_cost))
                 else:
