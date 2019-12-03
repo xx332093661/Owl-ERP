@@ -254,7 +254,7 @@ class StockInventory(models.Model):
         """验证核算组与所属门店的估值是否相等"""
         valuation_obj = self.env['stock.inventory.valuation.move']
         product_obj = self.env['product.product']
-        warehouse_obj = self.env['stock.warehouse']
+        # warehouse_obj = self.env['stock.warehouse']
         # group = self.env['account.cost.group'].browse(2)  # 信息科技核算组
 
         for group in self.env['account.cost.group'].search([]):
@@ -270,9 +270,11 @@ class StockInventory(models.Model):
 
                 moves = self.env['stock.inventory.valuation.move']
                 for company in group.store_ids:
-                    for warehouse in warehouse_obj.search([('company_id', '=', company.id)]):
-                        # 指定商品 公司的最后一条记录
-                        moves |= valuation_obj.search([('warehouse_id', '=', warehouse.id), ('stock_type', '=', 'only'), ('product_id', '=', product_id)], limit=1, order='id desc')
+                    moves |= valuation_obj.search([('company_id', '=', company.id), ('stock_type', '=', 'only'),
+                                                   ('product_id', '=', product_id)], limit=1, order='id desc')
+                    # for warehouse in warehouse_obj.search([('company_id', '=', company.id)]):
+                    #     # 指定商品 公司的最后一条记录
+                    #     moves |= valuation_obj.search([('warehouse_id', '=', warehouse.id), ('stock_type', '=', 'only'), ('product_id', '=', product_id)], limit=1, order='id desc')
 
                 store_stock_value = sum(moves.mapped('stock_value'))  # 门店库存估值总和
                 group_stock_value = group_move.stock_value  # 核算组库存估值总和
