@@ -2115,6 +2115,7 @@ class ApiMessage(models.Model):
         def stock_in():
             """在没有找到销售订单的情况下，做一张入库单"""
 
+        raise MyValidationError('40', '不处理队列')
         # order_obj = self.env['sale.order']
         delivery_obj = self.env['delivery.order']  # 出货单
         return_obj = self.env['sale.order.return']
