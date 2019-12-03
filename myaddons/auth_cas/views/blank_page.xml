@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="new_user" model="res.groups">
+        <field name="name">门户创建的新用户</field>
+        <field name="category_id" ref="shop_core.module_category_buy_world"/>
+    </record>
+
+    <record id="action_blank_page" model="ir.actions.act_window">
+        <field name="name">欢迎登陆POS系统</field>
+        <field name="res_model">blank.page</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree</field>
+        <field name="help" type="html">
+            <p style="display: inline-block; margin-top: 0; padding-top: 35px;
+            color: #4c4c4c; padding-left: 35px; margin: 0 0 9px; font-size: 160%; line-height: 1.42857143">
+                你还没有被分配任何权限，请联系POS系统管理员
+            </p>
+        </field>
+    </record>
+
+    <record id="view_blank_page_tree" model="ir.ui.view">
+        <field name="name">blank.page.tree</field>
+        <field name="model">blank.page</field>
+        <field name="arch" type="xml">
+            <tree string="欢迎登陆POS系统" create="0" edit="0" delete="0">
+                <field name="create_uid"/>
+            </tree>
+        </field>
+    </record>
+
+    <menuitem id="menu_blank_root" name="欢迎登陆POS系统" sequence="100" groups="auth_cas.new_user"/>
+
+    <menuitem id="menu_blank_page" name="欢迎登陆POS系统" action="action_blank_page" parent="menu_blank_root"
+              sequence="100" groups="auth_cas.new_user"/>
+</odoo>

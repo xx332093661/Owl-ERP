@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+blank_page,blank_page,model_blank_page,auth_cas.new_user,1,0,0,0

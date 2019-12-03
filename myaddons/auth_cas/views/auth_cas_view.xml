@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="auth_cas.cas_login" name="cas_login">
+        <t t-call="web.login_layout">
+            <form class="oe_login_form" role="form">
+                <p/>
+                <p/>
+                <div t-if="men_hu_url and not error" class="alert alert-success"
+                     style="text-align: center;font-size: 20px">
+                    <a t-att-href="men_hu_url">请使用企业门户登录</a>
+                </div>
+                <div t-elif="error" class="alert alert-danger"
+                     style="text-align: center;font-size: 20px">
+                    <p t-esc="error"/>
+                </div>
+                <div t-else="" class="alert alert-success"
+                     style="text-align: center;font-size: 20px">
+                    <p>请使用企业门户登录</p>
+                </div>
+            </form>
+        </t>
+    </template>
+</odoo>
