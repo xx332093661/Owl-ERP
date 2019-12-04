@@ -123,28 +123,28 @@ class Partner(models.Model):
 
         return super(Partner, self).create(val)
 
-    @api.multi
-    def write(self, val):
-        if val.get('supplier_group_id'):
-            result = False
-            sequence_obj = self.env['res.partner.group.sequence']
-
-            group_code = self.env['res.partner.group'].browse(val['supplier_group_id']).code
-
-            for res in self:
-                code = res.code
-                if code:
-                    old_group_code = res.supplier_group_id.code
-                    seq = code.replace(old_group_code, '')
-                    sequence_obj.delete_not_used_sequence(old_group_code, int(seq))
-
-                sequence = sequence_obj.get_group_sequence(group_code)
-                val['code'] = '%s%s' % (group_code, str(sequence).zfill(5))
-                result = super(Partner, res).write(val)
-        else:
-            result = super(Partner, self).write(val)
-
-        return result
+    # @api.multi
+    # def write(self, val):
+    #     if val.get('supplier_group_id'):
+    #         result = False
+    #         sequence_obj = self.env['res.partner.group.sequence']
+    #
+    #         group_code = self.env['res.partner.group'].browse(val['supplier_group_id']).code
+    #
+    #         for res in self:
+    #             code = res.code
+    #             if code:
+    #                 old_group_code = res.supplier_group_id.code
+    #                 seq = code.replace(old_group_code, '')
+    #                 sequence_obj.delete_not_used_sequence(old_group_code, int(seq))
+    #
+    #             sequence = sequence_obj.get_group_sequence(group_code)
+    #             val['code'] = '%s%s' % (group_code, str(sequence).zfill(5))
+    #             result = super(Partner, res).write(val)
+    #     else:
+    #         result = super(Partner, self).write(val)
+    #
+    #     return result
 
     @api.multi
     def action_confirm(self):
