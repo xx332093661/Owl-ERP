@@ -101,9 +101,9 @@
                     <attribute name="context">{'search_default_supplier':1, 'default_supplier':1, 'default_customer':0, 'show_vat': True, 'form_view_ref': 'cj_purchase.view_partner_supplier_form', 'tree_view_ref': 'cj_purchase.view_partner_supplier_tree'}</attribute>
                 </xpath>
                 <field name="date_order" position="after">
-                    <field name="apply_id" options="{'no_create': 1}" readonly="1"/>
-                    <field name="contract_id" options="{'no_create': 1}" required="1"/>
-                    <field name="flow_id" readonly="1"/>
+                    <field name="apply_id" options="{'no_create': 1}" readonly="1" invisible="context.get('is_across_move')"/>
+                    <field name="contract_id" options="{'no_create': 1}" required="not context.get('is_across_move')"  invisible="context.get('is_across_move')"/>
+                    <field name="flow_id" readonly="1" invisible="context.get('is_across_move')"/>
                 </field>
                 <field name="incoterm_id" position="after">
                     <field name="payment_time" widget="float_time"/>
@@ -113,16 +113,16 @@
                 </field>
 
                 <field name="partner_ref" position="after">
-                    <field name="rebate"/>
-                    <field name="purchase_order_count"/>
+                    <field name="rebate" invisible="context.get('is_across_move')"/>
+                    <field name="purchase_order_count" invisible="context.get('is_across_move')"/>
                 </field>
 
                 <xpath expr="//field[@name='purchase_order_count']" position="after">
-                    <field name="explain"/>
+                    <field name="explain" invisible="context.get('is_across_move')"/>
                 </xpath>
 
                 <xpath expr="//page[@name='purchase_delivery_invoice']" position="before">
-                    <page string="供应商返利" attrs="{'invisible': [('rebate', '=', False)]}">
+                    <page string="供应商返利" attrs="{'invisible': [('rebate', '=', False)]}" invisible="context.get('is_across_move')">
                         <group col="4">
                             <field name="rebate_type" attrs="{'required': [('rebate', '=', True)]}"/>
                             <field name="rebate_time" attrs="{'required': [('rebate', '=', True)]}"/>

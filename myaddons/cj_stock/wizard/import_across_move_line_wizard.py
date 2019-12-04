@@ -56,9 +56,11 @@ class ImportAcrossMoveLineWizard(models.TransientModel):
                 if len(list(ls)) > 1:
                     raise ValidationError('物料编码：%s重复导入！' % default_code)
 
-            company = self.env['stock.across.move'].browse(self._context['active_id']).company_id
+            company = across_move.company_id
             _, cost_group_id = company.get_cost_group_id()
 
+            cost_type = across_move.cost_type # [('normal', '平调'), ('increase', '加价'), ('customize', '自定义')]
+            cost_increase_rating = across_move.cost_increase_rating
             vals = []
             for line in lines:
                 move_qty = line[2]
@@ -72,7 +74,14 @@ class ImportAcrossMoveLineWizard(models.TransientModel):
 
                 stock_cost = valuation_move_obj.get_product_cost(product.id, cost_group_id, company.id)
                 if not cost:
-                    cost = stock_cost
+                    if cost_type == 'customize':
+                        raise ValidationError('请导入商品成本！')
+                    else:
+                        if cost_type == 'normal':
+                            cost = stock_cost
+                        else:
+                            cost = stock_cost * (1 + cost_increase_rating / 100.0)
+
                 vals.append((0, 0, {'product_id': product.id, 'move_qty': move_qty,
                                     'current_cost': stock_cost,
                                     'cost': cost}))
