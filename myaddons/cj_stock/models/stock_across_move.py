@@ -343,7 +343,7 @@ class StockAcrossMoveLine(models.Model):
 
         _, cost_group_id = company.get_cost_group_id()
 
-        stock_cost = valuation_move_obj.get_product_cost(self.product_id.id, cost_group_id)
+        stock_cost = valuation_move_obj.get_product_cost(self.product_id.id, cost_group_id, company.id)
 
         self.current_cost = stock_cost
 
