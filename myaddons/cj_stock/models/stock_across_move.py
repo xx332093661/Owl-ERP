@@ -203,8 +203,8 @@ class StockAcrossMove(models.Model):
 
     @api.multi
     def unlink(self):
-        # if self.filtered(lambda x: x.state != 'draft'):
-        #     raise ValidationError('非草稿状态的记录不能删除！')
+        if self.filtered(lambda x: x.state != 'draft'):
+            raise ValidationError('非草稿状态的记录不能删除！')
 
         companies = self.env.user.company_id
         companies |= companies.child_ids
