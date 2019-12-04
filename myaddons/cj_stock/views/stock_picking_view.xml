@@ -28,6 +28,12 @@
                 <xpath expr="//field[@name='location_dest_id']" position="attributes">
                     <attribute name="domain">[]</attribute>
                 </xpath>
+                <!--删除报废按钮-->
+                <xpath expr="//button[@name='button_scrap']" position="replace"/>
+                <!--删除锁定按钮-->
+                <xpath expr="//button[@name='action_toggle_is_locked'][1]" position="replace"/>
+                <xpath expr="//button[@name='action_toggle_is_locked'][1]" position="replace"/>
+
                 <!--在其他信息标签页前加收货人信息标签页、物流信息标签页-->
                 <!--<xpath expr="//page[@name='extra']" position="before">-->
                     <!--<page string="收货人信息" name="consignee">-->

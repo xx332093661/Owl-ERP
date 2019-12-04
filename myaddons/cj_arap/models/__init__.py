@@ -26,3 +26,4 @@ from . import account_cost_group
 from . import stock_inventory_valuation
 from . import sale_order_line_cost
 from . import account_move
+from . import stock_internal_move

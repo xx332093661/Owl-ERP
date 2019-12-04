@@ -452,7 +452,7 @@ class PurchaseOrder(models.Model):
                 else:
                     if line.price_unit > stock_cost:
                         cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s，比当前库存成本价高%s%%' % (
-                        line.product_id.partner_ref, line.price_unit, stock_cost, (line.price_unit - stock_cost) * 100 / stock_cost))
+                        line.product_id.partner_ref, line.price_unit, stock_cost, round((line.price_unit - stock_cost) * 100 / stock_cost, 2)))
 
         cost_notice = '\n'.join(cost_notice)
 

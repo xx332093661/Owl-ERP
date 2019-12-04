@@ -101,28 +101,33 @@
                     <attribute name="context">{'search_default_supplier':1, 'default_supplier':1, 'default_customer':0, 'show_vat': True, 'form_view_ref': 'cj_purchase.view_partner_supplier_form', 'tree_view_ref': 'cj_purchase.view_partner_supplier_tree'}</attribute>
                 </xpath>
                 <field name="date_order" position="after">
-                    <field name="apply_id" options="{'no_create': 1}" readonly="1"/>
-                    <field name="contract_id" options="{'no_create': 1}" required="1"/>
-                    <field name="flow_id" readonly="1"/>
+                    <field name="apply_id" options="{'no_create': 1}" readonly="1" invisible="context.get('is_across_move')"/>
+                    <field name="contract_id" options="{'no_create': 1}" required="not context.get('is_across_move')"  invisible="context.get('is_across_move')"/>
+
                 </field>
                 <field name="incoterm_id" position="after">
                     <field name="payment_time" widget="float_time"/>
                     <field name="deliver_time" widget="float_time"/>
                     <field name="logistics_time" widget="float_time"/>
                     <field name="arrival_time" widget="float_time"/>
+                    <field name="flow_id" readonly="1" invisible="context.get('is_across_move')"/>
+                    <field name="explain" invisible="context.get('is_across_move')"/>
                 </field>
+
+                <field name="payment_term_id" position="replace"/>
 
                 <field name="partner_ref" position="after">
-                    <field name="rebate"/>
-                    <field name="purchase_order_count"/>
+                    <field name="rebate" invisible="context.get('is_across_move')"/>
+                    <field name="purchase_order_count" invisible="context.get('is_across_move')"/>
+                    <field name="payment_term_id" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                 </field>
 
-                <xpath expr="//field[@name='purchase_order_count']" position="after">
-                    <field name="explain"/>
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="picking_type_id" attrs="{'readonly': [('state', '!=', 'draft')]}" domain="[('warehouse_id.company_id', '=', company_id), ('code', '=', 'incoming')]" options="{'no_create': True, 'no_open': 1}"/>
                 </xpath>
 
                 <xpath expr="//page[@name='purchase_delivery_invoice']" position="before">
-                    <page string="供应商返利" attrs="{'invisible': [('rebate', '=', False)]}">
+                    <page string="供应商返利" attrs="{'invisible': [('rebate', '=', False)]}" invisible="context.get('is_across_move')">
                         <group col="4">
                             <field name="rebate_type" attrs="{'required': [('rebate', '=', True)]}"/>
                             <field name="rebate_time" attrs="{'required': [('rebate', '=', True)]}"/>
@@ -149,9 +154,9 @@
                         </field>
                     </page>
                 </xpath>
-                <xpath expr="//field[@name='payment_term_id']" position="attributes">
-                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
-                </xpath>
+                <!--<xpath expr="//field[@name='payment_term_id']" position="attributes">-->
+                    <!--<attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>-->
+                <!--</xpath>-->
                 <!--采购订单明细增加payment_term_id(支付条款)字段-->
                 <xpath expr="//field[@name='order_line']/tree/field[@name='date_planned']" position="after">
                     <field name="payment_term_id"/>
@@ -216,13 +221,12 @@
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase_stock.purchase_order_view_form_inherit"/>
             <field name="arch" type="xml">
-                <field name="picking_type_id" position="attributes">
-                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
-                </field>
-                <!--限制作业类型-->
-                <field name="picking_type_id" position="attributes">
-                    <attribute name="domain">[('warehouse_id.company_id', '=', company_id), ('code', '=', 'incoming')]</attribute>
-                </field>
+                <field name="picking_type_id" position="replace"/>
+
+                <!--<field name="picking_type_id" position="attributes">-->
+                    <!--<attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>-->
+                    <!--<attribute name="domain">[('warehouse_id.company_id', '=', company_id), ('code', '=', 'incoming')]</attribute>-->
+                <!--</field>-->
                 <xpath expr="//button[@name='action_view_picking']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>

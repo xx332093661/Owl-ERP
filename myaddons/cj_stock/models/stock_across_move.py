@@ -102,7 +102,7 @@ class StockAcrossMove(models.Model):
 
         def get_picking_type():
             type_obj = self.env['stock.picking.type'].sudo()
-            types = type_obj.search([('code', '=', 'incoming'), ('warehouse_id.company_id', '=', company_in_id)])
+            types = type_obj.search([('code', '=', 'incoming'), ('warehouse_id', '=', self.warehouse_in_id.id)])
             if not types:
                 types = type_obj.search([('code', '=', 'incoming'), ('warehouse_id', '=', False)])
             return types[:1].id
