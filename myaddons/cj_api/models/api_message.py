@@ -492,7 +492,8 @@ class ApiMessage(models.Model):
                 'street': supplier['address'],  # 街道地址
             }
 
-            partner = partner_obj.search([('code', '=', supplier['supplierCode']), ('supplier', '=', True)], limit=1)
+            # partner = partner_obj.search([('code', '=', supplier['supplierCode']), ('supplier', '=', True)], limit=1)
+            partner = partner_obj.search([('archive_code', '=', supplier['creditCode']), ('supplier', '=', True)], limit=1)
             if not partner:
                 partner = partner_obj.create(val)
             else:
