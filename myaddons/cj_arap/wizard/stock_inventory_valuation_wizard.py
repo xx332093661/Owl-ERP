@@ -75,16 +75,16 @@ class StockInventoryValuationWizard(models.TransientModel):
         context = {}
         if self.stock_type == 'all':
             domain.append(('cost_group_id', '=', self.cost_group_id.id))
-            context['hide_company_id'] = True
+            # context['hide_company_id'] = True
         else:
             domain.append(('company_id', 'in', self.company_ids.ids))
-            context['hide_cost_group_id'] = True
-            context['search_default_company'] = 1
+            # context['hide_cost_group_id'] = True
+            # context['search_default_company'] = 1
 
         if self.product_ids:
             domain.append(('product_id', 'in', self.product_ids.ids))
-            if len(self.product_ids) > 1:
-                context['search_default_product'] = 1
+            # if len(self.product_ids) > 1:
+            #     context['search_default_product'] = 1
 
         if self.date_from:
             domain.append(('date', '>=', self.date_from))
@@ -125,6 +125,7 @@ class StockInventoryValuationWizard(models.TransientModel):
             'name': '存货估值',
             'res_model': 'stock.inventory.valuation.move',
             'context': context,
-            'domain': [('id', 'in', ids)]
+            'domain': [('id', 'in', ids)],
+            'limit': 1000
         }
 

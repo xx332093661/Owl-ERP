@@ -81,7 +81,7 @@ class StockInventoryValuationMove(models.Model):
 
         # 在手数量为0， 则库存单位成本为0
         if float_is_zero(self.qty_available, precision_rounding=rounding):
-            self.stock_cost = 0
+            self.stock_cost = self.unit_cost
             return
 
         # 上一条记录的stock_value（库存价值）

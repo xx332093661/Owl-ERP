@@ -251,21 +251,36 @@ class StockInventory(models.Model):
         return vals
 
     def _cron_done_inventory(self):
-        """自动完成盘点"""
-        rabbitmq_ip = config.get('rabbitmq_ip', False)  # 用哪个ip去连RabbitMQ
-        if rabbitmq_ip:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            try:
-                s.connect(('8.8.8.8', 80))
-                ip = s.getsockname()[0]
-                # _logger.info('开启MQ客户端，本机ip：%s', ip)
-                if ip == rabbitmq_ip:
-                    return
-            finally:
-                s.close()
+        """验证核算组与所属门店的估值是否相等"""
+        valuation_obj = self.env['stock.inventory.valuation.move']
+        product_obj = self.env['product.product']
+        # warehouse_obj = self.env['stock.warehouse']
+        # group = self.env['account.cost.group'].browse(2)  # 信息科技核算组
 
-        for res in self.search([('state', '=', 'finance_manager_confirm')]):
-            res.action_validate()
+        for group in self.env['account.cost.group'].search([]):
+            # 所有商品
+            product_ids = []
+            for group_move in valuation_obj.search([('cost_group_id', '=', group.id), ('stock_type', '=', 'all')], order='id'):
+                if group_move.product_id.id not in product_ids:
+                    product_ids.append(group_move.product_id.id)
+
+            for product_id in product_ids:
+                # 指定商品 核算组对应的最后一条记录
+                group_move = valuation_obj.search([('cost_group_id', '=', group.id), ('stock_type', '=', 'all'), ('product_id', '=', product_id)], limit=1, order='id desc')
+
+                moves = self.env['stock.inventory.valuation.move']
+                for company in group.store_ids:
+                    moves |= valuation_obj.search([('company_id', '=', company.id), ('stock_type', '=', 'only'),
+                                                   ('product_id', '=', product_id)], limit=1, order='id desc')
+                    # for warehouse in warehouse_obj.search([('company_id', '=', company.id)]):
+                    #     # 指定商品 公司的最后一条记录
+                    #     moves |= valuation_obj.search([('warehouse_id', '=', warehouse.id), ('stock_type', '=', 'only'), ('product_id', '=', product_id)], limit=1, order='id desc')
+
+                store_stock_value = sum(moves.mapped('stock_value'))  # 门店库存估值总和
+                group_stock_value = group_move.stock_value  # 核算组库存估值总和
+                if float_compare(group_stock_value, store_stock_value, precision_rounding=0.0001) != 0:
+                    product = product_obj.browse(product_id)
+                    print('商品：%s，组值：%s，门店值：%s，差：%s' % (product.partner_ref, group_stock_value, store_stock_value, group_stock_value - store_stock_value))
 
 
 class InventoryLine(models.Model):
