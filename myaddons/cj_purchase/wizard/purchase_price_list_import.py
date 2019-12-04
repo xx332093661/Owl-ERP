@@ -41,7 +41,7 @@ class PurchasePriceListImport(models.TransientModel):
 
         supplierinfo_obj = self.env['product.supplierinfo']
         partner_obj = self.env['res.partner']
-        pt_obj = self.env['product.template']
+        product_obj = self.env['product.product']
 
         file_name = 'import_file.xls'
         with open(file_name, "wb") as f:
@@ -84,8 +84,8 @@ class PurchasePriceListImport(models.TransientModel):
                 if not supplier:
                     raise ValidationError('供应商：%s 不存在' % supplier_code)
 
-                pt = pt_obj.search([('default_code', '=', product_code)], limit=1)
-                if not pt:
+                product = product_obj.search([('default_code', '=', product_code)], limit=1)
+                if not product:
                     raise ValidationError('商品：%s 不存在' % product_code)
 
                 date_start = xlrd.xldate.xldate_as_datetime(date_start, 0)
@@ -94,9 +94,9 @@ class PurchasePriceListImport(models.TransientModel):
                 supplierinfo_obj.create({
                     'price_list_id': self._context['active_id'],
                     'company_id': self.env.user.company_id.id,
-
                     'name': supplier.id,
-                    'product_tmpl_id': pt.id,
+                    # 'product_tmpl_id': pt.id,
+                    'product_id': product.id,
                     'min_qty': min_qty or 0,
                     'price': price or 0,
                     'date_start': date_start,
