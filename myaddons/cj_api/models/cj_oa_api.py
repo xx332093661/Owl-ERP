@@ -116,7 +116,7 @@ class CjOaApi(models.Model):
                 flow_id = int(response.text)
                 self.create([{
                     'template_code': code,
-                    'sender_login_name': '100364',
+                    'sender_login_name': self.env.user.oa_code,
                     'subject': subject,
                     'token': token,
                     'data': data,
