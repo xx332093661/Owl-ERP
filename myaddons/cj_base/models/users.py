@@ -38,6 +38,10 @@ class ResUsers(models.Model):
         if 'lang' not in vals or not vals['lang']:
             vals['lang'] = 'zh_CN'
 
+        # 默认用户关联的伙伴的email
+        company = self.env['res.company'].browse(vals['company_id'])
+        vals['email'] = '%s@%s.com' % (vals['login'], company.code)
+
         return super(ResUsers, self).create(vals)
 
 
