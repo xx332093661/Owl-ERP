@@ -36,7 +36,7 @@ class StockInventoryValuationMove(models.Model):
 
         # 在手数量为0， 则库存单位成本为0
         if float_is_zero(self.qty_available, precision_rounding=rounding):
-            self.stock_cost = 0
+            self.stock_cost = self.unit_cost
             return
 
         # 上一条记录的stock_value（库存价值）
@@ -51,7 +51,14 @@ class StockInventoryValuationMove(models.Model):
             #                        ('stock_type', '=', self.stock_type), ('id', '<', self.id)], order='id desc', limit=1)
             # else:
             #     res = self.search([('cost_group_id', '=', cost_group_id), ('product_id', '=', product_id), ('stock_type', '=', self.stock_type), ('id', '<', self.id)], order='id desc', limit=1)
-        stock_value = res and res.stock_value or 0
+
+        if res:
+            self.env.cr.execute("""SELECT stock_value FROM stock_inventory_valuation_move WHERE id = %s""" % res.id)
+            r = self.env.cr.dictfetchall()[0]
+            stock_value = r['stock_value']
+        else:
+            stock_value = 0
+        # stock_value = res and res.stock_value or 0
 
         is_in = self.move_id._is_in()  # 是否是入库
         if is_in:
