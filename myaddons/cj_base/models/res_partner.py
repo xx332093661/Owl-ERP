@@ -113,12 +113,13 @@ class Partner(models.Model):
     def create(self, val):
         """默认email"""
         if 'email' not in val:
-            val.update({'email': 'example@qq.com'})
+            val.update({'email': 'example@cj.com'})
 
-        if val.get('supplier_group_id'):
-            group_code = self.env['res.partner.group'].browse(val['supplier_group_id']).code
-            sequence = self.env['res.partner.group.sequence'].get_group_sequence(group_code)
-            val['code'] = '%s%s' % (group_code, str(sequence).zfill(5))
+        if not val.get('code'):
+            if val.get('supplier_group_id'):
+                group_code = self.env['res.partner.group'].browse(val['supplier_group_id']).code
+                sequence = self.env['res.partner.group.sequence'].get_group_sequence(group_code)
+                val['code'] = '%s%s' % (group_code, str(sequence).zfill(5))
 
         return super(Partner, self).create(val)
 
