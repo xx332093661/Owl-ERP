@@ -189,7 +189,7 @@
             <field name="res_model">res.partner</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="domain">[('supplier', '=', True), ('parent_id', '=', False)]</field>
+            <field name="domain">[('supplier', '=', True), ('parent_id', '=', False), ('code', 'not in', ['ZTO', 'YTO', 'JDKD'])]</field>
             <field name="context">{'default_customer': 0,'default_supplier': 1, 'default_is_company': True, 'default_company_type': 'company', 'cj_supplier': 1}</field>
             <field name="filter" eval="True"/>
         </record>

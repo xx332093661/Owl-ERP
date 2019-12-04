@@ -43,8 +43,3 @@ class ResUsers(models.Model):
         vals['email'] = '%s@%s.com' % (vals['login'], company.code)
 
         return super(ResUsers, self).create(vals)
-
-
-
-
-

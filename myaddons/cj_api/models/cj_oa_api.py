@@ -93,9 +93,12 @@ class CjOaApi(models.Model):
         if not token:
             raise Exception('获取OA访问令牌出错！')
 
+        if not self.env.user.oa_code:
+            raise Exception('用户没有OA编码！')
+
         val = {
             'templateCode': code,
-            'senderLoginName': '100364',
+            'senderLoginName': self.env.user.oa_code,
             'subject': subject,
             'token': token,
             'param': '1',
