@@ -33,6 +33,7 @@ class ImportAcrossMoveLineWizard(models.TransientModel):
                 return False
 
         product_obj = self.env['product.product']
+        valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值
 
         file_name = 'import_file.xls'
         with open(file_name, "wb") as f:
@@ -55,6 +56,9 @@ class ImportAcrossMoveLineWizard(models.TransientModel):
                 if len(list(ls)) > 1:
                     raise ValidationError('物料编码：%s重复导入！' % default_code)
 
+            company = self.env['stock.across.move'].browse(self._context['active_id']).company_id
+            _, cost_group_id = company.get_cost_group_id()
+
             vals = []
             for line in lines:
                 move_qty = line[2]
@@ -66,7 +70,12 @@ class ImportAcrossMoveLineWizard(models.TransientModel):
                 if not product:
                     raise ValidationError('物料编码%s对应易耗品不存在！' % default_code)
 
-                vals.append((0, 0, {'product_id': product.id, 'move_qty': move_qty, 'cost': cost}))
+                stock_cost = valuation_move_obj.get_product_cost(product.id, cost_group_id, company.id)
+                if not cost:
+                    cost = stock_cost
+                vals.append((0, 0, {'product_id': product.id, 'move_qty': move_qty,
+                                    'current_cost': stock_cost,
+                                    'cost': cost}))
 
             vals.insert(0, (5, 0))
 
