@@ -11,6 +11,7 @@ class SaleReturn(models.Model):
     sale_order_id = fields.Many2one('sale.order', '全渠道订单')
     warehouse_id = fields.Many2one('stock.warehouse', '收货仓库')
     type = fields.Selection([('THRK', '退货入库'), ('HHRK', '换货入库')], '单据类型')
+    pre_delivery_order_code = fields.Char('原出库单号')
 
     # 退货人信息
     consignee_name = fields.Char('姓名')

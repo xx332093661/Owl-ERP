@@ -1724,86 +1724,87 @@ class ApiMessage(models.Model):
 
         # 销售退货(只有一次退货)
         if update_type == 'STOCK_01001':
-            sale_order = sale_order_obj.search([('name', '=', order_name), ])
-            if not sale_order:  # 没有找到对应订单 TODO 直接入库?
-                move_lines = []
-                for content in contents:
-                    product = self.get_product(content['goodsCode'])
-                    move_lines.append((0, 0, {
-                        'name': product.partner_ref,
-                        'product_uom': product.uom_id.id,
-                        'product_id': product.id,
-                        'product_uom_qty': abs(content['quantity']),
-                        'quantity_done': abs(content['quantity']),
-                        'store_stock_update_code': 'STOCK_01001',  # 门店库存变更类型
-                    }))
-                store_code = contents[0]['storeCode']  # 门店编号
-                company = company_obj.search([('code', '=', store_code)])
-                warehouse = warehouse_obj.search([('company_id', '=', company.id)])
-                picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'incoming')])  # 作业类型
-
-                picking = picking_obj.create({
-                    'location_id': location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 源库位(客户库位)
-                    'location_dest_id': picking_type.default_location_dest_id.id,  # 目的库位(库存库位)
-                    'picking_type_id': picking_type.id,  # 作业类型
-                    'origin': contents[0]['updateCode'],  # 关联单据
-                    'company_id': company.id,
-                    'move_lines': move_lines,
-                    'note': '销售退货'
-                })
-                picking.action_confirm()
-                picking.button_validate()
-                return
-                # raise MyValidationError('14', '变更单号：%s未找到对应的销售订单！' % order_name)
-
-            picking = picking_obj.search([('sale_id', '=', sale_order.id)])
-            if picking.state != 'done':
-                raise MyValidationError('24', '订单：%s未完成出库，不能退货！' % order_name)
-
-            stock_out_lines = []  # 出库商品
-            for product, ls in groupby(sorted(sale_order.order_line, key=lambda x: x.product_id.id), lambda x: x.product_id):  # 按商品分组
-                stock_out_lines.append({
-                    'product_id': product.id,
-                    'stock_out_qty': sum([line.qty_delivered for line in ls]),  # 出库数量
-                    'return_qty': 0  # 退货数量
-                })
-
-            # 退货数量
-            return_vals = []
-            for content in contents:
-                product = self.get_product(content['goodsCode'])
-                res = list(filter(lambda x: x['product_id'] == product.id, stock_out_lines))
-                if not res:
-                    stock_out_lines.append({
-                        'product_id': product.id,
-                        'stock_out_qty': 0,
-                        'return_qty': abs(content['quantity'])
-                    })
-                else:
-                    res[0]['return_qty'] += abs(content['quantity'])
-
-                stock_move = picking.move_lines.filtered(lambda x: x.product_id.id == product.id)
-                return_vals.append((0, 0, {
-                    'product_id': product.id,
-                    'quantity': abs(content['quantity']),
-                    'move_id': stock_move.id,
-                }))
-
-            # 退货数量大于出库数量
-            res = list(filter(lambda x: float_compare(x['return_qty'], x['stock_out_qty'], precision_rounding=0.01) == 1, stock_out_lines))
-            if res:
-                pros = ['[%s]%s' % (product_obj.browse(r['product_id']).default_code, product_obj.browse(r['product_id']).name) for r in res]
-                raise MyValidationError('25', '商品：%s退货数量大于出库数量！' % ('、'.join(pros)))
-
-            # 创建退货单
-            vals = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).default_get(return_picking_obj._fields)
-            vals.update({
-                'product_return_moves': return_vals,
-            })
-            return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
-            new_picking_id, pick_type_id = return_picking._create_returns()
-            picking_obj.browse(new_picking_id).action_done()  # 确认入库
-            return
+            raise MyValidationError('40', '不处理队列')
+            # sale_order = sale_order_obj.search([('name', '=', order_name), ])
+            # if not sale_order:  # 没有找到对应订单 TODO 直接入库?
+            #     move_lines = []
+            #     for content in contents:
+            #         product = self.get_product(content['goodsCode'])
+            #         move_lines.append((0, 0, {
+            #             'name': product.partner_ref,
+            #             'product_uom': product.uom_id.id,
+            #             'product_id': product.id,
+            #             'product_uom_qty': abs(content['quantity']),
+            #             'quantity_done': abs(content['quantity']),
+            #             'store_stock_update_code': 'STOCK_01001',  # 门店库存变更类型
+            #         }))
+            #     store_code = contents[0]['storeCode']  # 门店编号
+            #     company = company_obj.search([('code', '=', store_code)])
+            #     warehouse = warehouse_obj.search([('company_id', '=', company.id)])
+            #     picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'incoming')])  # 作业类型
+            #
+            #     picking = picking_obj.create({
+            #         'location_id': location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 源库位(客户库位)
+            #         'location_dest_id': picking_type.default_location_dest_id.id,  # 目的库位(库存库位)
+            #         'picking_type_id': picking_type.id,  # 作业类型
+            #         'origin': contents[0]['updateCode'],  # 关联单据
+            #         'company_id': company.id,
+            #         'move_lines': move_lines,
+            #         'note': '销售退货'
+            #     })
+            #     picking.action_confirm()
+            #     picking.button_validate()
+            #     return
+            #     # raise MyValidationError('14', '变更单号：%s未找到对应的销售订单！' % order_name)
+            #
+            # picking = picking_obj.search([('sale_id', '=', sale_order.id)])
+            # if picking.state != 'done':
+            #     raise MyValidationError('24', '订单：%s未完成出库，不能退货！' % order_name)
+            #
+            # stock_out_lines = []  # 出库商品
+            # for product, ls in groupby(sorted(sale_order.order_line, key=lambda x: x.product_id.id), lambda x: x.product_id):  # 按商品分组
+            #     stock_out_lines.append({
+            #         'product_id': product.id,
+            #         'stock_out_qty': sum([line.qty_delivered for line in ls]),  # 出库数量
+            #         'return_qty': 0  # 退货数量
+            #     })
+            #
+            # # 退货数量
+            # return_vals = []
+            # for content in contents:
+            #     product = self.get_product(content['goodsCode'])
+            #     res = list(filter(lambda x: x['product_id'] == product.id, stock_out_lines))
+            #     if not res:
+            #         stock_out_lines.append({
+            #             'product_id': product.id,
+            #             'stock_out_qty': 0,
+            #             'return_qty': abs(content['quantity'])
+            #         })
+            #     else:
+            #         res[0]['return_qty'] += abs(content['quantity'])
+            #
+            #     stock_move = picking.move_lines.filtered(lambda x: x.product_id.id == product.id)
+            #     return_vals.append((0, 0, {
+            #         'product_id': product.id,
+            #         'quantity': abs(content['quantity']),
+            #         'move_id': stock_move.id,
+            #     }))
+            #
+            # # 退货数量大于出库数量
+            # res = list(filter(lambda x: float_compare(x['return_qty'], x['stock_out_qty'], precision_rounding=0.01) == 1, stock_out_lines))
+            # if res:
+            #     pros = ['[%s]%s' % (product_obj.browse(r['product_id']).default_code, product_obj.browse(r['product_id']).name) for r in res]
+            #     raise MyValidationError('25', '商品：%s退货数量大于出库数量！' % ('、'.join(pros)))
+            #
+            # # 创建退货单
+            # vals = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).default_get(return_picking_obj._fields)
+            # vals.update({
+            #     'product_return_moves': return_vals,
+            # })
+            # return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
+            # new_picking_id, pick_type_id = return_picking._create_returns()
+            # picking_obj.browse(new_picking_id).button_validate()  # 确认入库
+            # return
 
         # 仓库配货入库
         if update_type == 'STOCK_02003':
@@ -2112,16 +2113,15 @@ class ApiMessage(models.Model):
     # 14、WMS-ERP-RETURN-STOCKIN-QUEUE 退货入库单
     def deal_wms_erp_return_stockin_queue(self, content):
         """退货入库单"""
-        def stock_in():
-            """在没有找到销售订单的情况下，做一张入库单"""
-
-        raise MyValidationError('40', '不处理队列')
-        # order_obj = self.env['sale.order']
+        # raise MyValidationError('40', '不处理队列')
+        order_obj = self.env['sale.order']
         delivery_obj = self.env['delivery.order']  # 出货单
         return_obj = self.env['sale.order.return']
         warehouse_obj = self.env['stock.warehouse']
         return_picking_obj = self.env['stock.return.picking']
         picking_obj = self.env['stock.picking']
+        picking_type_obj = self.env['stock.picking.type']  # 作业类型
+        location_obj = self.env['stock.location']
 
         content = json.loads(content)
 
@@ -2132,27 +2132,34 @@ class ApiMessage(models.Model):
         # if not order:
         #     raise MyValidationError('14', '订单编号：%s不存在！' % content['returnOrderCode'])
 
+        # preDeliveryOrderCode：原出库单号，POS订单退货，对应原订单号
         delivery = delivery_obj.search([('name', '=', content['preDeliveryOrderCode'])])
-        if not delivery:
-            raise MyValidationError('35', '原出库单号：%s对应的出库单不存在！' % content['preDeliveryOrderCode'])
+        # if not delivery:
+        #     raise MyValidationError('35', '原出库单号：%s对应的出库单不存在！' % content['preDeliveryOrderCode'])
 
         warehouse = warehouse_obj.search([('code', '=', content['warehouseNo'])])  # TODO 退货到不同的仓库未处理
         if not warehouse:
             raise MyValidationError('11', '仓库编码：%s对应仓库不存在！' % content['warehouseNo'])
 
-        order = delivery.sale_order_id
+        if delivery:
+            order = delivery.sale_order_id
+        else:
+            order = order_obj.search([('name', '=', content['preDeliveryOrderCode'])])
+            # TODO 暂时屏蔽错误
+            # if not order:
+            #     raise MyValidationError('14', '订单编号：%s不存在！' % content['returnOrderCode'])
 
         consignee = content['consignee']
-        state_id = self.get_country_state_id(consignee['provinceText'])  # 省
-        city_id = self.get_city_area_id(consignee['cityText'], state_id)  # 市
-        area_id = self.get_city_area_id(consignee['districtText'], state_id, city_id)  # 县
+        state_id = self.get_country_state_id(consignee.get('provinceText'))  # 省
+        city_id = self.get_city_area_id(consignee.get('cityText'), state_id)  # 市
+        area_id = self.get_city_area_id(consignee.get('districtText'), state_id, city_id)  # 县
 
         lines = []
         for item in content['items']:
             product = self.get_product(item['code'])
             lines.append((0, 0, {
                 'product_id': product.id,
-                'inventory_type': item['inventoryType'],  # 库存类型
+                'inventory_type': item['inventoryType'],  # 库存类型: ('CC', '残次'), ('ZP', '正品')
                 'quantity': item['quantity'],  # 下单数量
                 'actual_qty': item['actualQty'],  # 实收数量
             }))
@@ -2160,39 +2167,66 @@ class ApiMessage(models.Model):
         # 创建退货单
         return_obj.create({
             'name': content['returnOrderCode'],
-            'sale_order_id': order.id,
-            'delivery_id': delivery.id,
+            'sale_order_id': order.id if order else False,
+            'delivery_id': delivery.id if delivery else False,
             'warehouse_id': warehouse.id,
             'type': content['stockInType'],
-            'consignee_name': consignee['consigneeName'],
-            'consignee_mobile': consignee['consigneeMobile'],
-            'address': consignee['address'],
+            'pre_delivery_order_code': content['preDeliveryOrderCode'],
+            'consignee_name': consignee.get('consigneeName'),
+            'consignee_mobile': consignee.get('consigneeMobile'),
+            'address': consignee.get('address'),
             'consignee_state_id': state_id,
             'consignee_city_id': city_id,
             'consignee_district_id': area_id,
-            'line_ids': lines
+            'line_ids': lines,
         })
 
-        # 创建入库单
-        return_vals = []
-        picking = sorted(order.picking_ids.filtered(lambda x: x.state == 'done'), key=lambda x: x.id)[0]  # TODO 针对销售订单的第一张出库单来退货？
-        for item in content['items']:
-            product = self.get_product(item['code'])
-            stock_move = picking.move_lines.filtered(lambda x: x.product_id.id == product.id)
-            return_vals.append((0, 0, {
-                'product_id': product.id,
-                'quantity': item['actualQty'],
-                'move_id': stock_move.id,
-                'to_refund': True  # 退货退款
-            }))
+        if order:
+            # 创建入库单
+            return_vals = []
+            picking = sorted(order.picking_ids.filtered(lambda x: x.state == 'done'), key=lambda x: x.id)[0]  # TODO 针对销售订单的第一张出库单来退货？
+            for item in content['items']:
+                product = self.get_product(item['code'])
+                stock_move = picking.move_lines.filtered(lambda x: x.product_id.id == product.id)
+                return_vals.append((0, 0, {
+                    'product_id': product.id,
+                    'quantity': item['actualQty'],
+                    'move_id': stock_move.id,
+                    'to_refund': True  # 退货退款
+                }))
 
-        vals = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).default_get(return_picking_obj._fields)
-        vals.update({
-            'product_return_moves': return_vals,
-        })
-        return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
-        new_picking_id, pick_type_id = return_picking._create_returns()
-        picking_obj.browse(new_picking_id).with_context(dont_invoice=True).action_done()  # 确认入库，此处传dont_invoice上下文，不生成应收应付，由退款处理
+            vals = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).default_get(return_picking_obj._fields)
+            vals.update({
+                'product_return_moves': return_vals,
+            })
+            return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
+            new_picking_id, pick_type_id = return_picking._create_returns()
+            picking_obj.browse(new_picking_id).with_context(dont_invoice=True).button_validate()  # 确认入库，此处传dont_invoice上下文，不生成应收应付，由退款处理
+        else:
+            move_lines = []
+            for item in content['items']:
+                product = self.get_product(item['code'])
+                move_lines.append((0, 0, {
+                    'name': product.partner_ref,
+                    'product_uom': product.uom_id.id,
+                    'product_id': product.id,
+                    'product_uom_qty': item['actualQty'],
+                    'quantity_done': item['actualQty'],
+                    'store_stock_update_code': 'STOCK_01001',  # 门店库存变更类型
+                }))
+            picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'incoming')])  # 作业类型
+
+            picking = picking_obj.create({
+                'location_id': location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 源库位(客户库位)
+                'location_dest_id': picking_type.default_location_dest_id.id,  # 目的库位(库存库位)
+                'picking_type_id': picking_type.id,  # 作业类型
+                'origin': 'STOCK_01001',  # 关联单据
+                'company_id': warehouse.company_id.id,
+                'move_lines': move_lines,
+                'note': '销售退货'
+            })
+            picking.action_confirm()
+            picking.button_validate()
 
     # 15、MUSTANG-REFUND-ERP-QUEUE 退款单
     def deal_mustang_refund_erp_queue(self, content):
