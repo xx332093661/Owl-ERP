@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
-
-from odoo import api, models, tools, fields
-from odoo.exceptions import ValidationError
-from odoo.exceptions import UserError, ValidationError
-from xlrd import XLRDError
-from odoo.tools import float_compare
-
 import logging
 import xlrd
-import json
 import base64
 import os
 import traceback
+from datetime import datetime
 
+from odoo import api, models, fields
+from odoo.exceptions import UserError, ValidationError
+from xlrd import XLRDError
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
 
 _logger = logging.getLogger(__name__)
 
@@ -40,7 +37,7 @@ class PurchaseOrderImport(models.TransientModel):
                 return False
 
         product_obj = self.env['product.product']
-        order_line_obj = self.env['purchase.order.line']
+        # order_line_obj = self.env['purchase.order.line']
 
         file_name = 'import_file.xls'
         with open(file_name, "wb") as f:
@@ -64,38 +61,47 @@ class PurchaseOrderImport(models.TransientModel):
                 assert is_numeric(product_qty), '数量%s必须是数字' % product_qty
                 assert is_numeric(price), '价格%s必须是数字' % price
 
+            order = self.env['purchase.order'].browse(self._context['active_id'])
+            tax = self.env['account.tax'].search([('company_id', '=', order.company_id.id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
+            taxes_id = False
+            if tax:
+                taxes_id = [(6, 0, tax.ids)]
+
+            warehouse_id = order.picking_type_id.warehouse_id.id
+            payment_term_id = order.payment_term_id.id
+            date_planned = datetime.today().strftime(DATETIME_FORMAT)
+
+            vals_list = []
             for line in lines:
-                    product_code = line[0]  # 商品编码
-                    # product_name = line[1]  # 商品名称
-                    product_qty = line[2]  # 采购数量
-                    price = line[3]  # 采购单价
+                product_code = line[0]  # 商品编码
+                # product_name = line[1]  # 商品名称
+                product_qty = line[2]  # 采购数量
+                price = line[3]  # 采购单价
 
-                    if isinstance(product_code, float):
-                        product_code = str(int(product_code))
+                if isinstance(product_code, float):
+                    product_code = str(int(product_code))
 
-                    product = product_obj.search([('default_code', '=', product_code)], limit=1)
-                    if not product:
-                        raise ValidationError('商品：%s 不存在' % product_code)
+                product = product_obj.search([('default_code', '=', product_code)], limit=1)
+                if not product:
+                    raise ValidationError('物料编码：%s 对应的商品不存在' % product_code)
 
-                    order = self.env['purchase.order'].browse(self._context['active_id'])
+                vals_list.append((0, 0, {
+                    'order_id': order.id,
+                    'name': product.partner_ref,
+                    'product_id': product.id,
+                    'price_unit': price,
+                    'product_qty': product_qty,
+                    'date_planned': date_planned,
+                    'product_uom': product.uom_id.id,
+                    'payment_term_id': payment_term_id,
+                    'warehouse_id': warehouse_id,
+                    'taxes_id': taxes_id
+                }))
 
-                    new_order_line = order_line_obj.new({
-                        'order_id': order.id,
-                        'product_id': product.id,
-                    })
-                    new_order_line.onchange_product_id()
-
-                    order_line_obj.create({
-                        'order_id': order.id,
-                        'name': new_order_line.name,
-                        'product_id': product.id,
-                        'price_unit': price,
-                        'product_qty': product_qty,
-                        'date_planned': new_order_line.date_planned,
-                        'product_uom': new_order_line.product_uom.id,
-                        'payment_term_id': order.payment_term_id.id,
-                        'warehouse_id': order.picking_type_id.warehouse_id.id
-                    })
+            if vals_list:
+                vals_list.insert(0, (5, 0))
+                order.order_line = vals_list
+                # order_line_obj.create(vals_list)
 
         except Exception:
             raise
