@@ -28,11 +28,14 @@ class StockInternalMove(models.Model):
     date = fields.Date('单据日期', default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')), readonly=1, states=READONLY_STATES)
     company_id = fields.Many2one('res.company', '公司', required=1, readonly=1, states=READONLY_STATES,
                                  track_visibility='onchange', default=lambda self: self.env.user.company_id)
-    warehouse_out_id = fields.Many2one('stock.warehouse', '调出仓库', required=1, readonly=1, states=READONLY_STATES,
-                                       track_visibility='onchange', domain="[('company_id', '=', company_id)]",
-                                       default=lambda self: self.env['stock.warehouse'].search([('company_id', '=', self.env.user.company_id.id)], limit=1).id)
-    warehouse_in_id = fields.Many2one('stock.warehouse', '调入仓库', required=1, readonly=1, states=READONLY_STATES,
-                                      track_visibility='onchange', domain="[('company_id', '=', company_id), ('id', '!=', warehouse_out_id)]")
+    # warehouse_out_id = fields.Many2one('stock.warehouse', '调出仓库', required=1, readonly=1, states=READONLY_STATES,
+    #                                    track_visibility='onchange', domain="[('company_id', '=', company_id)]",
+    #                                    default=lambda self: self.env['stock.warehouse'].search([('company_id', '=', self.env.user.company_id.id)], limit=1).id)
+    # warehouse_in_id = fields.Many2one('stock.warehouse', '调入仓库', required=1, readonly=1, states=READONLY_STATES,
+    #                                   track_visibility='onchange', domain="[('company_id', '=', company_id), ('id', '!=', warehouse_out_id)]")
+
+    warehouse_out_id = fields.Many2one('stock.warehouse', '调出仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
+    warehouse_in_id = fields.Many2one('stock.warehouse', '调入仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
 
     picking_ids = fields.One2many('stock.picking', 'internal_move_id', '分拣单', readonly=1)
     picking_count = fields.Integer('分拣单数量', compute='_compute_picking_in_count')
@@ -40,6 +43,7 @@ class StockInternalMove(models.Model):
     line_ids = fields.One2many('stock.internal.move.line', 'move_id', '调拨明细', readonly=1, states=READONLY_STATES, required=1)
     diff_ids = fields.One2many('stock.internal.move.diff', 'move_id', '调拨差异')
     state = fields.Selection(STATES, '状态', default='draft', track_visibility='onchange')
+    move_state = fields.Char('调拨状态', compute='_compute_move_state', store=1)
 
     @api.onchange('company_id')
     def _onchange_company_id(self):
@@ -57,6 +61,21 @@ class StockInternalMove(models.Model):
     def _onchange_warehouse_in_id(self):
         if self.warehouse_out_id and self.warehouse_in_id and self.warehouse_out_id.id == self.warehouse_in_id.id:
             self.warehouse_out_id = False
+
+    @api.multi
+    @api.depends('picking_ids', 'picking_ids.state')
+    def _compute_move_state(self):
+        for res in self:
+            if res.picking_ids and all([picking.state in ['done', 'cancel'] for picking in res.picking_ids]):
+                res.move_state = 'done'
+                res._onchange_move_state()
+
+    @api.onchange('move_state')
+    def _onchange_move_state(self):
+        if self.move_state == 'done':
+            self.write({
+                'state': 'done'
+            })
 
     @api.multi
     def action_confirm(self):
@@ -122,7 +141,7 @@ class StockInternalMove(models.Model):
             'location_dest_id': location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 目的库位(客户库位)
             'picking_type_id': picking_type.id,  # 作业类型
             'origin': self.name,  # 关联单据
-            'company_id': self.company_id.id,
+            'company_id': self.warehouse_out_id.company_id.id,
             'move_lines': move_lines,
             'note': '内部调拨-出库',
             'internal_move_id': self.id
@@ -148,7 +167,7 @@ class StockInternalMove(models.Model):
             'location_dest_id': picking_type.default_location_dest_id.id,  # 目的库位(库存库位)
             'picking_type_id': picking_type.id,  # 作业类型
             'origin': self.name,  # 关联单据
-            'company_id': self.company_id.id,
+            'company_id': self.warehouse_in_id.company_id.id,
             'move_lines': move_lines,
             'note': '内部调拨-入库',
             'internal_move_id': self.id
