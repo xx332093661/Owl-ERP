@@ -338,19 +338,10 @@ class StockMove(models.Model):
 
     def create_inventory_valuation(self):
         """生成存货估值明细表
-        盘点：
-            盘亏：成本取对应商品当天的平均成本
-            盘盈：
-                初始化库存：成本取盘点明细的成本
-                非初始化库存：成本取对应商品当天的平均成本
-        销售：
-            销售出库：成本取当天的平均成本
-            销售退货：成本取当天的平均成本
-        采购：
-            采购入库：成本取对应采购订单明细的采购价
-            采购退货：成本取当天的平均成本
         """
         valuation_move_obj = self.env['stock.inventory.valuation.move']
+
+
         for move in self:
             valuation_move_obj.move2valuation(move)
 
