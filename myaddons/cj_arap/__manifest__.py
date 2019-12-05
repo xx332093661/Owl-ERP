@@ -55,6 +55,7 @@
         'views/stock_inventory_diff_receipt_view.xml',
         'views/account_cost_group_view.xml',
         'views/stock_inventory_valuation_move.view.xml',
+        'views/stock_internal_move_view.xml',
 
         'wizard/stock_inventory_valuation_wizard_view.xml',
 

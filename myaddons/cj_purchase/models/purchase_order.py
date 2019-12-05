@@ -221,8 +221,9 @@ class PurchaseOrder(models.Model):
         self.ensure_one()
 
         # 合同禁止退货
-        if self.contract_id.returns_sate == 'prohibit':
-            raise ValidationError('供应商合同禁止退货！')
+        if self.contract_id:
+            if self.contract_id.returns_sate == 'prohibit':
+                raise ValidationError('供应商合同禁止退货！')
 
         received_lines = []  # 已收货的商品
         for line in self.order_line.filtered(lambda x: x.qty_received > 0):
@@ -459,14 +460,9 @@ class PurchaseOrder(models.Model):
         point = '{0}\n{1}\n{2}'.format(purchase_count, time_product, cost_notice)
         return point
 
-
     @api.multi
     def action_commit_approval(self):
         """提交OA审批"""
-        supplier_model_obj = self.env['product.supplier.model']
-        valuation_move_obj = self.env['stock.inventory.valuation.move']
-        cost_group_obj = self.env['account.cost.group']
-
         self.ensure_one()
         if self.state != 'confirm':
             raise ValidationError('只有审核的单据才可以提交OA审批！')
@@ -513,6 +509,15 @@ class PurchaseOrder(models.Model):
             _logger.error('采购订单提交OA审批出错！')
             _logger.error(traceback.format_exc())
             raise UserError('提交OA审批出错！')
+
+    @api.multi
+    def action_manager_approval(self):
+        """因为提交OA审批等待时间太久，可由系统管理员角色直接审批，而无需OA审批"""
+        self.ensure_one()
+        if self.state != 'confirm':
+            raise ValidationError('只有审核的单据才可以由管理员审批！')
+
+        self.state = 'oa_accept'  # 审批通过
 
     def _update_oa_approval_state(self, flow_id, refuse=False):
         """OA审批通过回调"""

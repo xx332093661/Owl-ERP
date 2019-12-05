@@ -76,6 +76,7 @@
                     <!--<button name="action_general_manager_refuse" states="finance_manager_confirm" string="拒绝" type="object" groups="cj_purchase.group_purchase_general_manager"/>-->
                     <!--<button name="action_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_purchase.group_purchase_general_manager"/>-->
                     <button name="button_approve" states="oa_accept" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/>
+                    <button name="action_manager_approval" type="object" states="confirm" string="直接审批" groups="base.group_system"/>
                     <button name="action_commit_approval" type="object" states="confirm" string="提交OA审批" class="oe_highlight"/>
 
                     <!--<button name="action_supplier_send" states="Master_Review" string="下载打印发货单" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
@@ -83,6 +84,7 @@
 
                     <button name="action_return" type="object" states="purchase,done" string="退货" groups="purchase.group_purchase_user"/>
                     <button name="button_done" type="object" string="完成" class="oe_highlight" states="purchase" groups="purchase.group_purchase_user"/>
+                    <button name="%(action_purchase_order_import_wizard)d" states="draft" string="导入采购明细" type="action" groups="purchase.group_purchase_user"/>
                 </xpath>
                 <xpath expr="//button[@name='button_cancel']" position="replace">
 
@@ -102,7 +104,8 @@
                 </xpath>
                 <field name="date_order" position="after">
                     <field name="apply_id" options="{'no_create': 1}" readonly="1" invisible="context.get('is_across_move')"/>
-                    <field name="contract_id" options="{'no_create': 1}" required="not context.get('is_across_move')"  invisible="context.get('is_across_move')"/>
+                    <!--<field name="contract_id" options="{'no_create': 1}" required="not context.get('is_across_move')"  invisible="context.get('is_across_move')"/>-->
+                    <field name="contract_id" options="{'no_create': 1}" invisible="context.get('is_across_move')"/>
 
                 </field>
                 <field name="incoterm_id" position="after">

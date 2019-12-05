@@ -18,9 +18,12 @@ class SaleOrder(models.Model):
         required=1, readonly=True, states={'draft': [('readonly', False)]},
         default=_default_warehouse_id, domain="[('company_id', '=', company_id)]")
 
+    @api.onchange('warehouse_id')
     def _onchange_warehouse_id(self):
         """销售专员在创建销售订单时，可自由选择任意出库仓库，仓库变更时，不自动变更订单的company_id字段值"""
-        pass
+        if self.warehouse_id:
+            for line in self.order_line:
+                line.warehouse_id = self.warehouse_id.id
 
     @api.onchange('company_id')
     def _onchange_company_id(self):

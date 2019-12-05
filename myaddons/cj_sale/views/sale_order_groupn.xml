@@ -76,7 +76,8 @@
                             <field name="pricelist_id" groups="product.group_sale_pricelist"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="payment_term_id" options="{'no_create': True}" required="1"/>
-                            <field name="purchase_apply_id"/>
+                            <field name="company_id" options="{'no_create': True, 'no_open': 1}" attrs="{'readonly': [('state', '!=', 'draft')]}" required="1"/>
+                            <field name="warehouse_id" options="{'no_create': True, 'no_open': 1}" required="1" domain="[('company_id', '=', company_id)]"/>
                         </group>
                     </group>
 
@@ -242,35 +243,34 @@
                             <field name="payment_ids" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
                         </page>
 
-                        <page string="出货信息" name="order_lines">
-                            <field name="delivery_ids" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}">
-                                <tree editable="bottom">
-                                    <field name="name"/>
-                                    <field name="logistics_code"/>
-                                    <field name="cost_box"/>
-                                    <field name="cost"/>
-                                    <field name="state" invisible="1"/>
-                                </tree>
-                            </field>
-                            <group>
-                                <group>
-                                    <field name="consignee_name" string="收货人名字" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
-                                    <field name="address" string="收货人地址" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
-                                    <field name="consignee_city_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
-                                </group>
-                                <group>
-                                    <field name="consignee_mobile" string="收货人电话" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
-                                    <field name="consignee_state_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
-                                    <field name="consignee_district_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
-                                </group>
-                            </group>
-                        </page>
+                        <!--<page string="出货信息" name="order_lines">-->
+                            <!--<field name="delivery_ids" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}">-->
+                                <!--<tree editable="bottom">-->
+                                    <!--<field name="name"/>-->
+                                    <!--<field name="logistics_code"/>-->
+                                    <!--<field name="cost_box"/>-->
+                                    <!--<field name="cost"/>-->
+                                    <!--<field name="state" invisible="1"/>-->
+                                <!--</tree>-->
+                            <!--</field>-->
+                            <!--<group>-->
+                                <!--<group>-->
+                                    <!--<field name="consignee_name" string="收货人名字" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                    <!--<field name="address" string="收货人地址" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                    <!--<field name="consignee_city_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                <!--</group>-->
+                                <!--<group>-->
+                                    <!--<field name="consignee_mobile" string="收货人电话" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                    <!--<field name="consignee_state_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                    <!--<field name="consignee_district_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                <!--</group>-->
+                            <!--</group>-->
+                        <!--</page>-->
                         <page string="其他信息" name="other_information">
                             <group>
                                 <group string="销售" name="sales_person">
                                     <field name="user_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': True, 'no_open': 1}"/>
-                                    <field name="company_id" options="{'no_create': True, 'no_open': 1}" attrs="{'readonly': [('state', '!=', 'draft')]}" required="1"/>
-                                    <field name="warehouse_id" options="{'no_create': True, 'no_open': 1}" required="1" domain="[('company_id', '=', company_id)]"/>
+
 
                                 </group>
                                 <group string="Reporting" name="technical" groups="base.group_no_one">

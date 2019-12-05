@@ -1838,7 +1838,7 @@ class ApiMessage(models.Model):
                 'note': '仓库配货入库'
             })
             picking.action_confirm()
-            picking.button_validate()
+            picking.button_validate()  # 确认入库
 
             return
 
@@ -1947,7 +1947,7 @@ class ApiMessage(models.Model):
                 'note': '两步式调拨-入库'
             })
             picking.action_confirm()
-            picking.button_validate()
+            picking.button_validate()  # 确认入库
             return
 
         # 两步式调拨-入库冲销
@@ -2021,7 +2021,7 @@ class ApiMessage(models.Model):
                 'note': '盘盈入库'
             })
             picking.action_confirm()
-            picking.button_validate()
+            picking.button_validate()  # 确认入库
             return
 
         # 盘亏出库
@@ -2204,7 +2204,7 @@ class ApiMessage(models.Model):
             })
             return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
             new_picking_id, pick_type_id = return_picking._create_returns()
-            picking_obj.browse(new_picking_id).with_context(dont_invoice=True).button_validate()  # 确认入库，此处传dont_invoice上下文，不生成应收应付，由退款处理
+            picking_obj.browse(new_picking_id).with_context(dont_invoice=True).action_done()  # 确认入库，此处传dont_invoice上下文，不生成应收应付，由退款处理
         else:
             move_lines = []
             for item in content['items']:

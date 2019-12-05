@@ -280,7 +280,7 @@ class StockInventory(models.Model):
                 group_stock_value = group_move.stock_value  # 核算组库存估值总和
                 if float_compare(group_stock_value, store_stock_value, precision_rounding=0.0001) != 0:
                     product = product_obj.browse(product_id)
-                    print('商品：%s，组值：%s，门店值：%s，差：%s' % (product.partner_ref, group_stock_value, store_stock_value, group_stock_value - store_stock_value))
+                    print('核算组：%s，商品：%s，组值：%s，门店值：%s，差：%s' % (group.name, product.partner_ref, group_stock_value, store_stock_value, group_stock_value - store_stock_value))
 
 
 class InventoryLine(models.Model):
