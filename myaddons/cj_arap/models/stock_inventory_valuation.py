@@ -412,8 +412,9 @@ class StockInventoryValuationMove(models.Model):
 
         return 0
 
-    def move2valuation(self, move):
+    def move2valuation(self, moves):
         """生成存货估值明细表"""
+        move = moves[0]
         # 重复处理
         if self.search([('move_id', '=', move.id)]):
             return
@@ -457,6 +458,7 @@ class StockInventoryValuationMove(models.Model):
         if not unit_cost:
             _logger.warning('计算商品库存成本时，商品：%s的成本为0，公司：%s 库存移动(stock.move)ID：%s 移库类型：%s' % (product.partner_ref, move.company_id.name, move.id, move_type_name))
 
+        product_qty = sum(moves.mapped('quantity_done'))
         vals_list = [{
             'cost_group_id': cost_group_id,  # 成本组
             'company_id': company_id,
@@ -465,7 +467,7 @@ class StockInventoryValuationMove(models.Model):
             'product_id': product_id,
             'date': move.done_date,
             'done_datetime': move.done_datetime,  # 完成时间
-            'product_qty': move.product_qty,
+            'product_qty': product_qty,
             'uom_id': move.product_uom.id,
             'unit_cost': unit_cost,  # 单位成本
             # 'price_unit': price_unit,  # 单价
@@ -484,7 +486,7 @@ class StockInventoryValuationMove(models.Model):
             'product_id': product_id,
             'date': move.done_date,
             'done_datetime': move.done_datetime,  # 完成时间
-            'product_qty': move.product_qty,
+            'product_qty': product_qty,
             'uom_id': move.product_uom.id,
             'unit_cost': unit_cost,  # 单位成本
             # 'price_unit': price_unit,  # 单价

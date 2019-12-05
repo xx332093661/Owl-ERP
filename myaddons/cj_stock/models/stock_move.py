@@ -339,10 +339,20 @@ class StockMove(models.Model):
     def create_inventory_valuation(self):
         """生成存货估值明细表
         """
+
+        def _keys_sorted(x):
+            return (x.product_id.id, )
+
         valuation_move_obj = self.env['stock.inventory.valuation.move']
 
+        keys_groupby = ['product_id']
+        for k, ms in groupby(sorted(self, key=_keys_sorted), key=itemgetter(*keys_groupby)):
+            moves = self.env['stock.move']
+            for m in ms:
+                moves |= m
+            valuation_move_obj.move2valuation(moves)
 
-        for move in self:
-            valuation_move_obj.move2valuation(move)
+        # for move in self:
+        #     valuation_move_obj.move2valuation(move)
 
 
