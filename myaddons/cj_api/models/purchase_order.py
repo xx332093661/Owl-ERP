@@ -78,7 +78,9 @@ class PurchaseOrder(models.Model):
         headers = {"Content-Type": "application/json"}
         data = json.dumps(payload)
         response = requests.post(pos_purchase_call_url, data=data, headers=headers)
-        result = response.json()['result']
+        result = response.json()
+        _logger.info('响应：%s', result)
+        result = result['result']
         state = result['state']
         if state == 1:
             orders.write({
