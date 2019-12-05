@@ -55,9 +55,15 @@ class PurchaseOrder(models.Model):
         data = []
         for order in orders:
             company = order.company_id
+            store_code = company.code
+            store_name = company.name
+            warehouse_code = order.picking_type_id.warehouse_id.code
+            if warehouse_code == '51005':
+                store_code = 'X001'
+                store_name = order.picking_type_id.warehouse_id.name
             data.append({
-                'store_code': company.code,  # 门店代码
-                'store_name': company.name,  # 门店名称
+                'store_code': store_code,  # 门店代码
+                'store_name': store_name,  # 门店名称
                 'order_name': order.name,  # 采购订单号
                 'order_id': order.id,  # 采购订单ID
                 'order_line': [{
