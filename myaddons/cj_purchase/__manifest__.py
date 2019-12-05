@@ -30,6 +30,7 @@
 
         'wizard/import_product_cost_wizard_view.xml',
         'wizard/purchase_apply_import_view.xml',
+        'wizard/purchase_order_import_view.xml',
 
         'views/purchase_apply_view.xml',
         'views/purchase_order_view.xml',
@@ -40,6 +41,7 @@
 
         'wizard/purchase_scheduler_compute_views.xml',
         'wizard/purchase_price_list_import_view.xml',
+
 
 
         'views/purchase_order_point_view.xml',
