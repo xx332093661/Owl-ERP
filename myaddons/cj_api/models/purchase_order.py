@@ -50,7 +50,7 @@ class PurchaseOrder(models.Model):
             _logger.warning('同步采购订单到POS，采购订单调用地址调用POS地址未设置')
             return
 
-        orders = self.search([('company_id.type', '=', 'store'), ('picking_type_id.warehouse_id.code', '=', '51005'), ('state', 'in', ['purchase', 'done']), ('send_pos_state', 'in', ['draft', 'error'])])
+        orders = self.search(['|', ('company_id.type', '=', 'store'), ('picking_type_id.warehouse_id.code', '=', '51005'), ('state', 'in', ['purchase', 'done']), ('send_pos_state', 'in', ['draft', 'error'])])
 
         data = []
         for order in orders:
