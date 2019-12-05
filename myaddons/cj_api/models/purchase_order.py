@@ -67,7 +67,10 @@ class PurchaseOrder(models.Model):
                 } for line in order.order_line]  # 采购明细
             })
         if not data:
+            _logger.info('没有数据要发送到POS!')
             return
+        else:
+            _logger.info(data)
 
         payload = {
             'data': data
