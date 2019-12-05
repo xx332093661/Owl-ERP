@@ -102,7 +102,8 @@
                 </xpath>
                 <field name="date_order" position="after">
                     <field name="apply_id" options="{'no_create': 1}" readonly="1" invisible="context.get('is_across_move')"/>
-                    <field name="contract_id" options="{'no_create': 1}" required="not context.get('is_across_move')"  invisible="context.get('is_across_move')"/>
+                    <!--<field name="contract_id" options="{'no_create': 1}" required="not context.get('is_across_move')"  invisible="context.get('is_across_move')"/>-->
+                    <field name="contract_id" options="{'no_create': 1}" invisible="context.get('is_across_move')"/>
 
                 </field>
                 <field name="incoterm_id" position="after">

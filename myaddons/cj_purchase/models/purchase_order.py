@@ -221,8 +221,9 @@ class PurchaseOrder(models.Model):
         self.ensure_one()
 
         # 合同禁止退货
-        if self.contract_id.returns_sate == 'prohibit':
-            raise ValidationError('供应商合同禁止退货！')
+        if self.contract_id:
+            if self.contract_id.returns_sate == 'prohibit':
+                raise ValidationError('供应商合同禁止退货！')
 
         received_lines = []  # 已收货的商品
         for line in self.order_line.filtered(lambda x: x.qty_received > 0):
