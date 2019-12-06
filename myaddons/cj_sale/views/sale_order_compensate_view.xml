@@ -341,6 +341,7 @@
                     <field name="amount_tax" string="税金" sum="Total"/>
                     <field name="amount_untaxed" string="不含税合计" sum="Total"/>
                     <field name="amount_total" sum="Total Tax Included" widget="monetary" string="含税合计"/>
+                    <field name="total_cost"/>
                     <field name="currency_id" invisible="1"/>
                     <field name="state"/>
                 </tree>
