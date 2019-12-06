@@ -522,6 +522,9 @@ class PurchaseOrder(models.Model):
     def _update_oa_approval_state(self, flow_id, refuse=False):
         """OA审批通过回调"""
         apply = self.search([('flow_id', '=', flow_id)])
+        if apply.state != 'oa_sent':
+            return
+
         if refuse:
             apply.state = 'oa_refuse'  # 审批拒绝
         else:
