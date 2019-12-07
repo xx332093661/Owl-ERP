@@ -115,13 +115,14 @@ class AccountPaymentApply(models.Model):
         if self.partner_id and self.pay_type == 'bank':
             res = self.search([('partner_id', '=', self.partner_id.id), ('pay_type', '=', 'bank')], order='id desc', limit=1)
             if res:
-                self.pay_name = res.pay_name
+                self.pay_name = res.pay_name  # 收款账户名
                 self.pay_bank = res.pay_bank
                 self.pay_account = res.pay_account
             else:
                 contact = self.partner_id.child_ids.filtered(lambda x: x.bank_ids)
                 if contact:
                     bank = contact[0].bank_ids[0]
+                    self.pay_name = self.partner_id.name  # 收款账户名
                     self.pay_bank = bank.bank_id.name
                     self.pay_account = bank.acc_number
 
