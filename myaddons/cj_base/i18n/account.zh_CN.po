@@ -2185,12 +2185,12 @@ msgstr "账单行"
 #. module: account
 #: model:res.groups,name:account.group_account_invoice
 msgid "Billing"
-msgstr "开单"
+msgstr "会计"
 
 #. module: account
 #: model:res.groups,name:account.group_account_manager
 msgid "Billing Manager"
-msgstr "账单经理"
+msgstr "财务经理"
 
 #. module: account
 #: model:ir.actions.server,name:account.action_invoice_tree2 model:ir.ui.menu,name:account.menu_action_invoice_tree2

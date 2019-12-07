@@ -18,7 +18,9 @@
     'depends': ['cj_stock'],
 
     'data': [
+        'security/security.xml',
         'security/ir.model.access.csv',
+        'security/rule.xml',
 
         'wizard/account_payment_apply_payment_wizard_view.xml',
         'wizard/account_invoice_register_apply_wizard_view.xml',
@@ -36,7 +38,6 @@
         'views/account_invoice_split_view.xml',
         'views/account_payment_term_view.xml',
         'views/account_move_line_view.xml',
-        # 'views/account_account_summary_view.xml',
         'views/account_journal_view.xml',
         'views/res_partner_view.xml',
         'views/stock_consumable_consu_view.xml',
@@ -54,6 +55,7 @@
         'views/stock_inventory_diff_receipt_view.xml',
         'views/account_cost_group_view.xml',
         'views/stock_inventory_valuation_move.view.xml',
+        'views/stock_internal_move_view.xml',
 
         'wizard/stock_inventory_valuation_wizard_view.xml',
 

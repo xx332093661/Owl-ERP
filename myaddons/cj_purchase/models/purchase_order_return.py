@@ -27,10 +27,10 @@ class PurchaseOrderReturn(models.Model):
     _inherit = ["mail.thread"]
 
     name = fields.Char('单号', default='NEW', readonly=1, track_visibility='onchange')
-    partner_id = fields.Many2one('res.partner', track_visibility='onchange', string='供应商', required=1, readonly=1, states=READONLY_STATES, domain="[('supplier', '=', True), ('state', '=', 'finance_manager_confirm')]")
+    partner_id = fields.Many2one('res.partner', track_visibility='onchange', string='供应商', required=1, readonly=1, states=READONLY_STATES, domain="[('supplier', '=', True)]")
     purchase_order_id = fields.Many2one('purchase.order', '采购订单', readonly=1, states=READONLY_STATES, track_visibility='onchange', required=1, domain="[('partner_id', '=', partner_id)]")
-    company_id = fields.Many2one('res.company', track_visibility='onchange', string='公司', readonly=1)
-    warehouse_id = fields.Many2one('stock.warehouse', '退货仓库', readonly=1, track_visibility='onchange')
+    company_id = fields.Many2one('res.company', track_visibility='onchange', string='公司', readonly=0)
+    warehouse_id = fields.Many2one('stock.warehouse', '退货仓库', readonly=0, track_visibility='onchange')
     type = fields.Selection([('refund', '退款'), ('replenishment', '补货')], '结算方式', readonly=1, states=READONLY_STATES, track_visibility='onchange', required=1)
 
     state = fields.Selection(STATES, '状态', default='draft', track_visibility='onchange')

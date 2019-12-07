@@ -36,12 +36,29 @@ class StockInventoryValuationMove(models.Model):
 
         # 在手数量为0， 则库存单位成本为0
         if float_is_zero(self.qty_available, precision_rounding=rounding):
-            self.stock_cost = 0
+            self.stock_cost = self.unit_cost
             return
 
         # 上一条记录的stock_value（库存价值）
-        res = self.search([('cost_group_id', '=', cost_group_id), ('product_id', '=', product_id), ('stock_type', '=', self.stock_type), ('id', '<', self.id)], order='id desc', limit=1)
-        stock_value = res and res.stock_value or 0
+        if self.stock_type == 'all':
+            res = self.search([('cost_group_id', '=', cost_group_id), ('product_id', '=', product_id),
+                               ('stock_type', '=', self.stock_type), ('id', '<', self.id)], order='id desc', limit=1)
+        else:
+            res = self.search([('company_id', '=', self.company_id.id), ('product_id', '=', product_id),
+                               ('stock_type', '=', self.stock_type), ('id', '<', self.id)], order='id desc', limit=1)
+            # if product.cost_type == 'store':
+            #     res = self.search([('company_id', '=', self.company_id.id), ('product_id', '=', product_id),
+            #                        ('stock_type', '=', self.stock_type), ('id', '<', self.id)], order='id desc', limit=1)
+            # else:
+            #     res = self.search([('cost_group_id', '=', cost_group_id), ('product_id', '=', product_id), ('stock_type', '=', self.stock_type), ('id', '<', self.id)], order='id desc', limit=1)
+
+        if res:
+            self.env.cr.execute("""SELECT stock_value FROM stock_inventory_valuation_move WHERE id = %s""" % res.id)
+            r = self.env.cr.dictfetchall()[0]
+            stock_value = r['stock_value']
+        else:
+            stock_value = 0
+        # stock_value = res and res.stock_value or 0
 
         is_in = self.move_id._is_in()  # 是否是入库
         if is_in:
@@ -206,7 +223,7 @@ class StockInventoryValuationMove(models.Model):
 
             return None
 
-    def _compute_unit_cost(self, move, is_in, cost_group_id, product_id):
+    def _compute_unit_cost(self, move, is_in, cost_group_id, product_id, company_id):
         """计算单位成本
         盘点：
             盘亏：stock.move完成那个时间点的stock_cost（库存单位成本）
@@ -234,7 +251,7 @@ class StockInventoryValuationMove(models.Model):
 
         # res = self.search([('product_id', '=', product_id), ('cost_group_id', '=', cost_group_id), ('stock_type', '=', 'all')], order='id desc', limit=1)
         # stock_cost = res and res.stock_cost or 0  # 当前成本
-        stock_cost = self.get_product_cost(product_id, cost_group_id)  # 当前成本
+        stock_cost = self.get_product_cost(product_id, cost_group_id, company_id)  # 当前成本
 
         store_stock_update_code = move.store_stock_update_code  # 门店库存更新代码
 
@@ -253,17 +270,17 @@ class StockInventoryValuationMove(models.Model):
                 return stock_cost
 
             # 采购入库/跨公司调入/易耗品入库
-            # 采购入库：成本取对应采购订单明细的采购价
-            # 跨公司调入：成本取对应采购订单明细的采购价
-            # 易耗品入库：成本取对应采购订单明细的采购价
+            # 采购入库：成本取对应采购订单明细的采购价(不含税)
+            # 跨公司调入：成本取对应采购订单明细的采购价(不含税)
+            # 易耗品入库：成本取对应采购订单明细的采购价(不含税)
             if move.purchase_line_id:  # 采购明细
                 if across_move_obj.search([('purchase_order_id', '=', move.purchase_line_id.order_id.id)]):
-                    return move.purchase_line_id.price_unit  # 跨公司调入
+                    return move.purchase_line_id.untax_price_unit  # 跨公司调入
 
                 if consu_apply_obj.search([('purchase_order_id', '=', move.purchase_line_id.order_id.id)]):
-                    return move.purchase_line_id.price_unit  # 易耗品入库
+                    return move.purchase_line_id.untax_price_unit  # 易耗品入库
 
-                return move.purchase_line_id.price_unit  # 采购入库
+                return move.purchase_line_id.untax_price_unit  # 采购入库
 
             # 领料退库
             if move.material_requisition_id:
@@ -395,8 +412,9 @@ class StockInventoryValuationMove(models.Model):
 
         return 0
 
-    def move2valuation(self, move):
+    def move2valuation(self, moves):
         """生成存货估值明细表"""
+        move = moves[0]
         # 重复处理
         if self.search([('move_id', '=', move.id)]):
             return
@@ -436,10 +454,11 @@ class StockInventoryValuationMove(models.Model):
             qty_available += variants_available[product_id]['qty_available']  # 在手数量
 
         # 单位成本
-        unit_cost = self._compute_unit_cost(move, is_in, cost_group_id, product_id)
+        unit_cost = self._compute_unit_cost(move, is_in, cost_group_id, product_id, company_id)
         if not unit_cost:
             _logger.warning('计算商品库存成本时，商品：%s的成本为0，公司：%s 库存移动(stock.move)ID：%s 移库类型：%s' % (product.partner_ref, move.company_id.name, move.id, move_type_name))
 
+        product_qty = sum(moves.mapped('quantity_done'))
         vals_list = [{
             'cost_group_id': cost_group_id,  # 成本组
             'company_id': company_id,
@@ -448,7 +467,7 @@ class StockInventoryValuationMove(models.Model):
             'product_id': product_id,
             'date': move.done_date,
             'done_datetime': move.done_datetime,  # 完成时间
-            'product_qty': move.product_qty,
+            'product_qty': product_qty,
             'uom_id': move.product_uom.id,
             'unit_cost': unit_cost,  # 单位成本
             # 'price_unit': price_unit,  # 单价
@@ -467,7 +486,7 @@ class StockInventoryValuationMove(models.Model):
             'product_id': product_id,
             'date': move.done_date,
             'done_datetime': move.done_datetime,  # 完成时间
-            'product_qty': move.product_qty,
+            'product_qty': product_qty,
             'uom_id': move.product_uom.id,
             'unit_cost': unit_cost,  # 单位成本
             # 'price_unit': price_unit,  # 单价
@@ -478,12 +497,68 @@ class StockInventoryValuationMove(models.Model):
         })
         self.sudo().create(vals_list)
 
-    def get_product_cost(self, product_id, cost_group_id):
+    def get_product_cost(self, product_id, cost_group_id, company_id, use_unit_cost=None):
         """根据成本核算组，计算商品当前的库存成本"""
-        domain = [('product_id', '=', product_id), ('cost_group_id', '=', cost_group_id), ('stock_type', '=', 'all')]
-        valuation_move = self.search(domain, order='id desc', limit=1)
-        stock_cost = valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
-        return stock_cost
+        product_cost_obj = self.env['product.cost']  # 商品成本
+        company_obj = self.env['res.company']
+
+        company = company_obj.browse(company_id)
+
+        product = self.env['product.product'].browse(product_id)
+        cost_type = product.cost_type  # 成本核算类型
+        if cost_type == 'store':  # 门店核算
+            domain = [('product_id', '=', product_id), ('company_id', '=', company_id), ('stock_type', '=', 'only')]
+            valuation_move = self.search(domain, order='id desc', limit=1)
+            if not valuation_move:
+                domain = [('product_id', '=', product_id), ('cost_group_id', '=', cost_group_id), ('stock_type', '=', 'all')]
+                valuation_move = self.search(domain, order='id desc', limit=1)
+            if not valuation_move:
+                # 当前公司
+                product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                # 上级公司
+                if not product_cost:
+                    product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                # 无公司
+                if not product_cost:
+                    product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
+
+                if product_cost:
+                    cost = product_cost.cost  # 商品成本
+                else:
+                    cost = 0
+            else:
+                cost = valuation_move.stock_cost  # # 库存单位成本
+                # if use_unit_cost:
+                if float_is_zero(cost, precision_rounding=0.0001):
+                    cost = valuation_move.unit_cost
+
+            # stock_cost = valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
+        else:  # 公司核算
+            domain = [('product_id', '=', product_id), ('cost_group_id', '=', cost_group_id), ('stock_type', '=', 'all')]
+            valuation_move = self.search(domain, order='id desc', limit=1)
+            if not valuation_move:
+                # 当前公司
+                product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                # 上级公司
+                if not product_cost:
+                    product_cost = product_cost_obj.search([('company_id', '=', company.parent_id.id), ('product_id', '=', product_id)], order='id desc', limit=1)
+                # 无公司
+                if not product_cost:
+                    product_cost = product_cost_obj.search([('product_id', '=', product_id)], order='id desc', limit=1)
+
+                if product_cost:
+                    cost = product_cost.cost  # 商品成本
+                else:
+                    cost = 0
+            else:
+                cost = valuation_move.stock_cost  # 库存单位成本
+                # if use_unit_cost:
+                if float_is_zero(cost, precision_rounding=0.0001):
+                    cost = valuation_move.unit_cost
+
+            # stock_cost = valuation_move and valuation_move.stock_cost or 0  # 库存单位成本
+
+        return cost
 
 
 

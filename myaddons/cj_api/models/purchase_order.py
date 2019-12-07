@@ -20,7 +20,7 @@ class PurchaseOrder(models.Model):
 
     @api.model
     def push_data_to_pos(self):
-        """将采购订单推送到门店
+        """将门店的采购订单或入库至省仓的采购订单推送到门店
         传入参数：{
             data: [{
                 'store_code': 门店代码
@@ -50,14 +50,20 @@ class PurchaseOrder(models.Model):
             _logger.warning('同步采购订单到POS，采购订单调用地址调用POS地址未设置')
             return
 
-        orders = self.search([('company_id.type', '=', 'store'), ('state', 'in', ['purchase', 'done']), ('send_pos_state', 'in', ['draft', 'error'])])
+        orders = self.search(['|', ('company_id.type', '=', 'store'), ('picking_type_id.warehouse_id.code', '=', '51005'), ('state', 'in', ['purchase', 'done']), ('send_pos_state', 'in', ['draft', 'error'])])
 
         data = []
         for order in orders:
             company = order.company_id
+            store_code = company.code
+            store_name = company.name
+            warehouse_code = order.picking_type_id.warehouse_id.code
+            if warehouse_code == '51005':
+                store_code = 'X001'
+                store_name = order.picking_type_id.warehouse_id.name
             data.append({
-                'store_code': company.code,  # 门店代码
-                'store_name': company.name,  # 门店名称
+                'store_code': store_code,  # 门店代码
+                'store_name': store_name,  # 门店名称
                 'order_name': order.name,  # 采购订单号
                 'order_id': order.id,  # 采购订单ID
                 'order_line': [{
@@ -67,7 +73,10 @@ class PurchaseOrder(models.Model):
                 } for line in order.order_line]  # 采购明细
             })
         if not data:
+            _logger.info('没有数据要发送到POS!')
             return
+        else:
+            _logger.info(data)
 
         payload = {
             'data': data
@@ -75,7 +84,9 @@ class PurchaseOrder(models.Model):
         headers = {"Content-Type": "application/json"}
         data = json.dumps(payload)
         response = requests.post(pos_purchase_call_url, data=data, headers=headers)
-        result = response.json()['result']
+        result = response.json()
+        _logger.info('响应：%s', result)
+        result = result['result']
         state = result['state']
         if state == 1:
             orders.write({

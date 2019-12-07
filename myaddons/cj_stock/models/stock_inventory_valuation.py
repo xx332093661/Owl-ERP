@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 import logging
-from datetime import datetime, timedelta
-from operator import itemgetter
-import pytz
-from itertools import groupby
 
 from odoo import fields, models, api
 from odoo.addons import decimal_precision as dp
-from odoo.tools import float_round, float_compare, float_is_zero
-from odoo.osv import expression
+from odoo.tools import float_round, float_is_zero
 
 _logger = logging.getLogger(__name__)
 
@@ -60,7 +55,7 @@ class StockInventoryValuationMove(models.Model):
     stock_type = fields.Selection([('all', '成本核算组'), ('only', '当前公司')], '存货估值类型', index=1, default='all')
     qty_available = fields.Float('在手数量', digits=dp.get_precision('Product Unit of Measure'))
     stock_cost = fields.Float('库存单位成本', digits=dp.get_precision('Inventory valuation'), compute='_compute_stock_cost', store=1)
-    stock_value = fields.Float('库存价值', digits=dp.get_precision('Product Price'), compute='_compute_stock_value', store=1)
+    stock_value = fields.Float('库存价值', digits=dp.get_precision('Inventory valuation'), compute='_compute_stock_value', store=1)    # 4位小数
 
     move_id = fields.Many2one('stock.move', '库存移动', index=True, ondelete="cascade")
 
@@ -86,7 +81,7 @@ class StockInventoryValuationMove(models.Model):
 
         # 在手数量为0， 则库存单位成本为0
         if float_is_zero(self.qty_available, precision_rounding=rounding):
-            self.stock_cost = 0
+            self.stock_cost = self.unit_cost
             return
 
         # 上一条记录的stock_value（库存价值）

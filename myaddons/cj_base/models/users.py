@@ -7,6 +7,8 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
     _name = 'res.users'
 
+    oa_code = fields.Char('OA编号')
+
     notification_type = fields.Selection([
         ('email', '通过电子邮件处理'),
         ('inbox', '在Odoo中处理')],
@@ -36,9 +38,8 @@ class ResUsers(models.Model):
         if 'lang' not in vals or not vals['lang']:
             vals['lang'] = 'zh_CN'
 
+        # 默认用户关联的伙伴的email
+        company = self.env['res.company'].browse(vals['company_id'])
+        vals['email'] = '%s@%s.com' % (vals['login'], company.code)
+
         return super(ResUsers, self).create(vals)
-
-
-
-
-

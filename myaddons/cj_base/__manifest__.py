@@ -42,6 +42,7 @@
         'views/ir_property_view.xml',
         'views/ir_module_module_view.xml',
         'views/mail_templates.xml',
+        'views/res_users_view.xml',
 
 
     ],

@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_order_form_gift" model="ir.ui.view">
+        <field name="name">sale.order.form.gift</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <form string="赠品订单" class="o_sale_order">
+                <header>
+                    <!--<button name="payment_action_capture" type="object" string="更新付款记录" class="oe_highlight"-->
+                            <!--attrs="{'invisible': [('authorized_transaction_ids', '=', [])]}"/>-->
+                    <!---
+                    <button name="payment_action_void" type="object" string="Void Transaction" confirm="Are you sure you want to void the authorized transaction? This action can't be undone." attrs="{'invisible': [('authorized_transaction_ids', '=', [])]}"/>
+                    <button name="action_quotation_send" string="Send by Email" type="object" states="draft" class="btn-primary"/>
+                    <button name="action_quotation_send" type="object" string="Send PRO-FORMA Invoice" groups="sale.group_proforma_sales" class="btn-primary" attrs="{'invisible': ['|', ('state', '!=', 'draft'), ('invoice_count','&gt;=',1)]}" context="{'proforma': True}"/>
+                    <button name="print_quotation" string="Print" type="object" states="draft" class="btn-primary o_sale_print"/>
+                    -->
+
+                    <!--<button name="action_confirm1" string="确认并提交OA审批" type="object" states="draft" confirm="确认提交OA审批吗？" class="btn-primary"/>-->
+
+                    <button name="button_cancel" string="取消" states="draft,confirm" type="object" groups="sales_team.group_sale_salesman"/>
+                    <button name="button_draft" string="设为草稿" states="confirm" type="object" groups="sales_team.group_sale_salesman"/>
+                    <button name="button_draft" string="设为草稿" states="cancel,general_manager_refuse" class="oe_highlight" type="object" groups="sales_team.group_sale_salesman"/>
+                    <button name="button_confirm" string="确认" states="draft" type="object" class="oe_highlight" groups="sales_team.group_sale_salesman"/> <!--销专员确认-->
+
+
+                    <button name="button_sale_manager_confirm" states="confirm" string="销售经理审核" type="object" class="oe_highlight" groups="sales_team.group_sale_manager"/>
+                    <button name="button_finance_manager_confirm" states="manager_confirm" string="财务经理审核" type="object" class="oe_highlight" groups="account.group_account_manager"/>
+
+                    <button name="button_general_manager_refuse" states="finance_manager_confirm" string="拒绝" type="object" groups="cj_sale.group_sale_general_manage"/>
+                    <button name="button_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_sale.group_sale_general_manage"/>
+
+                    <!--<button name="action_confirm" string="订单确认" type="object" states="draft,purchase"/>-->
+                    <!--
+                    <button name="preview_sale_order" type="object" string="Preview"/>
+                    <button name="action_quotation_send" type="object" string="Send PRO-FORMA Invoice" groups="sale.group_proforma_sales" attrs="{'invisible': ['|', ('state', '=', 'draft'), ('invoice_count','&gt;=',1)]}" context="{'proforma': True}"/>
+                    <button name="print_quotation" string="Print" type="object" states="sent,sale" class="o_sale_print"/>
+                    <button name="action_quotation_send" string="Send by Email" type="object" states="sent,sale"/>
+                    -->
+
+                    <!--<button name="action_cancel" states="draft,sent,sale" type="object" string="订单取消"/>-->
+                    <!--<button name="action_draft" states="cancel" type="object" string="设为草稿"/>-->
+                    <button name="action_done" type="object" string="完成订单" states="sale" groups="sales_team.group_sale_salesman"/>
+                    <!--
+                    <button name="action_unlock" type="object" string="Unlock" states="done" groups="sales_team.group_sale_manager"/>
+                    -->
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,manager_confirm,finance_manager_confirm,general_manager_confirm,sale,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <field name="picking_ids" invisible="1"/>
+                        <button type="object" name="action_view_delivery" class="oe_stat_button" icon="fa-truck" groups="sales_team.group_sale_salesman">
+                            <field name="delivery_count" widget="statinfo" string="出货单"/>
+                        </button>
+                        <!--<button name="action_view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o" attrs="{'invisible': [('invoice_count', '=', 0)]}" groups="sales_team.group_sale_salesman">-->
+                            <!--<field name="invoice_count" widget="statinfo" string="结算单"/>-->
+                        <!--</button>-->
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" domain="['|', ('customer','=',True), ('member','=',True)]" options="{'no_open': True, 'no_create':True}"/>
+                            <field name="child_ids" string="关联的订单" required="1"
+                                   domain="[('partner_id', '=', partner_id), ('state', '!=', 'draft'), ('group_flag', 'in', ['large', 'not']), ('parent_id', '=', False), ('special_order_mark', '=', 'normal')]"
+                                   options="{'no_open': True, 'no_create':True}" widget="many2many_tags"/>
+                            <field name="special_order_mark" invisible="1"/>
+                            <!--<field name="partner_invoice_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice'}" options="{'always_reload': True}"/>-->
+                            <!--<field name="partner_shipping_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'delivery'}" options="{'always_reload': True}"/>-->
+                            <!--<field name="channel_id" options="{'no_create_edit': True, 'no_create':True}"/>-->
+                            <!--<field name="client_order_ref" string="渠道单号" attrs="{'readonly': [('state', '!=', 'draft')]}"/>-->
+                            <!--<field name="cj_activity_id" options="{'no_create_edit': True, 'no_create':True}" string="营销活动"/>-->
+                        </group>
+                        <group>
+                            <field name="date_order"/>
+                            <!--<field name="confirmation_date" attrs="{'invisible': [('state', 'in', ['draft', 'sent', 'cancel'])]}"/>-->
+                            <field name="pricelist_id" groups="product.group_sale_pricelist"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="payment_term_id" invisible="1"/>
+                            <!--<field name="purchase_apply_id"/>-->
+                                   <field name="company_id" options="{'no_create': True, 'no_open': 1}" attrs="{'readonly': [('state', '!=', 'draft')]}" required="1"/>
+                                    <field name="warehouse_id" options="{'no_create': True, 'no_open': 1}" required="1" domain="[('company_id', '=', company_id)]"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="订单明细" name="order_lines">
+                            <field name="order_line"
+                                   context="{'default_warehouse_id': warehouse_id, 'default_owner_id': company_id}"
+                                   widget="section_and_note_one2many" mode="tree,kanban"
+                                   attrs="{'readonly': [('state', '!=', 'draft')]}">
+                                <form>
+                                    <field name="display_type" invisible="1"/>
+                                    <field name="sequence" invisible="1"/>
+                                    <group>
+                                        <group attrs="{'invisible': [('display_type', '!=', False)]}">
+                                            <field name="product_updatable" invisible="1"/>
+                                            <field name="product_id"
+                                                   context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                                                   attrs="{'readonly': [('product_updatable', '=', False)], 'required': [('display_type', '=', False)]}" force_save="1"/>
+                                            <field name="invoice_status" invisible="1"/>
+                                            <field name="qty_to_invoice" invisible="1"/>
+                                            <field name="qty_delivered_manual" invisible="1"/>
+                                            <field name="qty_delivered_method" invisible="1"/>
+                                            <field name="price_total" invisible="1"/>
+                                            <field name="price_tax" invisible="1"/>
+                                            <field name="price_subtotal" invisible="1"/>
+                                            <label for="product_uom_qty" string="订单数量"/>
+                                            <div>
+                                                <field context="{'partner_id':parent.partner_id, 'quantity':product_uom_qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'uom_qty_change':True, 'company_id': parent.company_id}"
+                                                       name="product_uom_qty" class="oe_inline"/>
+                                                <field name="product_uom" force_save="1" groups="uom.group_uom"
+                                                       class="oe_inline oe_no_button"
+                                                       attrs="{'readonly': [('state', 'in', ('sale', 'done', 'cancel'))],'required': [('display_type', '=', False)]}"/>
+                                            </div>
+                                            <label for="qty_delivered" string="出货数量" attrs="{'invisible': [('parent.state', 'not in', ['sale', 'done'])]}"/>
+                                            <div attrs="{'invisible': [('parent.state', 'not in', ['sale', 'done'])]}">
+                                                <field name="qty_delivered" attrs="{'readonly': [('qty_delivered_method', '!=', 'manual')]}"/>
+                                            </div>
+                                            <label for="qty_invoiced" string="开单数量" attrs="{'invisible': [('parent.state', 'not in', ['sale', 'done'])]}"/>
+                                            <div attrs="{'invisible': [('parent.state', 'not in', ['sale', 'done'])]}">
+                                                <field name="qty_invoiced" attrs="{'invisible': [('parent.state', 'not in', ['sale', 'done'])]}"/>
+                                            </div>
+                                            <field name="price_unit"/>
+                                            <label for="discount" groups="sale.group_discount_per_so_line"/>
+                                            <div name="discount" groups="sale.group_discount_per_so_line">
+                                                <field name="discount" class="oe_inline"/>%
+                                            </div>
+                                            <!--
+                                                We need the sequence field to be here
+                                                because we want to be able to overwrite the default sequence value in the JS
+                                                in order for new lines to be added at the correct position.
+                                                NOTE: at some point we want to fix this in the framework so that an invisible field is not required.
+                                            -->
+                                            <field name="sequence" invisible="1"/>
+                                        </group>
+                                        <group attrs="{'invisible': [('display_type', '!=', False)]}">
+                                            <field name="tax_id" widget="many2many_tags" options="{'no_create': True}"
+                                                   context="{'search_view_ref': 'account.account_tax_view_search'}"
+                                                   domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]"
+                                                   attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}"/>
+                                            <label for="customer_lead"/>
+                                            <div>
+                                                <field name="customer_lead" class="oe_inline"/>
+                                                days
+                                            </div>
+                                            <label for="analytic_tag_ids" groups="analytic.group_analytic_tags"/>
+                                            <div>
+                                                <field name="analytic_tag_ids" widget="many2many_tags"
+                                                       groups="analytic.group_analytic_tags"
+                                                       options="{'color_field': 'color'}"/>
+                                            </div>
+                                        </group>
+                                    </group>
+                                    <label for="name" string="Description" attrs="{'invisible': [('display_type', '!=', False)]}"/>
+                                    <label for="name" string="Section Name (eg. Products, Services)" attrs="{'invisible': [('display_type', '!=', 'line_section')]}"/>
+                                    <label for="name" string="Note" attrs="{'invisible': [('display_type', '!=', 'line_note')]}"/>
+                                    <field name="name"/>
+                                    <div groups="base.group_no_one" attrs="{'invisible': [('display_type', '!=', False)]}">
+                                        <label for="invoice_lines"/>
+                                        <field name="invoice_lines"/>
+                                    </div>
+                                    <field name="state" invisible="1"/>
+                                </form>
+                                <tree string="Sales Order Lines" editable="bottom" decoration-info="(not display_type and invoice_status == 'to invoice')">
+                                    <field name="sequence" widget="handle"/>
+                                    <!-- We do not display the type because we don't want the user to be bothered with that information if he has no section or note. -->
+                                    <field name="display_type" invisible="1"/>
+
+                                    <field name="product_updatable" invisible="1"/>
+                                    <field name="product_id"
+                                           attrs="{'readonly': [('product_updatable', '=', False)], 'required': [('display_type', '=', False)]}"
+                                           force_save="1"
+                                           context="{'partner_id': parent.partner_id,
+                                           'quantity': product_uom_qty,
+                                            'pricelist': parent.pricelist_id,
+                                            'uom':product_uom,
+                                            'company_id': parent.company_id,
+                                            'default_lst_price': price_unit,
+                                            'default_description_sale': name}"/>
+                                    <field name="product_custom_attribute_value_ids" invisible="1"/>
+                                    <field name="product_no_variant_attribute_value_ids" invisible="1"/>
+                                    <field name="name" widget="section_and_note_text"  invisible="1"/>
+                                    <field name="product_uom_qty" string="订单数"
+                                           context="{'partner_id': parent.partner_id, 'quantity': product_uom_qty, 'pricelist': parent.pricelist_id, 'uom': product_uom,  'company_id': parent.company_id}"/>
+                                    <field name="qty_delivered" string="发货数" attrs="{'column_invisible': [('parent.state', 'not in', ['sale', 'done'])],'readonly': [('qty_delivered_method', '!=', 'manual')]}"/>
+                                    <field name="qty_delivered_manual" invisible="1"/>
+                                    <field name="qty_delivered_method" invisible="1"/>
+                                    <field name="qty_invoiced" string="开票数" attrs="{'column_invisible': [('parent.state', 'not in', ['sale', 'done'])]}"/>
+                                    <field name="qty_to_invoice" invisible="1"/>
+                                    <field name="product_uom" force_save="1"
+                                           invisible="1"
+                                           attrs="{'readonly': [('state', 'in', ('sale','done', 'cancel'))],'required': [('display_type', '=', False)]}"
+                                           context="{'company_id': parent.company_id}" groups="uom.group_uom"
+                                           options="{'no_open': True}"/>
+                                    <field name="analytic_tag_ids" groups="analytic.group_analytic_tags" widget="many2many_tags" invisible="1"/>
+                                    <field name="price_unit" attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}"/>
+                                    <field name="tax_id" widget="many2many_tags" options="{'no_create': True}"
+                                           domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]"
+                                           attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}" invisible="0"/>
+                                    <field name="discount" groups="sale.group_discount_per_so_line" invisible="1"/>
+                                    <field name="untax_price_unit"/>
+                                    <field name="price_tax" string="税金"/>
+                                    <field name="price_subtotal" string="不含税小计"/>
+                                    <field name="price_total" string="含税合计"/>
+                                    <field name="state" invisible="1"/>
+                                    <field name="invoice_status" invisible="1"/>
+                                    <field name="customer_lead" invisible="1"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <!--<field name="price_tax" invisible="1"/>-->
+                                    <!--<field name="warehouse_id" invisible="1"/>-->
+                                    <!--<field name="owner_id" invisible="1"/>-->
+                                    <field name="goods_cost"/>
+                                    <field name="shipping_cost"/>
+                                    <!--<field name="box_cost"/>-->
+                                    <!--<field name="packing_cost"/>-->
+                                    <field name="unit_cost"/>
+                                    <field name="cost_price"/>
+                                    <field name="gross_profit"/>
+                                    <!--<field name="gross_profit_rate"/>-->
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
+                                <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                    <label for="amount_total"/>
+                                </div>
+                                <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </group>
+                            <group class="oe_subtotal_footer oe_left" colspan="4" name="sale_profit" string="成本核算">
+                                <group>
+                                    <field name="write_off_amount"/>
+                                    <field name="goods_cost"/>
+                                    <!--<field name="packing_cost" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                    <field name="gross_profit"/>
+                                </group>
+                                <group>
+                                    <!--<field name="box_cost" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                    <field name="shipping_cost"/>
+                                    <field name="gross_profit_rate"/>
+                                </group>
+                            </group>
+                            <div class="oe_clear"/>
+                        </page>
+                        <!--<page string="支付记录">-->
+                            <!--<field name="payment_ids" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                        <!--</page>-->
+
+                        <!--<page string="出货信息" name="order_lines">-->
+                            <!--<field name="delivery_ids" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}">-->
+                                <!--<tree editable="bottom">-->
+                                    <!--<field name="name"/>-->
+                                    <!--<field name="logistics_code"/>-->
+                                    <!--<field name="cost_box"/>-->
+                                    <!--<field name="cost"/>-->
+                                    <!--<field name="state" invisible="1"/>-->
+                                <!--</tree>-->
+                            <!--</field>-->
+                            <!--<group>-->
+                                <!--<group>-->
+                                    <!--<field name="consignee_name" string="收货人名字" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                    <!--<field name="address" string="收货人地址" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                    <!--<field name="consignee_city_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                <!--</group>-->
+                                <!--<group>-->
+                                    <!--<field name="consignee_mobile" string="收货人电话" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                    <!--<field name="consignee_state_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                    <!--<field name="consignee_district_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'readonly': [('state', 'in', ['done', 'cancel'])]}"/>-->
+                                <!--</group>-->
+                            <!--</group>-->
+                        <!--</page>-->
+                        <page string="其他信息" name="other_information">
+                            <group>
+                                <group string="销售" name="sales_person">
+                                    <field name="user_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': True, 'no_open': 1}"/>
+
+
+                                </group>
+                                <group string="Reporting" name="technical" groups="base.group_no_one">
+                                    <field groups="base.group_no_one" name="origin" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                </group>
+                                <group name="utm_link" groups="base.group_no_one"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_sale_order_gift_tree" model="ir.ui.view">
+        <field name="name">sale.order.gift.tree</field>
+        <field name="model">sale.order</field>
+        <field name="priority">4</field>
+        <field name="arch" type="xml">
+            <tree string="赠品订单" class="o_sale_order" decoration-bf="message_needaction==True" decoration-muted="state=='cancel'">
+                <field name="partner_id"/>
+                <field name="message_needaction" invisible="1"/>
+                <field name="name" string="订单号"/>
+                <field name="date_order" string="订单日期"/>
+                <!--<field name="channel_id" string="渠道"/>-->
+                <!--<field name="commitment_date" groups="sale.group_sale_order_dates"/>-->
+                <!--<field name="expected_date" groups="sale.group_sale_order_dates"/>-->
+
+                <field name="user_id"/>
+                <field name="amount_tax" string="税金" sum="Total"/>
+                <field name="amount_untaxed" string="不含税合计" sum="Total"/>
+                <field name="amount_total" sum="Total Tax Included" widget="monetary" string="含税合计"/>
+                <field name="total_cost"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="action_orders_gift" model="ir.actions.act_window">
+        <field name="name">赠品订单</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_ids" eval="[(5,0,0), (0,0,{'view_mode':'tree', 'view_id': ref('view_sale_order_gift_tree')}), (0,0,{'view_mode':'form', 'view_id': ref('view_order_form_gift')})]"/>
+        <field name="domain">[('special_order_mark', '=', 'gift')]</field>
+        <field name="search_view_id" ref="sale.sale_order_view_search_inherit_sale"/>
+        <field name="context">{'default_special_order_mark': 'gift'}</field>
+    </record>
+
+
+</odoo>

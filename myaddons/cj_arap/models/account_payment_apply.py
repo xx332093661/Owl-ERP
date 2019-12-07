@@ -55,11 +55,15 @@ class AccountPaymentApply(models.Model):
                                states=STATES,
                                default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')),
                                required=1, track_visibility='onchange')
+
+    purchase_order_id = fields.Many2one('purchase.order', '采购订单', help='先款后货的采购订单，可以进行付款申请',
+                                        readonly = 1, states = STATES,
+                                        domain="[('payment_term_id.type', '=', 'first_payment'), ('partner_id', '=', partner_id), ('company_id', '=', company_id), ('state', 'not in', ['draft', 'confirm', 'oa_sent', 'oa_refuse'])]")
     invoice_register_id = fields.Many2one('account.invoice.register', '登记的发票', readonly=1, states=STATES,
-                                          required=1,
+                                          required=0,
                                           domain="[('partner_id', '=', partner_id), ('state', '=', 'manager_confirm'), ('payment_apply_id', '=', False), ('company_id', '=', company_id)]")
 
-    amount = fields.Float('申请付款金额', track_visibility='onchange', readonly=1, related='invoice_register_id.amount', store=1)
+    amount = fields.Float('申请付款金额', track_visibility='onchange', readonly=1)
 
     pay_type = fields.Selection(PAYMENT_TYPE, '支付方式', default='bank', track_visibility='onchange', required=1, readonly=1, states=STATES)
     pay_name = fields.Char('收款账户名', track_visibility='onchange', readonly=1, states=STATES)
@@ -79,9 +83,29 @@ class AccountPaymentApply(models.Model):
     # invoice_ids = fields.Many2many('account.invoice', compute='_compute_purchase_invoice', string='关联的账单')
     # flow_id = fields.Char('OA审批流ID', track_visibility='onchange')
 
+    @api.constrains('purchase_order_id')
+    def _check_purchase(self):
+        for res in self:
+            if self.search([('purchase_order_id', '=', res.purchase_order_id.id), ('state', '!=', 'oa_refuse'), ('id', '!=', res.id)]):
+                raise ValidationError('采购订单：%s已经有付款申请！' % (res.purchase_order_id.name))
+
+    @api.onchange('purchase_order_id', 'invoice_register_id')
+    def _onchange_purchase_invoice_register(self):
+        """采购订单或发票登记变更"""
+        if self.purchase_order_id:
+            self.invoice_register_id = False
+            self.amount = self.purchase_order_id.amount_total
+
+        elif self.invoice_register_id:
+            self.purchase_order_id = False
+            self.amount = self.invoice_register_id.amount
+        else:
+            self.amount = 0
+
     @api.onchange('company_id', 'partner_id')
     def _onchange_company_id(self):
         self.invoice_register_id = False
+        self.purchase_order_id = False
 
     @api.onchange('partner_id', 'pay_type')
     def _onchange_partner_id(self):
@@ -107,8 +131,13 @@ class AccountPaymentApply(models.Model):
         self.ensure_one()
         if self.state != 'draft':
             raise ValidationError('单据已审核！')
+
+        if not self.purchase_order_id and not self.invoice_register_id:
+            raise ValidationError('请选择采购订单或登记的发票！')
+
         self.state = 'confirm'
-        self.invoice_register_id.state = 'wait_pay'  # 修改关联的发票登记的状态为等待付款
+        if self.invoice_register_id:
+            self.invoice_register_id.state = 'wait_pay'  # 修改关联的发票登记的状态为等待付款
 
     @api.multi
     def action_draft(self):
@@ -121,7 +150,8 @@ class AccountPaymentApply(models.Model):
             'state': 'draft',
             'flow_id': False
         })
-        self.invoice_register_id.state = 'manager_confirm'  # 修改关联的发票登记的状态为财务经理审核
+        if self.invoice_register_id:
+            self.invoice_register_id.state = 'manager_confirm'  # 修改关联的发票登记的状态为财务经理审核
 
     @api.multi
     def action_view_purchase_order(self):
@@ -170,31 +200,53 @@ class AccountPaymentApply(models.Model):
         module = importlib.import_module('odoo.addons.cj_api.models.tools')
         digital_to_chinese = module.digital_to_chinese
         try:
-            order_lines = self.purchase_order_ids.mapped('order_line')
+
             code = 'Payment_request'
             subject = '供应商付款申请审核[%s]' % (self.partner_id.name, )
 
             payment_content = []  # 付款内容
-            for order in self.purchase_order_ids:
-                order_amount_total = order.amount_total
-
-                invoice_splits = self.invoice_register_id.line_ids.mapped('invoice_split_id').filtered(lambda x: x.purchase_order_id.id == order.id)  # 账单分期
+            if self.purchase_order_id:
+                order_lines = self.purchase_order_id.mapped('order_line')
+                order_amount_total = self.purchase_order_id.amount_total  # 订单总额
+                invoice_splits = self.purchase_order_id.invoice_split_ids  # 账单分期
                 invoice_paid_amount = sum(invoice_splits.mapped('paid_amount'))  # 开票已付金额
                 invoice_residual_amount = order_amount_total - invoice_paid_amount  # 开票未付金额
-
                 apply_amount = sum(invoice_splits.mapped('amount')) - sum(invoice_splits.mapped('paid_amount'))  # 本次付款金额
                 payment_content.append('采购订单%s  订单总额：%s  已付款：%s 未付款：%s 本次付款：%s' % (
-                    order.name, order_amount_total, invoice_paid_amount, invoice_residual_amount, apply_amount))
+                    self.purchase_order_id.name, order_amount_total, invoice_paid_amount, invoice_residual_amount, apply_amount))
 
-            content = [
-                '采购订单编号：%s' % ('，'.join(self.purchase_order_ids.mapped('name')),),
-                '供应商：%s' % self.partner_id.name,
-                '发票是否已经提供：是，发票号：%s ,金额：%s' % (self.invoice_register_id.name, self.amount),
-                '付款方式：%s' % ('、'.join([dict(PAYMENT_TERM_TYPE)[payment_type] for payment_type in list(set(order_lines.mapped('payment_term_id').mapped('type')))]),),
-                '付款内容：\n%s' % ('\t' + ('\n\t'.join(payment_content)),),
-                '采购的内容：\n%s' % ('\t' + ('\n\t'.join(['商品：%s 采购数量：%s 采购单价：%s' % (line.product_id.partner_ref, line.product_qty, line.price_unit,) for line in order_lines])), ),
-                '收货数：\n%s' % ('\t' + ('\n\t'.join(['商品：%s 收货数量：%s' % (line.product_id.partner_ref, line.qty_received) for line in order_lines if line.qty_received > 0])), ),
-            ]
+                content = [
+                    '采购订单编号：%s' % ('，'.join(self.purchase_order_id.mapped('name')),),
+                    '供应商：%s' % self.partner_id.name,
+                    '发票是否已经提供：否，发票号：%s ,金额：%s' % ('', self.amount),
+                    '付款方式：%s' % ('、'.join([dict(PAYMENT_TERM_TYPE)[payment_type] for payment_type in list(set(order_lines.mapped('payment_term_id').mapped('type')))]),),
+                    '付款内容：\n%s' % ('\t' + ('\n\t'.join(payment_content)),),
+                    '采购的内容：\n%s' % ('\t' + ('\n\t'.join(['商品：%s 采购数量：%s 采购单价：%s' % (line.product_id.partner_ref, line.product_qty, line.price_unit,) for line in order_lines])), ),
+                    '收货数：\n%s' % ('\t' + ('\n\t'.join(['商品：%s 收货数量：%s' % (line.product_id.partner_ref, line.qty_received) for line in order_lines if line.qty_received > 0])), ),
+                ]
+
+            else:
+                order_lines = self.purchase_order_ids.mapped('order_line')
+                for order in self.purchase_order_ids:
+                    order_amount_total = order.amount_total
+
+                    invoice_splits = self.invoice_register_id.line_ids.mapped('invoice_split_id').filtered(lambda x: x.purchase_order_id.id == order.id)  # 账单分期
+                    invoice_paid_amount = sum(invoice_splits.mapped('paid_amount'))  # 开票已付金额
+                    invoice_residual_amount = order_amount_total - invoice_paid_amount  # 开票未付金额
+
+                    apply_amount = sum(invoice_splits.mapped('amount')) - sum(invoice_splits.mapped('paid_amount'))  # 本次付款金额
+                    payment_content.append('采购订单%s  订单总额：%s  已付款：%s 未付款：%s 本次付款：%s' % (
+                        order.name, order_amount_total, invoice_paid_amount, invoice_residual_amount, apply_amount))
+
+                content = [
+                    '采购订单编号：%s' % ('，'.join(self.purchase_order_ids.mapped('name')),),
+                    '供应商：%s' % self.partner_id.name,
+                    '发票是否已经提供：是，发票号：%s ,金额：%s' % (self.invoice_register_id.name, self.amount),
+                    '付款方式：%s' % ('、'.join([dict(PAYMENT_TERM_TYPE)[payment_type] for payment_type in list(set(order_lines.mapped('payment_term_id').mapped('type')))]),),
+                    '付款内容：\n%s' % ('\t' + ('\n\t'.join(payment_content)),),
+                    '采购的内容：\n%s' % ('\t' + ('\n\t'.join(['商品：%s 采购数量：%s 采购单价：%s' % (line.product_id.partner_ref, line.product_qty, line.price_unit,) for line in order_lines])), ),
+                    '收货数：\n%s' % ('\t' + ('\n\t'.join(['商品：%s 收货数量：%s' % (line.product_id.partner_ref, line.qty_received) for line in order_lines if line.qty_received > 0])), ),
+                ]
 
             content = '\n'.join(content)
 
@@ -239,6 +291,13 @@ class AccountPaymentApply(models.Model):
         sequence_code = 'account.payment.apply'
         apply_date = fields.Date.context_today(self.with_context(tz='Asia/Shanghai'))
         vals['name'] = self.env['ir.sequence'].with_context(ir_sequence_date=apply_date).next_by_code(sequence_code)
+
+        # 计算申请金额
+        if vals.get('purchase_order_id'):
+            vals['amount'] = self.env['purchase.order'].browse(vals['purchase_order_id']).amount_total
+        else:
+            vals['amount'] = self.env['account.invoice.register'].browse(vals['invoice_register_id']).amount
+
         return super(AccountPaymentApply, self).create(vals)
 
     @api.multi
@@ -248,6 +307,7 @@ class AccountPaymentApply(models.Model):
             raise UserError('不能够删除状态为 %s 的申请。' % dict(PAYMENT_APPLY_STATE)[apply.state])
 
         # 将关联的发票登记的状态置为manager_confirm
-        self.invoice_register_id.state = 'manager_confirm'
+        if self.invoice_register_id:
+            self.invoice_register_id.state = 'manager_confirm'
 
         return super(AccountPaymentApply, self).unlink()

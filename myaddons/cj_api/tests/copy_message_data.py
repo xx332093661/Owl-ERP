@@ -3,14 +3,14 @@ import json
 from itertools import groupby
 import odoorpc
 
-odoo_8079 = odoorpc.ODOO(host='localhost', port=8079)
-odoo_8079.login('odoocjl3', login='admin', password='admin')
+odoo_local = odoorpc.ODOO(host='localhost', port=8069)
+odoo_local.login('odoocj3', login='admin', password='admin')
 
-odoo_8069 = odoorpc.ODOO(host='localhost', port=8069)
-odoo_8069.login('odoocj35', login='admin', password='admin')
+# odoo_8069 = odoorpc.ODOO(host='localhost', port=8069)
+# odoo_8069.login('odoocj35', login='admin', password='admin')
 
-# odoo_8069 = odoorpc.ODOO(host='42.121.2.58', port=8069)
-# odoo_8069.login('odoocj3', login='admin', password='admin')
+odoo_remote = odoorpc.ODOO(host='10.0.0.77', port=8080)
+odoo_remote.login('odoo_owl1', login='admin', password='admin')
 
 # odoo_8069 = odoorpc.ODOO(host='10.16.0.35', port=8079)
 # odoo_8069.login('odoo_owl', login='admin', password='admin')
@@ -18,21 +18,27 @@ odoo_8069.login('odoocj35', login='admin', password='admin')
 # odoo_8069 = odoorpc.ODOO(host='10.16.0.35', port=8080)
 # odoo_8069.login('odooapi', login='admin', password='admin')
 
+vals = odoo_remote.env['api.message'].search_read([('id', '=', 39109)], ['content', 'message_type', 'message_name', 'sequence', 'origin'])
+for val in vals:
+    val.pop('id')
+    # content = json.loads(val.pop('content'))
+    odoo_local.env['api.message'].create(vals)
 
-def create(message_name):
-    vals = odoo_8079.env['api.message'].search_read([('message_name', '=', message_name), ('state', '=', 'draft')], ['content', 'message_type', 'message_name', 'sequence'])
-    for val in vals:
-        val.pop('id')
-        if message_name == 'WMS-ERP-STOCK-QUEUE':  # 重复盘点去重
-            content = json.loads(val.pop('content'))
-            res = []
-            for r in content:
-                if not list(filter(lambda x: x['warehouseNo'] == r['warehouseNo'] and x['goodsNo'] == r['goodsNo'], res)):
-                    res.append(r)
 
-            val['content'] = json.dumps(res)
-
-    odoo_8069.env['api.message'].create(vals)
+# def create(message_name):
+#     vals = odoo_8079.env['api.message'].search_read([('message_name', '=', message_name), ('state', '=', 'draft')], ['content', 'message_type', 'message_name', 'sequence'])
+#     for val in vals:
+#         val.pop('id')
+#         if message_name == 'WMS-ERP-STOCK-QUEUE':  # 重复盘点去重
+#             content = json.loads(val.pop('content'))
+#             res = []
+#             for r in content:
+#                 if not list(filter(lambda x: x['warehouseNo'] == r['warehouseNo'] and x['goodsNo'] == r['goodsNo'], res)):
+#                     res.append(r)
+#
+#             val['content'] = json.dumps(res)
+#
+#     odoo_8069.env['api.message'].create(vals)
 
 # 1 组织机构(ok)
 # create('MDM-ERP-ORG-QUEUE')
@@ -53,7 +59,7 @@ def create(message_name):
 # create('MDM-ERP-WAREHOUSE-QUEUE')
 
 # 7 商品(ok)
-create('MDM-ERP-MATERIAL-QUEUE')
+# create('MDM-ERP-MATERIAL-QUEUE')
 
 # 8 门店库存(ok)
 # create('mustang-to-erp-store-stock-push')

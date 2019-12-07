@@ -68,7 +68,8 @@ PROCESS_ERROR = {
     '42': '没有打包明细',
     '43': '退款金额大于收款金额',
     '44': '不处理的订单状态',
-    '45': '没找到对应的省'
+    '45': '没找到对应的省',
+    '46': '订单公司与出库仓库的公司不一样'
 }
 
 
@@ -156,7 +157,7 @@ class ApiMessage(models.Model):
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-RETURN-STOCKIN-QUEUE')   # 退货入库单数据
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-REFUND-ERP-QUEUE')   # 退款单数据
 
-        self.start_mq_thread_by_name('RabbitMQSendThread', 'rabbit_mq_send_thread')
+        # self.start_mq_thread_by_name('RabbitMQSendThread', 'rabbit_mq_send_thread')
 
     @staticmethod
     def start_mq_thread_by_name(class_name, thread_name):
@@ -250,8 +251,12 @@ class ApiMessage(models.Model):
 
     @api.multi
     def do_proc_content(self):
-        if any([res.state == 'done' or (res.state == 'error' and res.attempts < 3) for res in self]):
-            raise ValidationError('完成或失败次数小于3次的记录不能再次处理！')
+        if any([res.state == 'done' for res in self]):
+            raise ValidationError('完成状态的记录不能再次处理！')
+
+        if self.env.ref('cj_api.proc_content_cron').active:
+            if any([res.state in ['draft', 'done'] or (res.state == 'error' and res.attempts < 3) for res in self]):
+                raise ValidationError('草稿状态、失败次数小于3次的记录不能再次处理！')
 
         self.proc_content(self)
 
@@ -444,6 +449,7 @@ class ApiMessage(models.Model):
         bank_obj = self.env['res.bank']
         supplier_group_obj = self.env['res.partner.group']
         partner_area_obj = self.env['res.partner.area']  # 供应商大区
+        company_obj = self.env['res.company']
 
         def get_bank_id(bank_name):
             if not bank_name:
@@ -462,13 +468,14 @@ class ApiMessage(models.Model):
             if not supplier_group:
                 raise MyValidationError('34', '供应商组：%s没有找到！' % supplier['supplierGroup'])
 
-            state_id = self.get_country_state_id(supplier['province'])
-            city_id = self.get_city_area_id(supplier['city'], state_id)
+            state_id = self.get_country_state_id(supplier['provinceName'])
+            city_id = self.get_city_area_id(supplier['cityName'], state_id)
             val = {
                 'supplier': True,
                 'customer': False,
                 'active': True,
                 'state': 'finance_manager_confirm',  # 中台的数据，状态为审核
+                'company_id': company_obj.search([('code', '=', supplier['companyCode'])]).id,
 
                 'name': supplier['supplierName'],  # 供应商名称
                 'supplier_group_id': supplier_group.id,  # 供应商组
@@ -478,14 +485,15 @@ class ApiMessage(models.Model):
                 'legal_entity': supplier['legalEntity'],  # 法人
                 'legal_entity_id_card': supplier['legalEntityId'],  # 法人身份证号
                 'status': supplier['status'],  # 川酒状态(('0', '正常'), ('1', '冻结'), ('2', '废弃'))
-                'country_id': self.get_country_id(supplier['country']),  # 国家
+                'country_id': self.get_country_id(supplier['countryName']),  # 国家
                 'state_id': state_id,  # 省份
                 'city_id': city_id,  # 城市
-                'street2': supplier['area'],  # 区县
+                'street2': supplier['areaName'],  # 区县
                 'street': supplier['address'],  # 街道地址
             }
 
             partner = partner_obj.search([('code', '=', supplier['supplierCode']), ('supplier', '=', True)], limit=1)
+            # partner = partner_obj.search([('archive_code', '=', supplier['creditCode']), ('supplier', '=', True)], limit=1)
             if not partner:
                 partner = partner_obj.create(val)
             else:
@@ -816,6 +824,17 @@ class ApiMessage(models.Model):
                 if attr.get('name') == '规格':
                     return attr.get('value')
 
+        def get_cost_type():
+            """计算核算类型
+            香烟类型为门店核算，其他为公司核算
+            """
+            big_class = material.get('bigClass', '').strip()
+            if big_class == '香烟':
+                return 'store'
+
+            return 'company'
+
+
         product_obj = self.env['product.template']
         uom_obj = self.env['uom.uom']
         category_obj = self.env['product.category']
@@ -854,6 +873,7 @@ class ApiMessage(models.Model):
                 # 'seller_ids': get_supplier(),  # 供应商
                 'type': 'product',  # 产品类型
                 'tracking': 'none',  # 追溯
+                'cost_type': get_cost_type(), # 核算类型
             }
 
             product = product_obj.search([('default_code', '=', material['materialCode'])])
@@ -871,32 +891,10 @@ class ApiMessage(models.Model):
     def deal_mustang_to_erp_store_stock_push(self, content):
         """门店初始化库存"""
         raise MyValidationError('40', '不处理门店库存！')
-        # # def get_is_init():
-        # #     """计算商品是否是初次盘点"""
-        # #     cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
-        # #     if cost_group:
-        # #         if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id)]):
-        # #             return 'no'
-        # #         return 'yes'
-        # #
-        # #     raise MyValidationError('29', '%s没有成本核算分组' % company.name)
-        # #
-        # # def get_cost():
-        # #     """计算初次盘点成本"""
-        # #     if is_init == 'no':
-        # #         return 0
-        # #     product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
-        # #     if product_cost:
-        # #         return product_cost.cost
-        # #
-        # #     raise MyValidationError('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
-        #
+
         # inventory_obj = self.env['stock.inventory']
         # inventory_line_obj = self.env['stock.inventory.line']
         # warehouse_obj = self.env['stock.warehouse']
-        # # cost_group_obj = self.env['account.cost.group']  # 成本核算分组
-        # # valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
-        # # product_cost_obj = self.env['product.cost']  # 商品成本
         #
         # _, body = self._deal_content(content)
         #
@@ -944,38 +942,16 @@ class ApiMessage(models.Model):
         #         raise MyValidationError('39', '没有盘点明细')
         #
         #     inventory_line_obj.with_context(company_id=company_id).create(vals_list)
-        #     inventory.action_validate()
+        #     # inventory.action_validate()
 
     # 9、WMS-ERP-STOCK-QUEUE 外部仓库库存
     def deal_wms_erp_stock_queue(self, content):
         """外部仓库库存数据队列"""
-        # def get_is_init():
-        #     """计算商品是否是初次盘点"""
-        #     cost_group = cost_group_obj.search([('store_ids', '=', company_id)])
-        #     if cost_group:
-        #         if valuation_move_obj.search([('cost_group_id', '=', cost_group.id), ('product_id', '=', product_id)]):
-        #             return 'no'
-        #         return 'yes'
-        #
-        #     raise MyValidationError('29', '%s没有成本核算分组' % company.name)
-        #
-        # def get_cost():
-        #     """计算初次盘点成本"""
-        #     if is_init == 'no':
-        #         return 0
-        #     product_cost = product_cost_obj.search([('company_id', '=', company_id), ('product_id', '=', product_id)], order='id desc', limit=1)
-        #     if product_cost:
-        #         return product_cost.cost
-        #
-        #     raise MyValidationError('28', '%s的%s没有提供初始成本！' % (company.name, product.partner_ref))
         raise MyValidationError('40', '不处理外部仓库库存变更！')
 
         # warehouse_obj = self.env['stock.warehouse']
         # inventory_obj = self.env['stock.inventory']
         # inventory_line_obj = self.env['stock.inventory.line']
-        # # cost_group_obj = self.env['account.cost.group']  # 成本核算分组
-        # # valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值移动
-        # # product_cost_obj = self.env['product.cost']  # 商品成本
         #
         # body = json.loads(content)
         # if not isinstance(body, list):
@@ -1018,7 +994,7 @@ class ApiMessage(models.Model):
         #         raise MyValidationError('39', '没有盘点明细')
         #
         #     inventory_line_obj.with_context(company_id=company_id).create(vals_list)
-        #     inventory.action_validate()
+        #     # inventory.action_validate()
 
     # 10、mustang-to-erp-order-push 订单
     def deal_mustang_to_erp_order_push(self, content):
@@ -1095,19 +1071,34 @@ class ApiMessage(models.Model):
             if content.get('memberId'):
                 member = partner_obj.search([('code', '=', content['memberId']), ('member', '=', True)], limit=1)
                 if not member:
-                    return pid, content.get('memberId')
-                    # raise MyValidationError('12', '会员：%s未找到' % content['memberId'])
-                return member.id, ''
+                    val = {
+                        'code': content['memberId'],
+                        'name': content['memberId'],
+                        # 'phone': member['mobile'],
+                        # 'growth_value': member['growthValue'],
+                        # 'member_level': member['level'],
+                        # 'email': member['email'],
+                        # 'register_channel': member['registerChannel'],
+                        # 'create_time': (fields.Datetime.to_datetime(member['registerTime']) - timedelta(hours=8)).strftime(DATETIME_FORMAT) if member['registerTime'] else False,
+
+                        'active': True,
+                        'member': True,  # 是否会员
+                        'customer': False,
+                        'supplier': False
+                    }
+                    member = partner_obj.create(val)
+                return member.id
             else:
-                return pid, ''
+                return pid
 
         def get_parent():
             """获取关联的销售订单"""
             if not order_code:
                 return False
-            parent_order = order_obj.search([('code', '=', order_code)], limit=1)
+            parent_order = order_obj.search([('name', '=', order_code)], limit=1)
             if not parent_order:
-                raise MyValidationError('14', '关联的销售订单：%s没有找到！' % order_code)
+                return False  # TODO 前期补发订单可能找不到关联的订单
+                # raise MyValidationError('14', '关联的销售订单：%s没有找到！' % order_code)
 
             return parent_order.id
 
@@ -1170,9 +1161,9 @@ class ApiMessage(models.Model):
                 'product_amount': content.get('productAmount') / 100,  # 商品总金额
                 'total_amount': content.get('totalAmount') / 100,  # 订单总金额
 
-                'consignee_name': consignee['consigneeName'],  # 收货人名字
-                'consignee_mobile': consignee['consigneeMobile'],  # 收货人电话
-                'address': consignee['fullAddress'],  # 收货人地址
+                'consignee_name': consignee.get('consigneeName'),  # 收货人名字
+                'consignee_mobile': consignee.get('consigneeMobile'),  # 收货人电话
+                'address': consignee.get('fullAddress'),  # 收货人地址
                 'consignee_state_id': consignee_state_id,  # 省
                 'consignee_city_id': consignee_city_id,  # 市
                 'consignee_district_id': consignee_district_id,  # 区(县)
@@ -1182,13 +1173,12 @@ class ApiMessage(models.Model):
 
                 'sync_state': 'no_need',
                 'state': 'cancel' if content['status'] == '已取消' else 'draft',
-                'member_id': member_id  # 会员ID, 对于全渠道订单，打不到会员，先把会员ID暂存起来，后通过计划任务去计算会员
             }
             return order_obj.create(val)
 
         def create_payment():
             """创建支付"""
-            payment_way = payment['paymentWay']  # 支付方式
+            payment_way = payment['paymentWay'].strip()  # 支付方式
             if payment_way == '对公转账':
                 journal_code = 'DG'
             elif payment_way == '内部代金券':
@@ -1207,6 +1197,8 @@ class ApiMessage(models.Model):
                 journal_code = 'ONL'
             elif payment_way == '支付宝支付':
                 journal_code = 'ALI'
+            elif payment_way == '美团支付':
+                journal_code = 'MT'
             else:
                 raise MyValidationError('13', '未知的支付方式：%s' % payment_way)
 
@@ -1234,6 +1226,10 @@ class ApiMessage(models.Model):
 
         def create_sale_order_line(pid, qty, price):
             """创建订单行"""
+            tax_id = False
+            tax = tax_obj.search([('company_id', '=', company_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
+            if tax:
+                tax_id = [(6, 0, tax.ids)]
             order_line = order_line_obj.create({
                 'order_id': order_id,
                 'product_id': pid,
@@ -1241,6 +1237,7 @@ class ApiMessage(models.Model):
                 'price_unit': price,
                 'warehouse_id': warehouse_id,
                 'owner_id': company_id,
+                'tax_id': tax_id
             })
             return order_line
 
@@ -1252,6 +1249,7 @@ class ApiMessage(models.Model):
         channels_obj = self.env['sale.channels']
         partner_obj = self.env['res.partner']
         journal_obj = self.env['account.journal']
+        tax_obj = self.env['account.tax']
 
         content = json.loads(content)
 
@@ -1268,7 +1266,7 @@ class ApiMessage(models.Model):
 
         company_id = get_company()  # 计算公司
         warehouse_id = get_warehouse()  # 计算仓库(可能是临时仓库)
-        partner_id, member_id = get_partner()  # 计算客户
+        partner_id = get_partner()  # 计算客户
         parent_id = get_parent()    # 关联的销售订单
         order = create_sale_order()  # 创建销售订单
         order_id = order.id
@@ -1303,7 +1301,7 @@ class ApiMessage(models.Model):
                             if i == 0:
                                 first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
                             else:
-                                create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_subtotal)
+                                create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_total)
                     else:
                         create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
                 else:
@@ -1314,7 +1312,7 @@ class ApiMessage(models.Model):
                             if i == 0:
                                 first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
                             else:
-                                create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_subtotal)
+                                create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_total)
                     else:
                         create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
             else:
@@ -1325,7 +1323,7 @@ class ApiMessage(models.Model):
                         if i == 0:
                             first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
                         else:
-                            create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_subtotal)
+                            create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_total)
                 else:
                     create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
 
@@ -1336,17 +1334,18 @@ class ApiMessage(models.Model):
                 order.action_confirm()
                 order.picking_ids.filtered(lambda x: x.state == 'draft').action_confirm()  # 确认草稿状态的stock.picking
                 picking = order.picking_ids[0]
-                for move in picking.move_lines:
-                    move.quantity_done = move.product_uom_qty
-
                 # 检查可用状态
                 if picking.state != 'assigned':
                     picking.action_assign()
 
-                if picking.state != 'assigned':
+                if any([move.state != 'assigned' for move in picking.move_lines]):
+                    # if picking.state != 'assigned':
                     raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
-                picking.action_done()  # 确认出库
+                for move in picking.move_lines:
+                    move.quantity_done = move.product_uom_qty
+
+                picking.button_validate()  # 确认出库
                 order.action_done()  # 完成订单
 
     # 11、WMS-ERP-STOCKOUT-QUEUE 订单出库
@@ -1476,11 +1475,15 @@ class ApiMessage(models.Model):
         # 4、订单确认
         if order.state == 'draft':
             # 同一家公司的不同仓库，更改订单的仓库
-            if order.warehouse_id.id != warehouse.id and order.company_id.id == warehouse.company_id.id:
-                order.warehouse_id = warehouse.id
-                order.order_line.write({
-                    'warehouse_id': warehouse.id
-                })
+            if order.warehouse_id.id != warehouse.id:
+                if order.company_id.id == warehouse.company_id.id:
+                    order.warehouse_id = warehouse.id
+                    order.order_line.write({
+                        'warehouse_id': warehouse.id
+                    })
+                else:
+                    raise MyValidationError('46', '订单公司与出库仓库的公司不一样')
+
             order.action_confirm()
 
         order.picking_ids.filtered(lambda x: x.state == 'draft').action_confirm()  # 确认草稿状态的stock.picking
@@ -1490,11 +1493,18 @@ class ApiMessage(models.Model):
         assert len(picking) == 1, '订单对应的stock.picking状态错误！'
         picking = picking[0]
 
+        if picking.state != 'assigned':
+            picking.action_assign()
+
+        if any([move.state != 'assigned' for move in picking.move_lines]):
+            # if picking.state != 'assigned':
+            raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
         for line in delivery_lines:
             product_uom_qty = line['product_uom_qty']
 
             for move in filter(lambda x: x.product_id.id == line['product_id'], picking.move_lines):
-                qty = min(move.product_uom_qty, product_uom_qty)
+                qty = min(move.reserved_availability, product_uom_qty)
                 if float_is_zero(qty, precision_rounding=0.001):
                     continue
 
@@ -1503,14 +1513,7 @@ class ApiMessage(models.Model):
                 if float_is_zero(product_uom_qty, precision_rounding=0.001):
                     break
         # 6、出库
-        # 检查可用状态
-        if picking.state != 'assigned':
-            picking.action_assign()
-
-        if picking.state != 'assigned':
-            raise MyValidationError('19', '%s未完成出库！' % picking.name)
-
-        picking.action_done()  # 确认出库
+        picking.button_validate()  # 确认出库
         picking.delivery_id = delivery_id
 
     # 12、mustang-to-erp-logistics-push 物流信息
@@ -1568,8 +1571,8 @@ class ApiMessage(models.Model):
         if not order:
             raise MyValidationError('14', '出库单号：%s对应的销售订单未找到' % delivery_order_code)
 
-        if not logistics_data['packages']:
-            raise MyValidationError('42', '没有打包明细')
+        # if not logistics_data['packages']:
+        #     raise MyValidationError('42', '没有打包明细')
 
         state_id = self.get_country_state_id(logistics_data['province'])  # 省
         city_id = self.get_city_area_id(logistics_data['city'], state_id)  # 市
@@ -1691,21 +1694,32 @@ class ApiMessage(models.Model):
                 raise MyValidationError('22', '商品：%s发货数量小于待发货数量！' % ('、'.join(pros)))
 
             picking = picking_obj.search([('sale_id', '=', sale_order.id), ('state', '!=', 'done')])
-            for content in contents:
-                product = self.get_product(content['goodsCode'])
-                quantity = content['quantity']  # 出库数量
-                for stock_move in list(filter(lambda x: x.product_id.id == product.id, picking.move_lines)):
-                    qty = min(quantity, stock_move.product_uom_qty)
+            if picking.state != 'assigned':
+                picking.action_assign()
+
+            if any([move.state != 'assigned' for move in picking.move_lines]):
+            # if picking.state != 'assigned':
+                raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
+            for content in wait_out_lines:
+                product_id = content['product_id']
+                quantity = content['deliver_qty']  # 出库数量
+                for stock_move in list(filter(lambda x: x.product_id.id == product_id, picking.move_lines)):
+                    qty = min(quantity, stock_move.reserved_availability)
                     stock_move.quantity_done = qty
                     quantity -= qty
                     if float_is_zero(quantity, precision_rounding=0.001):
                         break
 
-            if picking.state != 'assigned':
-                picking.action_assign()
-
-            if picking.state != 'assigned':
-                raise MyValidationError('19', '%s未完成出库！' % picking.name)
+            # for content in contents:
+            #     product = self.get_product(content['goodsCode'])
+            #     quantity = content['quantity']  # 出库数量
+            #     for stock_move in list(filter(lambda x: x.product_id.id == product.id, picking.move_lines)):
+            #         qty = min(quantity, stock_move.product_uom_qty)
+            #         stock_move.quantity_done = qty
+            #         quantity -= qty
+            #         if float_is_zero(quantity, precision_rounding=0.001):
+            #             break
 
             picking.button_validate()  # 确认出库
             sale_order.action_done()  # 完成订单
@@ -1713,86 +1727,87 @@ class ApiMessage(models.Model):
 
         # 销售退货(只有一次退货)
         if update_type == 'STOCK_01001':
-            sale_order = sale_order_obj.search([('name', '=', order_name), ])
-            if not sale_order:  # 没有找到对应订单 TODO 直接入库?
-                move_lines = []
-                for content in contents:
-                    product = self.get_product(content['goodsCode'])
-                    move_lines.append((0, 0, {
-                        'name': product.partner_ref,
-                        'product_uom': product.uom_id.id,
-                        'product_id': product.id,
-                        'product_uom_qty': abs(content['quantity']),
-                        'quantity_done': abs(content['quantity']),
-                        'store_stock_update_code': 'STOCK_01001',  # 门店库存变更类型
-                    }))
-                store_code = contents[0]['storeCode']  # 门店编号
-                company = company_obj.search([('code', '=', store_code)])
-                warehouse = warehouse_obj.search([('company_id', '=', company.id)])
-                picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'incoming')])  # 作业类型
-
-                picking = picking_obj.create({
-                    'location_id': location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 源库位(客户库位)
-                    'location_dest_id': picking_type.default_location_dest_id.id,  # 目的库位(库存库位)
-                    'picking_type_id': picking_type.id,  # 作业类型
-                    'origin': contents[0]['updateCode'],  # 关联单据
-                    'company_id': company.id,
-                    'move_lines': move_lines,
-                    'note': '销售退货'
-                })
-                picking.action_confirm()
-                picking.button_validate()
-                return
-                # raise MyValidationError('14', '变更单号：%s未找到对应的销售订单！' % order_name)
-
-            picking = picking_obj.search([('sale_id', '=', sale_order.id)])
-            if picking.state != 'done':
-                raise MyValidationError('24', '订单：%s未完成出库，不能退货！' % order_name)
-
-            stock_out_lines = []  # 出库商品
-            for product, ls in groupby(sorted(sale_order.order_line, key=lambda x: x.product_id.id), lambda x: x.product_id):  # 按商品分组
-                stock_out_lines.append({
-                    'product_id': product.id,
-                    'stock_out_qty': sum([line.qty_delivered for line in ls]),  # 出库数量
-                    'return_qty': 0  # 退货数量
-                })
-
-            # 退货数量
-            return_vals = []
-            for content in contents:
-                product = self.get_product(content['goodsCode'])
-                res = list(filter(lambda x: x['product_id'] == product.id, stock_out_lines))
-                if not res:
-                    stock_out_lines.append({
-                        'product_id': product.id,
-                        'stock_out_qty': 0,
-                        'return_qty': abs(content['quantity'])
-                    })
-                else:
-                    res[0]['return_qty'] += abs(content['quantity'])
-
-                stock_move = picking.move_lines.filtered(lambda x: x.product_id.id == product.id)
-                return_vals.append((0, 0, {
-                    'product_id': product.id,
-                    'quantity': abs(content['quantity']),
-                    'move_id': stock_move.id,
-                }))
-
-            # 退货数量大于出库数量
-            res = list(filter(lambda x: float_compare(x['return_qty'], x['stock_out_qty'], precision_rounding=0.01) == 1, stock_out_lines))
-            if res:
-                pros = ['[%s]%s' % (product_obj.browse(r['product_id']).default_code, product_obj.browse(r['product_id']).name) for r in res]
-                raise MyValidationError('25', '商品：%s退货数量大于出库数量！' % ('、'.join(pros)))
-
-            # 创建退货单
-            vals = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).default_get(return_picking_obj._fields)
-            vals.update({
-                'product_return_moves': return_vals,
-            })
-            return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
-            new_picking_id, pick_type_id = return_picking._create_returns()
-            picking_obj.browse(new_picking_id).action_done()  # 确认入库
-            return
+            raise MyValidationError('40', '不处理队列')
+            # sale_order = sale_order_obj.search([('name', '=', order_name), ])
+            # if not sale_order:  # 没有找到对应订单 TODO 直接入库?
+            #     move_lines = []
+            #     for content in contents:
+            #         product = self.get_product(content['goodsCode'])
+            #         move_lines.append((0, 0, {
+            #             'name': product.partner_ref,
+            #             'product_uom': product.uom_id.id,
+            #             'product_id': product.id,
+            #             'product_uom_qty': abs(content['quantity']),
+            #             'quantity_done': abs(content['quantity']),
+            #             'store_stock_update_code': 'STOCK_01001',  # 门店库存变更类型
+            #         }))
+            #     store_code = contents[0]['storeCode']  # 门店编号
+            #     company = company_obj.search([('code', '=', store_code)])
+            #     warehouse = warehouse_obj.search([('company_id', '=', company.id)])
+            #     picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'incoming')])  # 作业类型
+            #
+            #     picking = picking_obj.create({
+            #         'location_id': location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 源库位(客户库位)
+            #         'location_dest_id': picking_type.default_location_dest_id.id,  # 目的库位(库存库位)
+            #         'picking_type_id': picking_type.id,  # 作业类型
+            #         'origin': contents[0]['updateCode'],  # 关联单据
+            #         'company_id': company.id,
+            #         'move_lines': move_lines,
+            #         'note': '销售退货'
+            #     })
+            #     picking.action_confirm()
+            #     picking.button_validate()
+            #     return
+            #     # raise MyValidationError('14', '变更单号：%s未找到对应的销售订单！' % order_name)
+            #
+            # picking = picking_obj.search([('sale_id', '=', sale_order.id)])
+            # if picking.state != 'done':
+            #     raise MyValidationError('24', '订单：%s未完成出库，不能退货！' % order_name)
+            #
+            # stock_out_lines = []  # 出库商品
+            # for product, ls in groupby(sorted(sale_order.order_line, key=lambda x: x.product_id.id), lambda x: x.product_id):  # 按商品分组
+            #     stock_out_lines.append({
+            #         'product_id': product.id,
+            #         'stock_out_qty': sum([line.qty_delivered for line in ls]),  # 出库数量
+            #         'return_qty': 0  # 退货数量
+            #     })
+            #
+            # # 退货数量
+            # return_vals = []
+            # for content in contents:
+            #     product = self.get_product(content['goodsCode'])
+            #     res = list(filter(lambda x: x['product_id'] == product.id, stock_out_lines))
+            #     if not res:
+            #         stock_out_lines.append({
+            #             'product_id': product.id,
+            #             'stock_out_qty': 0,
+            #             'return_qty': abs(content['quantity'])
+            #         })
+            #     else:
+            #         res[0]['return_qty'] += abs(content['quantity'])
+            #
+            #     stock_move = picking.move_lines.filtered(lambda x: x.product_id.id == product.id)
+            #     return_vals.append((0, 0, {
+            #         'product_id': product.id,
+            #         'quantity': abs(content['quantity']),
+            #         'move_id': stock_move.id,
+            #     }))
+            #
+            # # 退货数量大于出库数量
+            # res = list(filter(lambda x: float_compare(x['return_qty'], x['stock_out_qty'], precision_rounding=0.01) == 1, stock_out_lines))
+            # if res:
+            #     pros = ['[%s]%s' % (product_obj.browse(r['product_id']).default_code, product_obj.browse(r['product_id']).name) for r in res]
+            #     raise MyValidationError('25', '商品：%s退货数量大于出库数量！' % ('、'.join(pros)))
+            #
+            # # 创建退货单
+            # vals = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).default_get(return_picking_obj._fields)
+            # vals.update({
+            #     'product_return_moves': return_vals,
+            # })
+            # return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
+            # new_picking_id, pick_type_id = return_picking._create_returns()
+            # picking_obj.browse(new_picking_id).button_validate()  # 确认入库
+            # return
 
         # 仓库配货入库
         if update_type == 'STOCK_02003':
@@ -1823,7 +1838,7 @@ class ApiMessage(models.Model):
                 'note': '仓库配货入库'
             })
             picking.action_confirm()
-            picking.button_validate()
+            picking.button_validate()  # 确认入库
 
             return
 
@@ -1843,7 +1858,7 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity']),
+                    # 'quantity_done': abs(content['quantity']),
                     'store_stock_update_code': 'STOCK_03001',  # 门店库存变更类型
                 }))
 
@@ -1860,8 +1875,12 @@ class ApiMessage(models.Model):
             if picking.state != 'assigned':
                 picking.action_assign()
 
-            if picking.state != 'assigned':
+            if any([move.state != 'assigned' for move in picking.move_lines]):
+            # if picking.state != 'assigned':
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
+            for stock_move in picking.move_lines:
+                stock_move.quantity_done = stock_move.product_uom_qty
 
             picking.button_validate()  # 确认出库
             return
@@ -1928,7 +1947,7 @@ class ApiMessage(models.Model):
                 'note': '两步式调拨-入库'
             })
             picking.action_confirm()
-            picking.button_validate()
+            picking.button_validate()  # 确认入库
             return
 
         # 两步式调拨-入库冲销
@@ -1947,7 +1966,7 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity']),
+                    # 'quantity_done': abs(content['quantity']),
                     'store_stock_update_code': 'STOCK_03007',  # 门店库存变更类型
                 }))
             picking = picking_obj.create({
@@ -1963,8 +1982,12 @@ class ApiMessage(models.Model):
             if picking.state != 'assigned':
                 picking.action_assign()
 
-            if picking.state != 'assigned':
+            if any([move.state != 'assigned' for move in picking.move_lines]):
+            # if picking.state != 'assigned':
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
+            for stock_move in picking.move_lines:
+                stock_move.quantity_done = stock_move.product_uom_qty
 
             picking.button_validate()  # 确认出库
             return
@@ -1998,7 +2021,7 @@ class ApiMessage(models.Model):
                 'note': '盘盈入库'
             })
             picking.action_confirm()
-            picking.button_validate()
+            picking.button_validate()  # 确认入库
             return
 
         # 盘亏出库
@@ -2017,7 +2040,7 @@ class ApiMessage(models.Model):
                     'product_uom': product.uom_id.id,
                     'product_id': product.id,
                     'product_uom_qty': abs(content['quantity']),
-                    'quantity_done': abs(content['quantity']),
+                    # 'quantity_done': abs(content['quantity']),
                     'store_stock_update_code': 'STOCK_03004',  # 门店库存变更类型
                 }))
 
@@ -2034,8 +2057,12 @@ class ApiMessage(models.Model):
             if picking.state != 'assigned':
                 picking.action_assign()
 
-            if picking.state != 'assigned':
+            if any([move.state != 'assigned' for move in picking.move_lines]):
+            # if picking.state != 'assigned':
                 raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
+            for stock_move in picking.move_lines:
+                stock_move.quantity_done = stock_move.product_uom_qty
 
             picking.button_validate()  # 确认出库
             return
@@ -2089,12 +2116,15 @@ class ApiMessage(models.Model):
     # 14、WMS-ERP-RETURN-STOCKIN-QUEUE 退货入库单
     def deal_wms_erp_return_stockin_queue(self, content):
         """退货入库单"""
-        # order_obj = self.env['sale.order']
+        # raise MyValidationError('40', '不处理队列')
+        order_obj = self.env['sale.order']
         delivery_obj = self.env['delivery.order']  # 出货单
         return_obj = self.env['sale.order.return']
         warehouse_obj = self.env['stock.warehouse']
         return_picking_obj = self.env['stock.return.picking']
         picking_obj = self.env['stock.picking']
+        picking_type_obj = self.env['stock.picking.type']  # 作业类型
+        location_obj = self.env['stock.location']
 
         content = json.loads(content)
 
@@ -2105,27 +2135,34 @@ class ApiMessage(models.Model):
         # if not order:
         #     raise MyValidationError('14', '订单编号：%s不存在！' % content['returnOrderCode'])
 
+        # preDeliveryOrderCode：原出库单号，POS订单退货，对应原订单号
         delivery = delivery_obj.search([('name', '=', content['preDeliveryOrderCode'])])
-        if not delivery:
-            raise MyValidationError('35', '原出库单号：%s对应的出库单不存在！' % content['preDeliveryOrderCode'])
+        # if not delivery:
+        #     raise MyValidationError('35', '原出库单号：%s对应的出库单不存在！' % content['preDeliveryOrderCode'])
 
         warehouse = warehouse_obj.search([('code', '=', content['warehouseNo'])])  # TODO 退货到不同的仓库未处理
         if not warehouse:
             raise MyValidationError('11', '仓库编码：%s对应仓库不存在！' % content['warehouseNo'])
 
-        order = delivery.sale_order_id
+        if delivery:
+            order = delivery.sale_order_id
+        else:
+            order = order_obj.search([('name', '=', content['preDeliveryOrderCode'])])
+            # TODO 暂时屏蔽错误
+            # if not order:
+            #     raise MyValidationError('14', '订单编号：%s不存在！' % content['returnOrderCode'])
 
         consignee = content['consignee']
-        state_id = self.get_country_state_id(consignee['provinceText'])  # 省
-        city_id = self.get_city_area_id(consignee['cityText'], state_id)  # 市
-        area_id = self.get_city_area_id(consignee['districtText'], state_id, city_id)  # 县
+        state_id = self.get_country_state_id(consignee.get('provinceText'))  # 省
+        city_id = self.get_city_area_id(consignee.get('cityText'), state_id)  # 市
+        area_id = self.get_city_area_id(consignee.get('districtText'), state_id, city_id)  # 县
 
         lines = []
         for item in content['items']:
             product = self.get_product(item['code'])
             lines.append((0, 0, {
                 'product_id': product.id,
-                'inventory_type': item['inventoryType'],  # 库存类型
+                'inventory_type': item['inventoryType'],  # 库存类型: ('CC', '残次'), ('ZP', '正品')
                 'quantity': item['quantity'],  # 下单数量
                 'actual_qty': item['actualQty'],  # 实收数量
             }))
@@ -2133,39 +2170,66 @@ class ApiMessage(models.Model):
         # 创建退货单
         return_obj.create({
             'name': content['returnOrderCode'],
-            'sale_order_id': order.id,
-            'delivery_id': delivery.id,
+            'sale_order_id': order.id if order else False,
+            'delivery_id': delivery.id if delivery else False,
             'warehouse_id': warehouse.id,
             'type': content['stockInType'],
-            'consignee_name': consignee['consigneeName'],
-            'consignee_mobile': consignee['consigneeMobile'],
-            'address': consignee['address'],
+            'pre_delivery_order_code': content['preDeliveryOrderCode'],
+            'consignee_name': consignee.get('consigneeName'),
+            'consignee_mobile': consignee.get('consigneeMobile'),
+            'address': consignee.get('address'),
             'consignee_state_id': state_id,
             'consignee_city_id': city_id,
             'consignee_district_id': area_id,
-            'line_ids': lines
+            'line_ids': lines,
         })
 
-        # 创建入库单
-        return_vals = []
-        picking = sorted(order.picking_ids.filtered(lambda x: x.state == 'done'), key=lambda x: x.id)[0]  # TODO 针对销售订单的第一张出库单来退货？
-        for item in content['items']:
-            product = self.get_product(item['code'])
-            stock_move = picking.move_lines.filtered(lambda x: x.product_id.id == product.id)
-            return_vals.append((0, 0, {
-                'product_id': product.id,
-                'quantity': item['actualQty'],
-                'move_id': stock_move.id,
-                'to_refund': True  # 退货退款
-            }))
+        if order:
+            # 创建入库单
+            return_vals = []
+            picking = sorted(order.picking_ids.filtered(lambda x: x.state == 'done'), key=lambda x: x.id)[0]  # TODO 针对销售订单的第一张出库单来退货？
+            for item in content['items']:
+                product = self.get_product(item['code'])
+                stock_move = picking.move_lines.filtered(lambda x: x.product_id.id == product.id)
+                return_vals.append((0, 0, {
+                    'product_id': product.id,
+                    'quantity': item['actualQty'],
+                    'move_id': stock_move.id,
+                    'to_refund': True  # 退货退款
+                }))
 
-        vals = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).default_get(return_picking_obj._fields)
-        vals.update({
-            'product_return_moves': return_vals,
-        })
-        return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
-        new_picking_id, pick_type_id = return_picking._create_returns()
-        picking_obj.browse(new_picking_id).with_context(dont_invoice=True).action_done()  # 确认入库，此处传dont_invoice上下文，不生成应收应付，由退款处理
+            vals = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).default_get(return_picking_obj._fields)
+            vals.update({
+                'product_return_moves': return_vals,
+            })
+            return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
+            new_picking_id, pick_type_id = return_picking._create_returns()
+            picking_obj.browse(new_picking_id).with_context(dont_invoice=True).action_done()  # 确认入库，此处传dont_invoice上下文，不生成应收应付，由退款处理
+        else:
+            move_lines = []
+            for item in content['items']:
+                product = self.get_product(item['code'])
+                move_lines.append((0, 0, {
+                    'name': product.partner_ref,
+                    'product_uom': product.uom_id.id,
+                    'product_id': product.id,
+                    'product_uom_qty': item['actualQty'],
+                    'quantity_done': item['actualQty'],
+                    'store_stock_update_code': 'STOCK_01001',  # 门店库存变更类型
+                }))
+            picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'incoming')])  # 作业类型
+
+            picking = picking_obj.create({
+                'location_id': location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 源库位(客户库位)
+                'location_dest_id': picking_type.default_location_dest_id.id,  # 目的库位(库存库位)
+                'picking_type_id': picking_type.id,  # 作业类型
+                'origin': 'STOCK_01001',  # 关联单据
+                'company_id': warehouse.company_id.id,
+                'move_lines': move_lines,
+                'note': '销售退货'
+            })
+            picking.action_confirm()
+            picking.button_validate()
 
     # 15、MUSTANG-REFUND-ERP-QUEUE 退款单
     def deal_mustang_refund_erp_queue(self, content):
@@ -2203,6 +2267,12 @@ class ApiMessage(models.Model):
 
             return_id = sale_return.id
 
+        refund_time = datetime.now()
+        try:
+            refund_time = datetime.fromtimestamp(content['createTime'] / 1000.0)
+        except:
+            pass
+
         # 创建退款单
         refund_obj.create({
             'name': content['refundCode'],
@@ -2214,13 +2284,14 @@ class ApiMessage(models.Model):
             'remarks': content['remarks'],
             'refund_type': content['refundOrderType'],
             'push_state': str(content['pushState']),
-            'refund_time': (fields.Datetime.to_datetime(content['createTime'].replace('T', ' ')) - timedelta(hours=8)).strftime(DATETIME_FORMAT)
+            # 'refund_time': (fields.Datetime.to_datetime(content['createTime'].replace('T', ' ')) - timedelta(hours=8)).strftime(DATETIME_FORMAT)
+            'refund_time': refund_time
         })
 
         # 创建付款记录
         company_id = order.company_id.id
         partner_id = order.partner_id.id
-        payment_date = content['createTime'].split('T')[0]
+        payment_date = refund_time.date()
         # refund_type = content['refundOrderType']  # 退款类型：all-商品未出库生成的退款单，other-商品出库后生成的退款单
         # if refund_type == 'all':  # 商品未出库生成的退款单，创建付款记录并记账
 
@@ -2289,18 +2360,18 @@ class ApiMessage(models.Model):
 
         # 状态是cancelled-已取消，取消订单，取消订单关联的stock.picking和account.payment
         if order_state == 'cancelled':
-            # if order.picking_ids.filtered(lambda x: x.state == 'done'):
-            #     raise MyValidationError('15', '订单已出库，不能取消！')
-
             # 去重处理(推送过来的订单状态可能重复)
             if order.state == 'cancel':
                 return
 
+            if order.picking_ids.filtered(lambda x: x.state == 'done'):
+                raise MyValidationError('15', '订单已出库，不能取消！')
+
             # 将未完成的stock.picking取消
             order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
             # 订单取消
-            order.state = 'cancel'
-            # order.action_cancel()
+            # order.state = 'cancel'
+            order.action_cancel()
             # 取消关联的收款(已收至款的走退款途径，草稿状态的取消)
             for payment in order.payment_ids.filtered(lambda x: x.state == 'draft'):
                 payment.cancel()

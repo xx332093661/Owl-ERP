@@ -47,6 +47,7 @@ class SaleOrder(models.Model):
     payment_ids = fields.One2many('account.payment', 'sale_order_id', '收款记录',  domain=lambda self: [('payment_type', '=', 'inbound')])
     return_ids = fields.One2many('sale.order.return', 'sale_order_id', '退货入库单')
     refund_ids = fields.One2many('sale.order.refund', 'sale_order_id', '退款单')
+    # is_gift = fields.Boolean('是赠品订单')
 
     # 中台字段
     user_level = fields.Char("用户等级")
@@ -71,7 +72,7 @@ class SaleOrder(models.Model):
     consignee_state_id = fields.Many2one('res.country.state', '省')
     consignee_city_id = fields.Many2one('res.city', '市')
     consignee_district_id = fields.Many2one('res.city', '区(县)')
-    special_order_mark = fields.Selection([('normal', '普通订单'), ('compensate', '补发货订单')], '订单类型', default='normal')
+    special_order_mark = fields.Selection([('normal', '普通订单'), ('compensate', '补发货订单'), ('gift', '赠品')], '订单类型', default='normal')
     parent_id = fields.Many2one('sale.order', '关联的销售订单')
     child_ids = fields.One2many('sale.order', 'parent_id', '补发订单')
     reason = fields.Char('补发货原因')
@@ -267,6 +268,15 @@ class SaleOrder(models.Model):
             if line['product_uom_qty'] > qty:
                 raise ValidationError('商品：%s订单数量：%s不能大于营销活动的剩余数量：%s！' % (product_name, line['product_uom_qty'], qty))
 
+    # @api.model
+    # def default_get(self, fields_list):
+    #     res = super(SaleOrder, self).default_get(fields_list)
+    #     default_special_order_mark = self._context.get('default_special_order_mark')
+    #     if default_special_order_mark == 'gift':
+    #         res['payment_term_id'] = self.env.ref('account.account_payment_term_immediate').id  # 赠品订单立即付款
+    #
+    #     return res
+
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
         """禁止销售总经理和财务修改单据"""
@@ -289,18 +299,11 @@ class SaleOrder(models.Model):
         if self._context.get('group_flag') == 'group':
             val.update({'group_flag': 'group'})
 
+        # 赠品订单立即付款
+        default_special_order_mark = self._context.get('default_special_order_mark')
+        if default_special_order_mark == 'gift':
+            val['payment_term_id'] = self.env.ref('account.account_payment_term_immediate').id
+
         # todo 大数量团购处理
         return super(SaleOrder, self).create(val)
-
-    @api.model
-    def _cron_compute_member(self):
-        """全渠道订单：计算订单会员"""
-        partner_obj = self.env['res.partner']
-        for order in self.search([('member_id', '!=', False)]):
-            partner = partner_obj.search([('code', '=', order.member_id), ('member', '=', True)])
-            if partner:
-                order.write({
-                    'partner_id': partner.id,
-                    'member_id': False
-                })
 

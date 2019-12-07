@@ -66,8 +66,8 @@ class StockPicking(models.Model):
             vals_list = []
             for val in vs:
                 purchase_order_line = val['purchase_order_line']  # 采购订单行
-                # taxes = purchase_order_line.taxes_id
-                # invoice_line_tax_ids = purchase.fiscal_position_id.map_tax(taxes, purchase_order_line.product_id, purchase.partner_id)
+                taxes = purchase_order_line.taxes_id
+                invoice_line_tax_ids = purchase.fiscal_position_id.map_tax(taxes, purchase_order_line.product_id, purchase.partner_id)
                 vals_list.append((0, 0, {
                     'purchase_line_id': purchase_order_line.id,
                     'name': purchase.name + ': ' + purchase_order_line.name,
@@ -80,7 +80,7 @@ class StockPicking(models.Model):
                     'discount': 0.0,
                     'account_analytic_id': False,
                     'analytic_tag_ids': False,
-                    'invoice_line_tax_ids': False,
+                    'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)],
                     'supplier_model_id': val['supplier_model_id'],
                     'fee_rate': val['fee_rate'],
                 }))
@@ -183,6 +183,7 @@ class StockPicking(models.Model):
                 'stock_picking_id': self.id,
             }
             invoice = self.env['account.invoice'].create(vals)
+            invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
             # 2、打开账单
             invoice.sudo().action_invoice_open()
             # 3、冲销对应的账单
@@ -230,8 +231,8 @@ class StockPicking(models.Model):
             vals_list = []
             for val in vs:
                 purchase_order_line = val['purchase_order_line']  # 采购订单行
-                # taxes = purchase_order_line.taxes_id
-                # invoice_line_tax_ids = purchase.fiscal_position_id.map_tax(taxes, purchase_order_line.product_id, purchase.partner_id)
+                taxes = purchase_order_line.taxes_id
+                invoice_line_tax_ids = purchase.fiscal_position_id.map_tax(taxes, purchase_order_line.product_id, purchase.partner_id)
                 vals_list.append((0, 0, {
                     'purchase_line_id': purchase_order_line.id,
                     'name': purchase.name + ': ' + purchase_order_line.name,
@@ -244,7 +245,7 @@ class StockPicking(models.Model):
                     'discount': 0.0,
                     'account_analytic_id': False,
                     'analytic_tag_ids': False,
-                    'invoice_line_tax_ids': False,
+                    'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)],
                     'supplier_model_id': val['supplier_model_id'],
                     'fee_rate': val['fee_rate'],
                 }))
@@ -349,6 +350,7 @@ class StockPicking(models.Model):
                 'stock_picking_id': self.id,
             }
             invoice = self.env['account.invoice'].create(vals)
+            invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
             # 2、打开账单
             invoice.sudo().action_invoice_open()
             # 3、冲销对应的账单
@@ -387,8 +389,8 @@ class StockPicking(models.Model):
             vals_list = []
             for move in self.move_line_ids:
                 line = list(sale.order_line.filtered(lambda x: x.product_id.id == move.product_id.id))[0]
-                # taxes = line.tax_id
-                # invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
+                taxes = line.tax_id
+                invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
 
                 vals_list.append((0, 0, {
                     'sale_line_ids': [(6, 0, line.ids)],
@@ -402,7 +404,7 @@ class StockPicking(models.Model):
                     'discount': 0.0,
                     'account_analytic_id': False,
                     'analytic_tag_ids': False,
-                    'invoice_line_tax_ids': False
+                    'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)],
                 }))
 
             return vals_list
@@ -465,7 +467,7 @@ class StockPicking(models.Model):
         }
 
         invoice = self.env['account.invoice'].create(vals)
-        # invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
+        invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
         # 2、打开账单
         invoice.sudo().action_invoice_open()
         # 3、冲销对应的账单
@@ -543,8 +545,8 @@ class StockPicking(models.Model):
             vals_list = []
             for val in vs:
                 purchase_order_line = val['purchase_order_line']  # 采购订单行
-                # taxes = purchase_order_line.taxes_id
-                # invoice_line_tax_ids = purchase.fiscal_position_id.map_tax(taxes, purchase_order_line.product_id, purchase.partner_id)
+                taxes = purchase_order_line.taxes_id
+                invoice_line_tax_ids = purchase.fiscal_position_id.map_tax(taxes, purchase_order_line.product_id, purchase.partner_id)
                 vals_list.append((0, 0, {
                     'purchase_line_id': purchase_order_line.id,
                     'name': purchase.name + ': ' + purchase_order_line.name,
@@ -557,7 +559,7 @@ class StockPicking(models.Model):
                     'discount': 0.0,
                     'account_analytic_id': False,
                     'analytic_tag_ids': False,
-                    'invoice_line_tax_ids': False,
+                    'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)],
                     'supplier_model_id': val['supplier_model_id'],
                     'fee_rate': val['fee_rate'],
                 }))
@@ -666,7 +668,7 @@ class StockPicking(models.Model):
                 'stock_picking_id': self.id,
             }
             invoice = self.env['account.invoice'].create(vals)
-            # invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
+            invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
 
             invoice.sudo().action_invoice_open()  # 打开并登记凭证
             self.env['account.invoice.split'].create_invoice_split(invoice)  # 创建账单分期
@@ -688,8 +690,8 @@ class StockPicking(models.Model):
             vals_list = []
             for val in vs:
                 purchase_order_line = val['purchase_order_line']  # 采购订单行
-                # taxes = purchase_order_line.taxes_id
-                # invoice_line_tax_ids = purchase.fiscal_position_id.map_tax(taxes, purchase_order_line.product_id, purchase.partner_id)
+                taxes = purchase_order_line.taxes_id
+                invoice_line_tax_ids = purchase.fiscal_position_id.map_tax(taxes, purchase_order_line.product_id, purchase.partner_id)
                 vals_list.append((0, 0, {
                     'purchase_line_id': purchase_order_line.id,
                     'name': purchase.name + ': ' + purchase_order_line.name,
@@ -702,7 +704,7 @@ class StockPicking(models.Model):
                     'discount': 0.0,
                     'account_analytic_id': False,
                     'analytic_tag_ids': False,
-                    'invoice_line_tax_ids': False,
+                    'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)],
                     'supplier_model_id': val['supplier_model_id'],
                     'fee_rate': val['fee_rate'],
 
@@ -811,7 +813,7 @@ class StockPicking(models.Model):
                 'stock_picking_id': self.id,
             }
             invoice = self.env['account.invoice'].create(vals)
-            # invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
+            invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
 
             invoice.sudo().action_invoice_open()  # 打开并登记凭证
             self.env['account.invoice.split'].create_invoice_split(invoice)  # 创建账单分期
@@ -829,8 +831,8 @@ class StockPicking(models.Model):
                 qty = line.qty_delivered - line.qty_invoiced  # 发货数量 - 开票数量
                 if float_compare(qty, 0.0, precision_rounding=0.001) <= 0:
                     continue
-                # taxes = line.tax_id
-                # invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
+                taxes = line.tax_id
+                invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
 
                 vals_list.append((0, 0, {
                     'sale_line_ids': [(6, 0, line.ids)],
@@ -845,7 +847,7 @@ class StockPicking(models.Model):
                     # 'discount': 0.0,
                     # 'account_analytic_id': False,
                     # 'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
-                    # 'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
+                    'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
                 }))
 
             return vals_list
@@ -909,7 +911,7 @@ class StockPicking(models.Model):
         }
 
         invoice = self.env['account.invoice'].create(vals)
-        # invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
+        invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
 
         return invoice
 
@@ -939,8 +941,8 @@ class StockPicking(models.Model):
             vals_list = []
             for r in lines:
                 purchase_order_line = r['purchase_order_line']  # 采购订单
-                # taxes = line.taxes_id
-                # invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
+                taxes = line.taxes_id
+                invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
 
                 vals_list.append((0, 0, {
                     'purchase_line_id': purchase_order_line.id,
@@ -954,7 +956,7 @@ class StockPicking(models.Model):
                     # 'discount': 0.0,
                     # 'account_analytic_id': line.account_analytic_id.id,
                     # 'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
-                    # 'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
+                    'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
                 }))
 
             return vals_list
@@ -1041,7 +1043,7 @@ class StockPicking(models.Model):
             }
 
             invoice = self.env['account.invoice'].create(vals)
-            # invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
+            invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
 
             # 2、打开并登记凭证
             invoice.sudo().action_invoice_open()
@@ -1212,8 +1214,8 @@ class StockPicking(models.Model):
                 if float_compare(qty, 0.0, precision_rounding=line.product_uom.rounding) <= 0:
                     continue
 
-                # taxes = line.tax_id
-                # invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
+                taxes = line.tax_id
+                invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
 
                 vals_list.append((0, 0, {
                     'sale_line_ids': [(6, 0, line.ids)],
@@ -1227,7 +1229,7 @@ class StockPicking(models.Model):
                     # 'discount': 0.0,
                     # 'account_analytic_id': False,
                     # 'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
-                    # 'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
+                    'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
                 }))
 
             return vals_list
@@ -1295,7 +1297,7 @@ class StockPicking(models.Model):
             }
 
             invoice = self.env['account.invoice'].sudo().create(vals)
-            # invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
+            invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
             # 打开账单
             self._generate_sale_invoice_open(invoice)
             # 创建账单分期
@@ -1308,6 +1310,11 @@ class StockPicking(models.Model):
 
             # 创建账单
             invoice = self._generate_purchase_invoice_create(purchase, order_line, payment_term)
+            # 关联先款后货的分期
+            self.env['account.invoice.split'].search([('purchase_order_id', '=', invoice.purchase_id.id), ('invoice_id', '=', False)]).write({
+                'invoice_id': invoice.id
+            })
+            invoice.invoice_split_ids.unlink()
             # 打开账单
             self._generate_purchase_invoice_open(invoice)
             # 计算未核销的预付款， 核销预付款
@@ -1330,10 +1337,7 @@ class StockPicking(models.Model):
             #     for aml in lines:
             #         invoice.assign_outstanding_credit(aml.id)
 
-            # 关联先款后货的分期
-            self.env['account.invoice.split'].search([('purchase_order_id', '=', invoice.purchase_id.id), ('invoice_id', '=', False)]).write({
-                'invoice_id': invoice.id
-            })
+
 
             # 创建账单分期
             self._generate_purchase_invoice_create_invoice_split(invoice)
@@ -1364,8 +1368,8 @@ class StockPicking(models.Model):
                 if float_compare(qty, 0.0, precision_rounding=line.product_uom.rounding) <= 0:
                     continue
 
-                # taxes = line.taxes_id
-                # invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
+                taxes = line.taxes_id
+                invoice_line_tax_ids = line.order_id.fiscal_position_id.map_tax(taxes, line.product_id, line.order_id.partner_id)
 
                 purchase_line_id = line.id
                 if isinstance(purchase_line_id, models.NewId):
@@ -1383,7 +1387,7 @@ class StockPicking(models.Model):
                     # 'discount': 0.0,
                     # 'account_analytic_id': line.account_analytic_id.id,
                     # 'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
-                    # 'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
+                    'invoice_line_tax_ids': [(6, 0, invoice_line_tax_ids.ids)]
                 }))
                 # # 商品对应科目
                 # account = invoice_line.get_invoice_line_account('in_invoice', line.product_id, line.order_id.fiscal_position_id, company)
@@ -1445,7 +1449,7 @@ class StockPicking(models.Model):
         }
 
         invoice = self.env['account.invoice'].create(vals)
-        # invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
+        invoice._onchange_invoice_line_ids()  # 计算tax_line_ids
 
         return invoice
 

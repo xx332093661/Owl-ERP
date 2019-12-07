@@ -9,10 +9,11 @@ access_cj_sale_activity_line_user,cj_sale_activity_line user,model_cj_sale_activ
 
 access_delivery_order_user,delivery_order user,model_delivery_order,base.group_user,1,0,0,0
 access_delivery_order_salesman,delivery_order salesman,model_delivery_order,sales_team.group_sale_salesman,1,1,1,0
+access_delivery_order_line_user,delivery_order_line user,model_delivery_order_line,base.group_user,1,0,0,0
+access_delivery_order_line_salesman,delivery_order_line salesman,model_delivery_order_line,sales_team.group_sale_salesman,1,1,1,0
 
 access_delivery_package_box_user,delivery_package_box user,model_delivery_package_box,base.group_user,1,0,0,0
 
-access_delivery_order_line_user,delivery_order_line user,model_delivery_order_line,base.group_user,1,0,0,0
 
 
 access_sale_order_line_cost,sale.channels,model_sale_order_line_cost,base.group_user,1,1,1,0
@@ -34,9 +35,12 @@ access_account_invoice_general_manage,account_invoice general_manage,account.mod
 access_account_payment_general_manage,account_payment general_manage,account.model_account_payment,group_sale_general_manage,1,0,0,0
 
 access_sale_order_return_all,sale_order_return all,model_sale_order_return,base.group_user,1,0,0,0
+access_sale_order_return_system,sale_order_return system,model_sale_order_return,base.group_system,1,0,1,0
 access_sale_order_return_line_all,sale_order_return_line all,model_sale_order_return_line,base.group_user,1,0,0,0
+access_sale_order_return_line_system,sale_order_return_line system,model_sale_order_return_line,base.group_system,1,0,1,0
+
 access_sale_order_refund_all,sale_order_refund all,model_sale_order_refund,base.group_user,1,0,0,0
-access_sale_order_refund_all,sale_order_refund all,model_sale_order_refund,base.group_system,1,0,1,0
+access_sale_order_refund_system,sale_order_refund system,model_sale_order_refund,base.group_system,1,0,1,0
 
 
 

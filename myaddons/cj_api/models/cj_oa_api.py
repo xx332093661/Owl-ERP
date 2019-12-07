@@ -93,9 +93,12 @@ class CjOaApi(models.Model):
         if not token:
             raise Exception('获取OA访问令牌出错！')
 
+        if not self.env.user.oa_code:
+            raise Exception('用户没有OA编码！')
+
         val = {
             'templateCode': code,
-            'senderLoginName': '100364',
+            'senderLoginName': self.env.user.oa_code,
             'subject': subject,
             'token': token,
             'param': '1',
@@ -106,16 +109,14 @@ class CjOaApi(models.Model):
 
         val = json.dumps(val)
         headers = {'Content-Type': 'application/json'}
-        print(val)
         try:
             response = requests.post(url, val, headers=headers)
-            print(response)
             if response.status_code == 200:
 
                 flow_id = int(response.text)
                 self.create([{
                     'template_code': code,
-                    'sender_login_name': '100364',
+                    'sender_login_name': self.env.user.oa_code,
                     'subject': subject,
                     'token': token,
                     'data': data,
@@ -224,16 +225,10 @@ class CjOaApi(models.Model):
     # 
     #     # files = {'file123': ('1.txt', {'file':open('D:\\test_data\\summer_test_data_05.txt','rb')})}
     #     file_name = '123'
-    #     print(upload_file)
     #     start = get_start_data()
     #     end = bytes("\r\n--" + FILE_BOUNDARY + "--\r\n", encoding="utf8")
-    #     print(type(start))
-    #     print(type(open(upload_file, 'rb')))
     #     files = {'file': start + open(upload_file, 'rb') + end}
-    #     print('file')
-    #     print(files)
     #     r = requests.post(url, files=files, headers=headers)
-    #     print(r.text)
 
 
 

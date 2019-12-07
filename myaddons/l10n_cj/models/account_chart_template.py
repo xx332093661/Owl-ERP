@@ -46,6 +46,7 @@ class AccountChartTemplate(models.Model):
             {'name': '预收款', 'type': 'bank', 'code': 'YSK', 'favorite': True, 'sequence': 21},
             {'name': '在线支付', 'type': 'bank', 'code': 'ONL', 'favorite': True, 'sequence': 22},
             {'name': '内部代金券', 'type': 'bank', 'code': 'QUAN', 'favorite': True, 'sequence': 23},
+            {'name': '美团支付', 'type': 'bank', 'code': 'MT', 'favorite': True, 'sequence': 24},
         ])
         return super(AccountChartTemplate, self).generate_journals(acc_template_ref=acc_template_ref, company=company, journals_dict=journals_dict)
 

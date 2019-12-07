@@ -5,10 +5,9 @@ from datetime import timedelta, datetime
 from odoo import fields, models, api
 from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_is_zero
 from odoo.addons.cj_arap.models.account_payment_term import PAYMENT_TERM_TYPE
 
-import importlib
 import logging
 import traceback
 
@@ -109,26 +108,8 @@ class PurchaseOrder(models.Model):
 
     @api.one
     def _cpt_explain(self):
-        pol_obj = self.env['purchase.order.line']
-        supplier_model_obj = self.env['product.supplier.model']
 
-        purchase_explain = ''   # 商品之前采购信息
-        time_price_products = []   # 时价商品
-        for line in self.order_line:
-            pol = pol_obj.search([('product_id', '=', line.product_id.id),
-                                  ('order_id', '!=', line.order_id.id),
-                                  ('order_id.state', '=', 'done'),
-                                  ('order_id.date_order', '<', self.date_order)],
-                                 order='id desc', limit=1)
-            if pol:
-                purchase_explain += '商品:%s 上次向 %s 采购价格为 %s\n' % (line.product_id.name, self.partner_id.name, line.price_unit)
-
-            if supplier_model_obj.search([('product_id', '=', line.product_id.id), ('partner_id', '=', self.partner_id.id), ('time_price', '=', True)]):
-                time_price_products.append(line.product_id.name)
-
-        self.explain = purchase_explain
-        if time_price_products:
-            self.explain += '其中 %s 为时价商品' % ','.join(time_price_products)
+        self.explain = self._get_purchase_point(self.order_line)
 
     @api.one
     def _cpt_order_return_count(self):
@@ -159,6 +140,12 @@ class PurchaseOrder(models.Model):
     explain = fields.Text('说明', compute='_cpt_explain')
 
     contract_id = fields.Many2one('supplier.contract', '供应商合同', required=0, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('partner_id', '=', partner_id), ('valid', '=', True)]")
+    flow_id = fields.Char('OA审批流ID', track_visibility='onchange')
+
+    @api.model
+    def create(self, vals):
+        vals['name'] = self.env['ir.sequence'].next_by_code('purchase.order.code')
+        return super(PurchaseOrder, self).create(vals)
 
     @api.multi
     def action_confirm(self):
@@ -169,7 +156,7 @@ class PurchaseOrder(models.Model):
         if not self.order_line:
             raise ValidationError('请输入要采购的商品！')
 
-        if any([line.product_uom_qty < 0 for line in self.order_line]):
+        if any([line.product_uom_qty <= 0 for line in self.order_line]):
             raise ValidationError('采购数量必须大于0！')
 
         self.state = 'confirm'
@@ -234,8 +221,9 @@ class PurchaseOrder(models.Model):
         self.ensure_one()
 
         # 合同禁止退货
-        if self.contract_id.returns_sate == 'prohibit':
-            raise ValidationError('供应商合同禁止退货！')
+        if self.contract_id:
+            if self.contract_id.returns_sate == 'prohibit':
+                raise ValidationError('供应商合同禁止退货！')
 
         received_lines = []  # 已收货的商品
         for line in self.order_line.filtered(lambda x: x.qty_received > 0):
@@ -407,6 +395,12 @@ class PurchaseOrder(models.Model):
             picking_type = picking_type_obj.search([('warehouse_id.company_id', '=', self.company_id.id), ('code', '=', 'incoming')], limit=1)
             self.picking_type_id = picking_type.id
 
+        # 修改订单明细的税
+        if self.company_id:
+            company_id = self.company_id.id
+            for line in self.order_line:
+                line.taxes_id = [(5, 0)]
+
         return {}
 
     @api.onchange('contract_id')
@@ -421,19 +415,58 @@ class PurchaseOrder(models.Model):
         #return self.env.ref('purchase.report_purchase_quotation').report_action(self)
         return self.env.ref('cj_purchase.report_purchase_send').report_action(self)
 
-    @api.multi
-    def action_commit_approval(self):
-        """提交OA审批"""
+    def _get_purchase_point(self, order_lines):
+        """采购重点说明"""
         supplier_model_obj = self.env['product.supplier.model']
         valuation_move_obj = self.env['stock.inventory.valuation.move']
         cost_group_obj = self.env['account.cost.group']
+        # 采购记录
+        old_purchases = self.search([('partner_id', '=', self.partner_id.id),
+                                     ('company_id', '=', self.company_id.id),
+                                     ('date_order', '<=', self.date_order),
+                                     ('state', 'in', ['purchase', 'done'])])
 
+        purchase_count = '本次采购%s截止%s已经进行%s次采购。' % (self.partner_id.name, self.date_order.strftime(DATE_FORMAT), len(old_purchases)) \
+            if old_purchases else '本次采购%s系首次采购' % self.partner_id.name
+
+        # 时价商品
+        time_product = ''
+
+        time_price_products = []  # 时价商品
+        for line in self.order_line:
+            if supplier_model_obj.search(
+                    [('product_id', '=', line.product_id.id), ('partner_id', '=', self.partner_id.id),
+                     ('time_price', '=', True)]):
+                time_price_products.append(line.product_id.name)
+
+        if time_price_products:
+            time_product = '其中%s为时价商品。' % ('\n'.join(time_price_products))
+
+        # 商品成本
+        cost_notice = []
+        cost_group = cost_group_obj.search([('store_ids', 'in', [self.company_id.id])], limit=1)
+        if cost_group:
+            for line in order_lines:
+                stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group.id, self.company_id.id)
+                if float_is_zero(stock_cost, precision_rounding=0.001):
+                    cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s' % (line.product_id.partner_ref, line.price_unit, stock_cost))
+                else:
+                    if line.price_unit > stock_cost:
+                        cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s，比当前库存成本价高%s%%' % (
+                        line.product_id.partner_ref, line.price_unit, stock_cost, round((line.price_unit - stock_cost) * 100 / stock_cost, 2)))
+
+        cost_notice = '\n'.join(cost_notice)
+
+        point = '{0}\n{1}\n{2}'.format(purchase_count, time_product, cost_notice)
+        return point
+
+    @api.multi
+    def action_commit_approval(self):
+        """提交OA审批"""
         self.ensure_one()
         if self.state != 'confirm':
             raise ValidationError('只有审核的单据才可以提交OA审批！')
 
-        module = importlib.import_module('odoo.addons.cj_api.models.tools')
-        digital_to_chinese = module.digital_to_chinese
         try:
             order_lines = self.mapped('order_line')
             code = 'Contract_approval'
@@ -452,40 +485,7 @@ class PurchaseOrder(models.Model):
 
             contract_conent = '\n'.join(contract_conent)
 
-            # 采购记录
-            old_purchases = self.search([('partner_id', '=', self.partner_id.id),
-                                         ('company_id', '=', self.company_id.id),
-                                         ('date_order', '<=', self.date_order),
-                                         ('state', 'in', ['purchase', 'done'])])
-
-            purchase_count = '本次采购%s截止%s已经进行%s次采购。' % (self.partner_id.name, self.date_order, len(old_purchases)) \
-                if old_purchases else '本次采购%s系首次采购' % self.partner_id.name
-
-            # 时价商品
-            time_product = ''
-
-            time_price_products = []  # 时价商品
-            for line in self.order_line:
-                if supplier_model_obj.search(
-                        [('product_id', '=', line.product_id.id), ('partner_id', '=', self.partner_id.id),
-                         ('time_price', '=', True)]):
-                    time_price_products.append(line.product_id.name)
-
-            if time_price_products:
-                time_product = '其中%s为时价商品。' % ('\n'.join(time_price_products))
-
-            # 商品成本
-            cost_notice = []
-            cost_group = cost_group_obj.search([('store_ids', 'in', [self.company_id.id])], limit=1)
-            if cost_group:
-                for line in order_lines:
-                    stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group.id)
-                    if line.price_unit > stock_cost:
-                        cost_notice.append('%s当前采购价格为%s元，比当前库存成本价高%s%%' % (line.product_id.name, line.price_unit, (line.price_unit - stock_cost) * 100 / stock_cost))
-
-            cost_notice = '\n'.join(cost_notice)
-
-            point = '{0}\n{1}\n{2}'.format(purchase_count, time_product, cost_notice)
+            point = self._get_purchase_point(order_lines)
 
             data = {
                 '日期': self.date_order.strftime(DATE_FORMAT),
@@ -509,3 +509,23 @@ class PurchaseOrder(models.Model):
             _logger.error('采购订单提交OA审批出错！')
             _logger.error(traceback.format_exc())
             raise UserError('提交OA审批出错！')
+
+    @api.multi
+    def action_manager_approval(self):
+        """因为提交OA审批等待时间太久，可由系统管理员角色直接审批，而无需OA审批"""
+        self.ensure_one()
+        if self.state != 'confirm':
+            raise ValidationError('只有审核的单据才可以由管理员审批！')
+
+        self.state = 'oa_accept'  # 审批通过
+
+    def _update_oa_approval_state(self, flow_id, refuse=False):
+        """OA审批通过回调"""
+        apply = self.search([('flow_id', '=', flow_id)])
+        if apply.state != 'oa_sent':
+            return
+
+        if refuse:
+            apply.state = 'oa_refuse'  # 审批拒绝
+        else:
+            apply.state = 'oa_accept'  # 审批通过

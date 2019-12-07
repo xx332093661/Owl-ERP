@@ -12,6 +12,14 @@ READONLY_STATES = {
     'draft': [('readonly', False)]
 }
 
+STATES = [
+    ('draft', '草稿'),
+    ('confirm', '确认'),
+    ('manager_confirm', '仓库经理审核'),
+    ('out_in_confirm', '调出调入确认'),
+    ('done', '完成')
+]
+
 
 class StockAcrossMove(models.Model):
     _name = 'stock.across.move'
@@ -21,12 +29,12 @@ class StockAcrossMove(models.Model):
 
     name = fields.Char('单号', readonly=1, default='New')
     date = fields.Date('单据日期', default=lambda self: fields.Date.context_today(self.with_context(tz='Asia/Shanghai')), readonly=1, states=READONLY_STATES)
-    state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('manager_confirm', '仓库经理审核'), ('out_in_confirm', '调出调入确认'), ('done', '完成')], '状态', default='draft', track_visibility='onchange')
+    state = fields.Selection(STATES, '状态', default='draft', track_visibility='onchange')
+    # move_state = fields.Char('调拨状态', compute='_compute_move_state', store=1)
     company_id = fields.Many2one('res.company', '公司', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', default=lambda self: self.env.user.company_id)
 
     warehouse_in_id = fields.Many2one('stock.warehouse', '调入仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('company_id', '!=', company_id)]")
-    warehouse_out_id = fields.Many2one('stock.warehouse', '调出仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('company_id', '=', company_id)]",
-                                       default=lambda self: self.env['stock.warehouse'].search([('company_id', '=', self.env.user.company_id.id)], limit=1).id)
+    warehouse_out_id = fields.Many2one('stock.warehouse', '调出仓库', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('company_id', '=', company_id)]")
 
     payment_term_id = fields.Many2one('account.payment.term', '收款条款', required=1, readonly=1, states=READONLY_STATES, track_visibility='onchange')
     cost_type = fields.Selection([('normal', '平调'), ('increase', '加价'), ('customize', '自定义')], '成本方法', required=1, readonly=1, states=READONLY_STATES, default='normal',
@@ -42,7 +50,7 @@ class StockAcrossMove(models.Model):
     picking_out_count = fields.Integer('调出分拣', related='purchase_order_id.picking_count')
     diff_ids = fields.One2many('stock.across.move.diff', 'move_id', '调入调出差异')
 
-    origin_sale_order_id = fields.Many2one('sale.order', '来源', readonly=1, track_visibility='onchange')
+    # origin_sale_order_id = fields.Many2one('sale.order', '来源', readonly=1, track_visibility='onchange')
     # origin_type = fields.Selection([('purchase', '采购'), ('sale', '销售')], '来源类型')
 
     @api.onchange('company_id')
@@ -102,7 +110,7 @@ class StockAcrossMove(models.Model):
 
         def get_picking_type():
             type_obj = self.env['stock.picking.type'].sudo()
-            types = type_obj.search([('code', '=', 'incoming'), ('warehouse_id.company_id', '=', company_in_id)])
+            types = type_obj.search([('code', '=', 'incoming'), ('warehouse_id', '=', self.warehouse_in_id.id)])
             if not types:
                 types = type_obj.search([('code', '=', 'incoming'), ('warehouse_id', '=', False)])
             return types[:1].id
@@ -148,8 +156,9 @@ class StockAcrossMove(models.Model):
             'picking_type_id': get_picking_type(),
             'payment_term_id': self.payment_term_id.id,
             'company_id': company_in_id,
-            'origin': sale_order.name,
+            'origin': self.name,
             'notes': '跨店调拨单：%s，关联的采购订单' % self.name,
+            'is_across_move': True,  # 是跨公司调拨
             'order_line': [(0, 0, {
                 'product_id': line.product_id.id,
                 'name': line.product_id.name,
@@ -161,7 +170,7 @@ class StockAcrossMove(models.Model):
             }) for line in self.line_ids]
         })
         sale_order.origin = purchase_order.name
-        purchase_order.button_approve()  # 确认采购订单
+        purchase_order.sudo().button_approve()  # 确认采购订单
 
         self.write({
             'state': 'manager_confirm',
@@ -175,6 +184,27 @@ class StockAcrossMove(models.Model):
             return self.sale_order_id.action_view_delivery()
 
         return self.purchase_order_id.action_view_picking()
+
+    # @api.multi
+    # @api.depends('sale_order_id.picking_ids', 'sale_order_id.picking_ids.state', 'purchase_order_id.picking_ids', 'purchase_order_id.picking_ids.state')
+    # def _compute_move_state(self):
+    #     print('0' * 200)
+    #     for res in self:
+    #         if res.sale_order_id.sudo().picking_ids and res.purchase_order_id.sudo().picking_ids and all([picking.state in ['done', 'cancel'] for picking in res.sale_order_id.sudo().picking_ids]) and all([picking.state in ['done', 'cancel'] for picking in res.purchase_order_id.sudo().picking_ids]):
+    #             # res.with_context(cron_update=1).move_state = 'done'
+    #             res.with_context(cron_update=1).write({
+    #                 'move_state': 'done'
+    #             })
+    #
+    #             res._onchange_move_state()
+    #
+    # @api.onchange('move_state')
+    # def _onchange_move_state(self):
+    #     print('1' * 200)
+    #     if self.move_state == 'done':
+    #         self.with_context(cron_update=1).write({
+    #             'state': 'done'
+    #         })
 
     @api.multi
     @api.constrains('warehouse_in_id', 'warehouse_out_id')
@@ -195,7 +225,7 @@ class StockAcrossMove(models.Model):
 
         _, cost_group_id = res.warehouse_out_id.company_id.get_cost_group_id()
         for line in res.line_ids:
-            stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group_id)
+            stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group_id, res.company_id.id)
             line.current_cost = stock_cost
 
         return res
@@ -342,7 +372,7 @@ class StockAcrossMoveLine(models.Model):
 
         _, cost_group_id = company.get_cost_group_id()
 
-        stock_cost = valuation_move_obj.get_product_cost(self.product_id.id, cost_group_id)
+        stock_cost = valuation_move_obj.get_product_cost(self.product_id.id, cost_group_id, company.id)
 
         self.current_cost = stock_cost
 
