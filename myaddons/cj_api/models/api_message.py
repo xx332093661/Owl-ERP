@@ -2427,7 +2427,10 @@ class ApiMessage(models.Model):
 
         country = country_obj.search([('name', 'like', country_name)], limit=1)
 
-        return country.id or False
+        if country:
+            return country.id
+
+        return False
 
     @staticmethod
     def _deal_content(content):
