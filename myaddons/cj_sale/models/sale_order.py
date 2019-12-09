@@ -86,6 +86,10 @@ class SaleOrder(models.Model):
 
     purchase_apply_id = fields.Many2one('purchase.apply', '采购申请', readonly=1)
 
+    approval_code = fields.Char('OA审批单号')
+    recipient_type = fields.Selection([('LYCK', '领用出库'), ('EWFH', '额外发货')], '客情单类型')
+    goods_type = fields.Selection([(1, '自营'), (2, '外采')], '商品类型')
+
     @api.multi
     def button_confirm(self):
         """销售专员确认团购单"""
