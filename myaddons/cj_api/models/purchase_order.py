@@ -26,6 +26,8 @@ class PurchaseOrder(models.Model):
                 'store_code': 门店代码
                 'store_name': 门店名称
                 'order_name': 采购订单号
+                'supplier_code': 供应商编码
+                'supplier_name': 供应商名称
                 'order_id': 采购订单ID
                 'order_line': [{
                     'goods_code': 物料编码
@@ -65,6 +67,8 @@ class PurchaseOrder(models.Model):
                 'store_code': store_code,  # 门店代码
                 'store_name': store_name,  # 门店名称
                 'order_name': order.name,  # 采购订单号
+                'supplier_code': order.partner_id.code,
+                'supplier_name': order.partner_id.name,
                 'order_id': order.id,  # 采购订单ID
                 'order_line': [{
                     'goods_code': line.product_id.default_code,  # 物料编码
