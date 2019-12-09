@@ -14,7 +14,7 @@ from odoo import fields, models, api
 from odoo.exceptions import ValidationError, UserError
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 
-_logger = logging.getLevelName(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class StockInventoryValuationWizard(models.TransientModel):

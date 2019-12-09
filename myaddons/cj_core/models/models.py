@@ -5,7 +5,7 @@ from odoo import api
 from odoo.exceptions import MissingError
 from odoo.models import BaseModel
 
-_logger = logging.getLevelName(__name__)
+_logger = logging.getLogger(__name__)
 
 
 @api.multi

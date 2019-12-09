@@ -11,7 +11,7 @@ from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_is_zero, float_compare
 
-_logger = logging.getLevelName(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class ImportScrapLineWizard(models.TransientModel):
