@@ -378,7 +378,7 @@ class StockAcrossMoveLine(models.Model):
 
         cost_type = self._context.get('cost_type')  # 成本方法
         if cost_type in ['normal', 'customize']:
-            self.cost = stock_cost
+            self.cost = stock_cost * (1 + 0.13)
         else:
             cost_increase_rating = self._context.get('cost_increase_rating')
             self.cost = float_round(stock_cost * (1 + cost_increase_rating / 100.0), precision_rounding=0.01)

@@ -78,7 +78,7 @@ class ImportAcrossMoveLineWizard(models.TransientModel):
                         raise ValidationError('请导入商品成本！')
                     else:
                         if cost_type == 'normal':
-                            cost = stock_cost
+                            cost = stock_cost * (1 + 0.13)
                         else:
                             cost = stock_cost * (1 + cost_increase_rating / 100.0)
 
