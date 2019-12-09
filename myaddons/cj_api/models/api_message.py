@@ -2430,7 +2430,7 @@ class ApiMessage(models.Model):
 
     # 17、MUSTANG-ERP-RECIPIENT-QUEUE 客情单
     def deal_mustang_erp_recipient_queue(self, content):
-        """全渠道订单处理"""
+        """客情单"""
 
         def get_store_code():
             """计算销售主体代码"""
