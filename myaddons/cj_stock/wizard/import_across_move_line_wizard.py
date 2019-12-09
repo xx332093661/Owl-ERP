@@ -7,6 +7,7 @@ import os
 import xlrd
 from xlrd import XLRDError
 import sys
+import uuid
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
@@ -36,7 +37,7 @@ class ImportAcrossMoveLineWizard(models.TransientModel):
         product_obj = self.env['product.product']
         valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值
 
-        file_name = 'import_file.xls'
+        file_name = '%s.xls' % uuid.uuid1().hex
         file_name = os.path.join(sys.path[0], file_name)
         with open(file_name, "wb") as f:
             f.write(base64.b64decode(self.import_file))
