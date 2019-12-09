@@ -218,17 +218,17 @@ class StockAcrossMove(models.Model):
         """默认name字段"""
         vals['name'] = self.env['ir.sequence'].next_by_code('stock.across.move')
 
-        res = super(StockAcrossMove, self).create(vals)
+        return super(StockAcrossMove, self).create(vals)
 
-        # 修改明细的当前成本字段值
-        valuation_move_obj = self.env['stock.inventory.valuation.move']
-
-        _, cost_group_id = res.warehouse_out_id.company_id.get_cost_group_id()
-        for line in res.line_ids:
-            stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group_id, res.company_id.id)
-            line.current_cost = stock_cost
-
-        return res
+        # # 修改明细的当前成本字段值
+        # valuation_move_obj = self.env['stock.inventory.valuation.move']
+        #
+        # _, cost_group_id = res.warehouse_out_id.company_id.get_cost_group_id()
+        # for line in res.line_ids:
+        #     stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group_id, res.company_id.id)
+        #     line.current_cost = stock_cost
+        #
+        # return res
 
     @api.multi
     def unlink(self):
@@ -389,6 +389,15 @@ class StockAcrossMoveLine(models.Model):
         """计算调拨金额"""
         for line in self:
             line.amount = float_round(line.move_qty * line.cost, precision_rounding=0.01, rounding_method='HALF-UP')
+
+    @api.model
+    def create(self, vals):
+        if not vals.get('current_cost'):
+            move = self.env['stock.across.move'].browse(vals['move_id'])
+            _, cost_group_id = move.warehouse_out_id.company_id.get_cost_group_id()
+            stock_cost = self.env['stock.inventory.valuation.move'].get_product_cost(vals['product_id'], cost_group_id, move.company_id.id)
+            vals['current_cost'] = stock_cost
+        return super(StockAcrossMoveLine, self).create(vals)
 
 
 class StockAcrossMoveDiff(models.Model):
