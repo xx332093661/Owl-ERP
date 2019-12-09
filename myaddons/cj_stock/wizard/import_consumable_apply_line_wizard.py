@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import base64
 from itertools import groupby
-
+import sys
 import xlrd
 import os
 import logging
@@ -37,6 +37,7 @@ class ImportConsumableApplyLineWizard(models.TransientModel):
         product_obj = self.env['product.product']
 
         file_name = 'import_file.xls'
+        file_name = os.path.join(sys.path[0], file_name)
         with open(file_name, "wb") as f:
             f.write(base64.b64decode(self.import_file))
 

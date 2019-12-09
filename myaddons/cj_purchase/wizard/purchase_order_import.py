@@ -5,6 +5,7 @@ import base64
 import os
 import traceback
 from datetime import datetime
+import sys
 
 from odoo import api, models, fields
 from odoo.exceptions import UserError, ValidationError
@@ -40,6 +41,7 @@ class PurchaseOrderImport(models.TransientModel):
         # order_line_obj = self.env['purchase.order.line']
 
         file_name = 'import_file.xls'
+        file_name = os.path.join(sys.path[0], file_name)
         with open(file_name, "wb") as f:
             f.write(base64.b64decode(self.import_file))
 
