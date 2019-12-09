@@ -69,7 +69,8 @@ PROCESS_ERROR = {
     '43': '退款金额大于收款金额',
     '44': '不处理的订单状态',
     '45': '没找到对应的省',
-    '46': '订单公司与出库仓库的公司不一样'
+    '46': '订单公司与出库仓库的公司不一样',
+    '47': '销售渠道不存在'
 }
 
 
@@ -1008,7 +1009,11 @@ class ApiMessage(models.Model):
             if channel_code == 'pos':
                 return content['storeCode']
 
-            return channels_obj.search([('code', '=', channel_code)]).company_id.code
+            channel = channels_obj.search([('code', '=', channel_code)])
+            if not channel:
+                raise MyValidationError('47', '销售渠道不存在')
+
+            return channel.company_id.code
 
             # if channel_code == 'enomatic':  # 销售渠道为售酒机，则销售主体是02014(四川省川酒集团信息科技有限公司)
             #     return '02014'
@@ -1262,12 +1267,10 @@ class ApiMessage(models.Model):
 
         channel_code = content['channel']  # 销售渠道
         # 计算销售渠道
-        channel_id = get_channel()
         store_code = get_store_code()
+        channel_id = get_channel()
         store_name = content['storeName']  # 门店名称
         order_code = content.get('orderCode')  # 关联的销售订单号
-
-
 
         if order_obj.search([('name', '=', content['code']), ('channel_id', '=', channel_id)]):
             raise MyValidationError('10', '订单：%s已存在！' % content['code'])
