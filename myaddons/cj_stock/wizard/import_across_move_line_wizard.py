@@ -37,6 +37,7 @@ class ImportAcrossMoveLineWizard(models.TransientModel):
 
         file_name = 'import_file.xls'
         file_name = os.path.join(os.getcwd(), file_name)
+        _logger.info(file_name)
         with open(file_name, "wb") as f:
             f.write(base64.b64decode(self.import_file))
 
