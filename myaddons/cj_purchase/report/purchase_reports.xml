@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--隐藏采购订单打印-->
+        <report 
+            string="Request for Quotation" 
+            id="purchase.report_purchase_quotation"
+            model="purchase.order" 
+            report_type="qweb-pdf"
+            name="purchase.report_purchasequotation" 
+            file="purchase.report_purchasequotation"
+            print_report_name="'Request for Quotation - %s' % (object.name)"
+            groups="base.group_private_addresses"
+        />
+    </data>
+</odoo>
