@@ -93,11 +93,11 @@ class ImportAcrossMoveLineWizard(models.TransientModel):
 
         except Exception:
             raise
-        finally:
-            # 处理完成，删除上传文件
-            if os.path.exists(file_name):
-                try:
-                    os.remove(file_name)
-                except IOError:
-                    _logger.error('删除导入的临时文件出错！')
-                    _logger.error(traceback.format_exc())
+        # finally:
+        #     # 处理完成，删除上传文件
+        #     if os.path.exists(file_name):
+        #         try:
+        #             os.remove(file_name)
+        #         except IOError:
+        #             _logger.error('删除导入的临时文件出错！')
+        #             _logger.error(traceback.format_exc())
