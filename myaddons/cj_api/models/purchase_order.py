@@ -60,6 +60,7 @@ class PurchaseOrder(models.Model):
             store_code = company.code
             store_name = company.name
             warehouse_code = order.picking_type_id.warehouse_id.code
+            # 川酒省仓与POS系统做对应
             if warehouse_code == '51005':
                 store_code = 'X001'
                 store_name = order.picking_type_id.warehouse_id.name
