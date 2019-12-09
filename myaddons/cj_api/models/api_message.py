@@ -1007,12 +1007,15 @@ class ApiMessage(models.Model):
             """计算销售主体代码"""
             if channel_code == 'pos':
                 return content['storeCode']
-            if channel_code == 'enomatic':  # 销售渠道为售酒机，则销售主体是02014(四川省川酒集团信息科技有限公司)
-                return '02014'
-            if channel_code in ['jd', 'tmall', 'taobao', 'jxw']:  # 线上渠道，销售主体默认为02020（泸州电子商务发展有限责任公司）jxw: 酒仙网
-                return '02020'
 
-            return content['storeCode']
+            return channels_obj.search([('code', '=', channel_code)]).company_id.code
+
+            # if channel_code == 'enomatic':  # 销售渠道为售酒机，则销售主体是02014(四川省川酒集团信息科技有限公司)
+            #     return '02014'
+            # if channel_code in ['jd', 'tmall', 'taobao', 'jxw']:  # 线上渠道，销售主体默认为02020（泸州电子商务发展有限责任公司）jxw: 酒仙网
+            #     return '02020'
+            #
+            # return content['storeCode']
 
         def get_channel():
             """计算销售渠道"""
@@ -1030,7 +1033,7 @@ class ApiMessage(models.Model):
                         'parent_id': parent_channel.id
                     })
                 else:
-                    channel = channels_obj.search([('parent_id', '=', parent_channel.id), ('name', '=', store_name)])
+                    channel = channels_obj.search([('parent_id', '=', parent_channel.id), ('code', '=', code)])
                     if not channel:
                         channel = channels_obj.create({
                             'code': code,
@@ -1258,12 +1261,13 @@ class ApiMessage(models.Model):
         content = json.loads(content)
 
         channel_code = content['channel']  # 销售渠道
+        # 计算销售渠道
+        channel_id = get_channel()
         store_code = get_store_code()
         store_name = content['storeName']  # 门店名称
         order_code = content.get('orderCode')  # 关联的销售订单号
 
-        # 计算销售渠道
-        channel_id = get_channel()
+
 
         if order_obj.search([('name', '=', content['code']), ('channel_id', '=', channel_id)]):
             raise MyValidationError('10', '订单：%s已存在！' % content['code'])
