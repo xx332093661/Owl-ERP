@@ -285,6 +285,14 @@
                                 </group>
                                 <group name="utm_link" groups="base.group_no_one"/>
                             </group>
+
+                            <group>
+                                <group string="客情单信息" name="keqing">
+                                    <field name="approval_code"/>
+                                    <field name="recipient_type"/>
+                                    <field name="goods_type"/>
+                                </group>
+                            </group>
                         </page>
                     </notebook>
                 </sheet>
