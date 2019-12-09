@@ -33,6 +33,7 @@ class PurchaseOrder(models.Model):
                     'goods_code': 物料编码
                     'goods_name': 物料名称
                     'product_qty': 采购数量
+                    'price_unit': 含税单价
                 }]  # 采购明细
             }]
         }
@@ -75,6 +76,7 @@ class PurchaseOrder(models.Model):
                     'goods_code': line.product_id.default_code,  # 物料编码
                     'goods_name': line.product_id.name,  # 物料名称
                     'product_qty': line.product_qty,  # 采购数量
+                    'price_unit': line.price_unit
                 } for line in order.order_line]  # 采购明细
             })
         if not data:
