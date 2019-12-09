@@ -6,7 +6,6 @@ import logging
 import os
 import xlrd
 from xlrd import XLRDError
-import sys
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
