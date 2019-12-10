@@ -240,7 +240,7 @@ class PosInterface(http.Controller):
         picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'outgoing')])  # 作业类型(客户)
 
         move_lines = []
-        for line in data['data']['move_lines']:
+        for line in data['move_lines']:
             product = product_obj.search([('default_code', '=', line['goods_code'])])
             if not product:
                 return {
@@ -266,7 +266,7 @@ class PosInterface(http.Controller):
             'location_id': picking_type.default_location_src_id.id,  # 源库位(库存库位)
             'location_dest_id': location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 目的库位(客户库位)
             'picking_type_id': picking_type.id,  # 作业类型
-            'origin': data['data']['out_order_name'],  # 关联单据
+            'origin': data['out_order_name'],  # 关联单据
             'company_id': company.id,
             'move_lines': move_lines,
             'note': '川酒省仓：两步式调拨-出库'
