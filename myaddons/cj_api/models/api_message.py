@@ -2420,14 +2420,10 @@ class ApiMessage(models.Model):
 
         def get_store_code():
             """计算销售主体代码"""
-            if channel_code == 'pos':
-                return content['storeCode']
             if channel_code == 'enomatic':  # 销售渠道为售酒机，则销售主体是02014(四川省川酒集团信息科技有限公司)
                 return '02014'
-            if channel_code in ['jd', 'tmall', 'taobao', 'jxw']:  # 线上渠道，销售主体默认为02020（泸州电子商务发展有限责任公司）
-                return '02020'
-
-            return content['storeCode']
+            else:
+                return '02020'  # 'jd', 'tmall', 'taobao', 'jxw', 'pdd', 'business' 等为线上渠道，销售主体默认为02020（泸州电子商务发展有限责任公司）
 
         def get_channel():
             """计算销售渠道"""
