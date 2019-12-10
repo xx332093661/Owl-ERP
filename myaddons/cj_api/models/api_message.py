@@ -2628,6 +2628,7 @@ class ApiMessage(models.Model):
         tax_obj = self.env['account.tax']
 
         content = json.loads(content)
+        content = content['body']
 
         channel_code = content['channel']  # 销售渠道
         store_code = get_store_code()
