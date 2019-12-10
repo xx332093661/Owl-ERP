@@ -216,12 +216,12 @@ class PosInterface(http.Controller):
              'msg': 错误信息
         }
         """
-        company_obj = self.env['res.company']
-        warehouse_obj = self.env['stock.warehouse']
-        picking_type_obj = self.env['stock.picking.type']  # 作业类型
-        product_obj = self.env['product.product']
-        picking_obj = self.env['stock.picking']
-        location_obj = self.env['stock.location']
+        company_obj = request.env['res.company']
+        warehouse_obj = request.env['stock.warehouse']
+        picking_type_obj = request.env['stock.picking.type']  # 作业类型
+        product_obj = request.env['product.product']
+        picking_obj = request.env['stock.picking']
+        location_obj = request.env['stock.location']
 
         try:
             data = request.jsonrequest.get('data') or {}
