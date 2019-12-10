@@ -284,9 +284,6 @@ class PosInterface(http.Controller):
                 'msg': msg
             }
 
-
-
-
         for stock_move in picking.move_lines:
             stock_move.quantity_done = stock_move.product_uom_qty
 
