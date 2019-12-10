@@ -118,6 +118,7 @@ class ApiMessage(models.Model):
     attempts = fields.Integer('失败次数', default=0)
     origin = fields.Selection([('full', '全量'), ('increment', '增量')], '来源', default='increment')
     create_time = fields.Datetime('消息时间', default=fields.Datetime.now)
+    note = fields.Char('备注')
 
     @api.model
     def start_mq_thread(self):
