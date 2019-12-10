@@ -275,11 +275,15 @@ class PosInterface(http.Controller):
         if picking.state != 'assigned':
             picking.action_assign()
 
-        if any([move.state != 'assigned' for move in picking.move_lines]):
+        wait_moves = picking.move_lines.filtered(lambda x: x.state != 'assigned')
+        if wait_moves:
             return {
                 'state': 0,
-                'msg': '部分商品库存不足，不能出库！'
+                'msg': '部分商品：%s库存不足，不能出库！' % ('、'.join([m.product_id.partner_ref for m in wait_moves[:5]]))
             }
+
+
+
 
         for stock_move in picking.move_lines:
             stock_move.quantity_done = stock_move.product_uom_qty
