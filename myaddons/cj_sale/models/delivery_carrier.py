@@ -25,8 +25,8 @@ class DeliveryCarrier(models.Model):
         """自动确认盘点"""
         rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去处理RabbitMQ的数据，与开启
         if rabbitmq_ip:
-            local_id = config['local_ip']
-            if local_id == rabbitmq_ip:
+            local_ip = config['local_ip']
+            if local_ip == rabbitmq_ip:
                 return
 
         for inventory in self.env['stock.inventory'].search([('state', '=', 'finance_manager_confirm')], limit=1):

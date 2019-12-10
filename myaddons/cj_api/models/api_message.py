@@ -124,8 +124,8 @@ class ApiMessage(models.Model):
         """计划任务：开启mq客户端"""
         rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去连RabbitMQ
         if rabbitmq_ip:
-            local_id = config['local_id']
-            if local_id != rabbitmq_ip:
+            local_ip = config['local_ip']
+            if local_ip != rabbitmq_ip:
                 return
 
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-ORG-QUEUE')    # 组织结构（公司）
@@ -185,8 +185,8 @@ class ApiMessage(models.Model):
         if not messages:
             # rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去处理RabbitMQ的数据，与开启
             # if rabbitmq_ip:
-            #     local_id = config['local_ip']
-            #     if local_id != rabbitmq_ip:
+            #     local_ip = config['local_ip']
+            #     if local_ip != rabbitmq_ip:
             #         return
 
             messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', 3)], order='sequence asc, id asc', limit=3000)
