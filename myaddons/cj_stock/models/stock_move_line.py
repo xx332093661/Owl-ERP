@@ -437,10 +437,3 @@ class StockMoveLine(models.Model):
                     break
 
             move_to_recompute_state._recompute_state()
-
-    # @api.constrains('qty_done')
-    # def _check_positive_qty_done1(self):
-    #     """出库数量大于保留数量，禁止出库"""
-    #     for line in self:
-    #         if float_compare(line.qty_done, line.product_uom_qty, precision_rounding=0.01) == 1:
-    #             raise ValidationError('商品：%s出库数量：%s大于保留数量：%s，不能出库！' % (line.product_id.partner_ref, line.qty_done, line.product_uom_qty))
