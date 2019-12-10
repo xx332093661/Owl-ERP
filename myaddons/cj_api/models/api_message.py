@@ -2427,34 +2427,12 @@ class ApiMessage(models.Model):
 
         def get_channel():
             """计算销售渠道"""
-            if channel_code in ['jd', 'tmall', 'taobao', 'enomatic']:
-                code = ''.join(lazy_pinyin(store_name, style=Style.FIRST_LETTER), )
-                parent_channel = channels_obj.search([('code', '=', channel_code)])
-                if not parent_channel:
-                    parent_channel = channels_obj.create({
-                        'code': channel_code,
-                        'name': content['channelText']
-                    })
-                    channel = channels_obj.create({
-                        'code': code,
-                        'name': store_name,
-                        'parent_id': parent_channel.id
-                    })
-                else:
-                    channel = channels_obj.search(
-                        [('parent_id', '=', parent_channel.id), ('name', '=', store_name)])
-                    if not channel:
-                        channel = channels_obj.create({
-                            'code': code,
-                            'name': store_name,
-                            'parent_id': parent_channel.id
-                        })
-            else:
-                channel = channels_obj.search([('code', '=', channel_code)])
-                if not channel:
-                    channel = channels_obj.create({
-                        'code': channel_code,
-                        'name': content['channelText']
+
+            channel = channels_obj.search([('code', '=', channel_code)])
+            if not channel:
+                channel = channels_obj.create({
+                    'code': channel_code,
+                    'name': content['channelText']
                     })
 
             return channel.id
