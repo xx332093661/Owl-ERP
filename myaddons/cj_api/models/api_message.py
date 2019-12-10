@@ -2146,9 +2146,8 @@ class ApiMessage(models.Model):
             order = delivery.sale_order_id
         else:
             order = order_obj.search([('name', '=', content['preDeliveryOrderCode'])])
-            # TODO 暂时屏蔽错误
-            # if not order:
-            #     raise MyValidationError('14', '订单编号：%s不存在！' % content['returnOrderCode'])
+            if not order:
+                raise MyValidationError('14', '订单编号：%s不存在！' % content['returnOrderCode'])
 
         consignee = content['consignee']
         state_id = self.get_country_state_id(consignee.get('provinceText'))  # 省
@@ -2202,7 +2201,11 @@ class ApiMessage(models.Model):
             })
             return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
             new_picking_id, pick_type_id = return_picking._create_returns()
-            picking_obj.browse(new_picking_id).with_context(dont_invoice=True).action_done()  # 确认入库，此处传dont_invoice上下文，不生成应收应付，由退款处理
+            new_picking = picking_obj.browse(new_picking_id).with_context(dont_invoice=True)
+            for move in new_picking.move_lines:
+                move.quantity_done = move.product_uom_qty
+
+            new_picking.button_validate()
         else:
             move_lines = []
             for item in content['items']:
