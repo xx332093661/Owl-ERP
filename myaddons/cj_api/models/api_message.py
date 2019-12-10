@@ -2605,7 +2605,6 @@ class ApiMessage(models.Model):
 
         channel_code = content['channel']  # 销售渠道
         store_code = get_store_code()
-        store_name = content['shopName']  # 门店名称
         order_code = content.get('orderCode')  # 关联的销售订单号
 
         # 计算销售渠道
