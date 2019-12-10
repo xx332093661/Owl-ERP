@@ -3,11 +3,9 @@ import logging
 import traceback
 import threading
 import uuid
-import socket
 from datetime import timedelta, datetime
 from pypinyin import lazy_pinyin, Style
 import json
-# import random
 from itertools import groupby
 import pytz
 import csv
@@ -126,15 +124,9 @@ class ApiMessage(models.Model):
         """计划任务：开启mq客户端"""
         rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去连RabbitMQ
         if rabbitmq_ip:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            try:
-                s.connect(('8.8.8.8', 80))
-                ip = s.getsockname()[0]
-                # _logger.info('开启MQ客户端，本机ip：%s', ip)
-                if ip != rabbitmq_ip:
-                    return
-            finally:
-                s.close()
+            local_id = config['local_id']
+            if local_id != rabbitmq_ip:
+                return
 
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-ORG-QUEUE')    # 组织结构（公司）
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-STORE-QUEUE')    # 门店
@@ -193,15 +185,9 @@ class ApiMessage(models.Model):
         if not messages:
             # rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去处理RabbitMQ的数据，与开启
             # if rabbitmq_ip:
-            #     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            #     try:
-            #         s.connect(('8.8.8.8', 80))
-            #         ip = s.getsockname()[0]
-            #         _logger.info('处理同步数据，本机ip：%s', ip)
-            #         if ip != rabbitmq_ip:
-            #             return
-            #     finally:
-            #         s.close()
+            #     local_id = config['local_ip']
+            #     if local_id != rabbitmq_ip:
+            #         return
 
             messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', 3)], order='sequence asc, id asc', limit=3000)
         else:
@@ -2860,14 +2846,8 @@ class ApiMessage(models.Model):
         """
         rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去连RabbitMQ
         if rabbitmq_ip:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            try:
-                s.connect(('8.8.8.8', 80))
-                ip = s.getsockname()[0]
-            finally:
-                s.close()
-
-            if ip != rabbitmq_ip:
+            local_ip = config['local_ip']
+            if local_ip != rabbitmq_ip:
                 return
 
         param_obj = self.env['ir.config_parameter'].sudo()
