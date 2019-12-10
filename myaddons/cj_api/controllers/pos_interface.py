@@ -55,6 +55,8 @@ class PosInterface(http.Controller):
                 'msg': '处理数据出错，请传json格式字符串！'
             }
 
+        _logger.info('POS盘点收到数据：%s', inventory_data)
+
         if not inventory_data:
             return {
                 'state': 0,
@@ -117,7 +119,7 @@ class PosInterface(http.Controller):
 
     @http.route('/pos/receipt', type='json', auth="none", methods=['POST'], csrf=False)
     def pos_receipt(self):
-        """POS收货后回调
+        """POS采购入库后回调
         传入参数：
         {
             'data': {
@@ -155,6 +157,8 @@ class PosInterface(http.Controller):
                 'msg': '处理数据出错，请传json格式字符串！'
             }
 
+        _logger.info('POS采购入库收到数据：%s', data)
+
         purchase_order = purchase_order_obj.search([('id', '=', int(data['order_id']))])
         if not purchase_order:
             return {
@@ -191,5 +195,101 @@ class PosInterface(http.Controller):
             'state': 1,
             'msg': ''
         }
+
+    @http.route('/pos/pos_stock_out', type='json', auth="none", methods=['POST'], csrf=False)
+    def pos_stock_out(self):
+        """ 信息科技省仓出库
+        传入参数：
+        {
+            'data': {
+                'out_id': POS出库单ID
+                'out_order_name: POS出库单号
+                'move_lines': [{
+                    'goods_code': 物料编码
+                    'goods_name': 商品名称
+                    'product_qty': 出库数量
+                }]  出库明细
+            }
+        }
+        返回结果：{
+             'state': 1 处理状态(1-成功, 0-失败),
+             'msg': 错误信息
+        }
+        """
+        company_obj = self.env['res.company']
+        warehouse_obj = self.env['stock.warehouse']
+        picking_type_obj = self.env['stock.picking.type']  # 作业类型
+        product_obj = self.env['product.product']
+        picking_obj = self.env['stock.picking']
+        location_obj = self.env['stock.location']
+
+        try:
+            data = request.jsonrequest.get('data') or {}
+        except ValueError:
+            return {
+                'state': 0,
+                'msg': '处理数据出错，请传json格式字符串！'
+            }
+
+        _logger.info('省仓出库收到数据：%s', data)
+
+        store_code = '02014'  # 门店编号
+
+        company = company_obj.search([('code', '=', store_code)])
+        warehouse = warehouse_obj.search([('code', '=', '51005')])  # 川酒省仓
+        picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'outgoing')])  # 作业类型(客户)
+
+        move_lines = []
+        for line in data['data']['move_lines']:
+            product = product_obj.search([('default_code', '=', line['goods_code'])])
+            if not product:
+                return {
+                    'state': 0,
+                    'msg': '物料编码：%s打不到对应商品！' % line['goods_code']
+                }
+            move_lines.append((0, 0, {
+                'name': product.partner_ref,
+                'product_uom': product.uom_id.id,
+                'product_id': product.id,
+                'product_uom_qty': line['product_qty'],
+                # 'quantity_done': abs(content['quantity']),
+                'store_stock_update_code': 'STOCK_03001',  # 门店库存变更类型(两步式调拨-出库)
+            }))
+
+        if not move_lines:
+            return {
+                'state': 0,
+                'msg': '没有出库明细！'
+            }
+
+        picking = picking_obj.create({
+            'location_id': picking_type.default_location_src_id.id,  # 源库位(库存库位)
+            'location_dest_id': location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 目的库位(客户库位)
+            'picking_type_id': picking_type.id,  # 作业类型
+            'origin': data['data']['out_order_name'],  # 关联单据
+            'company_id': company.id,
+            'move_lines': move_lines,
+            'note': '川酒省仓：两步式调拨-出库'
+        })
+        picking.action_confirm()
+        if picking.state != 'assigned':
+            picking.action_assign()
+
+        if any([move.state != 'assigned' for move in picking.move_lines]):
+            return {
+                'state': 0,
+                'msg': '部分商品库存不足，不能出库！'
+            }
+
+        for stock_move in picking.move_lines:
+            stock_move.quantity_done = stock_move.product_uom_qty
+
+        picking.button_validate()  # 确认出库
+
+        return {
+            'state': 1,
+            'msg': ''
+        }
+
 
 
