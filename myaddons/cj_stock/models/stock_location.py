@@ -30,3 +30,19 @@ class StockLocation(models.Model):
 
         return super(StockLocation, self)._search(args, offset=offset, limit=limit, order=order,
                                                   count=False, access_rights_uid=access_rights_uid)
+
+    def name_get(self):
+        warehouse_obj = self.env['stock.warehouse']
+        ret_list = super(StockLocation, self).name_get()
+        result = []
+        for location_id, name in ret_list:
+            location = self.browse(location_id)
+            if location.usage == 'internal':
+                warehouse = warehouse_obj.search([('lot_stock_id', '=', location_id)])
+                if warehouse:
+                    result.append((location_id, '[%s]%s/%s' % (warehouse.code, warehouse.name, location.name)))
+                else:
+                    result.append((location_id, name))
+            else:
+                result.append((location_id, name))
+        return result

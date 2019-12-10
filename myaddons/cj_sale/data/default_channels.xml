@@ -14,22 +14,40 @@
             <field name="code">jd</field>
         </record>
 
-        <record id="default_sale_channels3" model="sale.channels">
-            <field name="name">零售通</field>
-            <field name="description">零售通</field>
-            <field name="code">ls</field>
-        </record>
+        <!--<record id="default_sale_channels3" model="sale.channels">-->
+            <!--<field name="name">零售通</field>-->
+            <!--<field name="description">零售通</field>-->
+            <!--<field name="code">ls</field>-->
+        <!--</record>-->
 
-        <record id="default_sale_channels4" model="sale.channels">
-            <field name="name">酒仓门店</field>
-            <field name="description">酒仓门店</field>
-            <field name="code">jc</field>
-        </record>
+        <!--<record id="default_sale_channels4" model="sale.channels">-->
+            <!--<field name="name">酒仓门店</field>-->
+            <!--<field name="description">酒仓门店</field>-->
+            <!--<field name="code">jc</field>-->
+        <!--</record>-->
 
         <record id="default_sale_channels5" model="sale.channels">
             <field name="name">自有渠道</field>
             <field name="description">自有渠道</field>
             <field name="code">my</field>
+        </record>
+
+        <record id="default_sale_channels6" model="sale.channels">
+            <field name="name">川酒商城</field>
+            <field name="description">川酒商城</field>
+            <field name="code">business</field>
+        </record>
+
+        <record id="default_sale_channels7" model="sale.channels">
+            <field name="name">中粮我买网</field>
+            <field name="description">中粮我买网</field>
+            <field name="code">zl</field>
+        </record>
+
+        <record id="default_sale_channels8" model="sale.channels">
+            <field name="name">售酒机</field>
+            <field name="description">售酒机</field>
+            <field name="code">enomatic</field>
         </record>
 
     </data>

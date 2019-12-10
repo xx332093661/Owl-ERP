@@ -6,11 +6,13 @@ import logging
 import os
 import xlrd
 from xlrd import XLRDError
+import sys
+import uuid
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 
-_logger = logging.getLevelName(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class ImportAcrossMoveLineWizard(models.TransientModel):
@@ -35,7 +37,8 @@ class ImportAcrossMoveLineWizard(models.TransientModel):
         product_obj = self.env['product.product']
         valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值
 
-        file_name = 'import_file.xls'
+        file_name = '%s.xls' % uuid.uuid1().hex
+        file_name = os.path.join(sys.path[0], file_name)
         with open(file_name, "wb") as f:
             f.write(base64.b64decode(self.import_file))
 
@@ -78,7 +81,7 @@ class ImportAcrossMoveLineWizard(models.TransientModel):
                         raise ValidationError('请导入商品成本！')
                     else:
                         if cost_type == 'normal':
-                            cost = stock_cost
+                            cost = stock_cost * (1 + 0.13)
                         else:
                             cost = stock_cost * (1 + cost_increase_rating / 100.0)
 

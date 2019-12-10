@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
-
-from odoo import api, models, tools, fields
-from odoo.exceptions import ValidationError
-from odoo.exceptions import UserError, ValidationError
-from xlrd import XLRDError
-from odoo.tools import float_compare
-
 import logging
 import xlrd
-import json
+# import json
 import base64
 import os
 import traceback
+import sys
+import uuid
 
+from odoo import api, models, fields
+# from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
+from xlrd import XLRDError
+# from odoo.tools import float_compare
 
 _logger = logging.getLogger(__name__)
 
@@ -43,7 +43,8 @@ class PurchasePriceListImport(models.TransientModel):
         partner_obj = self.env['res.partner']
         product_obj = self.env['product.product']
 
-        file_name = 'import_file.xls'
+        file_name = '%s.xls' % uuid.uuid1().hex
+        file_name = os.path.join(sys.path[0], file_name)
         with open(file_name, "wb") as f:
             f.write(base64.b64decode(self.import_file))
 

@@ -76,7 +76,7 @@
                     <!--<button name="action_general_manager_refuse" states="finance_manager_confirm" string="拒绝" type="object" groups="cj_purchase.group_purchase_general_manager"/>-->
                     <!--<button name="action_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_purchase.group_purchase_general_manager"/>-->
                     <button name="button_approve" states="oa_accept" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/>
-                    <button name="action_manager_approval" type="object" states="confirm" string="直接审批" groups="base.group_system"/>
+                    <button name="action_manager_approval" type="object" states="confirm,oa_sent" string="直接审批" groups="base.group_system"/>
                     <button name="action_commit_approval" type="object" states="confirm" string="提交OA审批" class="oe_highlight"/>
 
                     <!--<button name="action_supplier_send" states="Master_Review" string="下载打印发货单" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
@@ -97,13 +97,14 @@
                 </xpath>
                 <xpath expr="//field[@name='company_id']" position="attributes">
                     <attribute name="options">{'no_create': 1, 'no_open': 1}</attribute>
+                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
                 </xpath>
                 <xpath expr="//field[@name='partner_id']" position="attributes">
                     <attribute name="options">{'no_create': 1}</attribute>
                     <attribute name="context">{'search_default_supplier':1, 'default_supplier':1, 'default_customer':0, 'show_vat': True, 'form_view_ref': 'cj_purchase.view_partner_supplier_form', 'tree_view_ref': 'cj_purchase.view_partner_supplier_tree'}</attribute>
                 </xpath>
                 <field name="date_order" position="after">
-                    <field name="apply_id" options="{'no_create': 1}" readonly="1" invisible="context.get('is_across_move')"/>
+                    <!--<field name="apply_id" options="{'no_create': 1}" readonly="1" invisible="context.get('is_across_move')"/>-->
                     <!--<field name="contract_id" options="{'no_create': 1}" required="not context.get('is_across_move')"  invisible="context.get('is_across_move')"/>-->
                     <field name="contract_id" options="{'no_create': 1}" invisible="context.get('is_across_move')"/>
 
@@ -120,13 +121,14 @@
                 <field name="payment_term_id" position="replace"/>
 
                 <field name="partner_ref" position="after">
+                    <field name="payment_term_id" required="1" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                     <field name="rebate" invisible="context.get('is_across_move')"/>
                     <field name="purchase_order_count" invisible="context.get('is_across_move')"/>
-                    <field name="payment_term_id" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                 </field>
 
                 <xpath expr="//field[@name='company_id']" position="after">
                     <field name="picking_type_id" attrs="{'readonly': [('state', '!=', 'draft')]}" domain="[('warehouse_id.company_id', '=', company_id), ('code', '=', 'incoming')]" options="{'no_create': True, 'no_open': 1}"/>
+                    <field name="apply_id" options="{'no_create': 1}" readonly="1" invisible="context.get('is_across_move')"/>
                 </xpath>
 
                 <xpath expr="//page[@name='purchase_delivery_invoice']" position="before">
@@ -134,7 +136,7 @@
                         <group col="4">
                             <field name="rebate_type" attrs="{'required': [('rebate', '=', True)]}"/>
                             <field name="rebate_time" attrs="{'required': [('rebate', '=', True)]}"/>
-                            <field name="rebate_amount" attrs="{'invisible': [('rebate_type', '!=', 'money')]}"/>
+                            <field name="rebate_amount" attrs="{'invisible': [('rebate_type', '!=', 'money')], 'required': [('rebate_type', '=', 'money')]}"/>
                             <field name="delay_days" attrs="{'invisible': [('rebate_time', '!=', 'delay')]}"/>
                         </group>
                         <field name="rebate_line_ids" attrs="{'invisible': [('rebate_type', '!=', 'product')]}">
@@ -145,24 +147,24 @@
                             </tree>
                         </field>
                     </page>
-                    <page string="物流单">
-                        <field name="transport_ids">
-                            <tree editable="bottom">
-                                <field name="name"/>
-                                <field name="type"/>
-                                <field name="receiver_name"/>
-                                <field name="receiver_phone"/>
-                                <field name="receiver_address"/>
-                            </tree>
-                        </field>
-                    </page>
+                    <!--<page string="物流单">-->
+                        <!--<field name="transport_ids">-->
+                            <!--<tree editable="bottom">-->
+                                <!--<field name="name"/>-->
+                                <!--<field name="type"/>-->
+                                <!--<field name="receiver_name"/>-->
+                                <!--<field name="receiver_phone"/>-->
+                                <!--<field name="receiver_address"/>-->
+                            <!--</tree>-->
+                        <!--</field>-->
+                    <!--</page>-->
                 </xpath>
                 <!--<xpath expr="//field[@name='payment_term_id']" position="attributes">-->
                     <!--<attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>-->
                 <!--</xpath>-->
                 <!--采购订单明细增加payment_term_id(支付条款)字段-->
                 <xpath expr="//field[@name='order_line']/tree/field[@name='date_planned']" position="after">
-                    <field name="payment_term_id"/>
+                    <field name="payment_term_id" required="1"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']/tree/field[@name='taxes_id']" position="attributes">
                     <attribute name="domain">[('company_id', '=', parent.company_id), ('type_tax_use', '=', 'purchase')]</attribute>
@@ -209,9 +211,9 @@
                 <field name="date_order" position="attributes">
                     <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
                 </field>
-                <field name="company_id" position="attributes">
-                    <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
-                </field>
+                <!--<field name="company_id" position="attributes">-->
+                    <!--<attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>-->
+                <!--</field>-->
                 <field name="user_id" position="attributes">
                     <attribute name="attrs">{'readonly': [('state', '!=', 'draft')]}</attribute>
                 </field>

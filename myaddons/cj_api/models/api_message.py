@@ -3,11 +3,9 @@ import logging
 import traceback
 import threading
 import uuid
-import socket
 from datetime import timedelta, datetime
 from pypinyin import lazy_pinyin, Style
 import json
-# import random
 from itertools import groupby
 import pytz
 import csv
@@ -69,7 +67,8 @@ PROCESS_ERROR = {
     '43': '退款金额大于收款金额',
     '44': '不处理的订单状态',
     '45': '没找到对应的省',
-    '46': '订单公司与出库仓库的公司不一样'
+    '46': '订单公司与出库仓库的公司不一样',
+    '47': '销售渠道不存在'
 }
 
 
@@ -119,21 +118,16 @@ class ApiMessage(models.Model):
     attempts = fields.Integer('失败次数', default=0)
     origin = fields.Selection([('full', '全量'), ('increment', '增量')], '来源', default='increment')
     create_time = fields.Datetime('消息时间', default=fields.Datetime.now)
+    note = fields.Char('备注')
 
     @api.model
     def start_mq_thread(self):
         """计划任务：开启mq客户端"""
         rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去连RabbitMQ
         if rabbitmq_ip:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            try:
-                s.connect(('8.8.8.8', 80))
-                ip = s.getsockname()[0]
-                # _logger.info('开启MQ客户端，本机ip：%s', ip)
-                if ip != rabbitmq_ip:
-                    return
-            finally:
-                s.close()
+            local_ip = config['local_ip']
+            if local_ip != rabbitmq_ip:
+                return
 
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-ORG-QUEUE')    # 组织结构（公司）
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MDM-ERP-STORE-QUEUE')    # 门店
@@ -156,6 +150,7 @@ class ApiMessage(models.Model):
 
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-RETURN-STOCKIN-QUEUE')   # 退货入库单数据
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-REFUND-ERP-QUEUE')   # 退款单数据
+        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-RECIPIENT-QUEUE')   # 客情单
 
         # self.start_mq_thread_by_name('RabbitMQSendThread', 'rabbit_mq_send_thread')
 
@@ -191,15 +186,9 @@ class ApiMessage(models.Model):
         if not messages:
             # rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去处理RabbitMQ的数据，与开启
             # if rabbitmq_ip:
-            #     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            #     try:
-            #         s.connect(('8.8.8.8', 80))
-            #         ip = s.getsockname()[0]
-            #         _logger.info('处理同步数据，本机ip：%s', ip)
-            #         if ip != rabbitmq_ip:
-            #             return
-            #     finally:
-            #         s.close()
+            #     local_ip = config['local_ip']
+            #     if local_ip != rabbitmq_ip:
+            #         return
 
             messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', 3)], order='sequence asc, id asc', limit=3000)
         else:
@@ -468,6 +457,10 @@ class ApiMessage(models.Model):
             if not supplier_group:
                 raise MyValidationError('34', '供应商组：%s没有找到！' % supplier['supplierGroup'])
 
+            country_id = self.get_country_id(supplier['countryName'])
+            if not country_id:
+                country_id = self.env.ref('base.cn').id
+
             state_id = self.get_country_state_id(supplier['provinceName'])
             city_id = self.get_city_area_id(supplier['cityName'], state_id)
             val = {
@@ -485,7 +478,7 @@ class ApiMessage(models.Model):
                 'legal_entity': supplier['legalEntity'],  # 法人
                 'legal_entity_id_card': supplier['legalEntityId'],  # 法人身份证号
                 'status': supplier['status'],  # 川酒状态(('0', '正常'), ('1', '冻结'), ('2', '废弃'))
-                'country_id': self.get_country_id(supplier['countryName']),  # 国家
+                'country_id': country_id,  # 国家
                 'state_id': state_id,  # 省份
                 'city_id': city_id,  # 城市
                 'street2': supplier['areaName'],  # 区县
@@ -1003,12 +996,19 @@ class ApiMessage(models.Model):
             """计算销售主体代码"""
             if channel_code == 'pos':
                 return content['storeCode']
-            if channel_code == 'enomatic':  # 销售渠道为售酒机，则销售主体是02014(四川省川酒集团信息科技有限公司)
-                return '02014'
-            if channel_code in ['jd', 'tmall', 'taobao', 'jxw']:  # 线上渠道，销售主体默认为02020（泸州电子商务发展有限责任公司）
-                return '02020'
 
-            return content['storeCode']
+            channel = channels_obj.search([('code', '=', channel_code)])
+            if not channel:
+                raise MyValidationError('47', '销售渠道不存在')
+
+            return channel.company_id.code
+
+            # if channel_code == 'enomatic':  # 销售渠道为售酒机，则销售主体是02014(四川省川酒集团信息科技有限公司)
+            #     return '02014'
+            # if channel_code in ['jd', 'tmall', 'taobao', 'jxw']:  # 线上渠道，销售主体默认为02020（泸州电子商务发展有限责任公司）jxw: 酒仙网
+            #     return '02020'
+            #
+            # return content['storeCode']
 
         def get_channel():
             """计算销售渠道"""
@@ -1026,7 +1026,7 @@ class ApiMessage(models.Model):
                         'parent_id': parent_channel.id
                     })
                 else:
-                    channel = channels_obj.search([('parent_id', '=', parent_channel.id), ('name', '=', store_name)])
+                    channel = channels_obj.search([('parent_id', '=', parent_channel.id), ('code', '=', code)])
                     if not channel:
                         channel = channels_obj.create({
                             'code': code,
@@ -1254,12 +1254,11 @@ class ApiMessage(models.Model):
         content = json.loads(content)
 
         channel_code = content['channel']  # 销售渠道
-        store_code = get_store_code()
         store_name = content['storeName']  # 门店名称
-        order_code = content.get('orderCode')  # 关联的销售订单号
-
         # 计算销售渠道
+        store_code = get_store_code()
         channel_id = get_channel()
+        order_code = content.get('orderCode')  # 关联的销售订单号
 
         if order_obj.search([('name', '=', content['code']), ('channel_id', '=', channel_id)]):
             raise MyValidationError('10', '订单：%s已存在！' % content['code'])
@@ -2148,9 +2147,8 @@ class ApiMessage(models.Model):
             order = delivery.sale_order_id
         else:
             order = order_obj.search([('name', '=', content['preDeliveryOrderCode'])])
-            # TODO 暂时屏蔽错误
-            # if not order:
-            #     raise MyValidationError('14', '订单编号：%s不存在！' % content['returnOrderCode'])
+            if not order:
+                raise MyValidationError('14', '订单编号：%s不存在！' % content['returnOrderCode'])
 
         consignee = content['consignee']
         state_id = self.get_country_state_id(consignee.get('provinceText'))  # 省
@@ -2204,7 +2202,11 @@ class ApiMessage(models.Model):
             })
             return_picking = return_picking_obj.with_context(active_id=picking.id, active_ids=picking.ids).create(vals)
             new_picking_id, pick_type_id = return_picking._create_returns()
-            picking_obj.browse(new_picking_id).with_context(dont_invoice=True).action_done()  # 确认入库，此处传dont_invoice上下文，不生成应收应付，由退款处理
+            new_picking = picking_obj.browse(new_picking_id).with_context(dont_invoice=True)
+            for move in new_picking.move_lines:
+                move.quantity_done = move.product_uom_qty
+
+            new_picking.button_validate()
         else:
             move_lines = []
             for item in content['items']:
@@ -2416,6 +2418,242 @@ class ApiMessage(models.Model):
         #
         #     order.action_cancel()
 
+    # 17、MUSTANG-ERP-RECIPIENT-QUEUE 客情单
+    def deal_mustang_erp_recipient_queue(self, content):
+        """客情单"""
+
+        def get_store_code():
+            """计算销售主体代码"""
+            if channel_code == 'enomatic':  # 销售渠道为售酒机，则销售主体是02014(四川省川酒集团信息科技有限公司)
+                return '02014'
+            else:
+                return '02020'  # 'jd', 'tmall', 'taobao', 'jxw', 'pdd', 'business' 等为线上渠道，销售主体默认为02020（泸州电子商务发展有限责任公司）
+
+        def get_channel():
+            """计算销售渠道"""
+
+            channel = channels_obj.search([('code', '=', channel_code)])
+            if not channel:
+                channel = channels_obj.create({
+                    'code': channel_code,
+                    'name': content['channelText']
+                    })
+
+            return channel.id
+
+        def get_company():
+            """计算公司"""
+            company = company_obj.search([('code', '=', store_code)])
+            if not company:
+                raise MyValidationError('08', '门店编码：%s对应公司没有找到！' % content['storeCode'])
+
+            return company.id
+
+        def get_warehouse():
+            """计算仓库、此处的仓库只是临时仓库，比如，线上的订单，可能从其他仓库出库"""
+            if channel_code == 'enomatic':
+                warehouse = warehouse_obj.search([('company_id', '=', company_id), ('code', '=', 'enomatic')])
+                if not warehouse:
+                    raise MyValidationError('11', '没有找到售酒机业务对应的仓库！')
+            else:
+                warehouse = warehouse_obj.search([('company_id', '=', company_id)], limit=1)
+                if not warehouse:
+                    raise MyValidationError('11', '门店：%s 对应仓库未找到' % content['storeCode'])
+
+            return warehouse.id
+
+        def get_partner():
+            """计算客户"""
+            pid = self.env.ref('cj_sale.default_cj_partner').id  # 默认客户
+
+            if content.get('memberId'):
+                member = partner_obj.search([('code', '=', content['memberId']), ('member', '=', True)], limit=1)
+                if not member:
+                    val = {
+                        'code': content['memberId'],
+                        'name': content['memberId'],
+                        # 'phone': member['mobile'],
+                        # 'growth_value': member['growthValue'],
+                        # 'member_level': member['level'],
+                        # 'email': member['email'],
+                        # 'register_channel': member['registerChannel'],
+                        # 'create_time': (fields.Datetime.to_datetime(member['registerTime']) - timedelta(hours=8)).strftime(DATETIME_FORMAT) if member['registerTime'] else False,
+
+                        'active': True,
+                        'member': True,  # 是否会员
+                        'customer': False,
+                        'supplier': False
+                    }
+                    member = partner_obj.create(val)
+                return member.id
+            else:
+                return pid
+
+        def get_parent():
+            """获取关联的销售订单"""
+            if not order_code:
+                return False
+            parent_order = order_obj.search([('name', '=', order_code)], limit=1)
+            if not parent_order:
+                return False
+
+            return parent_order.id
+
+        def create_sale_order():
+            """创订销售订单
+            字段对应：
+            omsCreateTime: date_order
+            storeName: 忽略
+            storeName、storeCode: company_id
+            code: name,
+            status: status
+            paymentState: payment_state
+            channel: channel_id
+            channelText: 忽略
+            orderSource: origin
+            liquidated: liquidated
+            amount: order_amount
+            freightAmount: freight_amount
+            usePoint: use_point
+            discountAmount: discount_amount
+            discountPop: discount_pop
+            discountCoupon: discount_coupon
+            discountGrant: discount_grant
+            deliveryType: delivery_type
+            remark: remark
+            selfRemark: self_remark
+            memberId: partner_id,
+            userLevel:user_level
+            productAmount: product_amount
+            totalAmount; total_amount
+            """
+            consignee = content['consignee']  # 收货人信息
+            consignee_state_id = self.get_country_state_id(consignee.get('provinceText', False))
+            consignee_city_id = self.get_city_area_id(consignee.get('cityText'), consignee_state_id)
+            consignee_district_id = self.get_city_area_id(consignee.get('districtText'), consignee_state_id,
+                                                          consignee_city_id)
+            val = {
+                'date_order': (fields.Datetime.to_datetime(content['createTime'].replace('T', ' ')) - timedelta(
+                    hours=8)).strftime(DATETIME_FORMAT),
+                'partner_id': partner_id,
+                'name': content['recipientCode'],   # 领用出库编码
+                'approval_code': content['approvalCode'],   # OA审批单号
+                'recipient_type': content['recipientType'],   # 客情单类型 LYCK-领用出库, EWFH-额外发货
+                'goods_type': content.get('goodsType'),   # 商品类型（额外发货），1-自营 2-外采
+                'company_id': company_id,
+                'warehouse_id': warehouse_id,
+                'channel_id': channel_id,
+                'payment_term_id': self.env.ref('account.account_payment_term_immediate').id,  # 立即付款
+
+                'status': content['status'],
+                # 'origin': content['orderSource'],
+                # 'payment_state': content['paymentState'],
+                'liquidated': content['paidAmount'] / 100,  # 已支付金额
+                # 'order_amount': content['amount'] / 100,  # 订单金额
+                # 'freight_amount': content['freightAmount'] / 100,  # 运费
+                # 'use_point': content['usePoint'],  # 使用的积分
+                # 'discount_amount': content['discountAmount'] / 100,  # 优惠金额
+                # 'discount_pop': content['discountPop'] / 100,  # 促销活动优惠抵扣的金额
+                # 'discount_coupon': content['discountCoupon'] / 100,  # 优惠卷抵扣的金额
+                # 'discount_grant': content['discountGrant'] / 100,  # 临时抵扣金额
+                # 'delivery_type': content.get('deliveryType'),  # 配送方式
+                # 'remark': content.get('remark'),  # 用户备注
+                # 'self_remark': content.get('selfRemark'),  # 客服备注
+                # 'user_level': content.get('userLevel'),  # 用户等级
+                # 'product_amount': content.get('productAmount') / 100,  # 商品总金额
+                # 'total_amount': content.get('totalAmount') / 100,  # 订单总金额
+
+                'consignee_name': consignee.get('consigneeName'),  # 收货人名字
+                # 'consignee_mobile': consignee.get('consigneeMobile'),  # 收货人电话
+                'address': consignee.get('address'),  # 收货人地址
+                'consignee_state_id': consignee_state_id,  # 省
+                'consignee_city_id': consignee_city_id,  # 市
+                'consignee_district_id': consignee_district_id,  # 区(县)
+                'special_order_mark': 'gift',
+                'parent_id': parent_id,  # 关联销售订单
+                # 'reason': content.get('reason'),  # 补发货原因（补发货订单特有）
+
+                'sync_state': 'no_need',
+                'state': 'cancel' if content['status'] == '已取消' else 'draft',
+            }
+            return order_obj.create(val)
+
+        def create_sale_order_line(pid, qty, price):
+            """创建订单行"""
+            tax_id = False
+            tax = tax_obj.search(
+                [('company_id', '=', company_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
+            if tax:
+                tax_id = [(6, 0, tax.ids)]
+            order_line = order_line_obj.create({
+                'order_id': order_id,
+                'product_id': pid,
+                'product_uom_qty': qty,
+                'price_unit': price,
+                'warehouse_id': warehouse_id,
+                'owner_id': company_id,
+                'tax_id': tax_id
+            })
+            return order_line
+
+        order_obj = self.env['sale.order']
+        order_line_obj = self.env['sale.order.line']
+        company_obj = self.env['res.company']
+        warehouse_obj = self.env['stock.warehouse']
+        channels_obj = self.env['sale.channels']
+        partner_obj = self.env['res.partner']
+        tax_obj = self.env['account.tax']
+
+        content = json.loads(content)
+        content = content['body']
+
+        channel_code = content['channel']  # 销售渠道
+        store_code = get_store_code()
+        order_code = content.get('orderCode')  # 关联的销售订单号
+
+        # 计算销售渠道
+        channel_id = get_channel()
+
+        if order_obj.search([('name', '=', content['recipientCode']), ('channel_id', '=', channel_id)]):
+            raise MyValidationError('10', '订单：%s已存在！' % content['recipientCode'])
+
+        company_id = get_company()  # 计算公司
+        warehouse_id = get_warehouse()  # 计算仓库(可能是临时仓库)
+        partner_id = get_partner()  # 计算客户
+        parent_id = get_parent()  # 关联的销售订单
+        order = create_sale_order()  # 创建销售订单
+        order_id = order.id
+
+        # 创建订单行
+        for line_index, item in enumerate(content['items']):
+            product = self.get_product(item['code'])
+            product_id = product.id
+            final_price = 0     # 客情单价格为0
+            quantity = item['quantity']
+
+            create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
+
+        # 售酒机业务，直接出库
+        if channel_code in ['enomatic']:
+            if order.state != 'cancel':
+                # 订单确认
+                order.action_confirm()
+                order.picking_ids.filtered(lambda x: x.state == 'draft').action_confirm()  # 确认草稿状态的stock.picking
+                picking = order.picking_ids[0]
+                # 检查可用状态
+                if picking.state != 'assigned':
+                    picking.action_assign()
+
+                if any([move.state != 'assigned' for move in picking.move_lines]):
+                    # if picking.state != 'assigned':
+                    raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
+                for move in picking.move_lines:
+                    move.quantity_done = move.product_uom_qty
+
+                picking.button_validate()  # 确认出库
+                order.action_done()  # 完成订单
+
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
         if not country_name:
@@ -2423,7 +2661,10 @@ class ApiMessage(models.Model):
 
         country = country_obj.search([('name', 'like', country_name)], limit=1)
 
-        return country.id or False
+        if country:
+            return country.id
+
+        return False
 
     @staticmethod
     def _deal_content(content):
@@ -2582,14 +2823,8 @@ class ApiMessage(models.Model):
         """
         rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去连RabbitMQ
         if rabbitmq_ip:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            try:
-                s.connect(('8.8.8.8', 80))
-                ip = s.getsockname()[0]
-            finally:
-                s.close()
-
-            if ip != rabbitmq_ip:
+            local_ip = config['local_ip']
+            if local_ip != rabbitmq_ip:
                 return
 
         param_obj = self.env['ir.config_parameter'].sudo()

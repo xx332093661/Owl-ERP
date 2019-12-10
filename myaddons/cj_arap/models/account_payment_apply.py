@@ -58,7 +58,7 @@ class AccountPaymentApply(models.Model):
 
     purchase_order_id = fields.Many2one('purchase.order', '采购订单', help='先款后货的采购订单，可以进行付款申请',
                                         readonly = 1, states = STATES,
-                                        domain="[('payment_term_id.type', '=', 'first_payment'), ('partner_id', '=', partner_id), ('company_id', '=', company_id), ('state', 'not in', ['draft', 'confirm', 'oa_sent', 'oa_refuse'])]")
+                                        domain="[('partner_id', '=', partner_id), ('company_id', '=', company_id), ('state', 'not in', ['draft', 'confirm', 'oa_sent', 'oa_refuse'])]")
     invoice_register_id = fields.Many2one('account.invoice.register', '登记的发票', readonly=1, states=STATES,
                                           required=0,
                                           domain="[('partner_id', '=', partner_id), ('state', '=', 'manager_confirm'), ('payment_apply_id', '=', False), ('company_id', '=', company_id)]")
@@ -115,13 +115,14 @@ class AccountPaymentApply(models.Model):
         if self.partner_id and self.pay_type == 'bank':
             res = self.search([('partner_id', '=', self.partner_id.id), ('pay_type', '=', 'bank')], order='id desc', limit=1)
             if res:
-                self.pay_name = res.pay_name
+                self.pay_name = res.pay_name  # 收款账户名
                 self.pay_bank = res.pay_bank
                 self.pay_account = res.pay_account
             else:
                 contact = self.partner_id.child_ids.filtered(lambda x: x.bank_ids)
                 if contact:
                     bank = contact[0].bank_ids[0]
+                    self.pay_name = self.partner_id.name  # 收款账户名
                     self.pay_bank = bank.bank_id.name
                     self.pay_account = bank.acc_number
 
