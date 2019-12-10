@@ -1253,10 +1253,10 @@ class ApiMessage(models.Model):
         content = json.loads(content)
 
         channel_code = content['channel']  # 销售渠道
+        store_name = content['storeName']  # 门店名称
         # 计算销售渠道
         store_code = get_store_code()
         channel_id = get_channel()
-        store_name = content['storeName']  # 门店名称
         order_code = content.get('orderCode')  # 关联的销售订单号
 
         if order_obj.search([('name', '=', content['code']), ('channel_id', '=', channel_id)]):

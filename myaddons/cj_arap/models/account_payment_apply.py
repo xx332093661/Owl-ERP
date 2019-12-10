@@ -58,7 +58,7 @@ class AccountPaymentApply(models.Model):
 
     purchase_order_id = fields.Many2one('purchase.order', '采购订单', help='先款后货的采购订单，可以进行付款申请',
                                         readonly = 1, states = STATES,
-                                        domain="[('payment_term_id.type', '=', 'first_payment'), ('partner_id', '=', partner_id), ('company_id', '=', company_id), ('state', 'not in', ['draft', 'confirm', 'oa_sent', 'oa_refuse'])]")
+                                        domain="[('partner_id', '=', partner_id), ('company_id', '=', company_id), ('state', 'not in', ['draft', 'confirm', 'oa_sent', 'oa_refuse'])]")
     invoice_register_id = fields.Many2one('account.invoice.register', '登记的发票', readonly=1, states=STATES,
                                           required=0,
                                           domain="[('partner_id', '=', partner_id), ('state', '=', 'manager_confirm'), ('payment_apply_id', '=', False), ('company_id', '=', company_id)]")

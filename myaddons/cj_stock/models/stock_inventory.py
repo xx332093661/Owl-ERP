@@ -250,7 +250,7 @@ class StockInventory(models.Model):
 
         return vals
 
-    def _cron_done_inventory(self):
+    def check_valuation_move_amount(self):
         """验证核算组与所属门店的估值是否相等"""
         valuation_obj = self.env['stock.inventory.valuation.move']
         product_obj = self.env['product.product']
@@ -281,6 +281,21 @@ class StockInventory(models.Model):
                 if float_compare(group_stock_value, store_stock_value, precision_rounding=0.0001) != 0:
                     product = product_obj.browse(product_id)
                     print('核算组：%s，商品：%s，组值：%s，门店值：%s，差：%s' % (group.name, product.partner_ref, group_stock_value, store_stock_value, group_stock_value - store_stock_value))
+
+    def adjust_pos_order(self):
+        """校正POS订单"""
+        message_obj = self.env['api.message']
+        channel_id = self.env['sale.channels'].search([('code', '=', 'pos')]).id  # 销售渠道
+        for order in self.env['sale.order'].search([('channel_id', '=', channel_id), ('state', '=', 'cancel')]):
+            message = message_obj.search([('message_name', '=', 'mustang-to-erp-store-stock-update-record-push'), ('content', 'like', order.name)])
+            if message:
+                order.action_draft()
+
+
+    def _cron_done_inventory(self):
+        """临时接口"""
+        self.adjust_pos_order()
+
 
 
 class InventoryLine(models.Model):
