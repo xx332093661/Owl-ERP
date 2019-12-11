@@ -53,9 +53,10 @@ class PurchaseOrder(models.Model):
             _logger.warning('同步采购订单到POS，采购订单调用地址调用POS地址未设置')
             return
 
-        orders = self.search(['|', ('company_id.type', '=', 'store'), ('picking_type_id.warehouse_id.code', '=', '51005'), ('state', 'in', ['purchase', 'done']), ('send_pos_state', 'in', ['draft', 'error'])], limit=1)
+        orders = self.search(['|', ('company_id.type', '=', 'store'), ('picking_type_id.warehouse_id.code', '=', '51005'), ('state', 'in', ['purchase', 'done']), ('send_pos_state', 'in', ['draft', 'error'])])
 
-        data = []
+        # data = []
+        headers = {"Content-Type": "application/json"}
         for order in orders:
             company = order.company_id
             store_code = company.code
@@ -65,45 +66,78 @@ class PurchaseOrder(models.Model):
             if warehouse_code == '51005':
                 store_code = 'X001'
                 store_name = order.picking_type_id.warehouse_id.name
-            data.append({
-                'store_code': store_code,  # 门店代码
-                'store_name': store_name,  # 门店名称
-                'order_name': order.name,  # 采购订单号
-                'supplier_code': order.partner_id.code,
-                'supplier_name': order.partner_id.name,
-                'order_id': order.id,  # 采购订单ID
-                'order_line': [{
-                    'goods_code': line.product_id.default_code,  # 物料编码
-                    'goods_name': line.product_id.name,  # 物料名称
-                    'product_qty': line.product_qty,  # 采购数量
-                    'price_unit': line.price_unit
-                } for line in order.order_line]  # 采购明细
-            })
-        if not data:
-            _logger.info('没有数据要发送到POS!')
-            return
-        else:
-            _logger.info(data)
 
-        payload = {
-            'data': data
-        }
-        headers = {"Content-Type": "application/json"}
-        data = json.dumps(payload)
-        response = requests.post(pos_purchase_call_url, data=data, headers=headers)
-        result = response.json()
-        _logger.info('响应：%s', result)
-        result = result['result']
-        state = result['state']
-        if state == 1:
-            orders.write({
-                'send_pos_state': 'done',
-            })
-        else:
-            orders.write({
-                'send_pos_state': 'error',
-                'send_pos_error': result['msg']
-            })
+            payload = {
+                'data': [{
+                    'store_code': store_code,  # 门店代码
+                    'store_name': store_name,  # 门店名称
+                    'order_name': order.name,  # 采购订单号
+                    'supplier_code': order.partner_id.code,
+                    'supplier_name': order.partner_id.name,
+                    'order_id': order.id,  # 采购订单ID
+                    'order_line': [{
+                        'goods_code': line.product_id.default_code,  # 物料编码
+                        'goods_name': line.product_id.name,  # 物料名称
+                        'product_qty': line.product_qty,  # 采购数量
+                        'price_unit': line.price_unit
+                    } for line in order.order_line]  # 采购明细
+                }]
+            }
+            data = json.dumps(payload)
+            response = requests.post(pos_purchase_call_url, data=data, headers=headers)
+            result = response.json()
+            _logger.info('响应：%s', result)
+            result = result['result']
+            state = result['state']
+            if state == 1:
+                order.write({
+                    'send_pos_state': 'done',
+                })
+            else:
+                order.write({
+                    'send_pos_state': 'error',
+                    'send_pos_error': result['msg']
+                })
+
+            # data.append({
+            #     'store_code': store_code,  # 门店代码
+            #     'store_name': store_name,  # 门店名称
+            #     'order_name': order.name,  # 采购订单号
+            #     'supplier_code': order.partner_id.code,
+            #     'supplier_name': order.partner_id.name,
+            #     'order_id': order.id,  # 采购订单ID
+            #     'order_line': [{
+            #         'goods_code': line.product_id.default_code,  # 物料编码
+            #         'goods_name': line.product_id.name,  # 物料名称
+            #         'product_qty': line.product_qty,  # 采购数量
+            #         'price_unit': line.price_unit
+            #     } for line in order.order_line]  # 采购明细
+            # })
+        # if not data:
+        #     _logger.info('没有数据要发送到POS!')
+        #     return
+        # else:
+        #     _logger.info(data)
+        #
+        # payload = {
+        #     'data': data
+        # }
+        # headers = {"Content-Type": "application/json"}
+        # data = json.dumps(payload)
+        # response = requests.post(pos_purchase_call_url, data=data, headers=headers)
+        # result = response.json()
+        # _logger.info('响应：%s', result)
+        # result = result['result']
+        # state = result['state']
+        # if state == 1:
+        #     orders.write({
+        #         'send_pos_state': 'done',
+        #     })
+        # else:
+        #     orders.write({
+        #         'send_pos_state': 'error',
+        #         'send_pos_error': result['msg']
+        #     })
 
 
 
