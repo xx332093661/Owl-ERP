@@ -305,6 +305,8 @@ class PurchaseOrder(models.Model):
         order_line_obj = self.env['purchase.order.line']
 
         res = super(PurchaseOrder, self).default_get(fields_list)
+        res.pop('picking_type_id', False)
+        res.pop('company_id', False)
 
         if self._context.get('apply_id'):
             apply = apply_obj.browse(self._context['apply_id'])
@@ -389,11 +391,11 @@ class PurchaseOrder(models.Model):
             else:
                 self.contract_id = False
 
-        if not self.company_id:
-            self.picking_type_id = False
-        else:
-            picking_type = picking_type_obj.search([('warehouse_id.company_id', '=', self.company_id.id), ('code', '=', 'incoming')], limit=1)
-            self.picking_type_id = picking_type.id
+        # if not self.company_id:
+        #     self.picking_type_id = False
+        # else:
+        #     picking_type = picking_type_obj.search([('warehouse_id.company_id', '=', self.company_id.id), ('code', '=', 'incoming')], limit=1)
+        #     self.picking_type_id = picking_type.id
 
         # 修改订单明细的税
         if self.company_id:
