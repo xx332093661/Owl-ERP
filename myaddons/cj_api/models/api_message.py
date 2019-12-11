@@ -1348,6 +1348,160 @@ class ApiMessage(models.Model):
                 picking.button_validate()  # 确认出库
                 order.action_done()  # 完成订单
 
+    # 10、MUSTANG-ERP-RECIPIENT-QUEUE 客情单
+    def deal_mustang_erp_recipient_queue(self, content):
+        """客情单"""
+        def get_channel():
+            """计算销售渠道"""
+            ch = channels_obj.search([('code', '=', channel_code)])
+            if not ch:
+                raise MyValidationError('47', '销售渠道不存在')
+
+            return ch
+
+        def get_partner():
+            """计算客户"""
+            if parent_id:
+                return order_obj.browse(parent_id).partner_id.id
+
+            return self.env.ref('cj_sale.default_cj_partner').id  # 默认客户
+
+        def get_parent():
+            """获取关联的销售订单"""
+            if not order_code:
+                return False
+
+            parent_order = order_obj.search([('name', '=', order_code)], limit=1)
+            if not parent_order:
+                return False
+
+            return parent_order.id
+
+        def create_sale_order():
+            """创订销售订单
+            字段对应：
+            omsCreateTime: date_order
+            storeName: 忽略
+            storeName、storeCode: company_id
+            code: name,
+            status: status
+            paymentState: payment_state
+            channel: channel_id
+            channelText: 忽略
+            orderSource: origin
+            liquidated: liquidated
+            amount: order_amount
+            freightAmount: freight_amount
+            usePoint: use_point
+            discountAmount: discount_amount
+            discountPop: discount_pop
+            discountCoupon: discount_coupon
+            discountGrant: discount_grant
+            deliveryType: delivery_type
+            remark: remark
+            selfRemark: self_remark
+            memberId: partner_id,
+            userLevel:user_level
+            productAmount: product_amount
+            totalAmount; total_amount
+            """
+            consignee = content['consignee']  # 收货人信息
+            consignee_state_id = self.get_country_state_id(consignee.get('provinceText', False))
+            consignee_city_id = self.get_city_area_id(consignee.get('cityText'), consignee_state_id)
+            consignee_district_id = self.get_city_area_id(consignee.get('districtText'), consignee_state_id, consignee_city_id)
+            val = {
+                'date_order': (fields.Datetime.to_datetime(content['createTime'].replace('T', ' ')) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
+                'partner_id': partner_id,
+                'name': content['recipientCode'],   # 领用出库编码
+                'approval_code': content['approvalCode'],   # OA审批单号
+                # 'recipient_type': content['recipientType'],   # 客情单类型 LYCK-领用出库, EWFH-额外发货
+                'goods_type': content.get('goodsType'),   # 商品类型（额外发货），1-自营 2-外采
+                'company_id': company_id,
+                'warehouse_id': warehouse_id,
+                'channel_id': channel_id,
+                'payment_term_id': self.env.ref('account.account_payment_term_immediate').id,  # 立即付款
+
+                'status': content.get('status'),
+                # 'origin': content['orderSource'],
+                # 'payment_state': content['paymentState'],
+                'liquidated': content.get('paidAmount', 0.0) / 100,  # 已支付金额
+                # 'order_amount': content['amount'] / 100,  # 订单金额
+                # 'freight_amount': content['freightAmount'] / 100,  # 运费
+                # 'use_point': content['usePoint'],  # 使用的积分
+                # 'discount_amount': content['discountAmount'] / 100,  # 优惠金额
+                # 'discount_pop': content['discountPop'] / 100,  # 促销活动优惠抵扣的金额
+                # 'discount_coupon': content['discountCoupon'] / 100,  # 优惠卷抵扣的金额
+                # 'discount_grant': content['discountGrant'] / 100,  # 临时抵扣金额
+                # 'delivery_type': content.get('deliveryType'),  # 配送方式
+                # 'remark': content.get('remark'),  # 用户备注
+                # 'self_remark': content.get('selfRemark'),  # 客服备注
+                # 'user_level': content.get('userLevel'),  # 用户等级
+                # 'product_amount': content.get('productAmount') / 100,  # 商品总金额
+                # 'total_amount': content.get('totalAmount') / 100,  # 订单总金额
+
+                'consignee_name': consignee.get('consigneeName'),  # 收货人名字
+                # 'consignee_mobile': consignee.get('consigneeMobile'),  # 收货人电话
+                'address': consignee.get('address'),  # 收货人地址
+                'consignee_state_id': consignee_state_id,  # 省
+                'consignee_city_id': consignee_city_id,  # 市
+                'consignee_district_id': consignee_district_id,  # 区(县)
+                'special_order_mark': 'gift',
+                'parent_id': parent_id,  # 关联销售订单
+                # 'reason': content.get('reason'),  # 补发货原因（补发货订单特有）
+
+                'sync_state': 'no_need',
+                # 'state': 'cancel' if content.get('status') == '已取消' else 'draft',
+                'state': 'draft',
+            }
+            # 客情单类型 LYCK-领用出库, EWFH-额外发货
+            if content.get('recipientType'):
+                val['recipient_type'] = content['recipientType']
+
+            return order_obj.create(val)
+
+        order_obj = self.env['sale.order']
+        order_line_obj = self.env['sale.order.line']
+        warehouse_obj = self.env['stock.warehouse']
+        channels_obj = self.env['sale.channels']
+
+        content = json.loads(content)
+        content = content['body']
+
+        channel_code = content['channel']  # 销售渠道
+        # 计算销售渠道
+        channel = get_channel()
+        channel_id = channel.id
+
+        if order_obj.search([('name', '=', content['recipientCode']), ('channel_id', '=', channel_id)]):
+            raise MyValidationError('10', '订单：%s已存在！' % content['recipientCode'])
+
+        order_code = content.get('orderCode')  # 关联的销售订单号
+
+        company_id = channel.company_id.id  # 计算公司
+        warehouse_id = warehouse_obj.search([('company_id', '=', company_id)], limit=1).id  # 计算仓库(可能是临时仓库)
+        parent_id = get_parent()  # 关联的销售订单
+        partner_id = get_partner()  # 计算客户
+
+        order = create_sale_order()  # 创建销售订单
+        order_id = order.id
+
+        # 创建订单行
+        vals_list = []
+        for line_index, item in enumerate(content['items']):
+            product = self.get_product(item['code'])
+            vals_list.append({
+                'order_id': order_id,
+                'product_id': product.id,
+                'product_uom_qty': item['quantity'],
+                'price_unit': 0,  # 客情单价格为0
+                'warehouse_id': warehouse_id,
+                'owner_id': company_id,
+                'tax_id': False
+            })
+
+        if vals_list:
+            order_line_obj.create(vals_list)
+
     # 11、WMS-ERP-STOCKOUT-QUEUE 订单出库
     def deal_wms_erp_stockout_queue(self, content):
         """出库单处理
@@ -2421,159 +2575,6 @@ class ApiMessage(models.Model):
         #         raise ValidationError('订单已出库，不能取消')
         #
         #     order.action_cancel()
-
-    # 17、MUSTANG-ERP-RECIPIENT-QUEUE 客情单
-    def deal_mustang_erp_recipient_queue(self, content):
-        """客情单"""
-        def get_channel():
-            """计算销售渠道"""
-            ch = channels_obj.search([('code', '=', channel_code)])
-            if not ch:
-                raise MyValidationError('47', '销售渠道不存在')
-
-            return ch
-
-        def get_partner():
-            """计算客户"""
-            if parent_id:
-                return order_obj.browse(parent_id).partner_id.id
-
-            return self.env.ref('cj_sale.default_cj_partner').id  # 默认客户
-
-        def get_parent():
-            """获取关联的销售订单"""
-            if not order_code:
-                return False
-
-            parent_order = order_obj.search([('name', '=', order_code)], limit=1)
-            if not parent_order:
-                return False
-
-            return parent_order.id
-
-        def create_sale_order():
-            """创订销售订单
-            字段对应：
-            omsCreateTime: date_order
-            storeName: 忽略
-            storeName、storeCode: company_id
-            code: name,
-            status: status
-            paymentState: payment_state
-            channel: channel_id
-            channelText: 忽略
-            orderSource: origin
-            liquidated: liquidated
-            amount: order_amount
-            freightAmount: freight_amount
-            usePoint: use_point
-            discountAmount: discount_amount
-            discountPop: discount_pop
-            discountCoupon: discount_coupon
-            discountGrant: discount_grant
-            deliveryType: delivery_type
-            remark: remark
-            selfRemark: self_remark
-            memberId: partner_id,
-            userLevel:user_level
-            productAmount: product_amount
-            totalAmount; total_amount
-            """
-            consignee = content['consignee']  # 收货人信息
-            consignee_state_id = self.get_country_state_id(consignee.get('provinceText', False))
-            consignee_city_id = self.get_city_area_id(consignee.get('cityText'), consignee_state_id)
-            consignee_district_id = self.get_city_area_id(consignee.get('districtText'), consignee_state_id, consignee_city_id)
-            val = {
-                'date_order': (fields.Datetime.to_datetime(content['createTime'].replace('T', ' ')) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
-                'partner_id': partner_id,
-                'name': content['recipientCode'],   # 领用出库编码
-                'approval_code': content['approvalCode'],   # OA审批单号
-                # 'recipient_type': content['recipientType'],   # 客情单类型 LYCK-领用出库, EWFH-额外发货
-                'goods_type': content.get('goodsType'),   # 商品类型（额外发货），1-自营 2-外采
-                'company_id': company_id,
-                'warehouse_id': warehouse_id,
-                'channel_id': channel_id,
-                'payment_term_id': self.env.ref('account.account_payment_term_immediate').id,  # 立即付款
-
-                'status': content.get('status'),
-                # 'origin': content['orderSource'],
-                # 'payment_state': content['paymentState'],
-                'liquidated': content.get('paidAmount', 0.0) / 100,  # 已支付金额
-                # 'order_amount': content['amount'] / 100,  # 订单金额
-                # 'freight_amount': content['freightAmount'] / 100,  # 运费
-                # 'use_point': content['usePoint'],  # 使用的积分
-                # 'discount_amount': content['discountAmount'] / 100,  # 优惠金额
-                # 'discount_pop': content['discountPop'] / 100,  # 促销活动优惠抵扣的金额
-                # 'discount_coupon': content['discountCoupon'] / 100,  # 优惠卷抵扣的金额
-                # 'discount_grant': content['discountGrant'] / 100,  # 临时抵扣金额
-                # 'delivery_type': content.get('deliveryType'),  # 配送方式
-                # 'remark': content.get('remark'),  # 用户备注
-                # 'self_remark': content.get('selfRemark'),  # 客服备注
-                # 'user_level': content.get('userLevel'),  # 用户等级
-                # 'product_amount': content.get('productAmount') / 100,  # 商品总金额
-                # 'total_amount': content.get('totalAmount') / 100,  # 订单总金额
-
-                'consignee_name': consignee.get('consigneeName'),  # 收货人名字
-                # 'consignee_mobile': consignee.get('consigneeMobile'),  # 收货人电话
-                'address': consignee.get('address'),  # 收货人地址
-                'consignee_state_id': consignee_state_id,  # 省
-                'consignee_city_id': consignee_city_id,  # 市
-                'consignee_district_id': consignee_district_id,  # 区(县)
-                'special_order_mark': 'gift',
-                'parent_id': parent_id,  # 关联销售订单
-                # 'reason': content.get('reason'),  # 补发货原因（补发货订单特有）
-
-                'sync_state': 'no_need',
-                'state': 'cancel' if content.get('status') == '已取消' else 'draft',
-            }
-            # 客情单类型 LYCK-领用出库, EWFH-额外发货
-            if content.get('recipientType'):
-                val['recipient_type'] = content['recipientType']
-
-            return order_obj.create(val)
-
-        order_obj = self.env['sale.order']
-        order_line_obj = self.env['sale.order.line']
-        warehouse_obj = self.env['stock.warehouse']
-        channels_obj = self.env['sale.channels']
-
-        content = json.loads(content)
-        content = content['body']
-
-        channel_code = content['channel']  # 销售渠道
-        # 计算销售渠道
-        channel = get_channel()
-        channel_id = channel.id
-
-        if order_obj.search([('name', '=', content['recipientCode']), ('channel_id', '=', channel_id)]):
-            raise MyValidationError('10', '订单：%s已存在！' % content['recipientCode'])
-
-        order_code = content.get('orderCode')  # 关联的销售订单号
-
-        company_id = channel.company_id.id  # 计算公司
-        warehouse_id = warehouse_obj.search([('company_id', '=', company_id)], limit=1).id  # 计算仓库(可能是临时仓库)
-        parent_id = get_parent()  # 关联的销售订单
-        partner_id = get_partner()  # 计算客户
-
-        order = create_sale_order()  # 创建销售订单
-        order_id = order.id
-
-        # 创建订单行
-        vals_list = []
-        for line_index, item in enumerate(content['items']):
-            product = self.get_product(item['code'])
-            vals_list.append({
-                'order_id': order_id,
-                'product_id': product.id,
-                'product_uom_qty': item['quantity'],
-                'price_unit': 0,  # 客情单价格为0
-                'warehouse_id': warehouse_id,
-                'owner_id': company_id,
-                'tax_id': False
-            })
-
-        if vals_list:
-            order_line_obj.create(order_line_obj)
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
