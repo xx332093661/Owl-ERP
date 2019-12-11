@@ -32,8 +32,7 @@
         'views/purchase_order_view.xml',
 
         'wizard/api_message_dump_restore_wizard_view.xml',
-
-
+        'wizard/dump_message_wizard_view.xml',
 
     ],
     'demo': [

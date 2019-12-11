@@ -78,6 +78,7 @@ class ApiMessageDumpRestoreWizardLine(models.TransientModel):
     dump_id = fields.Many2one('api.message.dump', '文件名', required=0)
     message_names = fields.Text('存储队列', related='dump_id.message_names', readonly=1)
     state = fields.Selection(string='队列状态', related='dump_id.state', readonly=1)
+    note = fields.Char('备注', related='dump_id.note', readonly=1)
 
 
 

@@ -47,7 +47,7 @@
 
                         <notebook>
                             <page string="内容">
-                                <field name='content' nolabel="1" readonly="1"/>
+                                <field name='content' nolabel="1" readonly="0"/>
                             </page>
                             <page string="错误提示">
                                 <field name='error' readonly="1"/>
@@ -88,8 +88,10 @@
                     <!--<filter string="售后服务单" name="message_service" domain="[('message_name', '=', 'mustang-to-erp-service-list-push')]"/>-->
                     <filter string="退货入库单" name="message_service" domain="[('message_name', '=', 'WMS-ERP-RETURN-STOCKIN-QUEUE')]"/>
                     <filter string="退款单" name="message_service" domain="[('message_name', '=', 'MUSTANG-REFUND-ERP-QUEUE')]"/>
+                    <filter string="客情单" name="message_recipient" domain="[('message_name', '=', 'MUSTANG-ERP-RECIPIENT-QUEUE')]"/>
                     <group expand="0" string="Group By...">
                         <filter string="消息名称" name="group_message_name" domain="[]" context="{'group_by':'message_name'}"/>
+                        <filter string="错误信息" name="group_error_msg" domain="[]" context="{'group_by':'error_msg'}"/>
                    </group>
                 </search>
             </field>
@@ -116,7 +118,7 @@
             <field name="name">转储</field>
             <field name="model_id" ref="model_api_message"/>
             <field name="state">code</field>
-            <field name="code">records.action_dump()</field>
+            <field name="code">action = records.action_dump()</field>
             <field name="binding_model_id" ref="model_api_message"/>
         </record>
     </data>
