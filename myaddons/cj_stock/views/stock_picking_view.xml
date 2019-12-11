@@ -33,6 +33,9 @@
                 <!--删除锁定按钮-->
                 <xpath expr="//button[@name='action_toggle_is_locked'][1]" position="replace"/>
                 <xpath expr="//button[@name='action_toggle_is_locked'][1]" position="replace"/>
+                <!--删除取消按钮-->
+                <xpath expr="//button[@name='action_cancel']" position="replace"/>
+
 
                 <!--在其他信息标签页前加收货人信息标签页、物流信息标签页-->
                 <!--<xpath expr="//page[@name='extra']" position="before">-->
