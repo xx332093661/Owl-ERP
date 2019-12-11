@@ -2536,8 +2536,7 @@ class ApiMessage(models.Model):
             consignee_district_id = self.get_city_area_id(consignee.get('districtText'), consignee_state_id,
                                                           consignee_city_id)
             val = {
-                'date_order': (fields.Datetime.to_datetime(content['createTime'].replace('T', ' ')) - timedelta(
-                    hours=8)).strftime(DATETIME_FORMAT),
+                'date_order': (fields.Datetime.to_datetime(content['createTime'].replace('T', ' ')) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
                 'partner_id': partner_id,
                 'name': content['recipientCode'],   # 领用出库编码
                 'approval_code': content['approvalCode'],   # OA审批单号

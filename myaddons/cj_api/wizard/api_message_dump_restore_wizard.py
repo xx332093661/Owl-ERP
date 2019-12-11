@@ -22,9 +22,11 @@ class ApiMessageDumpRestoreWizard(models.TransientModel):
 
         vals_list = []
         files = []
+        dir_path = os.path.join(self.env['ir.attachment']._filestore(), 'api_message')
         for line in self.line_ids:
             message_dump = line.dump_id
-            path = message_dump.path
+            # path = message_dump.path
+            path = os.path.join(dir_path, message_dump.name)
             files.append(path)
             with open(path, 'r', encoding='utf-8') as f:
                 messages = csv.DictReader(f)

@@ -14,7 +14,7 @@
                     <field name="error_no"/>
                     <field name="error_msg"/>
                     <field name="origin"/>
-                    <field name="note"/>
+                    <!--<field name="note"/>-->
 				</tree>
 			</field>
 		</record>
