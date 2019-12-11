@@ -27,7 +27,7 @@
     <menuitem action="purchase.purchase_rfq" id="menu_purchase_xjd" name="采购订单"
               parent="menu_purchase_operation"
               groups="purchase.group_purchase_user,group_purchase_general_manager"
-              sequence="30"/>
+              sequence="1"/>
 
     <menuitem action="action_purchase_order_return" id="menu_purchase_order_return" name="采购退货单"
               parent="menu_purchase_operation"
