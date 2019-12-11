@@ -277,6 +277,7 @@ class PosInterface(http.Controller):
 
         wait_moves = picking.move_lines.filtered(lambda x: x.state != 'assigned')
         if wait_moves:
+            self._cr.rollback()
             msg = '部分商品：%s库存不足，不能出库！' % ('、'.join([m.product_id.partner_ref for m in wait_moves[:5]]))
             _logger.info(msg)
             return {

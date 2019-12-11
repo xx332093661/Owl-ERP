@@ -9,7 +9,7 @@
                 <tree editable="top">
                     <field name="name"/>
                     <field name="to_date"/>
-                    <field name="message_names"/>
+                    <!--<field name="message_names"/>-->
                 </tree>
             </field>
         </record>
