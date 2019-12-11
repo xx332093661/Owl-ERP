@@ -2544,7 +2544,7 @@ class ApiMessage(models.Model):
                 'status': content['status'],
                 # 'origin': content['orderSource'],
                 # 'payment_state': content['paymentState'],
-                'liquidated': content['paidAmount'] / 100,  # 已支付金额
+                'liquidated': content.get('paidAmount', 0.0) / 100,  # 已支付金额
                 # 'order_amount': content['amount'] / 100,  # 订单金额
                 # 'freight_amount': content['freightAmount'] / 100,  # 运费
                 # 'use_point': content['usePoint'],  # 使用的积分
