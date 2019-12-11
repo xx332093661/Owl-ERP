@@ -1461,7 +1461,7 @@ class ApiMessage(models.Model):
         # 3、创建出货单
         delivery = delivery_obj.create({
             'name': express_code,  # 快递单号(有自提情况，所以出货单可能为空)
-            'logistics_code': content['logisticsCode'],  # 快递公司编号
+            'logistics_code': logistics_code,  # 快递公司编号
             'sale_order_id': order.id,
             'company_id': order.company_id.id,
             'delivery_type': 'send',  # 物流单方向
@@ -1553,6 +1553,9 @@ class ApiMessage(models.Model):
         logistics_data = content['body']  # 运单信息
         express_code = logistics_data['expressCode']  # 物流单号
         logistics_code = logistics_data['logisticsCode']  # 物流公司编号
+        if not logistics_code:
+            raise MyValidationError('40', '自提，不处理队列')
+
         warehouse_code = logistics_data['warehouseCode']  # 仓库编码
         delivery_order_code = logistics_data['deliveryOrderCode']  # 出库单号(订单编号)
         partner = partner_obj.search([('code', '=', logistics_code)])
