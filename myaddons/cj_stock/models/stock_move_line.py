@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools.float_utils import float_compare, float_round, float_is_zero
 from odoo.addons.stock.models.stock_move_line import StockMoveLine as StockMoveLineOrigin
 

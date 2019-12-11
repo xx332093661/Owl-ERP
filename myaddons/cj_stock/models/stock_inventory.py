@@ -294,7 +294,7 @@ class StockInventory(models.Model):
 
     def _cron_done_inventory(self):
         """临时接口"""
-        self.adjust_pos_order()
+        self.check_valuation_move_amount()
 
 
 

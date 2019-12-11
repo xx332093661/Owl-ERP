@@ -5,7 +5,7 @@ from datetime import datetime
 
 from odoo import models, api, fields
 from odoo.tools.float_utils import float_compare, float_is_zero
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.addons import decimal_precision as dp
 
 
@@ -354,5 +354,13 @@ class StockMove(models.Model):
 
         # for move in self:
         #     valuation_move_obj.move2valuation(move)
+
+    def _action_done(self):
+        """出库数量大于保留数量，禁止出库"""
+        for move in self:
+            if  not move._is_in() and float_compare(move.quantity_done, move.reserved_availability, precision_rounding=0.01) == 1:
+                raise ValidationError('商品：%s出库数量：%s不能大于保留数量：%s！' % (move.product_id.partner_ref, move.quantity_done, move.reserved_availability))
+
+        return super(StockMove, self)._action_done()
 
 

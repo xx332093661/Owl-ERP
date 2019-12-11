@@ -3,7 +3,7 @@ import logging
 
 from odoo import models, api, fields
 from odoo.exceptions import ValidationError
-from odoo.tools import float_is_zero, float_round
+from odoo.tools import float_is_zero, float_round, float_compare
 
 _logger = logging.getLogger(__name__)
 
@@ -19,10 +19,13 @@ class StockInventoryValuationMove(models.Model):
     def _compute_stock_value(self):
         """根据单位成本和在手数量，计算库存价值"""
         precision = self.env['decimal.precision'].precision_get('Inventory valuation')  # 估值精度
-        self.stock_value = float_round(
-            self.qty_available * self.stock_cost,
-            precision_digits=precision,
-            rounding_method='HALF-UP')
+        if float_compare(self.qty_available, 0, precision_rounding=0.01) != 1:
+            self.stock_value = 0
+        else:
+            self.stock_value = float_round(
+                self.qty_available * self.stock_cost,
+                precision_digits=precision,
+                rounding_method='HALF-UP')
 
     @api.one
     @api.depends('unit_cost')
