@@ -2584,10 +2584,10 @@ class ApiMessage(models.Model):
         def create_sale_order_line(pid, qty, price):
             """创建订单行"""
             tax_id = False
-            tax = tax_obj.search(
-                [('company_id', '=', company_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
-            if tax:
-                tax_id = [(6, 0, tax.ids)]
+            # tax = tax_obj.search(
+            #     [('company_id', '=', company_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
+            # if tax:
+            #     tax_id = [(6, 0, tax.ids)]
             order_line = order_line_obj.create({
                 'order_id': order_id,
                 'product_id': pid,
