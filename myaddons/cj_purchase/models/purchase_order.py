@@ -359,7 +359,7 @@ class PurchaseOrder(models.Model):
                                                        'origin': order},
                                                subtype_id=self.env.ref('mail.mt_note').id)
                 # 标记代办
-                picking.filtered(lambda x: x.state in ('draft',)).action_confirm()
+                picking.filtered(lambda x: x.state in ['draft']).action_confirm()
         return True
 
     @api.multi
