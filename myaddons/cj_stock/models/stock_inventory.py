@@ -291,10 +291,31 @@ class StockInventory(models.Model):
             if message:
                 order.action_draft()
 
+    def check_stock_inventory_valuation_move(self):
+        """验证存货估值"""
+        valuation_obj = self.env['stock.inventory.valuation.move']
+
+        # 按核算组
+        for group in self.env['account.cost.group'].search([]):
+            # 所有商品
+            product_ids = []
+            for group_move in valuation_obj.search([('cost_group_id', '=', group.id), ('stock_type', '=', 'all')], order='id'):
+                if group_move.product_id.id not in product_ids:
+                    product_ids.append(group_move.product_id.id)
+
+            for product_id in product_ids:
+                # 指定商品 核算组对应的最后一条记录
+                for group_move in valuation_obj.search([('cost_group_id', '=', group.id), ('stock_type', '=', 'all'), ('product_id', '=', product_id)], limit=1, order='id desc'):
+                    print(str(group_move.id).zfill(5), group_move.product_id.default_code.zfill(15), group_move.type, str(group_move.unit_cost).zfill(10))
+
+
+
+
 
     def _cron_done_inventory(self):
         """临时接口"""
-        self.check_valuation_move_amount()
+        # self.check_valuation_move_amount()
+        self.check_stock_inventory_valuation_move()
 
 
 
