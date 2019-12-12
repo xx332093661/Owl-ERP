@@ -136,7 +136,7 @@ class StockAcrossMove(models.Model):
         company_in = self.warehouse_in_id.sudo().company_id
         company_in_id = company_in.id
         # 创建销售订单
-        tax = tax_obj.search([('company_id', '=', company_out_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
+        tax = tax_obj.search([('company_id', '=', company_out_id), ('type_tax_use', '=', 'sale'), ('amount', '=', 13)])
         sale_order = self.env['sale.order'].create({
             'partner_id': company_in.partner_id.id,
             'payment_term_id': self.payment_term_id.id,
