@@ -308,11 +308,36 @@ class StockInventory(models.Model):
                 for group_move in valuation_obj.search([('cost_group_id', '=', group.id), ('stock_type', '=', 'all'), ('product_id', '=', product_id)], limit=1, order='id desc'):
                     print(str(group_move.id).zfill(5), group_move.product_id.default_code.zfill(15), group_move.type, str(group_move.unit_cost).zfill(10))
 
+    def adjust_stock_across_move(self):
+        """修改跨公司调拨"""
+        tax_obj = self.env['account.tax']
+
+        for move in self.env['stock.across.move'].search([('name', 'in', ['SAM0005', 'SAM0006'])]):
+            # 修改调拨明细的调拨成本字段值
+            for line in move.line_ids:
+                line.cost = line.current_cost
+
+            # 修改销售订单明细的单价
+            tax_ids = tax_obj.search([('company_id', '=', move.sale_order_id.company_id.id), ('type_tax_use', '=', 'sale'), ('amount', '=', 13)]).ids
+            for line in move.sale_order_id.order_line:
+                line.write({
+                    'price_unit': move.line_ids.filtered(lambda x: x.product_id.id == line.product_id.id).cost * 1.13,
+                    'tax_id': [(6, 0, tax_ids)]
+                })
+
+            # 修改采购订单明细单价
+            tax_ids = tax_obj.search([('company_id', '=', move.purchase_order_id.company_id.id), ('type_tax_use', '=', 'sale'), ('amount', '=', 13)]).ids
+            for line in move.purchase_order_id.order_line:
+                line.write({
+                    'price_unit': move.line_ids.filtered(lambda x: x.product_id.id == line.product_id.id).cost * 1.13,
+                    'taxes_id': [(6, 0, tax_ids)]
+                })
 
     def _cron_done_inventory(self):
         """临时接口"""
+        self.adjust_stock_across_move()
         # self.check_valuation_move_amount()
-        self.check_stock_inventory_valuation_move()
+        # self.check_stock_inventory_valuation_move()
 
 
 

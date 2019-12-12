@@ -13,7 +13,7 @@ class PurchaseOrderLine(models.Model):
     taxes_id = fields.Many2many('account.tax', string='税')
     payment_term_id = fields.Many2one('account.payment.term', '支付条款', required=1)
     product_qty = fields.Float(string='数量', digits=dp.get_precision('Product Unit of Measure'), required=True, default=1)
-    untax_price_unit = fields.Float('不含税价', compute='_compute_untax_price_unit', store=1)
+    untax_price_unit = fields.Float('不含税价', compute='_compute_untax_price_unit', store=1, digits=dp.get_precision('Product Price'))
     # amount_tax = fields.Float('税金', compute='_compute_amount_tax', store=1)
 
     @api.onchange('product_id')

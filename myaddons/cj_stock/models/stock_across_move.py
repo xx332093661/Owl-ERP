@@ -5,6 +5,7 @@ from collections import Counter
 import pytz
 
 from odoo import fields, models, api
+from odoo.addons import decimal_precision as dp
 from odoo.exceptions import ValidationError
 from odoo.tools import float_compare, float_round
 
@@ -345,10 +346,10 @@ class StockAcrossMoveLine(models.Model):
     product_id = fields.Many2one('product.product', '商品', required=1)
     uom_id = fields.Many2one('uom.uom', related='product_id.uom_id', string='单位', store=1)
     move_qty = fields.Float('调拨数量', required=1, default=1)
-    cost = fields.Float('调拨成本', required=1)
+    cost = fields.Float('调拨成本', required=1, digits=dp.get_precision('Inventory valuation'))
 
     amount = fields.Float('金额', store=1, compute='_compute_amount')
-    current_cost = fields.Float('当前成本', readonly=1)
+    current_cost = fields.Float('当前成本', readonly=1, digits=dp.get_precision('Inventory valuation'))
 
     @api.multi
     @api.constrains('move_qty')
