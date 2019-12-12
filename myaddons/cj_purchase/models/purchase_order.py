@@ -340,7 +340,7 @@ class PurchaseOrder(models.Model):
         StockPicking = self.env['stock.picking']
         for order in self:
             if any([ptype in ['product', 'consu'] for ptype in order.order_line.mapped('product_id.type')]):
-                pickings = order.picking_ids.filtered( lambda x: x.state not in ('done', 'cancel'))
+                pickings = order.picking_ids.filtered(lambda x: x.state not in ('done', 'cancel'))
                 if not pickings:
                     res = order._prepare_picking()
                     picking = StockPicking.create(res)
@@ -358,6 +358,8 @@ class PurchaseOrder(models.Model):
                                                values={'self': picking,
                                                        'origin': order},
                                                subtype_id=self.env.ref('mail.mt_note').id)
+                # 标记代办
+                picking.filtered(lambda x: x.state in ('draft',)).action_confirm()
         return True
 
     @api.multi
