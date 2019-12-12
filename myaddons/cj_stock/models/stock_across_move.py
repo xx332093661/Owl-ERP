@@ -116,6 +116,9 @@ class StockAcrossMove(models.Model):
             return types[:1].id
 
         self.ensure_one()
+
+        tax_obj = self.env['account.tax']
+
         companies = self.env.user.company_id
         companies |= companies.child_ids
         company_ids = companies.ids
@@ -133,6 +136,7 @@ class StockAcrossMove(models.Model):
         company_in = self.warehouse_in_id.sudo().company_id
         company_in_id = company_in.id
         # 创建销售订单
+        tax = tax_obj.search([('company_id', '=', company_out_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
         sale_order = self.env['sale.order'].create({
             'partner_id': company_in.partner_id.id,
             'payment_term_id': self.payment_term_id.id,
@@ -145,12 +149,14 @@ class StockAcrossMove(models.Model):
                 'product_uom_qty': line.move_qty,
                 'warehouse_id': self.warehouse_out_id.id,
                 'owner_id': company_out_id,
-                'price_unit': line.cost,
-                'product_uom': line.product_id.uom_id.id
+                'price_unit': line.cost * (1 + 0.13),
+                'product_uom': line.product_id.uom_id.id,
+                'tax_id': [(6, 0, tax.ids)]
             })for line in self.line_ids]
         })
         sale_order.action_confirm()  # 确认销售订单
         # 创建采购订单
+        tax = tax_obj.search([('company_id', '=', company_in_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
         purchase_order = self.env['purchase.order'].sudo().create({
             'partner_id': company_out.partner_id.id,
             'picking_type_id': get_picking_type(),
@@ -164,9 +170,10 @@ class StockAcrossMove(models.Model):
                 'name': line.product_id.name,
                 'date_planned': now,
                 'product_qty': line.move_qty,
-                'price_unit': line.cost,
+                'price_unit': line.cost * (1 + 0.13),
                 'product_uom': line.product_id.uom_id.id,
-                'payment_term_id': self.payment_term_id.id
+                'payment_term_id': self.payment_term_id.id,
+                'taxes_id': [(6, 0, tax.ids)]
             }) for line in self.line_ids]
         })
         sale_order.origin = purchase_order.name
@@ -378,7 +385,7 @@ class StockAcrossMoveLine(models.Model):
 
         cost_type = self._context.get('cost_type')  # 成本方法
         if cost_type in ['normal', 'customize']:
-            self.cost = stock_cost * (1 + 0.13)
+            self.cost = stock_cost
         else:
             cost_increase_rating = self._context.get('cost_increase_rating')
             self.cost = float_round(stock_cost * (1 + cost_increase_rating / 100.0), precision_rounding=0.01)

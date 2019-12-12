@@ -309,9 +309,6 @@ class StockInventory(models.Model):
                     print(str(group_move.id).zfill(5), group_move.product_id.default_code.zfill(15), group_move.type, str(group_move.unit_cost).zfill(10))
 
 
-
-
-
     def _cron_done_inventory(self):
         """临时接口"""
         # self.check_valuation_move_amount()
