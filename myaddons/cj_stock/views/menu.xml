@@ -44,5 +44,16 @@
         <record id="stock.menu_stock_inventory_control" model="ir.ui.menu">
             <field name="groups_id" eval="[(4, ref('stock.group_stock_user'))]"/>
         </record>
+
+        <!--禁用仓库/配置/设置菜单-->
+        <record id="stock.menu_product_variant_config_stock" model="ir.ui.menu">
+            <field name="name">商品</field>
+        </record>
+
+    <!--增加组合商品-->
+    <menuitem name="组合商品"
+              action="cj_base.action_product_product_merge" id="menu_action_product_product_merge"
+              parent="stock.menu_stock_inventory_control" sequence="2"/>
+
     </data>
 </odoo>

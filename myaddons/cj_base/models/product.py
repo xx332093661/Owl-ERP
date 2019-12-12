@@ -41,6 +41,9 @@ class ProductTemplate(models.Model):
 class ProductProduct(models.Model):
     _inherit = 'product.product'
 
+    is_merge = fields.Boolean('是组合商品')
+    merge_ids = fields.One2many('product.product.merge', 'merge_product_id', '组合明细')
+
     @api.model
     def _search(self, args, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
         """物料编码是数字时处理"""
@@ -81,6 +84,28 @@ class ProductProduct(models.Model):
             cr.execute('%s product_product DROP CONSTRAINT product_product_barcode_uniq' % ('ALTER TABLE',))
 
         cr.execute("""%s ir_model_constraint WHERE name = 'product_product_barcode_uniq'""" % ('DELETE FROM',))
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super(ProductProduct, self).default_get(fields_list)
+        if 'default_is_merge' in self._context:
+            res.update({
+                'sale_ok': False,
+                'purchase_ok': False,
+            })
+
+        return res
+
+
+class ProductProductMerge(models.Model):
+    _name = 'product.product.merge'
+    _description = '组合商品明细'
+
+    merge_product_id = fields.Many2one('product.product', '组合商品')
+    product_id = fields.Many2one('product.product', '商品', domain="[('is_merge', '=', False)]", required=1)
+    merge_qty = fields.Float('组合数量', required=1)
+
+
 
 
 

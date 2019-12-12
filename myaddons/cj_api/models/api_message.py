@@ -1584,29 +1584,56 @@ class ApiMessage(models.Model):
         delivery_lines = []  # 出货明细
         for item in content['items']:
             product = self.get_product(item['goodsCode'])
-            product_id = product.id
+            is_merge = product.is_merge  # 是否是组合商品
             qty = item['planQty']
-            res = list(filter(lambda x: x['product_id'] == product_id, delivery_lines))
-            if res:
-                res[0]['product_uom_qty'] += qty
-            else:
-                delivery_lines.append({
-                    'name': product.name,
-                    'product_id': product_id,
-                    'product_uom_qty': qty
-                })
+            if is_merge:
+                for merge in product.merge_ids:
+                    product_id = merge.product_id.id
+                    res = list(filter(lambda x: x['product_id'] == product_id, delivery_lines))
+                    if res:
+                        res[0]['product_uom_qty'] += qty * merge.merge_qty
+                    else:
+                        delivery_lines.append({
+                            'name': product.name,
+                            'product_id': product_id,
+                            'product_uom_qty': qty * merge.merge_qty
+                        })
 
-            res = list(filter(lambda x: x['product_id'] == product_id, order_lines))
-            if res:
-                res = res[0]
-                res['delivery_qty'] += qty  # 本次发货数量
+                    res = list(filter(lambda x: x['product_id'] == product_id, order_lines))
+                    if res:
+                        res = res[0]
+                        res['delivery_qty'] += qty * merge.merge_qty  # 本次发货数量
+                    else:
+                        order_lines.append({
+                            'product_id': product_id,
+                            'product_uom_qty': 0,
+                            'qty_delivered': 0,
+                            'delivery_qty': qty * merge.merge_qty,  # 本次发货数量
+                        })
             else:
-                order_lines.append({
-                    'product_id': product_id,
-                    'product_uom_qty': 0,
-                    'qty_delivered': 0,
-                    'delivery_qty': qty,  # 本次发货数量
-                })
+                product_id = product.id
+
+                res = list(filter(lambda x: x['product_id'] == product_id, delivery_lines))
+                if res:
+                    res[0]['product_uom_qty'] += qty
+                else:
+                    delivery_lines.append({
+                        'name': product.name,
+                        'product_id': product_id,
+                        'product_uom_qty': qty
+                    })
+
+                res = list(filter(lambda x: x['product_id'] == product_id, order_lines))
+                if res:
+                    res = res[0]
+                    res['delivery_qty'] += qty  # 本次发货数量
+                else:
+                    order_lines.append({
+                        'product_id': product_id,
+                        'product_uom_qty': 0,
+                        'qty_delivered': 0,
+                        'delivery_qty': qty,  # 本次发货数量
+                    })
 
         res = list(filter(lambda x: float_compare(x['delivery_qty'], x['product_uom_qty'] - x['qty_delivered'], precision_rounding=0.01) == 1, order_lines))
         if res:

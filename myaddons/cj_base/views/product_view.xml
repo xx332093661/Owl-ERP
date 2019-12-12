@@ -118,8 +118,66 @@
             <field name="inherit_id" ref="stock.product_template_form_view_procurement_button"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_update_quantity_on_hand']" position="replace"/>
+                <xpath expr="//header/button[1]" position="replace"/>
+                <xpath expr="//header/button[1]" position="replace"/>
 
             </field>
+        </record>
+    </data>
+
+    <data>
+        <record id="product_form_view_procurement_button" model="ir.ui.view">
+            <field name="name">product.product.procurement</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="stock.product_form_view_procurement_button"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_update_quantity_on_hand']" position="replace"/>
+                <xpath expr="//header/button[1]" position="replace"/>
+                <xpath expr="//header/button[1]" position="replace"/>
+            </field>
+        </record>
+        <record id="product_normal_form_view" model="ir.ui.view">
+            <field name="name">product.product.form</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='categ_id']" position="after">
+                    <field name="is_merge"/>
+                </xpath>
+                <xpath expr="//page[@name='general_information']" position="after">
+                    <page string="组合明细" name="merge_lines" attrs="{'invisible': [('is_merge', '!=', True)]}">
+                        <field name="merge_ids">
+                            <tree editable="bottom">
+                                <field name="product_id" options="{'no_create': 1, 'no_open': 1}"/>
+                                <field name="merge_qty"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+
+    <data>
+        <record id="product_product_tree_view" model="ir.ui.view">
+            <field name="name">product.product.tree</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_product_tree_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='lst_price']" position="replace"/>
+                <xpath expr="//field[@name='standard_price']" position="replace"/>
+            </field>
+        </record>
+
+        <record id="action_product_product_merge" model="ir.actions.act_window">
+            <field name="name">组合商品</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_type">form</field>
+            <field name="domain">[('is_merge', '=', True)]</field>
+            <field name="context">{'default_is_merge': True, 'default_sale_ok': False, 'default_purchase_or': True}</field>
+            <!--<field name="view_id" ref="product_product_view_tree"/>-->
         </record>
     </data>
 

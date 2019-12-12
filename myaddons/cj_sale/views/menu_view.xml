@@ -74,8 +74,12 @@
         <menuitem name="客户" id="menu_action_sale_kh" action="base.action_partner_form"
                   parent="menu_sale_main_data" sequence="10"/>
 
-        <menuitem name="产品" id="menu_action_sale_cp" action="sale.product_template_action"
+        <menuitem name="商品" id="menu_action_sale_cp" action="sale.product_template_action"
                   parent="menu_sale_main_data" sequence="20"/>
+    <!--增加组合商品-->
+    <menuitem name="组合商品"
+              action="cj_base.action_product_product_merge" id="menu_action_product_product_merge"
+              parent="menu_sale_main_data" sequence="21"/>
 
         <menuitem name="销售" id="menu_action_sale_report_xs" action="sale.action_order_report_all"
                   parent="menu_sale_baobiao" sequence="1"/>

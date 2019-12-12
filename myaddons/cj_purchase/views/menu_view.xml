@@ -41,8 +41,12 @@
     <!--<menuitem id="menu_purchase_gys" name="供应商"-->
               <!--parent="menu_purchase_main_data"-->
               <!--action="base.action_partner_supplier_form" sequence="1"/>-->
-    <menuitem name="产品" id="menu_purchase_product" action="purchase.product_normal_action_puchased"
+    <menuitem name="商品" id="menu_purchase_product" action="purchase.product_normal_action_puchased"
               parent="menu_purchase_main_data" sequence="10"/>
+    <!--增加组合商品-->
+    <menuitem name="组合商品"
+              action="cj_base.action_product_product_merge" id="menu_action_product_product_merge"
+              parent="menu_purchase_main_data" sequence="11"/>
 
         <menuitem name="供应商合同" id="menu_action_supplier_contract_admin" action="action_supplier_contract_admin"
               parent="menu_purchase_main_data" sequence="20"/>
@@ -52,6 +56,7 @@
     <menuitem name="供应商价格明细"
               action="product.product_supplierinfo_type_action" id="menu_purchase_gysjgb"
               parent="menu_purchase_main_data" sequence="40"/>
+
 
 
         <!--采购菜单增加采购总经理可访问-->
