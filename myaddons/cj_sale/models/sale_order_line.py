@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
-# import logging
 from odoo import fields, models, api
-# from odoo.tools import float_compare
-# from odoo.exceptions import UserError
-
-# _logger = logging.getLogger(__name__)
+from odoo.addons import decimal_precision as dp
 
 
 class SaleOrderLine(models.Model):
@@ -30,7 +26,7 @@ class SaleOrderLine(models.Model):
     # valuation_ids = fields.Many2many('stock.inventory.valuation.move', 'rel_sale_line_valuation_move', 'line_id', 'move_id',
     #                                  compute='_compute_valuation_move', string='Receptions', store=0)
 
-    untax_price_unit = fields.Float('不含税价', compute='_compute_untax_price_unit', store=1)
+    untax_price_unit = fields.Float('不含税价', compute='_compute_untax_price_unit', store=1, digits=dp.get_precision('Product Price'))
 
     market_price = fields.Float('标价')
     original_price = fields.Float('原价')

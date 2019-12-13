@@ -51,5 +51,10 @@
         <menuitem id="menu_account_main_product" name="商品"
                   action="product_product_action_sellable"
                   parent="menu_account_main" sequence="10"/>
+
+    <!--增加组合商品-->
+    <menuitem name="组合商品"
+              action="cj_base.action_product_product_merge" id="menu_action_product_product_merge"
+              parent="menu_account_main" sequence="11"/>
     </data>
 </odoo>

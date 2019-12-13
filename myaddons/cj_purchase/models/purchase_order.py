@@ -305,6 +305,8 @@ class PurchaseOrder(models.Model):
         order_line_obj = self.env['purchase.order.line']
 
         res = super(PurchaseOrder, self).default_get(fields_list)
+        res.pop('picking_type_id', False)
+        res.pop('company_id', False)
 
         if self._context.get('apply_id'):
             apply = apply_obj.browse(self._context['apply_id'])
@@ -338,7 +340,7 @@ class PurchaseOrder(models.Model):
         StockPicking = self.env['stock.picking']
         for order in self:
             if any([ptype in ['product', 'consu'] for ptype in order.order_line.mapped('product_id.type')]):
-                pickings = order.picking_ids.filtered( lambda x: x.state not in ('done', 'cancel'))
+                pickings = order.picking_ids.filtered(lambda x: x.state not in ('done', 'cancel'))
                 if not pickings:
                     res = order._prepare_picking()
                     picking = StockPicking.create(res)
@@ -356,6 +358,8 @@ class PurchaseOrder(models.Model):
                                                values={'self': picking,
                                                        'origin': order},
                                                subtype_id=self.env.ref('mail.mt_note').id)
+                # 标记代办
+                picking.filtered(lambda x: x.state in ['draft']).action_confirm()
         return True
 
     @api.multi
@@ -389,11 +393,11 @@ class PurchaseOrder(models.Model):
             else:
                 self.contract_id = False
 
-        if not self.company_id:
-            self.picking_type_id = False
-        else:
-            picking_type = picking_type_obj.search([('warehouse_id.company_id', '=', self.company_id.id), ('code', '=', 'incoming')], limit=1)
-            self.picking_type_id = picking_type.id
+        # if not self.company_id:
+        #     self.picking_type_id = False
+        # else:
+        #     picking_type = picking_type_obj.search([('warehouse_id.company_id', '=', self.company_id.id), ('code', '=', 'incoming')], limit=1)
+        #     self.picking_type_id = picking_type.id
 
         # 修改订单明细的税
         if self.company_id:
@@ -514,8 +518,8 @@ class PurchaseOrder(models.Model):
     def action_manager_approval(self):
         """因为提交OA审批等待时间太久，可由系统管理员角色直接审批，而无需OA审批"""
         self.ensure_one()
-        if self.state != 'confirm':
-            raise ValidationError('只有审核的单据才可以由管理员审批！')
+        if self.state != 'oa_sent':
+            raise ValidationError('只有提交审批的单据才可以由管理员审批！')
 
         self.state = 'oa_accept'  # 审批通过
 

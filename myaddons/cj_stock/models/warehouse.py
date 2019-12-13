@@ -54,3 +54,13 @@ class Warehouse(models.Model):
             return super(Warehouse, self.sudo()).read(fields, load)
         return super(Warehouse, self).read(fields, load)
 
+    @api.multi
+    def name_get(self):
+        result = []
+        for warehouse in self:
+            if warehouse.code:
+                result.append((warehouse.id, '[%s]%s' % (warehouse.code, warehouse.name)))
+            else:
+                result.append((warehouse.id, warehouse.name))
+
+        return result

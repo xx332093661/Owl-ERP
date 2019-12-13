@@ -40,7 +40,7 @@ class StockLocation(models.Model):
             if location.usage == 'internal':
                 warehouse = warehouse_obj.search([('lot_stock_id', '=', location_id)])
                 if warehouse:
-                    result.append((location_id, '%s/%s' % (warehouse.name, location.name)))
+                    result.append((location_id, '[%s]%s/%s' % (warehouse.code, warehouse.name, location.name)))
                 else:
                     result.append((location_id, name))
             else:

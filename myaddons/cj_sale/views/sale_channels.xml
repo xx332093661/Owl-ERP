@@ -48,6 +48,7 @@
             <field name="name">销售渠道</field>
             <field name="res_model">sale.channels</field>
             <field name="view_mode">tree,form</field>
+            <field name="domain">[('parent_id', '=', False)]</field>
         </record>
 
         <menuitem id="sale_channels_menu" name="销售渠道" parent="sale.menu_sales_config" sequence="5"

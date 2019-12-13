@@ -12,7 +12,7 @@
                     <group>
                         <label for="id" string="模板下载"/>
                         <div>
-                            <a href="/cj_purchase/static/template/purchase_order.xlsx" target="_blank">下载</a>
+                            <a href="/cj_purchase/static/template/采购明细模板.xlsx" target="_blank">下载</a>
                         </div>
                     </group>
                 </group>

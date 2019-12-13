@@ -10,7 +10,7 @@
                         <tree editable="bottom">
                             <field name="dump_id" options="{'no_open': 1, 'no_create': 1}" context="{'line_ids': parent.line_ids}" required="1"/>
                             <field name="state"/>
-                            <field name="message_names"/>
+                            <field name="note"/>
                         </tree>
                     </field>
 

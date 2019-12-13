@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from math import ceil
 import logging
-import socket
 
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
@@ -26,15 +25,9 @@ class DeliveryCarrier(models.Model):
         """自动确认盘点"""
         rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去处理RabbitMQ的数据，与开启
         if rabbitmq_ip:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            try:
-                s.connect(('8.8.8.8', 80))
-                ip = s.getsockname()[0]
-                _logger.info('处理盘点，本机ip：%s', ip)
-                if ip == rabbitmq_ip:
-                    return
-            finally:
-                s.close()
+            local_ip = config['local_ip']
+            if local_ip == rabbitmq_ip:
+                return
 
         for inventory in self.env['stock.inventory'].search([('state', '=', 'finance_manager_confirm')], limit=1):
             inventory.action_validate()

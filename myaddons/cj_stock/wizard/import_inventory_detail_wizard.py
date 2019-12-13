@@ -5,6 +5,8 @@ import os
 import logging
 import traceback
 from xlrd import XLRDError
+import sys
+import uuid
 
 from odoo import fields, models, api
 from odoo.exceptions import UserError, ValidationError
@@ -38,7 +40,8 @@ class ImportInventoryDetailWizard(models.TransientModel):
         product_obj = self.env['product.product']
         inventory_line_obj = self.env['stock.inventory.line']
 
-        file_name = 'import_file.xls'
+        file_name = '%s.xls' % uuid.uuid1().hex
+        file_name = os.path.join(sys.path[0], file_name)
         with open(file_name, "wb") as f:
             f.write(base64.b64decode(self.import_file))
 

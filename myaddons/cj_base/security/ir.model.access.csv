@@ -5,3 +5,6 @@ access_res_partner_area_user,res_partner_area user,model_res_partner_area,purcha
 access_res_partner_group_all,res_partner_group all,model_res_partner_group,base.group_user,1,0,0,0
 access_res_partner_group_user,res_partner_group user,model_res_partner_group,purchase.group_purchase_user,1,1,1,1
 access_res_partner_group_sequence_user,res_partner_group_sequence user,model_res_partner_group_sequence,purchase.group_purchase_user,1,1,1,1
+
+access_product_product_merge_all,product_product_merge all,model_product_product_merge,base.group_user,1,0,0,0
+access_product_product_merge_system,product_product_merge system,model_product_product_merge,base.group_system,1,1,1,1

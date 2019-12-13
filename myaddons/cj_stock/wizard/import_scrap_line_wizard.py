@@ -6,12 +6,14 @@ import logging
 import os
 import xlrd
 from xlrd import XLRDError
+import sys
+import uuid
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_is_zero, float_compare
 
-_logger = logging.getLevelName(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class ImportScrapLineWizard(models.TransientModel):
@@ -94,7 +96,8 @@ class ImportScrapLineWizard(models.TransientModel):
         lot_obj = self.env['stock.production.lot']
         quant_obj = self.env['stock.quant']
 
-        file_name = 'import_file.xls'
+        file_name = '%s.xls' % uuid.uuid1().hex
+        file_name = os.path.join(sys.path[0], file_name)
         with open(file_name, "wb") as f:
             f.write(base64.b64decode(self.import_file))
 

@@ -250,7 +250,7 @@ class StockInventory(models.Model):
 
         return vals
 
-    def _cron_done_inventory(self):
+    def check_valuation_move_amount(self):
         """验证核算组与所属门店的估值是否相等"""
         valuation_obj = self.env['stock.inventory.valuation.move']
         product_obj = self.env['product.product']
@@ -281,6 +281,64 @@ class StockInventory(models.Model):
                 if float_compare(group_stock_value, store_stock_value, precision_rounding=0.0001) != 0:
                     product = product_obj.browse(product_id)
                     print('核算组：%s，商品：%s，组值：%s，门店值：%s，差：%s' % (group.name, product.partner_ref, group_stock_value, store_stock_value, group_stock_value - store_stock_value))
+
+    def adjust_pos_order(self):
+        """校正POS订单"""
+        message_obj = self.env['api.message']
+        channel_id = self.env['sale.channels'].search([('code', '=', 'pos')]).id  # 销售渠道
+        for order in self.env['sale.order'].search([('channel_id', '=', channel_id), ('state', '=', 'cancel')]):
+            message = message_obj.search([('message_name', '=', 'mustang-to-erp-store-stock-update-record-push'), ('content', 'like', order.name)])
+            if message:
+                order.action_draft()
+
+    def check_stock_inventory_valuation_move(self):
+        """验证存货估值"""
+        valuation_obj = self.env['stock.inventory.valuation.move']
+
+        # 按核算组
+        for group in self.env['account.cost.group'].search([]):
+            # 所有商品
+            product_ids = []
+            for group_move in valuation_obj.search([('cost_group_id', '=', group.id), ('stock_type', '=', 'all')], order='id'):
+                if group_move.product_id.id not in product_ids:
+                    product_ids.append(group_move.product_id.id)
+
+            for product_id in product_ids:
+                # 指定商品 核算组对应的最后一条记录
+                for group_move in valuation_obj.search([('cost_group_id', '=', group.id), ('stock_type', '=', 'all'), ('product_id', '=', product_id)], limit=1, order='id desc'):
+                    print(str(group_move.id).zfill(5), group_move.product_id.default_code.zfill(15), group_move.type, str(group_move.unit_cost).zfill(10))
+
+    def adjust_stock_across_move(self):
+        """修改跨公司调拨"""
+        tax_obj = self.env['account.tax']
+
+        for move in self.env['stock.across.move'].search([('name', 'in', ['SAM0005', 'SAM0006'])]):
+            # 修改调拨明细的调拨成本字段值
+            for line in move.line_ids:
+                line.cost = line.current_cost
+
+            # 修改销售订单明细的单价
+            tax_ids = tax_obj.search([('company_id', '=', move.sale_order_id.company_id.id), ('type_tax_use', '=', 'sale'), ('amount', '=', 13)]).ids
+            for line in move.sale_order_id.order_line:
+                line.write({
+                    'price_unit': move.line_ids.filtered(lambda x: x.product_id.id == line.product_id.id).cost * 1.13,
+                    'tax_id': [(6, 0, tax_ids)]
+                })
+
+            # 修改采购订单明细单价
+            tax_ids = tax_obj.search([('company_id', '=', move.purchase_order_id.company_id.id), ('type_tax_use', '=', 'sale'), ('amount', '=', 13)]).ids
+            for line in move.purchase_order_id.order_line:
+                line.write({
+                    'price_unit': move.line_ids.filtered(lambda x: x.product_id.id == line.product_id.id).cost * 1.13,
+                    'taxes_id': [(6, 0, tax_ids)]
+                })
+
+    def _cron_done_inventory(self):
+        """临时接口"""
+        self.adjust_stock_across_move()
+        # self.check_valuation_move_amount()
+        # self.check_stock_inventory_valuation_move()
+
 
 
 class InventoryLine(models.Model):

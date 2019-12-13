@@ -5,6 +5,7 @@ from collections import Counter
 import pytz
 
 from odoo import fields, models, api
+from odoo.addons import decimal_precision as dp
 from odoo.exceptions import ValidationError
 from odoo.tools import float_compare, float_round
 
@@ -116,6 +117,9 @@ class StockAcrossMove(models.Model):
             return types[:1].id
 
         self.ensure_one()
+
+        tax_obj = self.env['account.tax']
+
         companies = self.env.user.company_id
         companies |= companies.child_ids
         company_ids = companies.ids
@@ -133,6 +137,7 @@ class StockAcrossMove(models.Model):
         company_in = self.warehouse_in_id.sudo().company_id
         company_in_id = company_in.id
         # 创建销售订单
+        tax = tax_obj.search([('company_id', '=', company_out_id), ('type_tax_use', '=', 'sale'), ('amount', '=', 13)])
         sale_order = self.env['sale.order'].create({
             'partner_id': company_in.partner_id.id,
             'payment_term_id': self.payment_term_id.id,
@@ -145,12 +150,14 @@ class StockAcrossMove(models.Model):
                 'product_uom_qty': line.move_qty,
                 'warehouse_id': self.warehouse_out_id.id,
                 'owner_id': company_out_id,
-                'price_unit': line.cost,
-                'product_uom': line.product_id.uom_id.id
+                'price_unit': line.cost * (1 + 0.13),
+                'product_uom': line.product_id.uom_id.id,
+                'tax_id': [(6, 0, tax.ids)]
             })for line in self.line_ids]
         })
         sale_order.action_confirm()  # 确认销售订单
         # 创建采购订单
+        tax = tax_obj.search([('company_id', '=', company_in_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
         purchase_order = self.env['purchase.order'].sudo().create({
             'partner_id': company_out.partner_id.id,
             'picking_type_id': get_picking_type(),
@@ -164,9 +171,10 @@ class StockAcrossMove(models.Model):
                 'name': line.product_id.name,
                 'date_planned': now,
                 'product_qty': line.move_qty,
-                'price_unit': line.cost,
+                'price_unit': line.cost * (1 + 0.13),
                 'product_uom': line.product_id.uom_id.id,
-                'payment_term_id': self.payment_term_id.id
+                'payment_term_id': self.payment_term_id.id,
+                'taxes_id': [(6, 0, tax.ids)]
             }) for line in self.line_ids]
         })
         sale_order.origin = purchase_order.name
@@ -218,17 +226,17 @@ class StockAcrossMove(models.Model):
         """默认name字段"""
         vals['name'] = self.env['ir.sequence'].next_by_code('stock.across.move')
 
-        res = super(StockAcrossMove, self).create(vals)
+        return super(StockAcrossMove, self).create(vals)
 
-        # 修改明细的当前成本字段值
-        valuation_move_obj = self.env['stock.inventory.valuation.move']
-
-        _, cost_group_id = res.warehouse_out_id.company_id.get_cost_group_id()
-        for line in res.line_ids:
-            stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group_id, res.company_id.id)
-            line.current_cost = stock_cost
-
-        return res
+        # # 修改明细的当前成本字段值
+        # valuation_move_obj = self.env['stock.inventory.valuation.move']
+        #
+        # _, cost_group_id = res.warehouse_out_id.company_id.get_cost_group_id()
+        # for line in res.line_ids:
+        #     stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group_id, res.company_id.id)
+        #     line.current_cost = stock_cost
+        #
+        # return res
 
     @api.multi
     def unlink(self):
@@ -338,10 +346,10 @@ class StockAcrossMoveLine(models.Model):
     product_id = fields.Many2one('product.product', '商品', required=1)
     uom_id = fields.Many2one('uom.uom', related='product_id.uom_id', string='单位', store=1)
     move_qty = fields.Float('调拨数量', required=1, default=1)
-    cost = fields.Float('调拨成本', required=1)
+    cost = fields.Float('调拨成本', required=1, digits=dp.get_precision('Inventory valuation'))
 
     amount = fields.Float('金额', store=1, compute='_compute_amount')
-    current_cost = fields.Float('当前成本', readonly=1)
+    current_cost = fields.Float('当前成本', readonly=1, digits=dp.get_precision('Inventory valuation'))
 
     @api.multi
     @api.constrains('move_qty')
@@ -389,6 +397,15 @@ class StockAcrossMoveLine(models.Model):
         """计算调拨金额"""
         for line in self:
             line.amount = float_round(line.move_qty * line.cost, precision_rounding=0.01, rounding_method='HALF-UP')
+
+    @api.model
+    def create(self, vals):
+        if not vals.get('current_cost'):
+            move = self.env['stock.across.move'].browse(vals['move_id'])
+            _, cost_group_id = move.warehouse_out_id.company_id.get_cost_group_id()
+            stock_cost = self.env['stock.inventory.valuation.move'].get_product_cost(vals['product_id'], cost_group_id, move.company_id.id)
+            vals['current_cost'] = stock_cost
+        return super(StockAcrossMoveLine, self).create(vals)
 
 
 class StockAcrossMoveDiff(models.Model):
