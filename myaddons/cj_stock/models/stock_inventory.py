@@ -333,11 +333,157 @@ class StockInventory(models.Model):
                     'taxes_id': [(6, 0, tax_ids)]
                 })
 
+    def adjust_stock_across_move1(self):
+        """修改跨公司调拨"""
+        tax_obj = self.env['account.tax']
+
+        for move in self.env['stock.across.move'].search([('name', 'in', ['SAM0004'])]):
+            # # 修改调拨明细的调拨成本字段值
+            # for line in move.line_ids:
+            #     line.cost = line.current_cost
+
+            # 修改销售订单明细的单价
+            tax_ids = tax_obj.search([('company_id', '=', move.sale_order_id.company_id.id), ('type_tax_use', '=', 'sale'), ('amount', '=', 13)]).ids
+            for line in move.sale_order_id.order_line:
+                line.write({
+                    'price_unit': move.line_ids.filtered(lambda x: x.product_id.id == line.product_id.id).cost * 1.13,
+                    'tax_id': [(6, 0, tax_ids)]
+                })
+
+            # 修改采购订单明细单价
+            tax_ids = tax_obj.search([('company_id', '=', move.purchase_order_id.company_id.id), ('type_tax_use', '=', 'sale'), ('amount', '=', 13)]).ids
+            for line in move.purchase_order_id.order_line:
+                line.write({
+                    'price_unit': move.line_ids.filtered(lambda x: x.product_id.id == line.product_id.id).cost * 1.13,
+                    'taxes_id': [(6, 0, tax_ids)]
+                })
+
+    def adjust_account_invoice(self):
+        """调整账单"""
+
+    def adjust_stock_inventory_valuation_move(self):
+        """调整存货估值"""
+        def get_qty_available():
+            """计算在手数量"""
+            domain = [('product_id', '=', product_id), ('cost_group_id', '=', cost_group_id), ('stock_type', '=', 'all'), ('id', '<', move.id)]
+            valuation_move = valuation_obj.search(domain, order='id desc', limit=1)
+            if valuation_move:
+                if ttype == 'in':
+                    return valuation_move.qty_available + product_qty
+                return valuation_move.qty_available - product_qty
+
+            if ttype == 'in':
+                return product_qty
+
+            return -product_qty
+
+
+        def get_unit_price():
+            """计算单位成本"""
+            if type_id == in_inventory_id:  # 盘盈
+                return move.unit_cost
+
+            if type_id in [across_in_id, consu_in_id, purchase_receipt_id]:  # 跨公司调入、易耗品入库、采购入库
+                return stock_move.purchase_line_id.untax_price_unit
+
+            if cost_type == 'store':  # 门店核算
+                domain = [('product_id', '=', product_id), ('company_id', '=', company_id), ('stock_type', '=', 'only'), ('id', '<', move.id)]
+            else:
+                domain = [('product_id', '=', product_id), ('cost_group_id', '=', cost_group_id), ('stock_type', '=', 'all'), ('id', '<', move.id)]
+
+            valuation_move = valuation_obj.search(domain, order='id desc', limit=1)
+            cost = valuation_move.stock_cost  # 库存单位成本
+
+            return cost
+
+        valuation_obj = self.env['stock.inventory.valuation.move']
+
+        # stock_types = ['all', 'only']
+        in_inventory_id = self.env.ref('cj_stock.in_inventory').id  # 盘盈
+        across_in_id = self.env.ref('cj_stock.across_in').id  # 跨公司调入
+        consu_in_id = self.env.ref('cj_stock.consu_in').id  # 易耗品入库
+        purchase_receipt_id = self.env.ref('cj_stock.purchase_receipt').id  # 采购入库
+        # sale_delivery_return_id = self.env.ref('cj_stock.sale_delivery_return').id  # 销售退货
+        # requisition_in_id = self.env.ref('cj_stock.requisition_in').id  # 领料退库
+        # replenishment_id = self.env.ref('cj_stock.replenishment').id  # 采购退货补货
+        # stock_01001_id = self.env.ref('cj_stock.STOCK_01001').id  # 门店销售退货
+        # stock_02003_id = self.env.ref('cj_stock.STOCK_02003').id  # 门店仓库配货入库
+        # stock_03006_id = self.env.ref('cj_stock.STOCK_03006').id  # 门店两步式调拨-出库冲销
+        # stock_03002_id = self.env.ref('cj_stock.STOCK_03002').id  # 门店两步式调拨-入库
+        # stock_03003_id = self.env.ref('cj_stock.STOCK_03003').id  # 门店盘盈入库
+        # stock_01004_id = self.env.ref('cj_stock.STOCK_01004').id  # 门店销售出库冲销
+        # stock_02001_id = self.env.ref('cj_stock.STOCK_02001').id  # 门店采购入库
+        # stock_02005_id = self.env.ref('cj_stock.STOCK_02005').id  # 门店采购退货冲销
+        # stock_03009_id = self.env.ref('cj_stock.STOCK_03009').id  # 门店盘亏出库冲销
+        # stock_03010_id = self.env.ref('cj_stock.STOCK_03010').id  # 门店盘返货总仓出库冲销
+        # internal_in_id = self.env.ref('cj_stock.internal_in').id  # 内部调拨入库
+        #
+        # out_inventory_id = self.env.ref('cj_stock.out_inventory').id  # 盘亏
+        # stock_scrap_id = self.env.ref('cj_stock.stock_scrap').id  # 报废
+        # across_out_id = self.env.ref('cj_stock.across_out').id  # 跨公司调出
+        # sale_delivery_id = self.env.ref('cj_stock.sale_delivery').id  # 销售出库
+        # consu_out_id = self.env.ref('cj_stock.consu_out').id  # 易耗品消耗
+        # delivery_out_id = self.env.ref('cj_stock.delivery_out').id  # 物流单
+        # purchase_receipt_return_id = self.env.ref('cj_stock.purchase_receipt_return').id  # 采购退货
+        # requisition_out_id = self.env.ref('cj_stock.requisition_out').id  # 领料出库\
+        # stock_03001_id = self.env.ref('cj_stock.STOCK_03001').id  # 门店两步式调拨-出库
+        # stock_03007_id = self.env.ref('cj_stock.STOCK_03007').id  # 门店两步式调拨-入库冲销
+        # stock_03004_id = self.env.ref('cj_stock.STOCK_03004').id  # 门店盘亏出库
+        # stock_01003_id = self.env.ref('cj_stock.STOCK_01003').id  # 门店销售退货冲销
+        # stock_02002_id = self.env.ref('cj_stock.STOCK_02002').id  # 门店采购退货
+        # stock_02004_id = self.env.ref('cj_stock.STOCK_02004').id  # 门店采购入库冲销
+        # stock_02006_id = self.env.ref('cj_stock.STOCK_02006').id  # 门店仓库配货入库冲销
+        # stock_03005_id = self.env.ref('cj_stock.STOCK_03005').id  # 门店返货总仓出库
+        # stock_03008_id = self.env.ref('cj_stock.STOCK_03008').id  # 门店盘盈入库冲销
+        # internal_out_id = self.env.ref('cj_stock.internal_out').id  # 内部调拨出库
+
+        # 核算组
+        for group in self.env['account.cost.group'].search([]):
+            # 所有商品
+            product_ids = []
+            for group_move in valuation_obj.search([('cost_group_id', '=', group.id), ('stock_type', '=', 'all')], order='id'):
+                if group_move.product_id.id not in product_ids:
+                    product_ids.append(group_move.product_id.id)
+
+            for product_id in product_ids:
+                # 计算stock_type = 'all'
+                moves = valuation_obj.search([('cost_group_id', '=', group.id), ('stock_type', '=', 'all'), ('product_id', '=', product_id)], order='id')
+
+                for move in moves:
+                    product = move.product_id
+                    stock_move = move.move_id  # 库存称动
+                    company = move.company_id
+                    company_id = company.id
+                    cost_group_id = move.cost_group_id.id
+
+                    cost_type = product.cost_type  # 成本核算类型
+
+                    ttype = move.type # [('in', '入库'), ('out', '出库')] 出入类型
+                    type_id = move.type_id.id  # 移库类型
+                    product_qty = move.product_qty  # 数量
+                    unit_cost = move.unit_cost  # 单位成本
+                    qty_available = move.qty_available  # 在手数量
+                    # stock_cost = move.stock_cost  # 库存单位成本
+
+                    compute_cost = get_unit_price()
+                    compute_qty_available = get_qty_available()
+
+                    if float_compare(unit_cost, compute_cost, precision_rounding=0.0001) != 0 or float_compare(qty_available, compute_qty_available, precision_rounding=0.01) != 0:
+                        print(move.id, product.partner_ref, move.cost_group_id.name)
+
+
+
+
+
+
     def _cron_done_inventory(self):
         """临时接口"""
-        self.adjust_stock_across_move()
+        # self.adjust_stock_across_move()
+        # self.adjust_stock_across_move1()
+        # self.adjust_account_invoice()
         # self.check_valuation_move_amount()
         # self.check_stock_inventory_valuation_move()
+        self.adjust_stock_inventory_valuation_move()
 
 
 
