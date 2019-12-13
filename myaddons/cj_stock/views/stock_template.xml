@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="stock_assets_backend" name="mrp_workorder assets" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" type="text/scss" href="/cj_stock/static/src/scss/kanban.scss"/>
+        </xpath>
+   </template>
+
+</odoo>
