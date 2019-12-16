@@ -783,10 +783,10 @@ class StockInventory(models.Model):
         # self.check_valuation_move_amount()
         # self.check_stock_inventory_valuation_move()
 
-        self.adjust_stock_across_move()
+        # self.adjust_stock_across_move()
         # # self.adjust_stock_across_move1()
-        self.adjust_purchase_order_line_untax_price_unit()  # 采购订单行的未税单价的小数位数改为3位
-        # self.adjust_stock_inventory_valuation_move()
+        # self.adjust_purchase_order_line_untax_price_unit()  # 采购订单行的未税单价的小数位数改为3位
+        self.adjust_stock_inventory_valuation_move()
 
 
 
