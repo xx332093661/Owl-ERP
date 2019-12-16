@@ -23,7 +23,7 @@ class SupplierContract(models.Model):
         return self.env['ir.sequence'].with_context(ir_sequence_date=apply_date).next_by_code(sequence_code)
 
     name = fields.Char('合同编号', index=1, readonly=0, states=READONLY_STATES, required=1, track_visibility='onchange', copy=0, default=_get_name)
-    partner_id = fields.Many2one('res.partner', '供应商', required=1, readonly=1, states=READONLY_STATES, ondelete='restrict', track_visibility='onchange', domain="[('supplier','=',True), ('state', '=', 'finance_manager_confirm')]")
+    partner_id = fields.Many2one('res.partner', '供应商', required=1, readonly=1, states=READONLY_STATES, ondelete='restrict', track_visibility='onchange', domain="[('supplier','=',True), ('state', 'in', ['purchase_manager_confirm', 'finance_manager_confirm'])]")
     payment_term_id = fields.Many2one('account.payment.term', '付款方式', readonly=1, states=READONLY_STATES)
     purchase_sate = fields.Selection([('normal', '正常进货'), ('pause', '暂停进货')], '进货状态', readonly=1, states=READONLY_STATES, track_visibility='onchange', default='normal',)
     returns_sate = fields.Selection([('normal', '可退货'), ('prohibit', '禁止退货')], '退货状态', readonly=1, states=READONLY_STATES, track_visibility='onchange', default='normal')
