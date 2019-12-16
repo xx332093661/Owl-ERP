@@ -452,12 +452,15 @@ class PurchaseOrder(models.Model):
         if cost_group:
             for line in order_lines:
                 stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group.id, self.company_id.id)
+                price_unit = round(line.price_unit, 2)
+                stock_cost = round(stock_cost, 2)
+
                 if float_is_zero(stock_cost, precision_rounding=0.001):
-                    cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s' % (line.product_id.partner_ref, line.price_unit, stock_cost))
+                    cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s' % (line.product_id.partner_ref, price_unit, stock_cost))
                 else:
                     if line.price_unit > stock_cost:
                         cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s，比当前库存成本价高%s%%' % (
-                        line.product_id.partner_ref, line.price_unit, stock_cost, round((line.price_unit - stock_cost) * 100 / stock_cost, 2)))
+                        line.product_id.partner_ref, price_unit, stock_cost, round((line.price_unit - stock_cost) * 100 / stock_cost, 2)))
 
         cost_notice = '\n'.join(cost_notice)
 
