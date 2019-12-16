@@ -94,7 +94,8 @@ class Partner(models.Model):
     customer_level = fields.Char(sting="客户层级", track_visibility='onchange')
     distributor = fields.Boolean("是否经销商", index=1, track_visibility='onchange')
 
-    state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('purchase_manager_confirm', '采购经理审核'), ('finance_manager_confirm', '财务经理审核')], '审核状态', default='draft', track_visibility='onchange')
+    # state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('purchase_manager_confirm', '采购经理审核'), ('finance_manager_confirm', '财务经理审核')], '审核状态', default='draft', track_visibility='onchange')
+    state = fields.Selection([('draft', '草稿'), ('confirm', '确认'), ('purchase_manager_confirm', '采购经理审核'), ('finance_manager_confirm', '采购经理审核')], '审核状态', default='draft', track_visibility='onchange')
 
     @api.model
     def default_get(self, fields_list):
@@ -161,7 +162,7 @@ class Partner(models.Model):
         """采购经理审核供应商"""
         self.ensure_one()
 
-        self.state = 'purchase_manager_confirm'
+        self.state = 'finance_manager_confirm'
 
     @api.multi
     def finance_manager_confirm(self):

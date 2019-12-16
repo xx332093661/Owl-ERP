@@ -468,7 +468,7 @@ class ApiMessage(models.Model):
                 'supplier': True,
                 'customer': False,
                 'active': True,
-                'state': 'purchase_manager_confirm',  # 中台的数据，状态为审核
+                'state': 'finance_manager_confirm',  # 中台的数据，状态为审核
                 'company_id': company_obj.search([('code', '=', supplier['companyCode'])]).id,
 
                 'name': supplier['supplierName'],  # 供应商名称
