@@ -124,6 +124,11 @@
         <record id="sale.sale_menu_root" model="ir.ui.menu">
             <field name="groups_id" eval="[(4, ref('group_sale_general_manage')), (4, ref('sales_team.group_sale_salesman'))]"/>
         </record>
+
+        <!--订单汇总表增加销售运营，销售总经理权限-->
+        <record id="sale.menu_sale_report" model="ir.ui.menu">
+            <field name="groups_id" eval="[(4, ref('group_sale_general_manage')), (4, ref('cj_sale.group_sale_operate'))]"/>
+        </record>
     </data>
 
 </odoo>

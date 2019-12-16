@@ -148,10 +148,13 @@ class ApiMessage(models.Model):
 
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-STOCKOUT-QUEUE')   # 出库单队列
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-STOCK-QUEUE')   # 库存数据队列
+        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-CHECK-STOCK-QUEUE')  # 盘点数据
 
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-RETURN-STOCKIN-QUEUE')   # 退货入库单数据
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-REFUND-ERP-QUEUE')   # 退款单数据
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-RECIPIENT-QUEUE')   # 客情单
+
+
 
         # self.start_mq_thread_by_name('RabbitMQSendThread', 'rabbit_mq_send_thread')
 
