@@ -2605,30 +2605,28 @@ class ApiMessage(models.Model):
         #
         #     order.action_cancel()
 
-    # 17、WMS-ERP-CHECK-STOCK-QUEUE 盘点单
+    # 30、WMS-ERP-CHECK-STOCK-QUEUE 盘点单
     def deal_wms_erp_check_stock_queue(self, content):
         """盘点单
         """
+        def get_warehouse():
+            res = warehouse_obj.search([('code', '=', warehouse_code)])
+            if not res:
+                raise MyValidationError('11', '仓库：%s 未找到！' % warehouse_code)
+            return res
+
         inventory_obj = self.env['stock.inventory'].sudo()
         warehouse_obj = self.env['stock.warehouse'].sudo()
         inventory_line_obj = self.env['stock.inventory.line'].sudo()
-        product_obj = self.env['product.product'].sudo()
-        valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值
-
-        def get_warehouse():
-            warehouse = warehouse_obj.search([('code', '=', warehouse_code)], limit=1)
-            if not warehouse:
-                raise MyValidationError('11', '仓库：%s 未找到！' % warehouse_code)
-            return warehouse
 
         content = json.loads(content)
 
         body = content['body']
 
-        inventory_code = body['inventoryCode']
-        warehouse_code = body['warehouseCode']
-        inventory_date = body['inventoryDate']
-        warehouse_type = body['warehouseType']
+        inventory_code = body['inventoryCode']  # 盘点单号
+        warehouse_code = body['warehouseCode']  # 仓库（门店）编码
+        inventory_date = body['inventoryDate']  # 盘点时间
+        # warehouse_type = body['warehouseType']  # 仓库类型:  warehouse-仓库盘点,pos-门店盘点
 
         warehouse = get_warehouse()
         inventory_date = datetime.fromtimestamp(inventory_date / 1000.0) - timedelta(hours=8)
@@ -2642,12 +2640,12 @@ class ApiMessage(models.Model):
         })
 
         inventory.action_start()
-
+        vals_list = []
         for item in body['items']:
-            goods_code = item['goodsCode']
-            real_stock = item['realStock']
-            diff_quantity = item['diffQuantity']
-            inventory_type = item['inventoryType']
+            goods_code = item['goodsCode']  # 商品编码
+            real_stock = item['realStock']  # 实时库存
+            diff_quantity = item['diffQuantity']  # 盘（+盈）（-亏）数量
+            inventory_type = item['inventoryType']  # 库存类型(ZP=正品;CC=残次;)；默认ZP
 
             if inventory_type == 'CC':
                 # todo 多次盘点残次品
@@ -2662,22 +2660,20 @@ class ApiMessage(models.Model):
 
             new_line._onchange_product()
 
-            if int(new_line.theoretical_qty) + diff_quantity != real_stock:
-                raise MyValidationError('48', '错误的盘点明细')
+            if new_line.theoretical_qty + diff_quantity != real_stock:
+                raise MyValidationError('48', '商品：%s账面数量：%s在手数量：%s差异数量：%s不相等！' % (product.partner_ref, new_line.theoretical_qty, real_stock, diff_quantity))
 
-            _, cost_group_id = warehouse.company_id.get_cost_group_id()
-
-            stock_cost = valuation_move_obj.get_product_cost(product.id, cost_group_id, warehouse.company_id.id)
-
-            inventory_line_obj.create({
+            vals_list.append({
                 'inventory_id': inventory.id,
                 'product_id': product.id,
                 'product_qty': real_stock,
-                'is_init': 'no',
-                'cost': stock_cost,
+                'product_uom_id': product.uom_id.id,
+                'location_id': warehouse.lot_stock_id.id,
                 'company_id': warehouse.company_id.id,
-
             })
+
+        # 确认盘点
+        inventory.action_validate()
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
