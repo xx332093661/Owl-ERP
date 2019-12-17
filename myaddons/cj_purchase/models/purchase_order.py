@@ -482,8 +482,8 @@ class PurchaseOrder(models.Model):
             contract_name = '%s总计%s元商品采购合同' % (self.partner_id.name, self.amount_total)
 
             contract_conent = [
-                '合同方: %s' % self.partner_id.name,
-                '合同金额: %s' % self.amount_total,
+                '合同方：%s' % self.partner_id.name,
+                '合同金额：%s' % self.amount_total,
                 '付款方式：%s' % ('、'.join([dict(PAYMENT_TERM_TYPE)[payment_type] for payment_type in list(set(order_lines.mapped('payment_term_id').mapped('type')))]),),
                 '采购内容：\n%s' % ('\t' + ('\n\t'.join(
                     ['商品：%s 采购数量：%s 采购单价：%s' % (line.product_id.partner_ref, line.product_qty, line.price_unit,) for
@@ -500,7 +500,7 @@ class PurchaseOrder(models.Model):
                 '编号': self.name,
                 '合同名称': contract_name,
                 '合同主要内容': contract_conent[:4000],
-                '提请审查重点': point,
+                '提请审查重点': point[:4000],
                 '承办人': self.user_id.oa_code,
                 '单位名称': self.company_id.name,
                 '承办部门': self.company_id.name,
