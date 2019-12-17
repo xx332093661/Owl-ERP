@@ -31,6 +31,7 @@ MQ_SEQUENCE = {
     'WMS-ERP-RETURN-STOCKIN-QUEUE': 14,  # 退货入库单
     'MUSTANG-REFUND-ERP-QUEUE': 15,  # 退款单
     'MUSTANG-ERP-ORDER-STATUS-PUSH': 16,  # 订单状态
+    'WMS-ERP-CHECK-STOCK-QUEUE': 17,  # 盘点单
 
 }
 
