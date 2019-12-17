@@ -501,7 +501,7 @@ class PurchaseOrder(models.Model):
                 '合同名称': contract_name,
                 '合同主要内容': contract_conent[:4000],
                 '提请审查重点': point[:4000],
-                '承办人': self.user_id.oa_code,
+                '承办人': self.user_id.name,
                 '单位名称': self.company_id.name,
                 '承办部门': self.company_id.name,
             }
