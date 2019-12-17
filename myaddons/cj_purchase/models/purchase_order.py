@@ -486,7 +486,7 @@ class PurchaseOrder(models.Model):
                 '合同金额：%s' % self.amount_total,
                 '付款方式：%s' % ('、'.join([dict(PAYMENT_TERM_TYPE)[payment_type] for payment_type in list(set(order_lines.mapped('payment_term_id').mapped('type')))]),),
                 '采购内容：\n%s' % ('\t' + ('\n\t'.join(
-                    ['商品：%s 采购数量：%s 采购单价：%s' % (line.product_id.partner_ref, line.product_qty, line.untax_price_unit,) for
+                    ['商品：%s 采购数量：%s 采购单价：%s' % (line.product_id.partner_ref, line.product_qty, line.price_unit,) for
                      line in order_lines])),),
             ]
 
