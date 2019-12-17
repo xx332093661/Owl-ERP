@@ -1293,11 +1293,11 @@ class ApiMessage(models.Model):
             quantity = item['quantity']
 
             if diff_amount != 0:
-                if line_index == len(content['items']) - 1:
+                if line_index == len(content['items']) - 1:  # 最后一行
                     final_price -= diff_amount
-                    price_unit, remainder = divmod(final_price * 100, quantity)
+                    remainder = final_price - int(final_price / quantity) * quantity
                     if remainder:
-                        avg_price = int(final_price * 1.0 / quantity) / 100.0
+                        avg_price = int(final_price / quantity) / 100.0
                         for i in range(2):
                             if i == 0:
                                 first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
@@ -1306,9 +1306,9 @@ class ApiMessage(models.Model):
                     else:
                         create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
                 else:
-                    price_unit, remainder = divmod(final_price * 100, quantity)
+                    remainder = final_price - int(final_price / quantity) * quantity
                     if remainder:
-                        avg_price = int(final_price * 1.0 / quantity) / 100.0
+                        avg_price = int(final_price / quantity) / 100.0
                         for i in range(2):
                             if i == 0:
                                 first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
@@ -1317,9 +1317,9 @@ class ApiMessage(models.Model):
                     else:
                         create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
             else:
-                price_unit, remainder = divmod(final_price * 100, quantity)
+                remainder = final_price - int(final_price / quantity) * quantity
                 if remainder:
-                    avg_price = int(final_price * 1.0 / quantity) / 100.0
+                    avg_price = int(final_price / quantity) / 100.0
                     for i in range(2):
                         if i == 0:
                             first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
