@@ -452,15 +452,15 @@ class PurchaseOrder(models.Model):
         if cost_group:
             for line in order_lines:
                 stock_cost = valuation_move_obj.get_product_cost(line.product_id.id, cost_group.id, self.company_id.id)
-                price_unit = round(line.price_unit, 2)
+                untax_price_unit = round(line.untax_price_unit, 2)
                 stock_cost = round(stock_cost, 2)
 
                 if float_is_zero(stock_cost, precision_rounding=0.001):
-                    cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s' % (line.product_id.partner_ref, price_unit, stock_cost))
+                    cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s' % (line.product_id.partner_ref, untax_price_unit, stock_cost))
                 else:
-                    if line.price_unit > stock_cost:
+                    if untax_price_unit > stock_cost:
                         cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s，比当前库存成本价高%s%%' % (
-                        line.product_id.partner_ref, price_unit, stock_cost, round((line.price_unit - stock_cost) * 100 / stock_cost, 2)))
+                        line.product_id.partner_ref, untax_price_unit, stock_cost, round((untax_price_unit - stock_cost) * 100 / stock_cost, 2)))
 
         cost_notice = '\n'.join(cost_notice)
 
@@ -486,7 +486,7 @@ class PurchaseOrder(models.Model):
                 '合同金额：%s' % self.amount_total,
                 '付款方式：%s' % ('、'.join([dict(PAYMENT_TERM_TYPE)[payment_type] for payment_type in list(set(order_lines.mapped('payment_term_id').mapped('type')))]),),
                 '采购内容：\n%s' % ('\t' + ('\n\t'.join(
-                    ['商品：%s 采购数量：%s 采购单价：%s' % (line.product_id.partner_ref, line.product_qty, line.price_unit,) for
+                    ['商品：%s 采购数量：%s 采购单价：%s' % (line.product_id.partner_ref, line.product_qty, line.untax_price_unit,) for
                      line in order_lines])),),
             ]
 
