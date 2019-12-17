@@ -456,11 +456,11 @@ class PurchaseOrder(models.Model):
                 stock_cost = round(stock_cost, 2)
 
                 if float_is_zero(stock_cost, precision_rounding=0.001):
-                    cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s' % (line.product_id.partner_ref, untax_price_unit, stock_cost))
+                    cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s' % (line.product_id.partner_ref, line.price_unit, stock_cost))
                 else:
                     if untax_price_unit > stock_cost:
                         cost_notice.append('%s当前采购价格为%s元，当前库存成本为%s，比当前库存成本价高%s%%' % (
-                        line.product_id.partner_ref, untax_price_unit, stock_cost, round((untax_price_unit - stock_cost) * 100 / stock_cost, 2)))
+                        line.product_id.partner_ref, line.price_unit, stock_cost, round((untax_price_unit - stock_cost) * 100 / stock_cost, 2)))
 
         cost_notice = '\n'.join(cost_notice)
 
