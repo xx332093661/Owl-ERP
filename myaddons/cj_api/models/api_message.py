@@ -105,7 +105,7 @@ class ApiMessageDump(models.Model):
 class ApiMessage(models.Model):
     _name = 'api.message'
     _description = 'api消息'
-    _order = 'create_time desc'
+    _order = 'create_time desc, id desc'
 
     message_type = fields.Selection([('interface', '接口返回'), ('rabbit_mq', 'mq接收消息')], '消息类型')
     message_name = fields.Char('消息名称')

@@ -6,6 +6,7 @@ from itertools import groupby
 import importlib
 import xlwt
 import xlrd
+import json
 
 from odoo import models, fields, api, _
 from odoo.addons import decimal_precision as dp
@@ -360,206 +361,9 @@ class StockInventory(models.Model):
                 })
 
     def adjust_account_invoice(self):
-        """调整账单"""
-
-    # def adjust_stock_inventory_valuation_move_company(self):
-    #     """调整公司的成本核算"""
-    #     valuation_obj = self.env['stock.inventory.valuation.move']
-    #     # 计算公司
-    #     company_ids = []
-    #     for move in valuation_obj.search([('stock_type', '=', 'only')]):
-    #         company_id = move.company_id.id
-    #         if company_id not in company_ids:
-    #             company_ids.append(company_id)
-    #
-    #     for company_id in company_ids:
-    #         product_ids = []
-    #         for move in valuation_obj.search([('company_id', '=', company_id), ('stock_type', '=', 'only')]):
-    #             product_id = move.product_id.id
-    #             if product_id not in product_ids:
-    #                 product_ids.append(product_id)
-    #
-    #         for product_id in product_ids:
-    #             pass
-    #
-    # def adjust_stock_inventory_valuation_move_group(self):
-    #     """调整核算组存货估值"""
-    #     def get_unit_price():
-    #         """计算单位成本"""
-    #         if type_id == in_inventory_id:  # 盘盈
-    #             return move.unit_cost
-    #
-    #         if type_id in [across_in_id, consu_in_id, purchase_receipt_id]:  # 跨公司调入、易耗品入库、采购入库
-    #             return stock_move.purchase_line_id.untax_price_unit
-    #             # if float_compare(abs(cost - move.unit_cost), 0.01, precision_rounding=0.0001) < 0:
-    #             #     return move.unit_cost
-    #
-    #         if cost_type == 'store':  # 门店核算
-    #             domain = [('product_id', '=', product_id), ('company_id', '=', company_id), ('stock_type', '=', 'only'), ('id', '<', move.id)]
-    #         else:
-    #             domain = [('product_id', '=', product_id), ('cost_group_id', '=', cost_group_id), ('stock_type', '=', 'all'), ('id', '<', move.id)]
-    #
-    #         valuation_move = valuation_obj.search(domain, order='id desc', limit=1)
-    #
-    #         return valuation_move.stock_cost  # 库存单位成本
-    #
-    #         # return move.unit_cost
-    #
-    #         # if exist_unit_cost_diff:
-    #         #     if cost_type == 'store':  # 门店核算
-    #         #         domain = [('product_id', '=', product_id), ('company_id', '=', company_id), ('stock_type', '=', 'only'), ('id', '<', move.id)]
-    #         #     else:
-    #         #         domain = [('product_id', '=', product_id), ('cost_group_id', '=', cost_group_id), ('stock_type', '=', 'all'), ('id', '<', move.id)]
-    #         #
-    #         #     valuation_move = valuation_obj.search(domain, order='id desc', limit=1)
-    #         #
-    #         # cost = valuation_move.stock_cost  # 库存单位成本
-    #         #
-    #         # return cost
-    #
-    #     def get_stock_cost():
-    #         return 0
-    #
-    #     def get_stock_value():
-    #         return 0
-    #
-    #     valuation_obj = self.env['stock.inventory.valuation.move']
-    #
-    #     in_inventory_id = self.env.ref('cj_stock.in_inventory').id  # 盘盈
-    #     across_in_id = self.env.ref('cj_stock.across_in').id  # 跨公司调入
-    #     consu_in_id = self.env.ref('cj_stock.consu_in').id  # 易耗品入库
-    #     purchase_receipt_id = self.env.ref('cj_stock.purchase_receipt').id  # 采购入库
-    #     # sale_delivery_return_id = self.env.ref('cj_stock.sale_delivery_return').id  # 销售退货
-    #     # requisition_in_id = self.env.ref('cj_stock.requisition_in').id  # 领料退库
-    #     # replenishment_id = self.env.ref('cj_stock.replenishment').id  # 采购退货补货
-    #     # stock_01001_id = self.env.ref('cj_stock.STOCK_01001').id  # 门店销售退货
-    #     # stock_02003_id = self.env.ref('cj_stock.STOCK_02003').id  # 门店仓库配货入库
-    #     # stock_03006_id = self.env.ref('cj_stock.STOCK_03006').id  # 门店两步式调拨-出库冲销
-    #     # stock_03002_id = self.env.ref('cj_stock.STOCK_03002').id  # 门店两步式调拨-入库
-    #     # stock_03003_id = self.env.ref('cj_stock.STOCK_03003').id  # 门店盘盈入库
-    #     # stock_01004_id = self.env.ref('cj_stock.STOCK_01004').id  # 门店销售出库冲销
-    #     # stock_02001_id = self.env.ref('cj_stock.STOCK_02001').id  # 门店采购入库
-    #     # stock_02005_id = self.env.ref('cj_stock.STOCK_02005').id  # 门店采购退货冲销
-    #     # stock_03009_id = self.env.ref('cj_stock.STOCK_03009').id  # 门店盘亏出库冲销
-    #     # stock_03010_id = self.env.ref('cj_stock.STOCK_03010').id  # 门店盘返货总仓出库冲销
-    #     # internal_in_id = self.env.ref('cj_stock.internal_in').id  # 内部调拨入库
-    #     #
-    #     # out_inventory_id = self.env.ref('cj_stock.out_inventory').id  # 盘亏
-    #     # stock_scrap_id = self.env.ref('cj_stock.stock_scrap').id  # 报废
-    #     # across_out_id = self.env.ref('cj_stock.across_out').id  # 跨公司调出
-    #     # sale_delivery_id = self.env.ref('cj_stock.sale_delivery').id  # 销售出库
-    #     # consu_out_id = self.env.ref('cj_stock.consu_out').id  # 易耗品消耗
-    #     # delivery_out_id = self.env.ref('cj_stock.delivery_out').id  # 物流单
-    #     # purchase_receipt_return_id = self.env.ref('cj_stock.purchase_receipt_return').id  # 采购退货
-    #     # requisition_out_id = self.env.ref('cj_stock.requisition_out').id  # 领料出库\
-    #     # stock_03001_id = self.env.ref('cj_stock.STOCK_03001').id  # 门店两步式调拨-出库
-    #     # stock_03007_id = self.env.ref('cj_stock.STOCK_03007').id  # 门店两步式调拨-入库冲销
-    #     # stock_03004_id = self.env.ref('cj_stock.STOCK_03004').id  # 门店盘亏出库
-    #     # stock_01003_id = self.env.ref('cj_stock.STOCK_01003').id  # 门店销售退货冲销
-    #     # stock_02002_id = self.env.ref('cj_stock.STOCK_02002').id  # 门店采购退货
-    #     # stock_02004_id = self.env.ref('cj_stock.STOCK_02004').id  # 门店采购入库冲销
-    #     # stock_02006_id = self.env.ref('cj_stock.STOCK_02006').id  # 门店仓库配货入库冲销
-    #     # stock_03005_id = self.env.ref('cj_stock.STOCK_03005').id  # 门店返货总仓出库
-    #     # stock_03008_id = self.env.ref('cj_stock.STOCK_03008').id  # 门店盘盈入库冲销
-    #     # internal_out_id = self.env.ref('cj_stock.internal_out').id  # 内部调拨出库
-    #
-    #     # 核算组
-    #     for group in self.env['account.cost.group'].search([]):
-    #         workbook = xlwt.Workbook()
-    #         worksheet = workbook.add_sheet('Sheet 1')
-    #         worksheet.write(0, 0, 'id')
-    #         worksheet.write(0, 1, '商品')
-    #         worksheet.write(0, 2, '出入类型')
-    #         worksheet.write(0, 3, '移库类型')
-    #         worksheet.write(0, 4, '数量')
-    #         worksheet.write(0, 5, '单位成本')
-    #         worksheet.write(0, 6, '在手数量')
-    #         worksheet.write(0, 7, '库存单位成本')
-    #         worksheet.write(0, 8, '库存价值')
-    #         worksheet.write(0, 9, '计算在手数量')
-    #         worksheet.write(0, 10, '计算单位成本')
-    #         worksheet.write(0, 11, '计算库存单位成本')
-    #         worksheet.write(0, 12, '计算库存价值')
-    #
-    #         row_index = 1
-    #
-    #         # 所有商品
-    #         product_ids = []
-    #         for group_move in valuation_obj.search([('cost_group_id', '=', group.id), ('stock_type', '=', 'all')], order='id'):
-    #             if group_move.product_id.id not in product_ids:
-    #                 product_ids.append(group_move.product_id.id)
-    #
-    #         for product_id in product_ids:
-    #             # 计算stock_type = 'all'
-    #             qty_available = 0  # 在手数量
-    #             res = []
-    #             moves = valuation_obj.search([('cost_group_id', '=', group.id), ('stock_type', '=', 'all'), ('product_id', '=', product_id)], order='id')
-    #
-    #             for index, move in enumerate(moves):
-    #                 product = move.product_id
-    #                 stock_move = move.move_id  # 库存称动
-    #                 company = move.company_id
-    #                 company_id = company.id
-    #                 cost_group_id = move.cost_group_id.id
-    #
-    #                 cost_type = product.cost_type  # 成本核算类型
-    #
-    #                 ttype = move.type # [('in', '入库'), ('out', '出库')] 出入类型
-    #                 type_id = move.type_id.id  # 移库类型
-    #                 product_qty = move.product_qty  # 数量
-    #                 # unit_cost = move.unit_cost  # 单位成本
-    #                 # qty_available = move.qty_available  # 在手数量
-    #                 # stock_cost = move.stock_cost  # 库存单位成本
-    #
-    #                 if ttype == 'in':
-    #                     qty_available += product_qty
-    #                 else:
-    #                     qty_available -= product_qty
-    #
-    #                 compute_cost = get_unit_price()
-    #
-    #                 if index == 0:
-    #                     res.append({
-    #                         'product_qty': product_qty, # 发生的数量
-    #                         'unit_cost': compute_cost,  # 单位成本
-    #                         'qty_available': qty_available, # 在手数量
-    #                         'stock_cost': move.stock_cost,  # 库存单位成本
-    #                         'stock_value': move.stock_value,  # 库存价值
-    #                     })
-    #                 else:
-    #                     res.append({
-    #                         'product_qty': product_qty, # 发生的数量
-    #                         'unit_cost': compute_cost,  # 单位成本
-    #                         'qty_available': qty_available, # 在手数量
-    #                         'stock_cost': get_stock_cost(),  # 库存单位成本
-    #                         'stock_value': get_stock_value(),  # 库存价值
-    #                     })
-    #
-    #                 worksheet.write(row_index, 0, str(move.id))
-    #                 worksheet.write(row_index, 1, product.partner_ref)
-    #                 worksheet.write(row_index, 2, move.type)
-    #                 worksheet.write(row_index, 3, move.type_id.name)
-    #                 worksheet.write(row_index, 4, move.product_qty)
-    #                 worksheet.write(row_index, 5, move.unit_cost)
-    #                 worksheet.write(row_index, 6, move.qty_available)
-    #                 worksheet.write(row_index, 7, move.stock_cost)
-    #                 worksheet.write(row_index, 8, move.stock_value)
-    #
-    #                 worksheet.write(row_index, 9, qty_available)
-    #                 worksheet.write(row_index, 10, compute_cost)
-    #                 if index == 0:
-    #                     worksheet.write(row_index, 11, move.stock_cost)
-    #                     worksheet.write(row_index, 12, move.stock_value)
-    #                 else:
-    #                     worksheet.write(row_index, 11, get_stock_cost())
-    #                     worksheet.write(row_index, 12, get_stock_value())
-    #
-    #                 row_index += 1
-    #
-    #                 # if float_compare(unit_cost, compute_cost, precision_rounding=0.0001) != 0 or float_compare(qty_available, compute_qty_available, precision_rounding=0.01) != 0:
-    #                 #     print(move.id, product.partner_ref, move.cost_group_id.name)
-    #
-    #         workbook.save('%s.xls' % group.name)
+        """调整账单
+        跨公司调拨关联的采购销售订单
+        """
 
     def adjust_stock_inventory_valuation_move(self):
         """调整存货估值"""
@@ -765,16 +569,42 @@ class StockInventory(models.Model):
         #
         # workbook.save('存货估值.xls')
 
-
-
-
-
-
     def adjust_purchase_order_line_untax_price_unit(self):
         """采购订单行的未税单价的小数位数改为3位"""
 
         for line in self.env['purchase.order.line'].search([]):
             line.untax_price_unit = float_repr(float_round(line.untax_price_unit, precision_digits=3), precision_digits=3)
+
+    def check_api_message_sale_order_amount(self):
+        """检查全渠道订单的金额差异"""
+        message_obj = self.env['api.message']
+        # 验证全渠道订单的订单金额与支付的金额是否相等
+        row_index = 1
+        workbook = xlwt.Workbook()
+        worksheet = workbook.add_sheet('Sheet 1')
+        worksheet.write(0, 0, '订单号')
+        worksheet.write(0, 1, '订单金额(liquidated)')
+        worksheet.write(0, 2, '支付金额(payments-paidAmount)')
+        worksheet.write(0, 3, '订单明细金额(items-finalPrice)')
+        for message in message_obj.search([('message_name', '=', 'mustang-to-erp-order-push')]):
+            content = json.loads(message.content)
+            liquidated = content['liquidated']  # 已支付金额
+            payments = content['payments']  # 支付明细
+            items = content['items']  # 订单明细
+
+            payment_amount = sum([payment['paidAmount'] for payment in payments])
+            order_line_amount = sum([line['finalPrice'] for line in items])
+
+            if order_line_amount != liquidated or payment_amount != liquidated:
+                worksheet.write(row_index, 0, str(content['code']))
+                worksheet.write(row_index, 1, liquidated)
+                worksheet.write(row_index, 2, payment_amount)
+                worksheet.write(row_index, 3, order_line_amount)
+
+                row_index += 1
+
+                # print('订单号：', content['code'], ' 订单金额：', liquidated, ' 支付金额：', payment_amount, ' 订单明细金额：', order_line_amount, ' 处理状态：', message.state)
+        workbook.save('全渠道订单金额差异.xls')
 
 
     def _cron_done_inventory(self):
@@ -783,11 +613,14 @@ class StockInventory(models.Model):
         # self.check_valuation_move_amount()
         # self.check_stock_inventory_valuation_move()
 
+        # 修改存货估值
         # self.adjust_stock_across_move()
         # # self.adjust_stock_across_move1()
         # self.adjust_purchase_order_line_untax_price_unit()  # 采购订单行的未税单价的小数位数改为3位
-        self.adjust_stock_inventory_valuation_move()
+        # self.adjust_stock_inventory_valuation_move()
 
+        # 检查全渠道订单的金额差异
+        self.check_api_message_sale_order_amount()
 
 
 class InventoryLine(models.Model):
