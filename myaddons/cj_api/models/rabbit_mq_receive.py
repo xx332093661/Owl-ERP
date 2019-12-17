@@ -33,6 +33,8 @@ MQ_SEQUENCE = {
     'MUSTANG-ERP-ORDER-STATUS-PUSH': 16,  # 订单状态
     'WMS-ERP-CHECK-STOCK-QUEUE': 17,  # 盘点单
 
+    'WMS-ERP-CHECK-STOCK-QUEUE': 30, # 盘点单
+
 }
 
 EXCHANGES = {
@@ -105,10 +107,10 @@ class RabbitMQReceiveThread(threading.Thread):
                 # else:
                 #     channel.queue_declare(queue=self.queue_name, exclusive=True, durable=True, passive=False)
                 channel.queue_bind(exchange=self.exchange, queue=self.queue_name)
-                channel.basic_consume(queue=self.queue_name, on_message_callback=self.callback, auto_ack=True)
+                channel.basic_consume(queue=self.queue_name, on_message_callback=self.callback, auto_ack=False)
                 channel.start_consuming()
             else:
-                channel.basic_consume(self.queue_name, self.callback, auto_ack=True)
+                channel.basic_consume(self.queue_name, self.callback, auto_ack=False)
                 # _logger.info('开始接收mq消息')
                 channel.start_consuming()
         except ChannelClosedByBroker as e:
@@ -142,17 +144,19 @@ class RabbitMQReceiveThread(threading.Thread):
 
         db_name = config['db_name']
         db = odoo.sql_db.db_connect(db_name)
-        mq_cr = db.cursor()
+        cr = db.cursor()
 
         with api.Environment.manage():
             try:
-                obj = api.Environment(mq_cr, 1, {})['api.message']
+                obj = api.Environment(cr, 1, {})['api.message']
                 obj.create(vals)
-                mq_cr.commit()
+                cr.commit()
                 _logger.info('存储MQ数据结束！')
             except Exception:
-                mq_cr.rollback()
+                cr.rollback()
                 _logger.error('存储MQ数据出错！')
                 _logger.error(traceback.format_exc())
+            else:
+                ch.basic_ack(delivery_tag=method.delivery_tag)
             finally:
-                mq_cr.close()
+                cr.close()
