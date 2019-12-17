@@ -68,7 +68,8 @@ PROCESS_ERROR = {
     '44': '不处理的订单状态',
     '45': '没找到对应的省',
     '46': '订单公司与出库仓库的公司不一样',
-    '47': '销售渠道不存在'
+    '47': '销售渠道不存在',
+    '48': '错误的盘点明细',
 }
 
 
@@ -2603,6 +2604,80 @@ class ApiMessage(models.Model):
         #         raise ValidationError('订单已出库，不能取消')
         #
         #     order.action_cancel()
+
+    # 17、WMS-ERP-CHECK-STOCK-QUEUE 盘点单
+    def deal_wms_erp_check_stock_queue(self, content):
+        """盘点单
+        """
+        inventory_obj = self.env['stock.inventory'].sudo()
+        warehouse_obj = self.env['stock.warehouse'].sudo()
+        inventory_line_obj = self.env['stock.inventory.line'].sudo()
+        product_obj = self.env['product.product'].sudo()
+        valuation_move_obj = self.env['stock.inventory.valuation.move']  # 存货估值
+
+        def get_warehouse():
+            warehouse = warehouse_obj.search([('code', '=', warehouse_code)], limit=1)
+            if not warehouse:
+                raise MyValidationError('11', '仓库：%s 未找到！' % warehouse_code)
+            return warehouse
+
+        content = json.loads(content)
+
+        body = content['body']
+
+        inventory_code = body['inventoryCode']
+        warehouse_code = body['warehouseCode']
+        inventory_date = body['inventoryDate']
+        warehouse_type = body['warehouseType']
+
+        warehouse = get_warehouse()
+        inventory_date = datetime.fromtimestamp(inventory_date / 1000.0) - timedelta(hours=8)
+
+        inventory = inventory_obj.create({
+            'name': inventory_code,
+            'company_id': warehouse.company_id.id,
+            'location_id': warehouse.lot_stock_id.id,
+            'date': inventory_date,
+            'filter': 'partial',
+        })
+
+        inventory.action_start()
+
+        for item in body['items']:
+            goods_code = item['goodsCode']
+            real_stock = item['realStock']
+            diff_quantity = item['diffQuantity']
+            inventory_type = item['inventoryType']
+
+            if inventory_type == 'CC':
+                # todo 多次盘点残次品
+                continue
+
+            product = self.get_product(goods_code)
+
+            new_line = inventory_line_obj.new({
+                'inventory_id': inventory.id,
+                'product_id': product.id,
+            })
+
+            new_line._onchange_product()
+
+            if int(new_line.theoretical_qty) + diff_quantity != real_stock:
+                raise MyValidationError('48', '错误的盘点明细')
+
+            _, cost_group_id = warehouse.company_id.get_cost_group_id()
+
+            stock_cost = valuation_move_obj.get_product_cost(product.id, cost_group_id, warehouse.company_id.id)
+
+            inventory_line_obj.create({
+                'inventory_id': inventory.id,
+                'product_id': product.id,
+                'product_qty': real_stock,
+                'is_init': 'no',
+                'cost': stock_cost,
+                'company_id': warehouse.company_id.id,
+
+            })
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
