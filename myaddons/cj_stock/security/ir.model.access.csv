@@ -40,6 +40,11 @@ account_stock_internal_move_diff_user,stock_internal_move_diff user,model_stock_
 account_stock_internal_move_diff_receipt_user,stock_internal_move_diff_receipt user,model_stock_internal_move_diff_receipt,stock.group_stock_user,1,1,1,1
 account_stock_internal_move_diff_receipt_line_user,stock_internal_move_diff_receipt_line user,model_stock_internal_move_diff_receipt_line,stock.group_stock_user,1,1,1,1
 
+account_stock_inventory_origin_all,stock_inventory_origin all,model_stock_inventory_origin,base.group_user,1,0,0,0
+account_stock_inventory_diff_all,stock_inventory_diff all,model_stock_inventory_diff,base.group_user,1,0,0,0
+account_stock_inventory_origin_user,stock_inventory_origin user,model_stock_inventory_origin,stock.group_stock_user,1,1,1,1
+account_stock_inventory_diff_user,stock_inventory_diff user,model_stock_inventory_diff,stock.group_stock_user,1,1,1,1
+
 
 
 

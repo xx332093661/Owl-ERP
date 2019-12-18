@@ -70,6 +70,7 @@ PROCESS_ERROR = {
     '46': '订单公司与出库仓库的公司不一样',
     '47': '销售渠道不存在',
     '48': '错误的盘点明细',
+    '49': '盘点单号重复'
 }
 
 
@@ -2610,70 +2611,163 @@ class ApiMessage(models.Model):
         """盘点单
         """
         def get_warehouse():
-            res = warehouse_obj.search([('code', '=', warehouse_code)])
-            if not res:
-                raise MyValidationError('11', '仓库：%s 未找到！' % warehouse_code)
-            return res
+            w = warehouse_obj.search([('code', '=', warehouse_code)])
+            if not w:
+                raise MyValidationError('11', '仓库编码：%s 未找到对应他库！' % warehouse_code)
+
+            return w
 
         inventory_obj = self.env['stock.inventory'].sudo()
         warehouse_obj = self.env['stock.warehouse'].sudo()
         inventory_line_obj = self.env['stock.inventory.line'].sudo()
+        origin_obj = self.env['stock.inventory.origin']
+        product_obj = self.env['product.product']
+        diff_obj = self.env['stock.inventory.diff']
 
         content = json.loads(content)
 
         body = content['body']
 
         inventory_code = body['inventoryCode']  # 盘点单号
+        if inventory_obj.search([('name', '=', inventory_code)]):
+            raise MyValidationError('49', '盘点单号重复')
+
         warehouse_code = body['warehouseCode']  # 仓库（门店）编码
         inventory_date = body['inventoryDate']  # 盘点时间
-        # warehouse_type = body['warehouseType']  # 仓库类型:  warehouse-仓库盘点,pos-门店盘点
 
         warehouse = get_warehouse()
         inventory_date = datetime.fromtimestamp(inventory_date / 1000.0) - timedelta(hours=8)
 
+        company_id = warehouse.company_id.id
+        location_id = warehouse.lot_stock_id.id
+        lot_id = None
+        owner_id = None
+        package_id = None
+        from_date = False
+
+        # 1、创建盘点单
         inventory = inventory_obj.create({
             'name': inventory_code,
-            'company_id': warehouse.company_id.id,
-            'location_id': warehouse.lot_stock_id.id,
+            'company_id': company_id,
+            'location_id': location_id,
             'date': inventory_date,
             'filter': 'partial',
         })
 
-        inventory.action_start()
+        to_date = inventory.date  # 盘点时间
+
+        inventory.action_start()  # 开始盘点
+
+        # 2、创建盘点原始数据
         vals_list = []
+        inventory_lines = []  # 盘点明细
         for item in body['items']:
-            goods_code = item['goodsCode']  # 商品编码
-            real_stock = item['realStock']  # 实时库存
-            diff_quantity = item['diffQuantity']  # 盘（+盈）（-亏）数量
-            inventory_type = item['inventoryType']  # 库存类型(ZP=正品;CC=残次;)；默认ZP
-
-            if inventory_type == 'CC':
-                # todo 多次盘点残次品
-                continue
-
-            product = self.get_product(goods_code)
-
-            new_line = inventory_line_obj.new({
-                'inventory_id': inventory.id,
-                'product_id': product.id,
-            })
-
-            new_line._onchange_product()
-
-            if new_line.theoretical_qty + diff_quantity != real_stock:
-                raise MyValidationError('48', '商品：%s账面数量：%s在手数量：%s差异数量：%s不相等！' % (product.partner_ref, new_line.theoretical_qty, real_stock, diff_quantity))
-
+            product = self.get_product(item['goodsCode'])
             vals_list.append({
                 'inventory_id': inventory.id,
                 'product_id': product.id,
-                'product_qty': real_stock,
-                'product_uom_id': product.uom_id.id,
-                'location_id': warehouse.lot_stock_id.id,
-                'company_id': warehouse.company_id.id,
+                'real_stock': item['realStock'], # 实时库存
+                'diff_quantity': item['diffQuantity'],  # 盘（+盈）（-亏）数量
+                'inventory_type': item['inventoryType']  # 库存类型(ZP=正品;CC=残次;)；默认ZP
             })
+
+            # 汇总盘点明细
+            res = list(filter(lambda x: x['product_id'] == product.id, inventory_lines))
+            if res:
+                res = res[0]
+                res.update({
+                    'real_stock': res['real_stock'] + item['realStock'],
+                    'diff_quantity': res['diff_quantity'] + item['diffQuantity']
+                })
+            else:
+                inventory_lines.append({
+                    'product_id': product.id,
+                    'real_stock': item['realStock'],
+                    'diff_quantity': item['diffQuantity'],
+                })
+
+        origin_obj.create(vals_list)  # 创建盘点原始数据
+
+        # ERP的账面数量 + 盘点单的差异数量，作为ERP的在手数量，如果ERP的在手数量与盘点单的在手数量不相等，记录下来
+        vals_list = []  # 盘点明细
+        diff_vals_list = []  # 差异明细
+        for line in inventory_lines:
+            product_id = line['product_id']
+            real_stock = line['real_stock']  # 仓库在手数量
+            product = product_obj.browse(product_id)
+            # 盘点时账面数量
+            theoretical_qty = product.with_context(owner_company_id=company_id)._compute_quantities_dict(lot_id, owner_id, package_id, from_date, to_date)[product_id]['qty_available']
+            diff_quantity = line['diff_quantity']  # 差异数量
+
+            # 在手数量
+            product_qty = theoretical_qty + diff_quantity
+            if product_qty < 0:
+                product_qty = 0
+
+            # 盘点明细
+            vals_list.append({
+                'inventory_id': inventory.id,
+                'product_id': product_id,
+                'product_qty': product_qty,  # 在手数量
+                'product_uom_id': product.uom_id.id,
+                'location_id': location_id,
+                'company_id': company_id,
+            })
+            # ERP在手数量
+            erp_product_qty = theoretical_qty + diff_quantity
+            if erp_product_qty != real_stock:
+                diff_vals_list.append({
+                    'inventory_id': inventory.id,  # 盘点单
+                    'product_id':product_id,
+                    'erp_product_qty': erp_product_qty,  # ERP在手数量
+                    'zt_product_qty': real_stock,  # 仓库在手数量
+                    'diff_qty': erp_product_qty - real_stock  # 差异数量
+                })
+
+        # 创建盘点明细
+        inventory_line_obj.create(vals_list)
+
+        # 创建ERP与中台盘点差异
+        if diff_vals_list:
+            diff_obj.create(diff_vals_list)
 
         # 确认盘点
         inventory.action_validate()
+
+        # vals_list = []
+        # for item in body['items']:
+        #     goods_code = item['goodsCode']  # 商品编码
+        #     real_stock = item['realStock']  # 实时库存
+        #     diff_quantity = item['diffQuantity']  # 盘（+盈）（-亏）数量
+        #     inventory_type = item['inventoryType']  # 库存类型(ZP=正品;CC=残次;)；默认ZP
+        #
+        #     if inventory_type == 'CC':
+        #         # todo 多次盘点残次品
+        #         continue
+        #
+        #     product = self.get_product(goods_code)
+        #
+        #     new_line = inventory_line_obj.new({
+        #         'inventory_id': inventory.id,
+        #         'product_id': product.id,
+        #     })
+        #
+        #     new_line._onchange_product()
+        #
+        #     if new_line.theoretical_qty + diff_quantity != real_stock:
+        #         raise MyValidationError('48', '商品：%s账面数量：%s在手数量：%s差异数量：%s不相等！' % (product.partner_ref, new_line.theoretical_qty, real_stock, diff_quantity))
+        #
+        #     vals_list.append({
+        #         'inventory_id': inventory.id,
+        #         'product_id': product.id,
+        #         'product_qty': real_stock,
+        #         'product_uom_id': product.uom_id.id,
+        #         'location_id': warehouse.lot_stock_id.id,
+        #         'company_id': warehouse.company_id.id,
+        #     })
+        #
+        # # 确认盘点
+        # inventory.action_validate()
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']

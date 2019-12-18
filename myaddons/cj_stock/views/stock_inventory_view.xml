@@ -75,7 +75,7 @@
                 <!--10、盘点明细在仓库专员确认后不能编辑-->
                 <xpath expr="//field[@name='line_ids']" position="attributes">
                     <attribute name="attrs">{'readonly': [('state', 'not in', ['draft', 'confirm'])]}</attribute>
-                    <attribute name="context">{'default_location_id': location_id,  'default_product_id': product_id, 'default_prod_lot_id': lot_id, 'default_package_id': package_id, 'default_partner_id': partner_id, 'default_company_id': company_id}</attribute>
+                    <attribute name="context">{'default_location_id': location_id,  'default_product_id': product_id, 'default_prod_lot_id': lot_id, 'default_package_id': package_id, 'default_partner_id': partner_id, 'default_company_id': company_id, 'to_date': date}</attribute>
                 </xpath>
 
                 <!--11、隐藏会计日期(accounting_date)字段-->
@@ -97,6 +97,10 @@
                     <attribute name="attrs">{'readonly': [('product_tracking', '=', 'none')], 'required': [('product_tracking', '!=', 'none')]}</attribute>
                 </xpath>
 
+                <xpath expr="//field[@name='line_ids']/tree/field[@name='product_id']" position="attributes">
+                    <attribute name="options">{'no_open': 1, 'no_create': 1}</attribute>
+                </xpath>
+
                 <!--14、盘点明细的实际数量必填-->
                 <xpath expr="//field[@name='line_ids']/tree/field[@name='product_qty']" position="attributes">
                     <attribute name="required">1</attribute>
@@ -111,6 +115,53 @@
                 <xpath expr="//notebook" position="inside">
                     <page string="盘点异常说明">
                         <field name="communication" placeholder="盘点差异说明..." attrs="{'readonly':[('state', 'not in', ['draft', 'confirm'])]}"/>
+                    </page>
+                </xpath>
+
+                <xpath expr="//notebook/page[1]" position="after">
+                    <page string="原始数据">
+                        <field name="origin_ids" readonly="1">
+                            <tree>
+                                <field name="product_id"/>
+                                <field name="real_stock"/>
+                                <field name="diff_quantity"/>
+                                <field name="inventory_type"/>
+                            </tree>
+                            <form>
+                                <group>
+                                    <group>
+                                        <field name="product_id"/>
+                                        <field name="diff_quantity"/>
+                                    </group>
+                                    <group>
+                                        <field name="real_stock"/>
+                                        <field name="inventory_type"/>
+                                    </group>
+                                </group>
+                            </form>
+                        </field>
+                    </page>
+                    <page string="盘点差异">
+                        <field name="diff_ids" readonly="1">
+                            <tree>
+                                <field name="product_id"/>
+                                <field name="erp_product_qty"/>
+                                <field name="zt_product_qty"/>
+                                <field name="diff_qty"/>
+                            </tree>
+                            <form>
+                                <group>
+                                    <group>
+                                        <field name="product_id"/>
+                                        <field name="erp_product_qty"/>
+                                    </group>
+                                    <group>
+                                        <field name="diff_qty"/>
+                                        <field name="zt_product_qty"/>
+                                    </group>
+                                </group>
+                            </form>
+                        </field>
                     </page>
                 </xpath>
 
@@ -144,10 +195,6 @@
                     </field>
                 </xpath>
 
-
-                <xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="attributes">
-
-                </xpath>
             </field>
         </record>
 

@@ -68,6 +68,8 @@ class StockInventory(models.Model):
     exhausted = fields.Boolean('包含零库存产品', readonly=1, states={'draft': [('readonly', False)]}, default=True)
 
     communication = fields.Char(string='盘点差异说明')
+    diff_ids = fields.One2many('stock.inventory.diff', 'inventory_id', '盘点差异')
+    origin_ids = fields.One2many('stock.inventory.origin', 'inventory_id', '原始数据')
 
     @api.onchange('company_id')
     def _onchange_company_id(self):
@@ -845,6 +847,33 @@ class InventoryLine(models.Model):
 
         return super(InventoryLine, self).create(vals)
 
+    @api.one
+    @api.depends('location_id', 'product_id', 'package_id', 'product_uom_id', 'company_id', 'prod_lot_id', 'partner_id', 'inventory_id.company_id')
+    def _compute_theoretical_qty(self):
+        """根据盘点时间来计算在手数量"""
+        if not self.product_id:
+            self.theoretical_qty = 0
+            return
+
+        lot_id = None
+        owner_id = None
+        package_id = None
+        from_date = False
+        to_date = self._context.get('to_date', datetime.now())
+        company_id = self.inventory_id.company_id.id
+        res = self.product_id.with_context(owner_company_id=company_id)._compute_quantities_dict(lot_id, owner_id, package_id, from_date, to_date)
+        self.theoretical_qty = res[self.product_id.id]['qty_available']
+        # theoretical_qty = self.product_id.get_theoretical_quantity(
+        #     self.product_id.id,
+        #     self.location_id.id,
+        #     lot_id=self.prod_lot_id.id,
+        #     package_id=self.package_id.id,
+        #     owner_id=self.partner_id.id,
+        #     to_uom=self.product_uom_id.id,
+        # )
+        # self.theoretical_qty = theoretical_qty
+
+
 
 READONLY_STATES = {
     'draft': [('readonly', False)]
@@ -1182,5 +1211,29 @@ class StockInventoryDiffReceiptLine(models.Model):
         """计算金额"""
         for line in self:
             line.amount = float_round(line.product_qty * line.cost, precision_rounding=0.01, rounding_method='HALF-UP')
+
+
+class StockInventoryOrigin(models.Model):
+    _name = 'stock.inventory.origin'
+    _description = '盘点原始数据'
+
+    inventory_id = fields.Many2one('stock.inventory', '盘点单', ondelete='restrict')
+    product_id = fields.Many2one('product.product', '商品')
+
+    real_stock = fields.Float('实时库存')
+    diff_quantity = fields.Float('差异数量', help='盘（+盈）（-亏）数量')
+    inventory_type = fields.Selection([('ZP', '正品'), ('CC', '残次品')], '库存类型')
+
+
+class StockInventoryDiff(models.Model):
+    _name = 'stock.inventory.diff'
+    _description = 'ERP与中台盘点差异'
+
+    inventory_id = fields.Many2one('stock.inventory', '盘点单', ondelete='restrict')
+    product_id = fields.Many2one('product.product', '商品')
+
+    erp_product_qty = fields.Float('ERP在手数量')
+    zt_product_qty = fields.Float('仓库在手数量')
+    diff_qty = fields.Float('差异数量', help='ERP在手数量 - 仓库在手数量')
 
 
