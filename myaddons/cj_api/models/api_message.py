@@ -212,7 +212,8 @@ class ApiMessage(models.Model):
 
         index = 0
         for sequence in sorted(res.keys()):
-            _logger.info('处理序号：%s，队列类型：%s' % (sequence, sequence_dict[sequence]))
+            # sequence_dict[sequence]
+            _logger.info('处理序号：%s，队列类型：%s' % (sequence, sequence_dict.get(sequence)))
             messages = res[sequence]
             # 门店库存变更，按update_code分下组，再去执行
             if messages[0].message_name == 'mustang-to-erp-store-stock-update-record-push':
