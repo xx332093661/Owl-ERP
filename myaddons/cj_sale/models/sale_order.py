@@ -58,6 +58,8 @@ class SaleOrder(models.Model):
     freight_amount = fields.Float('运费')
     use_point = fields.Integer('使用积分')
     discount_amount = fields.Float('优惠金额')
+    line_discount_amount = fields.Float('订单行优惠金额', compute='_amount_all', digits=(16, 2))
+    platform_discount_amount = fields.Float('平台优惠金额')
     discount_pop = fields.Float('促销活动优惠抵扣的金额')
     discount_coupon = fields.Float('优惠卷抵扣的金额')
     discount_grant = fields.Float('临时抵扣金额')
@@ -271,6 +273,30 @@ class SaleOrder(models.Model):
             qty = max(res['product_qty'] - res['used_qty'], 0)  # 营销活动的剩余数量
             if line['product_uom_qty'] > qty:
                 raise ValidationError('商品：%s订单数量：%s不能大于营销活动的剩余数量：%s！' % (product_name, line['product_uom_qty'], qty))
+
+    @api.depends('order_line.price_total', 'freight_amount', 'platform_discount_amount', 'discount_amount')
+    def _amount_all(self):
+        """
+        Compute the total amounts of the SO.
+        """
+        for order in self:
+            amount_untaxed = amount_tax = 0.0
+            for line in order.order_line:
+                amount_untaxed += line.price_subtotal
+                amount_tax += line.price_tax
+
+            # line_discount_amount = sum(order.order_line.mapped('discount_amount'))
+            order.update({
+                'amount_untaxed': amount_untaxed,
+                'amount_tax': amount_tax,
+                # 'amount_total': amount_untaxed + amount_tax + order.freight_amount - order.platform_discount_amount - order.discount_amount - line_discount_amount,
+                'amount_total': amount_untaxed + amount_tax + order.freight_amount - order.platform_discount_amount - order.discount_amount,
+                # 'line_discount_amount': line_discount_amount
+            })
+
+    # def _compute_line_discount_amount(self):
+    #     for order in self:
+    #         order.line_discount_amount = sum(order.order_line.mapped('discount_amount'))
 
     # @api.model
     # def default_get(self, fields_list):

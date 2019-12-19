@@ -608,6 +608,29 @@ class StockInventory(models.Model):
                 # print('订单号：', content['code'], ' 订单金额：', liquidated, ' 支付金额：', payment_amount, ' 订单明细金额：', order_line_amount, ' 处理状态：', message.state)
         workbook.save('全渠道订单金额差异.xls')
 
+    def check_order_push_status(self):
+        """全渠道订单接口的状态"""
+        message_obj = self.env['api.message']
+        states = []
+        for message in message_obj.search([('message_name', '=', 'mustang-to-erp-order-push')]):
+            content = json.loads(message.content)
+            status = content['status']
+            if status not in states:
+                states.append(status)
+
+        print(states)  # ['已支付', '已完成', '待发货']
+
+    def check_order_status_push(self):
+        """订单状态变更的状态"""
+        message_obj = self.env['api.message']
+        states = []
+        for message in message_obj.search([('message_name', '=', 'MUSTANG-ERP-ORDER-STATUS-PUSH')]):
+            content = json.loads(message.content)
+            status = content['body']['orderState']
+            if status not in states:
+                states.append(status)
+
+        print(states)  # ['finished', 'cancelled', 'outbound', 'some']
 
     def _cron_done_inventory(self):
         """临时接口"""
@@ -622,8 +645,13 @@ class StockInventory(models.Model):
         # self.adjust_stock_inventory_valuation_move()
 
         # 检查全渠道订单的金额差异
-        self.check_api_message_sale_order_amount()
+        # self.check_api_message_sale_order_amount()
 
+        # 全渠道订单接口的状态
+        # self.check_order_push_status()
+
+        # 订单状态变更的状态
+        self.check_order_status_push()
 
 class InventoryLine(models.Model):
     """
@@ -872,7 +900,6 @@ class InventoryLine(models.Model):
         #     to_uom=self.product_uom_id.id,
         # )
         # self.theoretical_qty = theoretical_qty
-
 
 
 READONLY_STATES = {

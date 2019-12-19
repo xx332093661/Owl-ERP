@@ -70,7 +70,9 @@ PROCESS_ERROR = {
     '46': '订单公司与出库仓库的公司不一样',
     '47': '销售渠道不存在',
     '48': '错误的盘点明细',
-    '49': '盘点单号重复'
+    '49': '盘点单号重复',
+    '50': '支付金额不等于商品金额',
+    '51': '支付金额错误'
 }
 
 
@@ -1153,6 +1155,7 @@ class ApiMessage(models.Model):
                 'payment_state': content['paymentState'],
                 'liquidated': content['liquidated'] / 100,  # 已支付金额
                 'order_amount': content['amount'] / 100,  # 订单金额
+                'platform_discount_amount': content.get('platformDiscountAmount', 0) / 100, # 平台优惠金额
                 'freight_amount': content['freightAmount'] / 100,  # 运费
                 'use_point': content['usePoint'],  # 使用的积分
                 'discount_amount': content['discountAmount'] / 100,  # 优惠金额
@@ -1181,8 +1184,7 @@ class ApiMessage(models.Model):
             }
             return order_obj.create(val)
 
-        def create_payment():
-            """创建支付"""
+        def get_journal():
             payment_way = payment['paymentWay'].strip()  # 支付方式
             if payment_way == '对公转账':
                 journal_code = 'DG'
@@ -1207,7 +1209,11 @@ class ApiMessage(models.Model):
             else:
                 raise MyValidationError('13', '未知的支付方式：%s' % payment_way)
 
-            journal = journal_obj.search([('code', '=', journal_code), ('company_id', '=', company_id)], limit=1)
+            return journal_obj.search([('code', '=', journal_code), ('company_id', '=', company_id)], limit=1)
+
+        def create_payment():
+            """创建支付"""
+            journal = get_journal()
             payment_val = {
                 'payment_type': 'inbound',
                 'partner_type': 'customer',
@@ -1231,10 +1237,7 @@ class ApiMessage(models.Model):
 
         def create_sale_order_line(pid, qty, price):
             """创建订单行"""
-            tax_id = False
-            tax = tax_obj.search([('company_id', '=', company_id), ('type_tax_use', '=', 'sale'), ('amount', '=', 13)])
-            if tax:
-                tax_id = [(6, 0, tax.ids)]
+
             order_line = order_line_obj.create({
                 'order_id': order_id,
                 'product_id': pid,
@@ -1242,7 +1245,14 @@ class ApiMessage(models.Model):
                 'price_unit': price,
                 'warehouse_id': warehouse_id,
                 'owner_id': company_id,
-                'tax_id': tax_id
+                'tax_id': tax_id,
+                'use_point': item['usePoint'], # 使用的积分
+                'market_price': item['marketPrice'] / 100,  # 标价
+                'original_price': item['price'] / 100,  # 原价
+                'discount_amount': item['discountAmount'] / 100,  # 优惠金额
+                'discount_pop': item['discountPop'] / 100,  # 促销活动优惠抵扣的金额
+                'discount_coupon': item['discountCoupon'] / 100,  # 优惠卷抵扣的金额
+                'discount_grant': item['discountGrant'] / 100,  # 临时抵扣金额
             })
             return order_line
 
@@ -1253,8 +1263,8 @@ class ApiMessage(models.Model):
         warehouse_obj = self.env['stock.warehouse']
         channels_obj = self.env['sale.channels']
         partner_obj = self.env['res.partner']
-        journal_obj = self.env['account.journal']
-        tax_obj = self.env['account.tax']
+        journal_obj = self.env['account.journal'].sudo()
+        tax_obj = self.env['account.tax'].sudo()
 
         content = json.loads(content)
 
@@ -1268,6 +1278,24 @@ class ApiMessage(models.Model):
         if order_obj.search([('name', '=', content['code']), ('channel_id', '=', channel_id)]):
             raise MyValidationError('10', '订单：%s已存在！' % content['code'])
 
+        # 验证金额
+        order_amount = content['amount']  # 订单金额
+        freight_amount = content['freightAmount']  # 运费
+        discount_amount = content['discountAmount']  # 订单优惠金额
+        platform_discount_amount = content.get('platformDiscountAmount', 0)  # 平台优惠金额
+        line_discount_amount = sum([item['discountAmount'] for item in content['items']])  # 商品优惠金额
+        line_amount = sum([item['finalPrice'] for item in content['items']])  # 订单行金额
+        payment_amount = sum([payment['paidAmount'] for payment in content['payments']])  # 支付的金额
+
+        # 支付金额不等于商品金额
+        if line_amount != payment_amount:
+            raise MyValidationError('50', '支付金额：%s不等于商品金额：%s' % (payment_amount / 100, line_amount / 100))
+
+        # 支付金额 = 订单金额 + 运费 - 平台优惠金额 - 订单优惠金额 - 商品优惠金额
+        if payment_amount != order_amount + freight_amount - platform_discount_amount - discount_amount - line_discount_amount:
+            raise MyValidationError('51', '支付金额：%s不等于订单金额：%s + 运费：%s - 平台优惠金额：%s - 订单优惠金额：%s - 商品优惠金额：%s' %
+                                    (payment_amount / 100, order_amount / 100, freight_amount / 100, platform_discount_amount / 100, discount_amount / 100, line_discount_amount / 100))
+
         company_id = get_company()  # 计算公司
         warehouse_id = get_warehouse()  # 计算仓库(可能是临时仓库)
         partner_id = get_partner()  # 计算客户
@@ -1276,60 +1304,33 @@ class ApiMessage(models.Model):
         order_id = order.id
 
         # 创建支付
-        total_payment = 0  # 最终支付
         for payment in content['payments']:
             if payment['paidAmount'] == 0:
                 continue
-
-            total_payment += payment['paidAmount']
-
             create_payment()  # 创建支付
 
-        order_line_amount = sum([item['finalPrice'] for item in content['items']])
-        diff_amount = order_line_amount - total_payment  # 收款与订单差异金额
-
         # 创建订单行
+        tax_id = False
+        tax = tax_obj.search([('company_id', '=', company_id), ('type_tax_use', '=', 'sale'), ('amount', '=', 13)])
+        if tax:
+            tax_id = [(6, 0, tax.ids)]
+
         for line_index, item in enumerate(content['items']):
             product = self.get_product(item['code'])
             product_id = product.id
             final_price = item['finalPrice']  # 最终收款
             quantity = item['quantity']
-
-            if diff_amount != 0:
-                if line_index == len(content['items']) - 1:  # 最后一行
-                    final_price -= diff_amount
-                    remainder = final_price - int(final_price / quantity) * quantity
-                    if remainder:
-                        avg_price = int(final_price / quantity) / 100.0
-                        for i in range(2):
-                            if i == 0:
-                                first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
-                            else:
-                                create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_total)
+            # 订单行拆分
+            remainder = final_price - int(final_price / quantity) * quantity
+            if remainder:
+                avg_price = int(final_price / quantity) / 100.0
+                for i in range(2):
+                    if i == 0:
+                        first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
                     else:
-                        create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
-                else:
-                    remainder = final_price - int(final_price / quantity) * quantity
-                    if remainder:
-                        avg_price = int(final_price / quantity) / 100.0
-                        for i in range(2):
-                            if i == 0:
-                                first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
-                            else:
-                                create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_total)
-                    else:
-                        create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
+                        create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_total)
             else:
-                remainder = final_price - int(final_price / quantity) * quantity
-                if remainder:
-                    avg_price = int(final_price / quantity) / 100.0
-                    for i in range(2):
-                        if i == 0:
-                            first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
-                        else:
-                            create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_total)
-                else:
-                    create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
+                create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
 
         # 售酒机业务，直接出库
         if channel_code in ['enomatic']:
@@ -1700,6 +1701,15 @@ class ApiMessage(models.Model):
         # 6、出库
         picking.button_validate()  # 确认出库
         picking.delivery_id = delivery_id
+
+        # 客情单出库，将中台状态置为已完成，将订单状态置为已完成
+        # 补发订单出库，将中台状态置为已完成，将订单状态置为已完成
+        if order.special_order_mark in ['gift', 'compensate']:
+            if all([line.product_uom_qty == line.qty_delivered for line in order.order_line]):
+                order.action_done()
+                order.status = '已完成'
+            else:
+                order.status = '已出库'
 
     # 12、mustang-to-erp-logistics-push 物流信息
     def deal_mustang_to_erp_logistics_push(self, content):
@@ -2540,14 +2550,17 @@ class ApiMessage(models.Model):
         order_code = content['body']['orderCode']
         order_state = content['body']['orderState']
 
-        # 状态是begin-新订单,allocated-已分单,printed-已打单,outbound-已出库不处理
-        if order_state in ['begin', 'printed', 'allocated', 'outbound']:
+        # 状态是begin-新订单, wait-待派单, returning-退款申请中, some-部分退货中, allreturning-全部退货中, refunding-退款中不处理
+        if order_state in ['begin', 'wait', 'returning', 'some', 'allreturning', 'refunding']:
             raise MyValidationError('44', '不处理的订单状态：%s' % order_state)
 
         # 1、验证订单
         order = order_obj.search([('name', '=', order_code)], limit=1)
         if not order:
             raise MyValidationError('14', '订单编号：%s对应的订单不存在！' % order_code)
+
+        # 中台状态
+        states = {'paid': '已支付', 'begin': '待发货', 'wait': '待派单', 'outbound': '已出库', 'cancelled': '已取消', 'finished': '已完成', 'returning': '退货申请中', 'some': '部分退货中', 'allreturning': '全部退货中', 'somereturn': '部分退货', 'allreturn': '全部退货', 'refunding': '退款中', 'somerefund': '部分退款', 'refunded': '已退款'}
 
         # 状态是cancelled-已取消，取消订单，取消订单关联的stock.picking和account.payment
         if order_state == 'cancelled':
@@ -2561,16 +2574,10 @@ class ApiMessage(models.Model):
             # 将未完成的stock.picking取消
             order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
             # 订单取消
-            # order.state = 'cancel'
             order.action_cancel()
             # 取消关联的收款(已收至款的走退款途径，草稿状态的取消)
             for payment in order.payment_ids.filtered(lambda x: x.state == 'draft'):
                 payment.cancel()
-
-            # # 将已完成的stock.picking的stock.move的完成数量置为0
-            # order.picking_ids.filtered(lambda x: x.state == 'done').mapped('move_lines').write({
-            #     'quantity_done': 0
-            # })
 
         # 状态是finished-已完成，取消订单尚未完成的stock.picking
         if order_state == 'finished':
@@ -2585,27 +2592,8 @@ class ApiMessage(models.Model):
             order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
 
             order.action_done()
-        #
-        # picking = order.picking_ids.filtered(lambda o: o.state != 'cancel')[:1]
-        #
-        # if order_state == 'outbound':
-        #     # 已出库
-        #     pass
-        # elif order_state == 'finished':
-        #     if not picking:
-        #         raise ValidationError('该订单没有出库单')
-        #     if picking.state != 'done':
-        #         raise ValidationError('出库单未完成')
-        #
-        #     order.action_done()
-        #
-        # elif order_state == 'cancelled':
-        #     if order.state == 'done':
-        #         raise ValidationError('订单已完成，不能取消')
-        #     if picking and picking.state == 'done':
-        #         raise ValidationError('订单已出库，不能取消')
-        #
-        #     order.action_cancel()
+
+        order.status = states[order_state]
 
     # 30、WMS-ERP-CHECK-STOCK-QUEUE 盘点单
     def deal_wms_erp_check_stock_queue(self, content):
@@ -2734,41 +2722,6 @@ class ApiMessage(models.Model):
 
         # 确认盘点
         inventory.action_validate()
-
-        # vals_list = []
-        # for item in body['items']:
-        #     goods_code = item['goodsCode']  # 商品编码
-        #     real_stock = item['realStock']  # 实时库存
-        #     diff_quantity = item['diffQuantity']  # 盘（+盈）（-亏）数量
-        #     inventory_type = item['inventoryType']  # 库存类型(ZP=正品;CC=残次;)；默认ZP
-        #
-        #     if inventory_type == 'CC':
-        #         # todo 多次盘点残次品
-        #         continue
-        #
-        #     product = self.get_product(goods_code)
-        #
-        #     new_line = inventory_line_obj.new({
-        #         'inventory_id': inventory.id,
-        #         'product_id': product.id,
-        #     })
-        #
-        #     new_line._onchange_product()
-        #
-        #     if new_line.theoretical_qty + diff_quantity != real_stock:
-        #         raise MyValidationError('48', '商品：%s账面数量：%s在手数量：%s差异数量：%s不相等！' % (product.partner_ref, new_line.theoretical_qty, real_stock, diff_quantity))
-        #
-        #     vals_list.append({
-        #         'inventory_id': inventory.id,
-        #         'product_id': product.id,
-        #         'product_qty': real_stock,
-        #         'product_uom_id': product.uom_id.id,
-        #         'location_id': warehouse.lot_stock_id.id,
-        #         'company_id': warehouse.company_id.id,
-        #     })
-        #
-        # # 确认盘点
-        # inventory.action_validate()
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']

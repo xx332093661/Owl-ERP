@@ -63,10 +63,17 @@
         </function>
 
         <record model="ir.rule" id="purchase_order_personal_rule">
-            <field name="name">个人采购单</field>
+            <field name="name">用户自已的文档采购单</field>
             <field name="model_id" ref="model_purchase_order"/>
             <field name="domain_force">['|',('user_id','=',user.id),('user_id','=',False)]</field>
             <field name="groups" eval="[(4, ref('group_purchase_self'))]"/>
+        </record>
+
+        <record model="ir.rule" id="purchase_order_all_rule">
+            <field name="name">用户所有文档采购单</field>
+            <field name="model_id" ref="model_purchase_order"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]</field>
+            <field name="groups" eval="[(4, ref('purchase.group_purchase_user'))]"/>
         </record>
 
         <record model="ir.rule" id="purchase_price_list_rule">
