@@ -89,6 +89,7 @@
                     <filter string="退货入库单" name="message_service" domain="[('message_name', '=', 'WMS-ERP-RETURN-STOCKIN-QUEUE')]"/>
                     <filter string="退款单" name="message_service" domain="[('message_name', '=', 'MUSTANG-REFUND-ERP-QUEUE')]"/>
                     <filter string="客情单" name="message_recipient" domain="[('message_name', '=', 'MUSTANG-ERP-RECIPIENT-QUEUE')]"/>
+                    <filter string="盘点单" name="message_check_stock" domain="[('message_name', '=', 'WMS-ERP-CHECK-STOCK-QUEUE')]"/>
                     <group expand="0" string="Group By...">
                         <filter string="消息名称" name="group_message_name" domain="[]" context="{'group_by':'message_name'}"/>
                         <filter string="错误信息" name="group_error_msg" domain="[]" context="{'group_by':'error_msg'}"/>

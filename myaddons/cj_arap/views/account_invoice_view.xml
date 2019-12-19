@@ -61,9 +61,9 @@
                     </field>
                 </xpath>
                 <!--隐藏税-->
-                <xpath expr="//field[@name='tax_line_ids']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath>
+                <!--<xpath expr="//field[@name='tax_line_ids']" position="attributes">-->
+                    <!--<attribute name="invisible">1</attribute>-->
+                <!--</xpath>-->
 
                 <!--&lt;!&ndash;内部结算增加内部强算比例和采购单价字段&ndash;&gt;-->
                 <!--<xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_unit']" position="before">-->
@@ -76,6 +76,13 @@
                     <!--<field name="supplier_model_id" attrs="{'column_invisible': [('parent.payment_term_id.type', '!=', 'joint')]}"/>-->
                     <field name="fee_rate" attrs="{'column_invisible': [('parent.payment_term_id.type', '!=', 'joint')]}"/>
                     <field name="joint_fee" attrs="{'column_invisible': [('parent.payment_term_id.type', '!=', 'joint')]}"/>
+                    <field name="price_tax" string="税额"/>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_subtotal']" position="after">
+                    <field name="price_total" string="金额(含税)"/>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_subtotal']" position="attributes">
+                    <attribute name="string">金额(不含税)</attribute>
                 </xpath>
 
                 <!--隐藏明细(invoice_line_ids)的说明(name)字段-->

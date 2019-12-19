@@ -24,6 +24,10 @@ class StockMove(models.Model):
         if not order_line:
             return
 
+        # 退货不计算商品成本
+        if self.origin_returned_move_id:
+            return
+
         cost_obj = self.env['sale.order.line.cost']
         if cost_obj.search([('move_id', '=', self.id)]):
             return

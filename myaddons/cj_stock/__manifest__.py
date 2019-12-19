@@ -52,6 +52,8 @@
         'views/sale_order_view.xml',
         'views/purchase_order_view.xml',
 
+        'views/stock_template.xml',
+
         # 'wizard/valuation_wizard_view.xml',
         # 'wizard/confirm_empty_delivery_order_wizard_view.xml',
 

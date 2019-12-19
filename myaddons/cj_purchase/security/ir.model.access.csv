@@ -2,11 +2,11 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_purchase_apply_group_purchase_user,access_purchase_apply_group_purchase_user,model_purchase_apply,purchase.group_purchase_user,1,1,1,1
 access_purchase_apply_group_sale_salesman,access_purchase_apply_group_sale_salesman,model_purchase_apply,sales_team.group_sale_salesman,1,1,0,0
 access_purchase_apply_purchase_general_manager,access_purchase_apply purchase_general_manager,model_purchase_apply,group_purchase_general_manager,1,0,0,0
-
+,,,,,,,
 access_purchase_apply_line_group_purchase_user,access_purchase_apply_line_group_purchase_user,model_purchase_apply_line,purchase.group_purchase_user,1,1,1,1
 access_purchase_apply_line_group_sale_salesman,access_purchase_apply_line_group_sale_salesman,model_purchase_apply_line,sales_team.group_sale_salesman,1,0,0,0
 access_purchase_apply_line_purchase_general_manager,access_purchase_apply_line purchase_general_manager,model_purchase_apply_line,group_purchase_general_manager,1,0,0,0
-
+,,,,,,,
 access_supplier_contract_group_purchase_user,access_supplier_contract_group_purchase_user,model_supplier_contract,purchase.group_purchase_user,1,1,1,1
 access_purchase_order_point_group_purchase_user,access_purchase_order_point_group_purchase_user,model_purchase_order_point,purchase.group_purchase_user,1,1,1,1
 access_purchase_price_list_group_purchase_user,access_purchase_price_list_group_purchase_user,model_purchase_price_list,purchase.group_purchase_user,1,1,1,1
@@ -16,32 +16,70 @@ access_purchase_order_return_purchase_general_manager,access_purchase_order_retu
 access_purchase_order_return_line_group_purchase_user,access_purchase_order_return_line_group_purchase_user,model_purchase_order_return_line,purchase.group_purchase_user,1,1,1,1
 access_purchase_rebate_line_group_purchase_user,access_purchase_rebate_line_group_purchase_user,model_purchase_rebate_line,purchase.group_purchase_user,1,1,1,1
 access_purchase_rebate_line_purchase_general_manager,access_purchase_rebate_line purchase_general_manager,model_purchase_rebate_line,group_purchase_general_manager,1,0,0,0
-
-
-
+,,,,,,,
+,,,,,,,
+,,,,,,,
 access_purchase_transport,access_purchase_transport,model_purchase_transport,,1,1,1,1
-
+,,,,,,,
 access_purchase_order_group_sale_salesman,access_purchase_order_group_sale_salesman,purchase.model_purchase_order,sales_team.group_sale_salesman,1,1,1,0
 access_purchase_order_line_group_sale_salesman,access_purchase_order_line_group_sale_salesman,purchase.model_purchase_order_line,sales_team.group_sale_salesman,1,1,1,0
-
+,,,,,,,
 access_purchase_order_group_sale_manager,access_purchase_order_group_sale_manager,purchase.model_purchase_order,sales_team.group_sale_manager,1,1,1,0
 access_purchase_order_line_group_sale_manager,access_purchase_order_line_group_sale_manager,purchase.model_purchase_order_line,sales_team.group_sale_manager,1,1,1,0
-
+,,,,,,,
 access_purchase_order_purchase_general_manager,access_purchase_order purchase_general_manager,purchase.model_purchase_order,group_purchase_general_manager,1,1,0,0
 access_purchase_order_line_purchase_general_manager,access_purchase_order_line purchase_general_manager,purchase.model_purchase_order_line,group_purchase_general_manager,1,1,0,0
-
-
+,,,,,,,
+,,,,,,,
 access_product_supplier_model_all,product_supplier_model all,model_product_supplier_model,base.group_user,1,0,0,0
 access_product_supplier_model_purchase_user,product_supplier_model purchase_user,model_product_supplier_model,purchase.group_purchase_user,1,1,1,1
-
+,,,,,,,
 product_cost_purchase_user,product_cost_purchase_user,model_product_cost,purchase.group_purchase_user,1,1,1,1
-
+,,,,,,,
 access_stock_move_purchase_general_manager,stock_move purchase_general_manager,stock.model_stock_move,group_purchase_general_manager,1,0,0,0
 access_account_invoice_line_purchase_general_manager,account_invoice_line purchase_general_manager,account.model_account_invoice_line,group_purchase_general_manager,1,0,0,0
-
+,,,,,,,
 access_stock_picking_purchase_general_manager,stock_picking purchase_general_manager,stock.model_stock_picking,group_purchase_general_manager,1,0,0,0
 access_purchase_price_list_purchase_general_manager,access_purchase_price_list_purchase_general_manager,model_purchase_price_list,group_purchase_general_manager,1,0,0,0
-
-
-
-
+,,,,,,,
+,,,,,,,
+access_purchase_order_self,purchase.order self,purchase.model_purchase_order,group_purchase_self,1,1,1,1
+access_purchase_order_line_self,purchase.order.line self,purchase.model_purchase_order_line,group_purchase_self,1,1,1,1
+access_account_tax_purchase_self,account.tax self,account.model_account_tax,group_purchase_self,1,0,0,0
+access_product_product_purchase_self,product.product.purchase.self,product.model_product_product,group_purchase_self,1,0,0,0
+access_product_template_purchase_self,product.template purchase_self,product.model_product_template,group_purchase_self,1,0,0,0
+access_account_invoice_purchase_self,account_invoice purchase_self,account.model_account_invoice,group_purchase_self,1,1,1,1
+access_account_invoice_line_purchase_self,account_invoice.line purchase_self,account.model_account_invoice_line,group_purchase_self,1,1,1,1
+access_account_invoice_tax_purchase_self,account_invoice.tax purchase_self,account.model_account_invoice_tax,group_purchase_self,1,1,1,1
+access_account_fiscal_position_purchase_self,account.fiscal.position purchase_self,account.model_account_fiscal_position,group_purchase_self,1,0,0,0
+access_res_partner_purchase_self,res.partner purchase_self,base.model_res_partner,group_purchase_self,1,0,0,0
+access_account_journal_purchase_self,account.journal purchase_self,account.model_account_journal,group_purchase_self,1,0,0,0
+access_account_move_purchase_self,account.move purchase_self,account.model_account_move,group_purchase_self,1,0,0,0
+access_account_move_line_purchase_self,account.move.line purchase_self,account.model_account_move_line,group_purchase_self,1,0,0,0
+access_account_analytic_line_purchase_self,account.analytic.line purchase_self,account.model_account_analytic_line,group_purchase_self,1,0,0,0
+access_product_price_history_purchase_self,prices.history purchase_self,product.model_product_price_history,group_purchase_self,1,0,0,0
+access_purchase_bill_union_purchase_self,access_purchase_bill_union purchase_self,purchase.model_purchase_bill_union,group_purchase_self,1,0,0,0
+access_report_purchase_order_self,purchase.stock.report purchase_self,purchase.model_purchase_report,group_purchase_self,1,0,0,0
+access_stock_location_purchase_self,stock.location purchase_self,stock.model_stock_location,group_purchase_self,1,0,0,0
+access_stock_warehouse_purchase_self,stock.warehouse purchase_self,stock.model_stock_warehouse,group_purchase_self,1,0,0,0
+access_stock_picking_purchase_self,stock.picking purchase_self,stock.model_stock_picking,group_purchase_self,1,1,1,1
+access_stock_move_purchase_self,stock.move purchase_self,stock.model_stock_move,group_purchase_self,1,1,1,0
+access_stock_warehouse_orderpoint_self,stock.warehouse.orderpoint purchase_self,stock.model_stock_warehouse_orderpoint,group_purchase_self,1,0,0,0
+access_res_partner_area_self,res_partner_area purchase_self,cj_base.model_res_partner_area,group_purchase_self,1,1,1,1
+access_res_partner_group_self,res_partner_group purchase_self,cj_base.model_res_partner_group,group_purchase_self,1,1,1,1
+access_res_partner_group_sequence_self,res_partner_group_sequence purchase_self,cj_base.model_res_partner_group_sequence,group_purchase_self,1,1,1,1
+access_purchase_apply_purchase_self,access_purchase_apply_purchase_self,model_purchase_apply,group_purchase_self,1,1,1,1
+access_purchase_apply_line_purchase_self,access_purchase_apply_line_purchase_self,model_purchase_apply_line,group_purchase_self,1,1,1,1
+access_supplier_contract_purchase_self,access_supplier_contract_purchase_self,model_supplier_contract,group_purchase_self,1,1,1,1
+access_purchase_order_point_purchase_self,access_purchase_order_point_purchase_self,model_purchase_order_point,group_purchase_self,1,1,1,1
+access_purchase_price_list_purchase_self,access_purchase_price_list_purchase_self,model_purchase_price_list,group_purchase_self,1,1,1,1
+access_product_supplierinfo_purchase_self,access_product_supplierinfo_purchase_self,product.model_product_supplierinfo,group_purchase_self,1,1,1,1
+access_purchase_order_return_purchase_self,access_purchase_order_return_purchase_self,model_purchase_order_return,group_purchase_self,1,1,1,1
+access_purchase_order_return_line_purchase_self,access_purchase_order_return_line_purchase_self,model_purchase_order_return_line,group_purchase_self,1,1,1,1
+access_purchase_rebate_line_purchase_self,access_purchase_rebate_line_purchase_self,model_purchase_rebate_line,group_purchase_self,1,1,1,1
+access_product_supplier_model_purchase_self,product_supplier_model purchase_self,model_product_supplier_model,group_purchase_self,1,1,1,1
+product_cost_purchase_self,product_cost_purchase_self,model_product_cost,group_purchase_self,1,1,1,1
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,

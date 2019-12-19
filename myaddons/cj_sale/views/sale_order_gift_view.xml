@@ -5,7 +5,7 @@
         <field name="name">sale.order.form.gift</field>
         <field name="model">sale.order</field>
         <field name="arch" type="xml">
-            <form string="赠品订单" class="o_sale_order">
+            <form string="客情单" class="o_sale_order" create="0" delete="0" edit="0">
                 <header>
                     <!--<button name="payment_action_capture" type="object" string="更新付款记录" class="oe_highlight"-->
                             <!--attrs="{'invisible': [('authorized_transaction_ids', '=', [])]}"/>-->
@@ -18,17 +18,17 @@
 
                     <!--<button name="action_confirm1" string="确认并提交OA审批" type="object" states="draft" confirm="确认提交OA审批吗？" class="btn-primary"/>-->
 
-                    <button name="button_cancel" string="取消" states="draft,confirm" type="object" groups="sales_team.group_sale_salesman"/>
-                    <button name="button_draft" string="设为草稿" states="confirm" type="object" groups="sales_team.group_sale_salesman"/>
-                    <button name="button_draft" string="设为草稿" states="cancel,general_manager_refuse" class="oe_highlight" type="object" groups="sales_team.group_sale_salesman"/>
-                    <button name="button_confirm" string="确认" states="draft" type="object" class="oe_highlight" groups="sales_team.group_sale_salesman"/> <!--销专员确认-->
+                    <!--<button name="button_cancel" string="取消" states="draft,confirm" type="object" groups="sales_team.group_sale_salesman"/>-->
+                    <!--<button name="button_draft" string="设为草稿" states="confirm" type="object" groups="sales_team.group_sale_salesman"/>-->
+                    <!--<button name="button_draft" string="设为草稿" states="cancel,general_manager_refuse" class="oe_highlight" type="object" groups="sales_team.group_sale_salesman"/>-->
+                    <!--<button name="button_confirm" string="确认" states="draft" type="object" class="oe_highlight" groups="sales_team.group_sale_salesman"/> &lt;!&ndash;销专员确认&ndash;&gt;-->
 
 
-                    <button name="button_sale_manager_confirm" states="confirm" string="销售经理审核" type="object" class="oe_highlight" groups="sales_team.group_sale_manager"/>
-                    <button name="button_finance_manager_confirm" states="manager_confirm" string="财务经理审核" type="object" class="oe_highlight" groups="account.group_account_manager"/>
+                    <!--<button name="button_sale_manager_confirm" states="confirm" string="销售经理审核" type="object" class="oe_highlight" groups="sales_team.group_sale_manager"/>-->
+                    <!--<button name="button_finance_manager_confirm" states="manager_confirm" string="财务经理审核" type="object" class="oe_highlight" groups="account.group_account_manager"/>-->
 
-                    <button name="button_general_manager_refuse" states="finance_manager_confirm" string="拒绝" type="object" groups="cj_sale.group_sale_general_manage"/>
-                    <button name="button_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_sale.group_sale_general_manage"/>
+                    <!--<button name="button_general_manager_refuse" states="finance_manager_confirm" string="拒绝" type="object" groups="cj_sale.group_sale_general_manage"/>-->
+                    <!--<button name="button_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_sale.group_sale_general_manage"/>-->
 
                     <!--<button name="action_confirm" string="订单确认" type="object" states="draft,purchase"/>-->
                     <!--
@@ -40,11 +40,11 @@
 
                     <!--<button name="action_cancel" states="draft,sent,sale" type="object" string="订单取消"/>-->
                     <!--<button name="action_draft" states="cancel" type="object" string="设为草稿"/>-->
-                    <button name="action_done" type="object" string="完成订单" states="sale" groups="sales_team.group_sale_salesman"/>
+                    <!--<button name="action_done" type="object" string="完成订单" states="sale" groups="sales_team.group_sale_salesman"/>-->
                     <!--
                     <button name="action_unlock" type="object" string="Unlock" states="done" groups="sales_team.group_sale_manager"/>
                     -->
-                    <field name="state" widget="statusbar" statusbar_visible="draft,confirm,manager_confirm,finance_manager_confirm,general_manager_confirm,sale,done"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,cancel,sale,done"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -308,7 +308,7 @@
         <field name="model">sale.order</field>
         <field name="priority">4</field>
         <field name="arch" type="xml">
-            <tree string="赠品订单" class="o_sale_order" decoration-bf="message_needaction==True" decoration-muted="state=='cancel'">
+            <tree string="客情单" class="o_sale_order" decoration-bf="message_needaction==True" decoration-muted="state=='cancel'" create="0" delete="0" edit="0">
                 <field name="partner_id"/>
                 <field name="message_needaction" invisible="1"/>
                 <field name="name" string="订单号"/>
@@ -323,7 +323,8 @@
                 <field name="amount_total" sum="Total Tax Included" widget="monetary" string="含税合计"/>
                 <field name="total_cost"/>
                 <field name="currency_id" invisible="1"/>
-                <field name="state"/>
+                <field name="state" invisible="1"/>
+                <field name="status" string="订单状态"/>
             </tree>
         </field>
     </record>

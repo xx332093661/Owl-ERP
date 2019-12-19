@@ -10,6 +10,7 @@
                         <group>
                             <field name="stock_type"/>
                             <field name="date_from"/>
+                            <field name="date_to"/>
                         </group>
                         <group>
                             <field name="cost_group_id" options="{'no_create': 1, 'no_open': 1}" attrs="{'invisible': [('stock_type', '!=', 'all')], 'required': [('stock_type', '=', 'all')]}"/>

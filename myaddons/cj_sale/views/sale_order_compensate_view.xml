@@ -64,6 +64,7 @@
                                 <field name="channel_id" options="{'no_open': True, 'no_create':True}"/>
                                 <!--<field name="client_order_ref" string="渠道单号"/>-->
                                 <!--<field name="cj_activity_id" options="{'no_create_edit': True, 'no_create':True}"/>-->
+                                <field name="reason"/>
                             </group>
                             <group>
                                 <field name="date_order"/>
@@ -263,34 +264,33 @@
                             <!--</page>-->
 
                             <page string="其他信息" name="other_information">
-                                <group string="同步信息" col="6" colspan="4">
-                                    <group col="2" colspan="2">
-                                        <field name="status" string="订单状态"/>
-                                        <field name="order_amount" string="订单金额"/>
-                                        <field name="discount_amount" string="优惠金额"/>
-                                        <field name="discount_grant" string="临时抵扣金额"/>
-                                        <field name="self_remark" string="客服备注"/>
-                                        <field name="total_amount" string="订单总金额"/>
-                                    </group>
-                                    <group col="2" colspan="2">
-                                        <field name="payment_state" string="支付状态"/>
-                                        <field name="freight_amount" string="运费"/>
-                                        <field name="discount_pop" string="促销活动优惠抵扣的金额"/>
-                                        <field name="delivery_type" string="配送方式"/>
-                                        <field name="user_level" string="用户等级"/>
-                                        <field name="origin" string="订单来源"/>
-                                    </group>
-                                    <group col="2" colspan="2">
-                                        <field name="liquidated" string="已支付金额"/>
-                                        <field name="use_point" string="使用的积分"/>
-                                        <field name="discount_coupon" string="优惠卷抵扣的金额"/>
-                                        <field name="remark" string="用户备注"/>
-                                        <field name="product_amount" string="商品总金额"/>
-                                        <field name="special_order_mark"/>
-                                        <field name="parent_id"/>
-                                        <field name="reason"/>
-                                    </group>
-                                </group>
+                                <!--<group string="同步信息" col="6" colspan="4">-->
+                                    <!--<group col="2" colspan="2">-->
+                                        <!--<field name="status" string="订单状态"/>-->
+                                        <!--<field name="order_amount" string="订单金额"/>-->
+                                        <!--<field name="discount_amount" string="优惠金额"/>-->
+                                        <!--<field name="discount_grant" string="临时抵扣金额"/>-->
+                                        <!--<field name="self_remark" string="客服备注"/>-->
+                                        <!--<field name="total_amount" string="订单总金额"/>-->
+                                    <!--</group>-->
+                                    <!--<group col="2" colspan="2">-->
+                                        <!--<field name="payment_state" string="支付状态"/>-->
+                                        <!--<field name="freight_amount" string="运费"/>-->
+                                        <!--<field name="discount_pop" string="促销活动优惠抵扣的金额"/>-->
+                                        <!--<field name="delivery_type" string="配送方式"/>-->
+                                        <!--<field name="user_level" string="用户等级"/>-->
+                                        <!--<field name="origin" string="订单来源"/>-->
+                                    <!--</group>-->
+                                    <!--<group col="2" colspan="2">-->
+                                        <!--<field name="liquidated" string="已支付金额"/>-->
+                                        <!--<field name="use_point" string="使用的积分"/>-->
+                                        <!--<field name="discount_coupon" string="优惠卷抵扣的金额"/>-->
+                                        <!--<field name="remark" string="用户备注"/>-->
+                                        <!--<field name="product_amount" string="商品总金额"/>-->
+                                        <!--<field name="special_order_mark"/>-->
+                                        <!--<field name="reason"/>-->
+                                    <!--</group>-->
+                                <!--</group>-->
                                 <group>
                                     <group>
                                         <field name="company_id" options="{'no_create': 1, 'no_open': 1}"/>
@@ -343,7 +343,8 @@
                     <field name="amount_total" sum="Total Tax Included" widget="monetary" string="含税合计"/>
                     <field name="total_cost"/>
                     <field name="currency_id" invisible="1"/>
-                    <field name="state"/>
+                    <field name="state" invisible="1"/>
+                    <field name="status" string="订单状态"/>
                 </tree>
             </field>
         </record>

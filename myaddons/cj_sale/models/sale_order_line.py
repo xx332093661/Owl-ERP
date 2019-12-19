@@ -36,6 +36,10 @@ class SaleOrderLine(models.Model):
     discount_coupon = fields.Float('优惠卷抵扣的金额')
     discount_grant = fields.Float('临时抵扣金额')
 
+    apportion_discount_amount = fields.Float('分摊订单优惠')
+    apportion_platform_discount_amount = fields.Float('分推平台优惠')
+    apportion_freight_amount = fields.Float('分摊运费')
+
     @api.multi
     @api.depends('price_unit', 'tax_id')
     def _compute_untax_price_unit(self):

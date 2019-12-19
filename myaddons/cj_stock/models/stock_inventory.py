@@ -4,13 +4,15 @@ import pytz
 from lxml import etree
 from itertools import groupby
 import importlib
-import socket
+import xlwt
+import xlrd
+import json
 
 from odoo import models, fields, api, _
 from odoo.addons import decimal_precision as dp
 from odoo.exceptions import ValidationError, UserError
 from odoo.addons.stock.models.stock_inventory import Inventory
-from odoo.tools import float_compare, float_round, config
+from odoo.tools import float_compare, float_round, config, float_repr, float_is_zero
 
 INV_STATE = [
     ('draft', '草稿'),
@@ -66,6 +68,8 @@ class StockInventory(models.Model):
     exhausted = fields.Boolean('包含零库存产品', readonly=1, states={'draft': [('readonly', False)]}, default=True)
 
     communication = fields.Char(string='盘点差异说明')
+    diff_ids = fields.One2many('stock.inventory.diff', 'inventory_id', '盘点差异')
+    origin_ids = fields.One2many('stock.inventory.origin', 'inventory_id', '原始数据')
 
     @api.onchange('company_id')
     def _onchange_company_id(self):
@@ -312,7 +316,7 @@ class StockInventory(models.Model):
         """修改跨公司调拨"""
         tax_obj = self.env['account.tax']
 
-        for move in self.env['stock.across.move'].search([('name', 'in', ['SAM0005', 'SAM0006'])]):
+        for move in self.env['stock.across.move'].search([('name', 'in', ['SAM0005', 'SAM0006', 'SAM0007'])]):
             # 修改调拨明细的调拨成本字段值
             for line in move.line_ids:
                 line.cost = line.current_cost
@@ -333,13 +337,321 @@ class StockInventory(models.Model):
                     'taxes_id': [(6, 0, tax_ids)]
                 })
 
+    def adjust_stock_across_move1(self):
+        """修改跨公司调拨"""
+        tax_obj = self.env['account.tax']
+
+        for move in self.env['stock.across.move'].search([('name', 'in', ['SAM0004'])]):
+            # # 修改调拨明细的调拨成本字段值
+            # for line in move.line_ids:
+            #     line.cost = line.current_cost
+
+            # 修改销售订单明细的单价
+            tax_ids = tax_obj.search([('company_id', '=', move.sale_order_id.company_id.id), ('type_tax_use', '=', 'sale'), ('amount', '=', 13)]).ids
+            for line in move.sale_order_id.order_line:
+                line.write({
+                    'price_unit': move.line_ids.filtered(lambda x: x.product_id.id == line.product_id.id).cost * 1.13,
+                    'tax_id': [(6, 0, tax_ids)]
+                })
+
+            # 修改采购订单明细单价
+            tax_ids = tax_obj.search([('company_id', '=', move.purchase_order_id.company_id.id), ('type_tax_use', '=', 'sale'), ('amount', '=', 13)]).ids
+            for line in move.purchase_order_id.order_line:
+                line.write({
+                    'price_unit': move.line_ids.filtered(lambda x: x.product_id.id == line.product_id.id).cost * 1.13,
+                    'taxes_id': [(6, 0, tax_ids)]
+                })
+
+    def adjust_account_invoice(self):
+        """调整账单
+        跨公司调拨关联的采购销售订单
+        """
+
+    def adjust_stock_inventory_valuation_move(self):
+        """调整存货估值"""
+        def get_qty_available():
+            """计算在手数量"""
+
+            if stock_type == 'only':
+                r = list(filter(lambda x: x['company_id'] == company_id and x['stock_type'] == stock_type and x['product_id'] == product_id, res))
+            else:
+                r = list(filter(lambda x: x['cost_group_id'] == cost_group_id and x['stock_type'] == stock_type and x['product_id'] == product_id, res))
+
+            if not r:
+                if ttype == 'in':
+                    return product_qty
+                return -product_qty
+
+            if ttype == 'in':
+                return  r[-1]['new_qty_available'] + product_qty
+
+            return r[-1]['new_qty_available'] - product_qty
+
+        def get_unit_price():
+            """计算单位成本"""
+            if type_id == in_inventory_id:  # 盘盈
+                return move.unit_cost
+
+            if type_id in [across_in_id, consu_in_id, purchase_receipt_id]:  # 跨公司调入、易耗品入库、采购入库
+                return stock_move.purchase_line_id.untax_price_unit
+
+            if cost_type == 'store':  # 门店核算
+                r = list(filter(lambda x: x['product_id'] == product_id and x['company_id'] == company_id and x['stock_type'] == 'only', res))
+                if r:
+                    return r[-1]['new_stock_cost']
+                r = list(filter(lambda x: x['product_id'] == product_id and x['cost_group_id'] == cost_group_id and x['stock_type'] == 'all', res))
+                if r:
+                    return r[-1]['new_stock_cost']
+
+                return move.unit_cost
+
+            else:
+                r = list(filter(lambda x: x['product_id'] == product_id and x['cost_group_id'] == cost_group_id and x['stock_type'] == 'all', res))
+                if r:
+                    return r[-1]['new_stock_cost']
+
+                return move.unit_cost
+
+        def get_stock_cost():
+            """计算库存单位成本"""
+            if float_is_zero(new_qty_available, precision_rounding=0.01):
+                return new_unit_cost
+
+            if stock_type == 'all':
+                r = list(filter(lambda x: x['product_id'] == product_id and x['cost_group_id'] == cost_group_id and x['stock_type'] == stock_type, res))
+            else:
+                r = list(filter(lambda x: x['product_id'] == product_id and x['company_id'] == company_id and x['stock_type'] == stock_type, res))
+
+            if r:
+                if float_compare(r[-1]['new_qty_available'], 0, precision_rounding=0.01) <= 0:
+                    return new_unit_cost
+
+                stock_value = r[-1]['new_stock_value']
+            else:
+                stock_value = 0
+
+            if ttype == 'in':
+                stock_cost = (stock_value + product_qty * new_unit_cost) / new_qty_available
+            else:
+                stock_cost = (stock_value - product_qty * new_unit_cost) / new_qty_available
+
+            return  float_round(stock_cost, precision_digits=precision, rounding_method='HALF-UP')  # 保留3位小数
+
+        def get_stock_value():
+            """计算库存值"""
+            if float_compare(new_qty_available, 0, precision_rounding=0.01) <= 0:
+                return 0
+
+            return float_round(
+                new_qty_available * new_stock_cost,
+                precision_digits=precision,
+                rounding_method='HALF-UP')
+
+        valuation_obj = self.env['stock.inventory.valuation.move']
+        company_obj = self.env['res.company']
+        product_obj = self.env['product.product']
+        cost_group_obj = self.env['account.cost.group']
+        warehouse_obj = self.env['stock.warehouse']
+        move_type_obj = self.env['stock.inventory.valuation.move.type']
+
+        in_inventory_id = self.env.ref('cj_stock.in_inventory').id  # 盘盈
+        across_in_id = self.env.ref('cj_stock.across_in').id  # 跨公司调入
+        consu_in_id = self.env.ref('cj_stock.consu_in').id  # 易耗品入库
+        purchase_receipt_id = self.env.ref('cj_stock.purchase_receipt').id  # 采购入库
+
+        precision = self.env['decimal.precision'].precision_get('Inventory valuation')  # 估值精度
+
+        res = []
+        for move in valuation_obj.sudo().search([], order='id asc'):
+            ttype = move.type  # [('in', '入库'), ('out', '出库')] 出入类型
+            stock_type = move.stock_type
+            product_qty = move.product_qty  # 数量
+            company_id = move.company_id.id
+            cost_group_id = move.cost_group_id.id
+            type_id = move.type_id.id  # 移库类型
+            stock_move = move.move_id  # 库存称动
+            product = move.product_id
+            product_id = product.id
+            cost_type = product.cost_type  # 成本核算类型
+
+            new_unit_cost = get_unit_price()
+            new_qty_available = get_qty_available()  # 在手数量
+            new_stock_cost = get_stock_cost()
+            new_stock_value = get_stock_value()
+
+            res.append({
+                'id': move.id,
+                'company_id': company_id,
+                'cost_group_id': cost_group_id,
+                'warehouse_id': move.warehouse_id.id,
+                'type_id': type_id,
+                'type': ttype,
+                'stock_type': stock_type,
+
+                'product_id': product_id,
+                'date': move.date,
+                'done_datetime': move.done_datetime,
+                'product_qty': product_qty,
+
+                'unit_cost': move.unit_cost,
+                'qty_available': move.qty_available,
+                'stock_cost': move.stock_cost,
+                'stock_value': move.stock_value,
+
+                'new_unit_cost': new_unit_cost,
+                'new_qty_available': new_qty_available,
+                'new_stock_cost': new_stock_cost,
+                'new_stock_value': new_stock_value,
+            })
+
+        # workbook = xlwt.Workbook()
+        # worksheet = workbook.add_sheet('Sheet 1')
+        # worksheet.write(0, 0, 'id')
+        # worksheet.write(0, 1, '公司')
+        # worksheet.write(0, 2, '成本组')
+        # worksheet.write(0, 3, '仓库')
+        # worksheet.write(0, 4, '移库类型')
+        # worksheet.write(0, 5, '出入类型')
+        # worksheet.write(0, 6, '存货估值类型')
+        # worksheet.write(0, 7, '商品')
+        # worksheet.write(0, 8, '日期')
+        # worksheet.write(0, 9, '完成时间')
+        # worksheet.write(0, 10, '数量')
+        # worksheet.write(0, 11, '单位成本')
+        # worksheet.write(0, 12, '在手数量')
+        # worksheet.write(0, 13, '库存单位成本')
+        # worksheet.write(0, 14, '库存价值')
+        #
+        # worksheet.write(0, 15, '新单位成本')
+        # worksheet.write(0, 16, '新在手数量')
+        # worksheet.write(0, 17, '新库存单位成本')
+        # worksheet.write(0, 18, '新库存价值')
+        #
+        # row_index = 1
+        for r in res:
+            move = valuation_obj.sudo().browse(r['id'])
+            new_unit_cost = r['new_unit_cost']
+            vals = {}
+            if float_compare(move.unit_cost, new_unit_cost, precision_rounding=0.0001) != 0:
+                vals['unit_cost'] = new_unit_cost
+
+            new_qty_available = r['new_qty_available']
+            if float_compare(move.qty_available, new_qty_available, precision_rounding=0.01) != 0:
+                vals['qty_available'] = new_qty_available
+
+            new_stock_cost = r['new_stock_cost']
+            if float_compare(move.stock_cost, new_stock_cost, precision_rounding=0.0001) != 0:
+                vals['stock_cost'] = new_stock_cost
+
+            if vals:
+                move.write(vals)
+
+        #     worksheet.write(row_index, 0, str(r['id']))
+        #     worksheet.write(row_index, 1, company_obj.browse(r['company_id']).name)
+        #     worksheet.write(row_index, 2, cost_group_obj.browse(r['cost_group_id']).name)
+        #     worksheet.write(row_index, 3, warehouse_obj.browse(r['warehouse_id']).name)
+        #     worksheet.write(row_index, 4, move_type_obj.browse(r['type_id']).name)
+        #     worksheet.write(row_index, 5, r['type'])
+        #     worksheet.write(row_index, 6, r['stock_type'])
+        #     worksheet.write(row_index, 7, product_obj.browse(r['product_id']).partner_ref)
+        #     worksheet.write(row_index, 8, r['date'])
+        #     worksheet.write(row_index, 9, r['done_datetime'].strftime('%Y-%m-%d %H:%M:%S'))
+        #     worksheet.write(row_index, 10, r['product_qty'])
+        #     worksheet.write(row_index, 11, r['unit_cost'])
+        #     worksheet.write(row_index, 12, r['qty_available'])
+        #     worksheet.write(row_index, 13, r['stock_cost'])
+        #     worksheet.write(row_index, 14, r['stock_value'])
+        #
+        #     worksheet.write(row_index, 15, r['new_unit_cost'])
+        #     worksheet.write(row_index, 16, r['new_qty_available'])
+        #     worksheet.write(row_index, 17, r['new_stock_cost'])
+        #     worksheet.write(row_index, 18, r['new_stock_value'])
+        #
+        #     row_index += 1
+        #
+        # workbook.save('存货估值.xls')
+
+    def adjust_purchase_order_line_untax_price_unit(self):
+        """采购订单行的未税单价的小数位数改为3位"""
+
+        for line in self.env['purchase.order.line'].search([]):
+            line.untax_price_unit = float_repr(float_round(line.untax_price_unit, precision_digits=3), precision_digits=3)
+
+    def check_api_message_sale_order_amount(self):
+        """检查全渠道订单的金额差异"""
+        message_obj = self.env['api.message']
+        # 验证全渠道订单的订单金额与支付的金额是否相等
+        row_index = 1
+        workbook = xlwt.Workbook()
+        worksheet = workbook.add_sheet('Sheet 1')
+        worksheet.write(0, 0, '订单号')
+        worksheet.write(0, 1, '订单金额(liquidated)')
+        worksheet.write(0, 2, '支付金额(payments-paidAmount)')
+        worksheet.write(0, 3, '订单明细金额(items-finalPrice)')
+        for message in message_obj.search([('message_name', '=', 'mustang-to-erp-order-push')]):
+            content = json.loads(message.content)
+            liquidated = content['liquidated']  # 已支付金额
+            payments = content['payments']  # 支付明细
+            items = content['items']  # 订单明细
+
+            payment_amount = sum([payment['paidAmount'] for payment in payments])
+            order_line_amount = sum([line['finalPrice'] for line in items])
+
+            if order_line_amount != liquidated or payment_amount != liquidated:
+                worksheet.write(row_index, 0, str(content['code']))
+                worksheet.write(row_index, 1, liquidated)
+                worksheet.write(row_index, 2, payment_amount)
+                worksheet.write(row_index, 3, order_line_amount)
+
+                row_index += 1
+
+                # print('订单号：', content['code'], ' 订单金额：', liquidated, ' 支付金额：', payment_amount, ' 订单明细金额：', order_line_amount, ' 处理状态：', message.state)
+        workbook.save('全渠道订单金额差异.xls')
+
+    def check_order_push_status(self):
+        """全渠道订单接口的状态"""
+        message_obj = self.env['api.message']
+        states = []
+        for message in message_obj.search([('message_name', '=', 'mustang-to-erp-order-push')]):
+            content = json.loads(message.content)
+            status = content['status']
+            if status not in states:
+                states.append(status)
+
+        print(states)  # ['已支付', '已完成', '待发货']
+
+    def check_order_status_push(self):
+        """订单状态变更的状态"""
+        message_obj = self.env['api.message']
+        states = []
+        for message in message_obj.search([('message_name', '=', 'MUSTANG-ERP-ORDER-STATUS-PUSH')]):
+            content = json.loads(message.content)
+            status = content['body']['orderState']
+            if status not in states:
+                states.append(status)
+
+        print(states)  # ['finished', 'cancelled', 'outbound', 'some']
+
     def _cron_done_inventory(self):
         """临时接口"""
-        self.adjust_stock_across_move()
+        # self.adjust_account_invoice()
         # self.check_valuation_move_amount()
         # self.check_stock_inventory_valuation_move()
 
+        # 修改存货估值
+        # self.adjust_stock_across_move()
+        # # self.adjust_stock_across_move1()
+        # self.adjust_purchase_order_line_untax_price_unit()  # 采购订单行的未税单价的小数位数改为3位
+        # self.adjust_stock_inventory_valuation_move()
 
+        # 检查全渠道订单的金额差异
+        # self.check_api_message_sale_order_amount()
+
+        # 全渠道订单接口的状态
+        # self.check_order_push_status()
+
+        # 订单状态变更的状态
+        self.check_order_status_push()
 
 class InventoryLine(models.Model):
     """
@@ -562,6 +874,32 @@ class InventoryLine(models.Model):
         })
 
         return super(InventoryLine, self).create(vals)
+
+    @api.one
+    @api.depends('location_id', 'product_id', 'package_id', 'product_uom_id', 'company_id', 'prod_lot_id', 'partner_id', 'inventory_id.company_id')
+    def _compute_theoretical_qty(self):
+        """根据盘点时间来计算在手数量"""
+        if not self.product_id:
+            self.theoretical_qty = 0
+            return
+
+        lot_id = None
+        owner_id = None
+        package_id = None
+        from_date = False
+        to_date = self._context.get('to_date', datetime.now())
+        company_id = self.inventory_id.company_id.id
+        res = self.product_id.with_context(owner_company_id=company_id)._compute_quantities_dict(lot_id, owner_id, package_id, from_date, to_date)
+        self.theoretical_qty = res[self.product_id.id]['qty_available']
+        # theoretical_qty = self.product_id.get_theoretical_quantity(
+        #     self.product_id.id,
+        #     self.location_id.id,
+        #     lot_id=self.prod_lot_id.id,
+        #     package_id=self.package_id.id,
+        #     owner_id=self.partner_id.id,
+        #     to_uom=self.product_uom_id.id,
+        # )
+        # self.theoretical_qty = theoretical_qty
 
 
 READONLY_STATES = {
@@ -900,5 +1238,29 @@ class StockInventoryDiffReceiptLine(models.Model):
         """计算金额"""
         for line in self:
             line.amount = float_round(line.product_qty * line.cost, precision_rounding=0.01, rounding_method='HALF-UP')
+
+
+class StockInventoryOrigin(models.Model):
+    _name = 'stock.inventory.origin'
+    _description = '盘点原始数据'
+
+    inventory_id = fields.Many2one('stock.inventory', '盘点单', ondelete='restrict')
+    product_id = fields.Many2one('product.product', '商品')
+
+    real_stock = fields.Float('实时库存')
+    diff_quantity = fields.Float('差异数量', help='盘（+盈）（-亏）数量')
+    inventory_type = fields.Selection([('ZP', '正品'), ('CC', '残次品')], '库存类型')
+
+
+class StockInventoryDiff(models.Model):
+    _name = 'stock.inventory.diff'
+    _description = 'ERP与中台盘点差异'
+
+    inventory_id = fields.Many2one('stock.inventory', '盘点单', ondelete='restrict')
+    product_id = fields.Many2one('product.product', '商品')
+
+    erp_product_qty = fields.Float('ERP在手数量')
+    zt_product_qty = fields.Float('仓库在手数量')
+    diff_qty = fields.Float('差异数量', help='ERP在手数量 - 仓库在手数量')
 
 

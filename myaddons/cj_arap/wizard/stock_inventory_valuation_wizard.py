@@ -31,6 +31,7 @@ class StockInventoryValuationWizard(models.TransientModel):
 
     company_ids = fields.Many2many('res.company', string='公司')
     date_from = fields.Date('开始日期', default=lambda self: (datetime.now() - relativedelta(months=1)).strftime(DATE_FORMAT))
+    date_to = fields.Date('截止日期', default=lambda self: datetime.now().date())
 
     show_type = fields.Selection([('all', '所有细节'), ('day', '每天截止')], '显示类型', default='day', required=1)
 
@@ -91,6 +92,9 @@ class StockInventoryValuationWizard(models.TransientModel):
 
         if self.date_from:
             domain.append(('date', '>=', self.date_from))
+
+        if self.date_to:
+            domain.append(('date', '<=', self.date_to))
 
         if self.show_type == 'all':  # 显示所有细节
             return {

@@ -56,11 +56,11 @@
                                 states="confirm"
                                 class="oe_highlight" groups="purchase.group_purchase_manager"/>
 
-                        <button name="finance_manager_confirm" type="object"
-                                class="oe_highlight"
-                                states="purchase_manager_confirm" string="财务经理审核" groups="account.group_account_manager"/>
+                        <!--<button name="finance_manager_confirm" type="object"-->
+                                <!--class="oe_highlight"-->
+                                <!--states="purchase_manager_confirm" string="财务经理审核" groups="account.group_account_manager"/>-->
 
-                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,purchase_manager_confirm,finance_manager_confirm" readonly="1"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirm,finance_manager_confirm" readonly="1"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">

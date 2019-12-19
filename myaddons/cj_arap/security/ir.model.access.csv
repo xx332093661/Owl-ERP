@@ -95,6 +95,13 @@ access_account_account_type_cashier,account.account.type cashier,account.model_a
 access_account_partial_reconcile_stock_user,account.partial.reconcile stock_user,account.model_account_partial_reconcile,stock.group_stock_user,1,1,1,0
 
 
+account_invoice_split_purchase_self, account.invoice.split purchase_self,model_account_invoice_split,cj_purchase.group_purchase_self,1,1,1,0
+account_account_payment_apply_purchase_self, account_payment_apply purchase_self,model_account_payment_apply,cj_purchase.group_purchase_self,1,1,1,1
+account_account_payment_purchase_self, account.payment purchase_self,account.model_account_payment,cj_purchase.group_purchase_self,1,0,0,0
+access_account_invoice_register_purchase_self,account_invoice_register purchase_self,model_account_invoice_register,cj_purchase.group_purchase_self,1,1,1,1
+access_account_invoice_register_line_purchase_self,account_invoice_register_line purchase_self,model_account_invoice_register_line,cj_purchase.group_purchase_self,1,1,1,1
+
+
 
 
 

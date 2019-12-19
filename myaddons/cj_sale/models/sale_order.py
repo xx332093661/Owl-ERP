@@ -58,6 +58,8 @@ class SaleOrder(models.Model):
     freight_amount = fields.Float('运费')
     use_point = fields.Integer('使用积分')
     discount_amount = fields.Float('优惠金额')
+    # line_discount_amount = fields.Float('订单行优惠金额', compute='_amount_all', digits=(16, 2))
+    platform_discount_amount = fields.Float('平台优惠金额')
     discount_pop = fields.Float('促销活动优惠抵扣的金额')
     discount_coupon = fields.Float('优惠卷抵扣的金额')
     discount_grant = fields.Float('临时抵扣金额')

@@ -38,7 +38,15 @@ class PurchaseOrderImport(models.TransientModel):
             except ValueError:
                 return False
 
+        def get_taxs_id():
+            tax = tax_obj.search([('type_tax_use', '=', 'purchase'),
+                            ('company_id', '=', order.company_id.id), ('amount', '=', tax_rate)], limit=1)
+            if not tax:
+                raise ValidationError('公司：%s采购税率：%s%%不存在，请联系财务人员创建' % (order.company_id.name, tax_rate))
+            return [(6, 0, [tax.id])]
+
         product_obj = self.env['product.product']
+        tax_obj = self.env['account.tax']
         # order_line_obj = self.env['purchase.order.line']
 
         file_name = '%s.xls' % uuid.uuid1().hex
@@ -65,10 +73,6 @@ class PurchaseOrderImport(models.TransientModel):
                 assert is_numeric(price), '价格%s必须是数字' % price
 
             order = self.env['purchase.order'].browse(self._context['active_id'])
-            tax = self.env['account.tax'].search([('company_id', '=', order.company_id.id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
-            taxes_id = False
-            if tax:
-                taxes_id = [(6, 0, tax.ids)]
 
             warehouse_id = order.picking_type_id.warehouse_id.id
             payment_term_id = order.payment_term_id.id
@@ -79,7 +83,8 @@ class PurchaseOrderImport(models.TransientModel):
                 product_code = line[0]  # 商品编码
                 # product_name = line[1]  # 商品名称
                 product_qty = line[2]  # 采购数量
-                price = line[3]  # 采购单价
+                price = line[3]  # 采购单价（含税）
+                tax_rate = line[4]  # 税率
 
                 if isinstance(product_code, float):
                     product_code = str(int(product_code))
@@ -98,7 +103,7 @@ class PurchaseOrderImport(models.TransientModel):
                     'product_uom': product.uom_id.id,
                     'payment_term_id': payment_term_id,
                     'warehouse_id': warehouse_id,
-                    'taxes_id': taxes_id
+                    'taxes_id': get_taxs_id()
                 }))
 
             if vals_list:

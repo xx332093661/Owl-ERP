@@ -65,6 +65,10 @@ class StockPicking(models.Model):
                                      user.has_group('cj_sale.role_sale_manage')):
             exist = True
 
+        # 仓库经理可创建修改
+        if user.has_group('stock.group_stock_manager'):
+            exist = False
+
         if view_type == 'tree' and exist:
             doc = etree.XML(result['arch'])
             node = doc.xpath("//tree")[0]

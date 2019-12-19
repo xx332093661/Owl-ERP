@@ -32,7 +32,7 @@ class SaleOrder(models.Model):
 
     cost_ids = fields.One2many('sale.order.line.cost', 'order_id', '销售订单明细成本')
 
-    write_off_amount = fields.Float('订单核销额', compute='_compute_write_off_amount', store=1, digits=(16, DIGITS), help='所有订单的总销售额 / 所有订单的成本 * 当前订单的成本')
+    write_off_amount = fields.Float('订单核销额(含税)', compute='_compute_write_off_amount', store=1, digits=(16, DIGITS), help='所有订单的总销售额 / 所有订单的成本 * 当前订单的成本')
 
     goods_cost = fields.Float('商品成本', compute='_compute_goods_cost', store=1, digits=(16, DIGITS))
     shipping_cost = fields.Float(string="物流成本", compute='_compute_shipping_cost', store=1, digits=(16, DIGITS))
@@ -41,7 +41,7 @@ class SaleOrder(models.Model):
 
     total_cost = fields.Float('总成本', compute='_compute_total_cost', store=1, digits=(16, DIGITS), help='总成本=订单商品成本+订单物流成本+订单纸箱成本+订单打包成本')
     write_off_amount_tax = fields.Float('核销税金', compute='_compute_write_off_amount_tax', store=1, digits=(16, DIGITS), help='核销税金 = 订单的核销额 / (1 + 0.13) * 0.13')
-    write_off_amount_total = fields.Float('销售核销额', compute='_compute_write_off_amount_total', store=1, digits=(16, DIGITS), help='销售核销额 = 订单核销额 - 核销税金')
+    write_off_amount_total = fields.Float('销售核销额(不含税)', compute='_compute_write_off_amount_total', store=1, digits=(16, DIGITS), help='销售核销额 = 订单核销额 - 核销税金')
 
     gross_profit = fields.Float('毛利', compute='_compute_gross_profit', store=1, digits=(16, DIGITS), help='订单毛利 = 订单核销额 - 订单总成本')
     gross_profit_rate = fields.Float('毛利率', compute='_compute_gross_profit_rate', store=1, digits=(16, DIGITS), help='订单毛利率 = 订单毛利 / 订单核销额 * 100')
@@ -77,7 +77,7 @@ class SaleOrder(models.Model):
     @api.multi
     @api.depends('amount_total', 'total_cost', 'child_ids.amount_total', 'child_ids.total_cost', 'parent_id.amount_total', 'parent_id.total_cost')
     def _compute_write_off_amount(self):
-        """计算订单核销额
+        """计算订单核销额(含税)
         订单的核销额 = 所有订单的总销售额 / 所有订单的成本 * 当前订单的成本
         所有订单的总销售额：amount_total
         所有订单的成本：total_cost
@@ -113,7 +113,7 @@ class SaleOrder(models.Model):
     @api.multi
     @api.depends('write_off_amount', 'write_off_amount_tax')
     def _compute_write_off_amount_total(self):
-        """计算销售核销额
+        """计算销售核销额(不含税)
         销售核销额 = 订单核销额 - 核销税金
         订单核销额 = order.write_off_amount
         核销税金 = order.write_off_amount_tax
@@ -124,15 +124,15 @@ class SaleOrder(models.Model):
                 order.write_off_amount_total = write_off_amount_total
 
     @api.multi
-    @api.depends('total_cost', 'write_off_amount')
+    @api.depends('total_cost', 'write_off_amount_total')
     def _compute_gross_profit(self):
         """计算订单毛利
-        订单毛利 = 订单核销额 - 订单总成本
-        订单核销额：order.write_off_amount
+        订单毛利 = 销售核销额(不含税) - 订单总成本(不含税)
+        销售核销额(不含税)：order.write_off_amount_total
         订单行总成本：order.total_cost
         """
         for order in self:
-            gross_profit = order.write_off_amount - order.total_cost
+            gross_profit = order.write_off_amount_total - order.total_cost
             if float_compare(gross_profit, order.gross_profit, precision_digits=DIGITS) != 0:
                 order.gross_profit = gross_profit
 
@@ -255,7 +255,7 @@ class SaleOrderLine(models.Model):
     def _compute_total_cost(self):
         """计算总成本(不含税)"""
         for line in self:
-            total_cost = line.goods_cost + line.shipping_cost + line.box_cost + line.packing_cost
+            total_cost = line.goods_cost + line.shipping_cost + line.box_cost + line.packing_cost  # TODO 物流成本、纸箱成本、打包成本是含税的
             if float_compare(total_cost, line.total_cost, precision_digits=DIGITS) != 0:
                 line.total_cost = total_cost
 
@@ -278,9 +278,9 @@ class SaleOrderLine(models.Model):
     def _compute_cost_price(self):
         """计算订单行的核销单价（含税）
         a、订单行销售单价等于0：
-        核销单价= 订单核销额 / 订单总成本 * 订单行单位成本
+        核销单价= 订单核销额(含税)(order_id.write_off_amount) / 订单总成本(不含税)(order_id.total_cost) * 订单行单位成本(不含税)(line.unit_cost)
         b、订单行销售单价大于0：
-        核销单价= 订单核销额 / 订单销售总额 * 订单行销售单价
+        核销单价= 订单核销额(含税)(order_id.write_off_amount) / 订单销售总额(含税)(order_id.amount_total) * 订单行销售单价(含税)(line.price_unit)
 
         订单核销额 = order_id.write_off_amount
         订单总成本 = order_id.total_cost
@@ -338,7 +338,7 @@ class SaleOrderLine(models.Model):
     @api.multi
     @api.depends('write_off_amount', 'write_off_amount_tax')
     def _compute_write_off_amount_total(self):
-        """计算订单行商品核销额
+        """计算订单行商品核销额(不含税)
         商品核销额 = 订单行核销额 - 订单行核销税金
         订单行核销额 = line.write_off_amount
         核销税金 = line.write_off_amount_tax
@@ -353,7 +353,7 @@ class SaleOrderLine(models.Model):
     @api.depends('write_off_amount_total', 'total_cost')
     def _compute_gross_profit(self):
         """计算订单行毛利
-        订单行毛利 = 订单行商品核销额 - 总成本（不含税）
+        订单行毛利 = 订单行商品核销额(不含税) - 订单行总成本（不含税）
         订单行商品核销额 = line.write_off_amount_total
         总成本（不含税）= line.total_cost
         """
@@ -363,19 +363,19 @@ class SaleOrderLine(models.Model):
                 line.gross_profit = gross_profit
 
     @api.multi
-    @api.depends('gross_profit', 'write_off_amount_total')
+    @api.depends('gross_profit', 'write_off_amount')
     def _compute_gross_profit_rate(self):
         """计算订单行毛利率
-        订单行毛利率 = 订单行毛利 / 订单行商品核销额 * 100
+        订单行毛利率 = 订单行毛利 / 订单行核销额（含税） * 100
         订单行毛利 = line.gross_profit
-        订单行商品核销额 = line.write_off_amount_total
+        订单行核销额（含税） = line.write_off_amount
         """
         for line in self:
-            write_off_amount_total = line.write_off_amount_total
-            if float_is_zero(write_off_amount_total, precision_rounding=0.01):
+            write_off_amount = line.write_off_amount
+            if float_is_zero(write_off_amount, precision_rounding=0.01):
                 continue
 
-            gross_profit_rate = line.gross_profit / line.write_off_amount_total * 100
+            gross_profit_rate = line.gross_profit / line.write_off_amount * 100
             if float_compare(gross_profit_rate, line.gross_profit_rate, precision_digits=DIGITS) != 0:
                 line.gross_profit_rate = gross_profit_rate
 

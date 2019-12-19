@@ -261,9 +261,16 @@ class PosInterface(http.Controller):
                 'state': 0,
                 'msg': '没有出库明细！'
             }
+        location_id = picking_type.default_location_src_id.id
+        picking = picking_obj.search([('origin', '=', data['out_order_name']), ('location_id', '=', location_id)])
+        if picking:
+            return {
+                'state': 0,
+                'msg': '出库单号：%s重复！' % data['out_order_name']
+            }
 
         picking = picking_obj.create({
-            'location_id': picking_type.default_location_src_id.id,  # 源库位(库存库位)
+            'location_id': location_id,  # 源库位(库存库位)
             'location_dest_id': location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 目的库位(客户库位)
             'picking_type_id': picking_type.id,  # 作业类型
             'origin': data['out_order_name'],  # 关联单据

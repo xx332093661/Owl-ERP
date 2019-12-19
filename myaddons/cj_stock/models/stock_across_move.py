@@ -47,8 +47,8 @@ class StockAcrossMove(models.Model):
     line_ids = fields.One2many('stock.across.move.line', 'move_id', '调拨明细', readonly=1, states=READONLY_STATES)
     # picking_in_ids = fields.One2many('stock.picking', '调入分拣', compute='_compute_stock_picking')
     # picking_out_ids = fields.One2many('stock.picking', '调出分拣', compute='_compute_stock_picking')
-    picking_in_count = fields.Integer('调入分拣', related='sale_order_id.delivery_count')
-    picking_out_count = fields.Integer('调出分拣', related='purchase_order_id.picking_count')
+    picking_in_count = fields.Integer('调入分拣', related='purchase_order_id.picking_count')
+    picking_out_count = fields.Integer('调出分拣', related='sale_order_id.delivery_count')
     diff_ids = fields.One2many('stock.across.move.diff', 'move_id', '调入调出差异')
 
     # origin_sale_order_id = fields.Many2one('sale.order', '来源', readonly=1, track_visibility='onchange')
@@ -157,7 +157,7 @@ class StockAcrossMove(models.Model):
         })
         sale_order.action_confirm()  # 确认销售订单
         # 创建采购订单
-        tax = tax_obj.search([('company_id', '=', company_in_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
+        tax = tax_obj.sudo().search([('company_id', '=', company_in_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
         purchase_order = self.env['purchase.order'].sudo().create({
             'partner_id': company_out.partner_id.id,
             'picking_type_id': get_picking_type(),
