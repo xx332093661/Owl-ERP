@@ -1457,6 +1457,7 @@ class ApiMessage(models.Model):
 
                 picking.button_validate()  # 确认出库
                 order.action_done()  # 完成订单
+                order.status = '已完成'
 
     # 10、MUSTANG-ERP-RECIPIENT-QUEUE 客情单
     def deal_mustang_erp_recipient_queue(self, content):
