@@ -6,6 +6,7 @@
                 <link rel="stylesheet" type="text/scss" href="/cj_web/static/src/scss/app.scss"/>
                 <script type="text/javascript" src="/cj_web/static/src/js/app_window_title.js"/>
                 <script type="text/javascript" src="/cj_web/static/src/js/user_menu.js"/>
+                <script type="text/javascript" src="/cj_web/static/src/js/list_renderer.js"/>
             </xpath>
         </template>
 </odoo>

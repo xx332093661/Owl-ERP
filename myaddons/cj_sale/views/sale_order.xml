@@ -248,30 +248,30 @@
                                 <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
                                     <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}"/>
 
-                                    <div class="oe_inline o_td_label">
-                                        <label for="amount_tax" string="+ 税"/>
-                                    </div>
-                                    <field name="amount_tax" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <!--<div class="oe_inline o_td_label">-->
+                                        <!--<label for="amount_tax" string="+ 税"/>-->
+                                    <!--</div>-->
+                                    <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}"/>
 
-                                    <div class="oe_inline o_td_label">
-                                        <label for="freight_amount" string="+ 运费"/>
-                                    </div>
-                                    <field name="freight_amount" nolabel="1"  widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <!--<div class="oe_inline o_td_label">-->
+                                        <!--<label for="freight_amount" string="+ 运费"/>-->
+                                    <!--</div>-->
+                                    <!--<field name="freight_amount" nolabel="1"  widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
 
-                                    <div class="oe_inline o_td_label">
-                                        <label for="discount_amount" string="- 订单优惠金额"/>
-                                    </div>
-                                    <field name="discount_amount" nolabel="1"  widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <!--<div class="oe_inline o_td_label">-->
+                                        <!--<label for="discount_amount" string="- 订单优惠金额"/>-->
+                                    <!--</div>-->
+                                    <!--<field name="discount_amount" nolabel="1"  widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
 
-                                    <div class="oe_inline o_td_label">
-                                        <label for="platform_discount_amount" string="- 平台优惠金额"/>
-                                    </div>
-                                    <field name="platform_discount_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <!--<div class="oe_inline o_td_label">-->
+                                        <!--<label for="platform_discount_amount" string="- 平台优惠金额"/>-->
+                                    <!--</div>-->
+                                    <!--<field name="platform_discount_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
 
-                                    <div class="oe_inline o_td_label">
-                                        <label for="line_discount_amount" string="- 商品优惠金额"/>
-                                    </div>
-                                    <field name="line_discount_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <!--<div class="oe_inline o_td_label">-->
+                                        <!--<label for="line_discount_amount" string="- 商品优惠金额"/>-->
+                                    <!--</div>-->
+                                    <!--<field name="line_discount_amount" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>-->
 
                                     <div class="oe_subtotal_footer_separator oe_inline o_td_label">
                                         <label for="amount_total"/>
@@ -332,15 +332,15 @@
                                     <group col="2" colspan="2">
                                         <field name="status" string="订单状态"/>
                                         <field name="order_amount" string="订单金额"/>
-                                        <!--<field name="platform_discount_amount" string="平台优惠金额"/>-->
-                                        <!--<field name="discount_amount" string="优惠金额"/>-->
+                                        <field name="platform_discount_amount" string="平台优惠金额"/>
+                                        <field name="discount_amount" string="订单优惠金额"/>
                                         <field name="discount_grant" string="临时抵扣金额"/>
                                         <field name="self_remark" string="客服备注"/>
                                         <field name="total_amount" string="订单总金额"/>
                                     </group>
                                     <group col="2" colspan="2">
                                         <field name="payment_state" string="支付状态"/>
-                                        <!--<field name="freight_amount" string="运费"/>-->
+                                        <field name="freight_amount" string="运费"/>
                                         <field name="discount_pop" string="促销活动优惠抵扣的金额"/>
                                         <field name="delivery_type" string="配送方式"/>
                                         <field name="user_level" string="用户等级"/>

@@ -12,11 +12,11 @@ import csv
 import os
 
 from odoo import fields, models, api
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import ValidationError
 from .rabbit_mq_receive import RabbitMQReceiveThread
 from .rabbit_mq_send import RabbitMQSendThread
 from .rabbit_mq_receive import MQ_SEQUENCE
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, float_compare, float_is_zero, config
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, float_compare, float_is_zero, config, float_round
 
 _logger = logging.getLogger(__name__)
 
@@ -1253,8 +1253,53 @@ class ApiMessage(models.Model):
                 'discount_pop': item['discountPop'] / 100,  # 促销活动优惠抵扣的金额
                 'discount_coupon': item['discountCoupon'] / 100,  # 优惠卷抵扣的金额
                 'discount_grant': item['discountGrant'] / 100,  # 临时抵扣金额
+                'apportion_discount_amount': apportion_discount_amount, # 分摊订单优惠
+                'apportion_freight_amount': apportion_freight_amount,  # 分摊运费
+                'apportion_platform_discount_amount': apportion_platform_discount_amount,  # 分推平台优惠
             })
             return order_line
+
+        def get_apportion_discount_amount():
+            """分摊订单优惠"""
+            if float_is_zero(final_price, precision_rounding=0.001) or float_is_zero(discount_amount, precision_rounding=0.01):
+                return 0
+
+            # 最后一行
+            if line_index == len(items) - 1:
+                return discount_amount - apportion_discount_amount_total
+
+            return float_round(
+                discount_amount / line_amount * final_price,
+                precision_digits=2,
+                rounding_method='HALF-UP')
+
+        def get_apportion_platform_discount_amount():
+            """分推平台优惠"""
+            if float_is_zero(final_price, precision_rounding=0.001) or float_is_zero(platform_discount_amount, precision_rounding=0.01):
+                return 0
+
+            # 最后一行
+            if line_index == len(items) - 1:
+                return platform_discount_amount - apportion_platform_discount_amount_total
+
+            return float_round(
+                platform_discount_amount / line_amount * final_price,
+                precision_digits=2,
+                rounding_method='HALF-UP')
+
+        def get_apportion_freight_amount():
+            """分摊运费"""
+            if float_is_zero(final_price, precision_rounding=0.001) or float_is_zero(freight_amount, precision_rounding=0.01):
+                return 0
+
+            # 最后一行
+            if line_index == len(items) - 1:
+                return freight_amount - apportion_freight_amount_total
+
+            return float_round(
+                freight_amount / line_amount * final_price,
+                precision_digits=2,
+                rounding_method='HALF-UP')
 
         order_obj = self.env['sale.order']
         order_line_obj = self.env['sale.order.line']
@@ -1283,12 +1328,13 @@ class ApiMessage(models.Model):
         freight_amount = content['freightAmount']  # 运费
         discount_amount = content['discountAmount']  # 订单优惠金额
         platform_discount_amount = content.get('platformDiscountAmount', 0)  # 平台优惠金额
+
         line_discount_amount = sum([item['discountAmount'] for item in content['items']])  # 商品优惠金额
         line_amount = sum([item['finalPrice'] for item in content['items']])  # 订单行金额
         payment_amount = sum([payment['paidAmount'] for payment in content['payments']])  # 支付的金额
 
         # 支付金额不等于商品金额
-        if line_amount != payment_amount:
+        if line_amount != payment_amount + platform_discount_amount + discount_amount:
             raise MyValidationError('50', '支付金额：%s不等于商品金额：%s' % (payment_amount / 100, line_amount / 100))
 
         # 支付金额 = 订单金额 + 运费 - 平台优惠金额 - 订单优惠金额 - 商品优惠金额
@@ -1315,22 +1361,81 @@ class ApiMessage(models.Model):
         if tax:
             tax_id = [(6, 0, tax.ids)]
 
-        for line_index, item in enumerate(content['items']):
+        # 订单行合并
+        items = []
+        for item in content['items']:
             product = self.get_product(item['code'])
-            product_id = product.id
+            res = list(filter(lambda x: x['product_id'] == product.id, items))
+            if res:
+                res = res[0]
+                res.update({
+                    'finalPrice': res['finalPrice'] + item['finalPrice'],
+                    'quantity': res['quantity'] + item['quantity'],
+                    # 'marketPrice': res['marketPrice'] + item['marketPrice'],
+                    # 'price': res['price'] + item['price'],
+                    'discountAmount': res['discountAmount'] + item['discountAmount'],
+                    'usePoint': res['usePoint'] + item['usePoint'],
+                    'discountPop': res['discountPop'] + item['discountPop'],
+                    'discountCoupon': res['discountCoupon'] + item['discountCoupon'],
+                    'discountGrant': res['discountGrant'] + item['discountGrant'],
+                })
+            else:
+                items.append({
+                    'product_id': product.id,
+                    'finalPrice': item['finalPrice'],
+                    'quantity': item['quantity'],
+                    'marketPrice': item['marketPrice'],
+                    'price': item['price'],
+                    'discountAmount': item['discountAmount'],
+                    'usePoint': item['usePoint'],
+                    'discountPop': item['discountPop'],
+                    'discountCoupon': item['discountCoupon'],
+                    'discountGrant': item['discountGrant'],
+                })
+
+        apportion_discount_amount_total = 0  # 累计分摊订单优惠
+        apportion_freight_amount_total = 0  # 累计分摊运费
+        apportion_platform_discount_amount_total = 0  # 累计分推平台优惠
+        for line_index, item in enumerate(items):
+            product_id = item['product_id']
             final_price = item['finalPrice']  # 最终收款
             quantity = item['quantity']
+            apportion_discount_amount = get_apportion_discount_amount()  # 分摊订单优惠
+            apportion_freight_amount = get_apportion_freight_amount()  # 分摊运费
+            apportion_platform_discount_amount = get_apportion_platform_discount_amount()  # 分推平台优惠
+            apportion_discount_amount_total += apportion_discount_amount
+            apportion_freight_amount_total += apportion_freight_amount
+            apportion_platform_discount_amount_total += apportion_platform_discount_amount
+
+            price_total = final_price + apportion_freight_amount - apportion_discount_amount - apportion_platform_discount_amount
             # 订单行拆分
-            remainder = final_price - int(final_price / quantity) * quantity
+            remainder = price_total - int(price_total / quantity) * quantity
             if remainder:
-                avg_price = int(final_price / quantity) / 100.0
+                avg_price = int(price_total / quantity) / 100.0
                 for i in range(2):
                     if i == 0:
                         first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
                     else:
-                        create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_total)
+                        create_sale_order_line(product_id, 1, price_total / 100.0 - first_order_line.price_total)
             else:
-                create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
+                create_sale_order_line(product_id, quantity, price_total / 100.0 / quantity)
+
+        # for line_index, item in enumerate(content['items']):
+        #     product = self.get_product(item['code'])
+        #     product_id = product.id
+        #     final_price = item['finalPrice']  # 最终收款
+        #     quantity = item['quantity']
+        #     # 订单行拆分
+        #     remainder = final_price - int(final_price / quantity) * quantity
+        #     if remainder:
+        #         avg_price = int(final_price / quantity) / 100.0
+        #         for i in range(2):
+        #             if i == 0:
+        #                 first_order_line = create_sale_order_line(product_id, quantity - 1, avg_price)
+        #             else:
+        #                 create_sale_order_line(product_id, 1, final_price / 100.0 - first_order_line.price_total)
+        #     else:
+        #         create_sale_order_line(product_id, quantity, final_price / 100.0 / quantity)
 
         # 售酒机业务，直接出库
         if channel_code in ['enomatic']:
