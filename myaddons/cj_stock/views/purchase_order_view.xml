@@ -3,7 +3,7 @@
     <!--采购订单-->
     <data>
         <record id="purchase.purchase_rfq" model="ir.actions.act_window">
-            <field name="domain">[('is_across_move', '=', False)]</field>
+            <field name="domain">[('is_across_move', '=', False), ('is_tobacco', '=', False)]</field>
             <!--<field name="view_mode">tree,form</field>-->
         </record>
     </data>
@@ -23,7 +23,7 @@
         </record>
 
         <menuitem name="跨公司调拨采购订单" id="menu_action_across_move_purchase_order" action="action_across_move_purchase_order"
-                  parent="cj_purchase.menu_purchase_operation" sequence="35" groups="purchase.group_purchase_user,cj_purchase.group_purchase_general_manager" />
+                  parent="cj_purchase.menu_purchase_operation" sequence="3" groups="purchase.group_purchase_user,cj_purchase.group_purchase_general_manager" />
 
     </data>
 

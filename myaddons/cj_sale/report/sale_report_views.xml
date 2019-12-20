@@ -9,8 +9,8 @@
                 <field name="company_id" type="row"/>
                 <field name="product_id" type="row"/>
                 <field name="date" interval="month" type="col"/>
-                <field name="product_uom_qty" type="measure"/>
-                <field name="price_total" type="measure"/>
+                <field name="product_uom_qty" type="measure" string="销售数量"/>
+                <field name="price_total" type="measure" string="销售金额"/>
             </pivot>
         </field>
     </record>
@@ -68,8 +68,8 @@
                 <field name="product_id" type="row"/>
                 <field name="date" interval="month" type="col"/>
                 <field name="channel_id" type="col"/>
-                <field name="product_uom_qty" type="measure"/>
-                <field name="price_total" type="measure"/>
+                <field name="product_uom_qty" type="measure" string="销售数量"/>
+                <field name="price_total" type="measure" string="销售金额"/>
             </pivot>
         </field>
     </record>
@@ -95,8 +95,8 @@
             <pivot disable_linking="True">
                 <field name="product_id" type="row"/>
                 <field name="date" interval="month" type="col"/>
-                <field name="product_uom_qty" type="measure"/>
-                <field name="price_total" type="measure"/>
+                <field name="product_uom_qty" type="measure" string="销售数量"/>
+                <field name="price_total" type="measure" string="销售金额"/>
             </pivot>
         </field>
     </record>

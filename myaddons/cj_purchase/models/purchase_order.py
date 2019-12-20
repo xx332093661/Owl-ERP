@@ -145,6 +145,7 @@ class PurchaseOrder(models.Model):
     flow_id = fields.Char('OA审批流ID', track_visibility='onchange')
 
     can_push_pos = fields.Boolean('是否可推送到POS', compute='_compute_can_push_pos')
+    is_tobacco = fields.Boolean('是烟草采购订单', default=False)
 
     @api.model
     def create(self, vals):
