@@ -525,8 +525,8 @@ class PurchaseOrder(models.Model):
     def action_manager_approval(self):
         """因为提交OA审批等待时间太久，可由系统管理员角色直接审批，而无需OA审批"""
         self.ensure_one()
-        if self.state != 'oa_sent':
-            raise ValidationError('只有提交审批的单据才可以由管理员审批！')
+        if self.state not in ['oa_sent', 'confirm']:
+            raise ValidationError('只有确认或提交审批的单据才可以由管理员审批！')
 
         self.state = 'oa_accept'  # 审批通过
 

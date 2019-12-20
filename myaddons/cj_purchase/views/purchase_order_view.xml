@@ -78,7 +78,7 @@
                     <button name="button_approve" states="oa_accept" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/>
                     <button name="action_manager_approval" type="object" states="confirm,oa_sent" string="直接审批" groups="base.group_system"/>
                     <button name="action_commit_approval" type="object" states="confirm" string="提交OA审批" class="oe_highlight"/>
-                    <button name="action_push_pos" type="object" states="purchase,done" string="推送POS" attrs="{'invisible': [('can_push_pos', '!=', True)]}"/>
+                    <button name="action_push_pos" type="object" string="推送POS" attrs="{'invisible': [('can_push_pos', '!=', True)]}"/>
 
                     <!--<button name="action_supplier_send" states="Master_Review" string="下载打印发货单" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
 
