@@ -78,11 +78,11 @@ class ProductSupplierModel(models.Model):
         return super(ProductSupplierModel, self).write(vals)
 
     @api.multi
-    @api.constrains('product_id', 'payment_term_id')
+    @api.constrains('product_id', 'payment_term_id', 'company_id')
     def _check_joint_sale_after_payment(self):
         """校验联营和销售后付款"""
         for res in self:
-            supplier_models = self.with_context(active_test=False).search([('product_id', '=', res.product_id.id)])
+            supplier_models = self.with_context(active_test=False).search([('product_id', '=', res.product_id.id), ('company_id', '=', res.company_id.id)])
             payment_types = list(set(supplier_models.mapped('payment_term_id').mapped('type')))
             if ('joint' in payment_types or 'sale_after_payment' in payment_types) and len(payment_types) > 1:
                 raise ValidationError('商品：%s存在联营或销售后付款以外的其他结算方式！' % res.product_id.partner_ref)
