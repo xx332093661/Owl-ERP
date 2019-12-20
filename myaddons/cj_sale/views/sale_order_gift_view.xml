@@ -64,9 +64,10 @@
                     <group>
                         <group>
                             <field name="partner_id" domain="['|', ('customer','=',True), ('member','=',True)]" options="{'no_open': True, 'no_create':True}"/>
-                            <field name="child_ids" string="关联的订单" required="0"
-                                   domain="[('partner_id', '=', partner_id), ('state', '!=', 'draft'), ('group_flag', 'in', ['large', 'not']), ('parent_id', '=', False), ('special_order_mark', '=', 'normal')]"
-                                   options="{'no_open': True, 'no_create':True}" widget="many2many_tags"/>
+                            <field name="parent_id" context="{'form_view_ref': 'cj_sale.view_order_form_chuanjiu'}"/>
+                            <!--<field name="child_ids" string="关联的订单" required="0"-->
+                                   <!--domain="[('partner_id', '=', partner_id), ('state', '!=', 'draft'), ('group_flag', 'in', ['large', 'not']), ('parent_id', '=', False), ('special_order_mark', '=', 'normal')]"-->
+                                   <!--options="{'no_open': True, 'no_create':True}" widget="many2many_tags"/>-->
                             <field name="special_order_mark" invisible="1"/>
                             <!--<field name="partner_invoice_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'invoice'}" options="{'always_reload': True}"/>-->
                             <!--<field name="partner_shipping_id" groups="sale.group_delivery_invoice_address" context="{'default_type':'delivery'}" options="{'always_reload': True}"/>-->
@@ -317,10 +318,11 @@
                 <!--<field name="commitment_date" groups="sale.group_sale_order_dates"/>-->
                 <!--<field name="expected_date" groups="sale.group_sale_order_dates"/>-->
 
-                <field name="user_id"/>
-                <field name="amount_tax" string="税金" sum="Total"/>
-                <field name="amount_untaxed" string="不含税合计" sum="Total"/>
-                <field name="amount_total" sum="Total Tax Included" widget="monetary" string="含税合计"/>
+                <field name="partner_id"/>
+                <!--<field name="user_id"/>-->
+                <!--<field name="amount_tax" string="税金" sum="Total"/>-->
+                <!--<field name="amount_untaxed" string="不含税合计" sum="Total"/>-->
+                <!--<field name="amount_total" sum="Total Tax Included" widget="monetary" string="含税合计"/>-->
                 <field name="total_cost"/>
                 <field name="currency_id" invisible="1"/>
                 <field name="state" invisible="1"/>
