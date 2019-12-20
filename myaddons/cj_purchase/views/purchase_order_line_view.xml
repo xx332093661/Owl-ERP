@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_cj_purchase_order_line_tree" model="ir.ui.view">
+            <field name="name">view_cj_purchase_order_line_tree</field>
+            <field name="model">purchase.order.line</field>
+            <field name="arch" type="xml">
+                <tree string="采购订单明细" create="0" delete="0" edit="0">
+                    <field name="order_id"/>
+                    <field name="partner_id"/>
+                    <field name="product_id"/>
+                    <field name="product_qty"/>
+                    <field name="price_unit"/>
+                    <field name="taxes_id"/>
+                    <field name="untax_price_unit"/>
+                    <field name="price_tax"/>
+                    <field name="price_subtotal"/>
+                    <field name="price_total"/>
+                    <field name="company_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_cj_purchase_order_line_search" model="ir.ui.view">
+            <field name="name">view_cj_purchase_order_line_search</field>
+            <field name="model">purchase.order.line</field>
+            <field name="arch" type="xml">
+                <search string="订单明细">
+                    <field name="order_id"/>
+                    <field name="company_id"/>
+                    <field name="partner_id"/>
+                    <field name="product_id"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_cj_purchase_order_line" model="ir.actions.act_window">
+            <field name="name">采购订单明细</field>
+            <field name="res_model">purchase.order.line</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_cj_purchase_order_line_tree"/>
+        </record>
+
+
+
+    </data>
+</odoo>
