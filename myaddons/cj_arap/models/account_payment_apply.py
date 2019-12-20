@@ -225,7 +225,9 @@ class AccountPaymentApply(models.Model):
                     '采购的内容：\n%s' % ('\t' + ('\n\t'.join(['商品：%s 采购数量：%s 采购单价：%s' % (line.product_id.partner_ref, line.product_qty, line.price_unit,) for line in order_lines])), ),
                     '收货数：\n%s' % ('\t' + ('\n\t'.join(['商品：%s 收货数量：%s' % (line.product_id.partner_ref, line.qty_received) for line in order_lines if line.qty_received > 0])), ),
                 ]
-
+                # 烟草类采购订单，付款申请时，说明内容中，不加入采购明细（采购的内容）
+                if self.purchase_order_id.is_tobacco:
+                    content.pop(5)
             else:
                 order_lines = self.purchase_order_ids.mapped('order_line')
                 for order in self.purchase_order_ids:

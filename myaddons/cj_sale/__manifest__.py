@@ -44,6 +44,7 @@
         'views/sale_order_return_view.xml',
         'views/sale_order_refund_view.xml',
         'views/sale_order_compensate_view.xml',
+        'views/sale_order_line_view.xml',
 
 
         'wizard/sale_purchase_confirm_view.xml',

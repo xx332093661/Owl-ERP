@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from lxml import etree
 from datetime import timedelta, datetime
+import json
+import requests
 
 from odoo import fields, models, api
 from odoo.exceptions import UserError
@@ -141,6 +143,9 @@ class PurchaseOrder(models.Model):
 
     contract_id = fields.Many2one('supplier.contract', '供应商合同', required=0, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('partner_id', '=', partner_id), ('valid', '=', True)]")
     flow_id = fields.Char('OA审批流ID', track_visibility='onchange')
+
+    can_push_pos = fields.Boolean('是否可推送到POS', compute='_compute_can_push_pos')
+    is_tobacco = fields.Boolean('是烟草采购订单', default=False)
 
     @api.model
     def create(self, vals):
@@ -499,8 +504,8 @@ class PurchaseOrder(models.Model):
                 '公司名称': self.company_id.name,
                 '编号': self.name,
                 '合同名称': contract_name,
-                '合同主要内容': contract_conent[:2000],
-                '提请审查重点': point[:2000],
+                '合同主要内容': contract_conent[:1983],
+                '提请审查重点': point[:1983],
                 '承办人': self.user_id.oa_code,
                 '单位名称': self.company_id.name,
                 '承办部门': self.company_id.name,
@@ -521,10 +526,76 @@ class PurchaseOrder(models.Model):
     def action_manager_approval(self):
         """因为提交OA审批等待时间太久，可由系统管理员角色直接审批，而无需OA审批"""
         self.ensure_one()
-        if self.state != 'oa_sent':
-            raise ValidationError('只有提交审批的单据才可以由管理员审批！')
+        if self.state not in ['oa_sent', 'confirm']:
+            raise ValidationError('只有确认或提交审批的单据才可以由管理员审批！')
 
         self.state = 'oa_accept'  # 审批通过
+
+    @api.multi
+    def _compute_can_push_pos(self):
+        """计算是否可以推送到POS"""
+        ir_config = self.env['ir.config_parameter'].sudo()
+        pos_interface_state = ir_config.get_param('pos_interface_state', default='off')  # POS接口状态
+
+        for order in self:
+            if pos_interface_state != 'on':
+                order.can_push_pos = False
+            else:
+                if order.send_pos_state in ['draft', 'error'] and order.state in ['purchase', 'done'] and (order.company_id.type == 'store' or order.picking_type_id.warehouse_id.code == '51005'):
+                    order.can_push_pos = True
+                else:
+                    order.can_push_pos = False
+
+    @api.multi
+    def action_push_pos(self):
+        """手动推送到POS"""
+        ir_config = self.env['ir.config_parameter'].sudo()
+        pos_interface_state = ir_config.get_param('pos_interface_state', default='off')  # POS接口状态
+        if pos_interface_state != 'on':
+            raise ValidationError("接口废弃！")
+
+        pos_purchase_call_url = ir_config.get_param('pos_purchase_call_url', default='')  # 采购订单调用地址
+        if not pos_purchase_call_url or pos_purchase_call_url == '0':
+            raise ValidationError('接口地址调用POS地址未设置！')
+
+        self.ensure_one()
+        headers = {"Content-Type": "application/json"}
+        company = self.company_id
+        store_code = company.code
+        store_name = company.name
+        warehouse_code = self.picking_type_id.warehouse_id.code
+        # 川酒省仓与POS系统做对应
+        if warehouse_code == '51005':
+            store_code = 'X001'
+            store_name = self.picking_type_id.warehouse_id.name
+
+        payload = {
+            'data': [{
+                'store_code': store_code,  # 门店代码
+                'store_name': store_name,  # 门店名称
+                'order_name': self.name,  # 采购订单号
+                'supplier_code': self.partner_id.code,
+                'supplier_name': self.partner_id.name,
+                'order_id': self.id,  # 采购订单ID
+                'order_line': [{
+                    'goods_code': line.product_id.default_code,  # 物料编码
+                    'goods_name': line.product_id.name,  # 物料名称
+                    'product_qty': line.product_qty,  # 采购数量
+                    'price_unit': line.price_unit
+                } for line in self.order_line]  # 采购明细
+            }]
+        }
+        data = json.dumps(payload)
+        response = requests.post(pos_purchase_call_url, data=data, headers=headers)
+        result = response.json()
+        result = result['result']
+        state = result['state']
+        if state == 1:
+            self.write({
+                'send_pos_state': 'done',
+            })
+        else:
+            raise ValidationError(result['msg'])
 
     def _update_oa_approval_state(self, flow_id, refuse=False):
         """OA审批通过回调"""

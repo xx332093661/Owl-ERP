@@ -64,5 +64,16 @@
             <field name="groups_id" eval="[(4, ref('group_purchase_general_manager'))]"/>
         </record>
 
+     <!--隐藏采购分析-->
+    <record id="purchase.purchase_report" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <menuitem id="cj_purchase_report" name="报表" parent="purchase.menu_purchase_root" sequence="99"
+        groups="purchase.group_purchase_manager"/>
+
+    <menuitem name="采购订单明细" id="menu_action_cj_purchase_order_line" action="action_cj_purchase_order_line"
+                  parent="cj_purchase_report" sequence="10"/>
+
 
 </odoo>

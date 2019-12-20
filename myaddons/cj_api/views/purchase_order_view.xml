@@ -1,15 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="purchase_order_tree" model="ir.ui.view">
-            <field name="name">purchase.order.tree</field>
+        <!--<record id="purchase_order_tree" model="ir.ui.view">-->
+            <!--<field name="name">purchase.order.tree</field>-->
+            <!--<field name="model">purchase.order</field>-->
+            <!--<field name="inherit_id" ref="purchase.purchase_order_tree"/>-->
+            <!--<field name="arch" type="xml">-->
+                <!--<xpath expr="//field[@name='state']" position="after">-->
+                    <!--<field name="send_pos_state"/>-->
+                <!--</xpath>-->
+            <!--</field>-->
+        <!--</record>-->
+
+        <record id="purchase_order_form" model="ir.ui.view">
+            <field name="name">purchase.order.form</field>
             <field name="model">purchase.order</field>
-            <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='state']" position="after">
-                    <field name="send_pos_state"/>
+                <xpath expr="//field[@name='date_approve']" position="after">
+                    <field name="send_pos_error" attrs="{'invisible': [('send_pos_state', '!=', 'error')]}"/>
+                    <field name="send_pos_state" invisible="0"/>
                 </xpath>
             </field>
         </record>
+
+        <record id="view_purchase_order_filter" model="ir.ui.view">
+            <field name="name">purchase.order.search</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='my_purchases']" position="replace"/>
+                <xpath expr="//filter[@name='draft']" position="replace"/>
+                <xpath expr="//filter[@name='approved']" position="replace"/>
+                <xpath expr="//filter[@name='to_approve']" position="replace"/>
+                <xpath expr="//filter[@name='not_invoiced']" position="replace"/>
+                <xpath expr="//filter[@name='invoiced']" position="replace"/>
+                <xpath expr="//filter[@name='activities_my']" position="replace"/>
+                <xpath expr="//filter[@name='activities_overdue']" position="replace"/>
+                <xpath expr="//filter[@name='activities_today']" position="replace"/>
+                <xpath expr="//filter[@name='activities_upcoming_all']" position="replace"/>
+                <xpath expr="//separator[1]" position="replace"/>
+                <xpath expr="//separator[1]" position="replace"/>
+                <xpath expr="//separator[1]" position="replace"/>
+                <xpath expr="//separator[1]" position="replace"/>
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <filter name="state_draft" string="草稿" domain="[('state','=', 'draft')]"/>
+                    <filter name="state_confirm" string="确认" domain="[('state','=', 'confirm')]"/>
+                    <filter name="state_oa_sent" string="提交OA审批" domain="[('state','=', 'oa_sent')]"/>
+                    <filter name="state_oa_accept" string="OA审批通过" domain="[('state','=', 'oa_accept')]"/>
+                    <filter name="state_oa_refuse" string="OA审批拒绝" domain="[('state','=', 'oa_refuse')]"/>
+                    <filter name="state_purchase" string="供应商发货" domain="[('state','=', 'purchase')]"/>
+                    <filter name="state_done" string="完成" domain="[('state','=', 'done')]"/>
+                    <filter name="state_cancel" string="取消" domain="[('state','=', 'cancel')]"/>
+                    <separator/>
+                    <filter name="send_pos_state_error" string="同步错误" domain="[('send_pos_state','=', 'error')]"/>
+                    <filter name="send_pos_state_draft" string="未同步" domain="[('send_pos_state','=', 'draft')]"/>
+                    <filter name="send_pos_state_done" string="同步完成" domain="[('send_pos_state','=', 'done')]"/>
+                    <separator/>
+                    <filter name="my_purchases" string="我的采购" domain="[('user_id','=', uid)]"/>
+                </xpath>
+                <xpath expr="//filter[@name='expected_date']" position="replace">
+                    <filter string="订单状态" name="group_state" domain="[]" context="{'group_by':'state'}"/>
+                    <filter string="同步状态" name="group_send_pos_state" domain="[]" context="{'group_by':'send_pos_state'}"/>
+                </xpath>
+
+            </field>
+        </record>
+
     </data>
 </odoo>

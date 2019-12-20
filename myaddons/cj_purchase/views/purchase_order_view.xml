@@ -18,12 +18,15 @@
                 <xpath expr="//field[@name='amount_total']" position="attributes">
                     <attribute name="string">含税合计</attribute>
                 </xpath>
+                <xpath expr="//field[@name='amount_total']" position="after">
+                    <field name="payment_term_id"/>
+                </xpath>
             </field>
         </record>
     </data>
     <data>
         <record id="purchase.purchase_rfq" model="ir.actions.act_window">
-            <!--<field name="domain">[('is_across_move', '=', False)]</field>-->
+            <field name="context">{'default_is_tobacco': False}</field>
             <field name="view_mode">tree,form</field>
         </record>
     </data>
@@ -76,11 +79,13 @@
                     <!--<button name="action_general_manager_refuse" states="finance_manager_confirm" string="拒绝" type="object" groups="cj_purchase.group_purchase_general_manager"/>-->
                     <!--<button name="action_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_purchase.group_purchase_general_manager"/>-->
                     <button name="button_approve" states="oa_accept" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/>
-                    <button name="action_manager_approval" type="object" states="confirm,oa_sent" string="直接审批" groups="base.group_system"/>
-                    <button name="action_commit_approval" type="object" states="confirm" string="提交OA审批" class="oe_highlight"/>
+
+                    <button name="action_manager_approval" type="object" states="confirm,oa_sent" string="直接审批" class="oe_highlight" groups="base.group_system" invisible="context.get('default_is_tobacco') == False"/>
+                    <button name="action_commit_approval" type="object" states="confirm" string="提交OA审批" class="oe_highlight" invisible="context.get('default_is_tobacco') == True"/>
+
+                    <button name="action_push_pos" type="object" string="推送POS" attrs="{'invisible': [('can_push_pos', '!=', True)]}"/>
 
                     <!--<button name="action_supplier_send" states="Master_Review" string="下载打印发货单" type="object" class="oe_highlight" groups="purchase.group_purchase_manager"/>-->
-
 
                     <button name="action_return" type="object" states="purchase,done" string="退货" groups="purchase.group_purchase_user"/>
                     <button name="button_done" type="object" string="完成" class="oe_highlight" states="purchase" groups="purchase.group_purchase_user"/>
@@ -116,6 +121,8 @@
                     <field name="arrival_time" widget="float_time"/>
                     <field name="flow_id" readonly="1" invisible="context.get('is_across_move')"/>
                     <field name="explain" invisible="context.get('is_across_move')"/>
+                    <field name="can_push_pos" invisible="1"/>
+                    <field name="is_tobacco" invisible="1"/>
                 </field>
 
                 <field name="payment_term_id" position="replace"/>
@@ -247,5 +254,21 @@
             </field>
         </record>
 
+    </data>
+
+    <data>
+        <record id="action_purchase_tobacco" model="ir.actions.act_window">
+            <field name="name">烟草采购订单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="purchase.view_purchase_order_filter"/>
+            <field name="context">{'default_is_tobacco': True}</field>
+            <field name="domain">[('is_tobacco', '=', True)]</field>
+        </record>
+        <menuitem action="action_purchase_tobacco" id="menu_action_purchase_tobacco" name="烟草采购订单"
+                  parent="menu_purchase_operation"
+                  groups="purchase.group_purchase_user,group_purchase_general_manager"
+                  sequence="2"/>
     </data>
 </odoo>
