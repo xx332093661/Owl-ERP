@@ -66,7 +66,7 @@
 
      <!--隐藏采购分析-->
     <record id="purchase.purchase_report" model="ir.ui.menu">
-        <field name="groups_id" eval="[(6, 0, [ref('base.group_private_addresses')])]"/>
+        <field name="active" eval="False"/>
     </record>
 
     <menuitem id="cj_purchase_report" name="报表" parent="purchase.menu_purchase_root" sequence="99"
