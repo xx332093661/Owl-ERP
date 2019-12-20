@@ -19,7 +19,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='date_approve']" position="after">
                     <field name="send_pos_error" attrs="{'invisible': [('send_pos_state', '!=', 'error')]}"/>
-                    <field name="send_pos_state" invisible="1"/>
+                    <field name="send_pos_state" invisible="0"/>
                 </xpath>
             </field>
         </record>
