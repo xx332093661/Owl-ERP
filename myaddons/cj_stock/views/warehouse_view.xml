@@ -9,32 +9,8 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="code"/>
-                    <field name="user_id"/>
-                    <field name="manager_id"/>
                 </xpath>
             </field>
         </record>
-
-        <!--仓库窗体视图增加user_id和manager_id字段-->
-        <record id="view_warehouse_inherit" model="ir.ui.view">
-            <field name="name">view_warehouse inherit</field>
-            <field name="model">stock.warehouse</field>
-            <field name="inherit_id" ref="stock.view_warehouse"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='code']" position="after">
-                    <field name="user_id" options="{'no_open': True, 'no_create_edit': True}"/>
-                    <field name="manager_id" options="{'no_open': True, 'no_create_edit': True}"/>
-                </xpath>
-            </field>
-        </record>
-
-        <!--
-        仓库列表，仓库专员和仓库经理，只能访问仓管员或仓库经理字段为当前用户的仓库对应的操作
-        base.group_erp_manager用户可访问当前公司及所有子公司的仓库对应的操作
-        -->
-        <record id='stock.action_warehouse_form' model='ir.actions.act_window'>
-            <field name='context'>{'only_myself': 1}</field>
-        </record>
-
     </data>
 </odoo>
