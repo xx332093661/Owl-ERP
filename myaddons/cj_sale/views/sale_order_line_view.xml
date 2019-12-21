@@ -15,8 +15,11 @@
                     <field name="tax_id"/>
                     <field name="untax_price_unit"/>
                     <field name="price_tax"/>
+                    <field name="unit_cost"/>
+                    <field name="gross_profit"/>
                     <field name="price_subtotal"/>
                     <field name="price_total"/>
+                    <field name="cost_price"/>
                     <field name="write_off_amount"/>
                     <field name="company_id"/>
                 </tree>
