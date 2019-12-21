@@ -9,6 +9,7 @@
                 <tree string="销售订单明细" create="0" delete="0" edit="0">
                     <field name="order_id"/>
                     <field name="order_partner_id"/>
+                    <field name="channel_id"/>
                     <field name="product_id"/>
                     <field name="product_qty"/>
                     <field name="price_unit"/>
