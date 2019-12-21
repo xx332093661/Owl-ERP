@@ -1265,13 +1265,14 @@ class ApiMessage(models.Model):
                 return 0
 
             # 最后一行
-            if line_index == len(items) - 1:
+            if final_price_more_zero_items[-1]['product_id'] == product_id:
                 return discount_amount - apportion_discount_amount_total
 
-            return float_round(
-                discount_amount / line_amount * final_price,
-                precision_digits=2,
-                rounding_method='HALF-UP')
+            return int(discount_amount / line_amount * final_price)
+            # return float_round(
+            #     discount_amount / line_amount * final_price,
+            #     precision_digits=2,
+            #     rounding_method='HALF-UP')
 
         def get_apportion_platform_discount_amount():
             """分推平台优惠"""
@@ -1279,13 +1280,14 @@ class ApiMessage(models.Model):
                 return 0
 
             # 最后一行
-            if line_index == len(items) - 1:
+            if final_price_more_zero_items[-1]['product_id'] == product_id:
                 return platform_discount_amount - apportion_platform_discount_amount_total
 
-            return float_round(
-                platform_discount_amount / line_amount * final_price,
-                precision_digits=2,
-                rounding_method='HALF-UP')
+            return int(platform_discount_amount / line_amount * final_price)
+            # return float_round(
+            #     platform_discount_amount / line_amount * final_price,
+            #     precision_digits=2,
+            #     rounding_method='HALF-UP')
 
         def get_apportion_freight_amount():
             """分摊运费"""
@@ -1293,13 +1295,14 @@ class ApiMessage(models.Model):
                 return 0
 
             # 最后一行
-            if line_index == len(items) - 1:
+            if final_price_more_zero_items[-1]['product_id'] == product_id:
                 return freight_amount - apportion_freight_amount_total
 
-            return float_round(
-                freight_amount / line_amount * final_price,
-                precision_digits=2,
-                rounding_method='HALF-UP')
+            return int(freight_amount / line_amount * final_price)
+            # return float_round(
+            #     freight_amount / line_amount * final_price,
+            #     precision_digits=2,
+            #     rounding_method='HALF-UP')
 
         order_obj = self.env['sale.order']
         order_line_obj = self.env['sale.order.line']
@@ -1337,10 +1340,10 @@ class ApiMessage(models.Model):
         if line_amount != payment_amount + platform_discount_amount + discount_amount:
             raise MyValidationError('50', '支付金额：%s不等于商品金额：%s' % (payment_amount / 100, line_amount / 100))
 
-        # 支付金额 = 订单金额 + 运费 - 平台优惠金额 - 订单优惠金额 - 商品优惠金额
-        if payment_amount != order_amount + freight_amount - platform_discount_amount - discount_amount - line_discount_amount:
-            raise MyValidationError('51', '支付金额：%s不等于订单金额：%s + 运费：%s - 平台优惠金额：%s - 订单优惠金额：%s - 商品优惠金额：%s' %
-                                    (payment_amount / 100, order_amount / 100, freight_amount / 100, platform_discount_amount / 100, discount_amount / 100, line_discount_amount / 100))
+        # # 支付金额 = 订单金额 + 运费 - 平台优惠金额 - 订单优惠金额 - 商品优惠金额
+        # if payment_amount != order_amount + freight_amount - platform_discount_amount - discount_amount - line_discount_amount:
+        #     raise MyValidationError('51', '支付金额：%s不等于订单金额：%s + 运费：%s - 平台优惠金额：%s - 订单优惠金额：%s - 商品优惠金额：%s' %
+        #                             (payment_amount / 100, order_amount / 100, freight_amount / 100, platform_discount_amount / 100, discount_amount / 100, line_discount_amount / 100))
 
         company_id = get_company()  # 计算公司
         warehouse_id = get_warehouse()  # 计算仓库(可能是临时仓库)
@@ -1392,6 +1395,16 @@ class ApiMessage(models.Model):
                     'discountCoupon': item['discountCoupon'],
                     'discountGrant': item['discountGrant'],
                 })
+
+        final_price_more_zero_items = []  # 最终售价大于0的项
+        for item in items:
+            if item['finalPrice'] > 0:
+                final_price_more_zero_items.append({
+                    'product_id': item['product_id'],
+                    'finalPrice': item['finalPrice']
+                })
+
+        final_price_more_zero_items.sort(key=lambda x: x['finalPrice'])  # 最终售价升序
 
         apportion_discount_amount_total = 0  # 累计分摊订单优惠
         apportion_freight_amount_total = 0  # 累计分摊运费
