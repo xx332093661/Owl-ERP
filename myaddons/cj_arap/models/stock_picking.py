@@ -1314,7 +1314,7 @@ class StockPicking(models.Model):
             self.env['account.invoice.split'].search([('purchase_order_id', '=', invoice.purchase_id.id), ('invoice_id', '=', False)]).write({
                 'invoice_id': invoice.id
             })
-            invoice.invoice_split_ids.unlink()
+            # invoice.invoice_split_ids.unlink()
             # 打开账单
             self._generate_purchase_invoice_open(invoice)
             # 计算未核销的预付款， 核销预付款
