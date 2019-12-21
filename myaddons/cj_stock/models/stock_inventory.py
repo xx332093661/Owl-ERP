@@ -632,6 +632,16 @@ class StockInventory(models.Model):
 
         print(states)  # ['finished', 'cancelled', 'outbound', 'some']
 
+    def check_message_platform_discount_amount(self):
+        """平台优惠大于0的全渠道订单"""
+        message_obj = self.env['api.message']
+        for message in message_obj.search([('message_name', '=', 'mustang-to-erp-order-push')]):
+            content = json.loads(message.content)
+            platform_discount_amount = content.get('platformDiscountAmount', 0)
+            if platform_discount_amount > 0:
+                print(message.id, content['code'])
+
+
     def _cron_done_inventory(self):
         """临时接口"""
         # self.adjust_account_invoice()
@@ -651,7 +661,11 @@ class StockInventory(models.Model):
         # self.check_order_push_status()
 
         # 订单状态变更的状态
-        self.check_order_status_push()
+        # self.check_order_status_push()
+
+        # 平台优惠大于0的全渠道订单
+        self.check_message_platform_discount_amount()
+
 
 class InventoryLine(models.Model):
     """
