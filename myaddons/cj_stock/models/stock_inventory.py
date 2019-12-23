@@ -641,6 +641,40 @@ class StockInventory(models.Model):
             if platform_discount_amount > 0:
                 print(message.id, content['code'])
 
+    def recreate_purchase_order_invoice_split(self):
+        """缺失账单分期的采购订单重新创建采购分期"""
+        purchase_order_obj = self.env['purchase.order']
+        invoice_split_obj = self.env['account.invoice.split']
+
+        for order in purchase_order_obj.search([('state', 'in', ['done', 'purchase', 'oa_accept'])]):
+            payment_term_types = order.order_line.mapped('payment_term_id').mapped('type')  # 实际支付方式
+            if 'sale_after_payment' in payment_term_types:
+                continue
+
+            # 先款后货没有账单分期
+            if 'first_payment' in payment_term_types:
+                if not invoice_split_obj.search([('purchase_order_id', '=', order.id)]):
+                    # order._generate_invoice_split()
+                    print(order.name)
+
+            else:
+                # 入库状态
+                stock_picking_states = order.picking_ids.mapped('state')
+                if 'done' in stock_picking_states:
+                    if not invoice_split_obj.search([('purchase_order_id', '=', order.id)]):
+                        print(order.name)
+
+            # # OA审批通过，先款后货没有账单分期
+            # if order.state == 'oa_accept':
+            #     if 'first_payment' in payment_term_types:
+            #         if not invoice_split_obj.search([('purchase_order_id', '=', order.id)]):
+            #             print(order.name)
+            #
+            # if order.state in ['purchase', 'done']:
+            #     # 供应商发货或完成状态的采购订单，
+            #     if 'first_payment' in payment_term_types:
+            #         if not invoice_split_obj.search([('purchase_order_id', '=', order.id)]):
+            #             print(order.name)
 
     def _cron_done_inventory(self):
         """临时接口"""
@@ -664,7 +698,10 @@ class StockInventory(models.Model):
         # self.check_order_status_push()
 
         # 平台优惠大于0的全渠道订单
-        self.check_message_platform_discount_amount()
+        # self.check_message_platform_discount_amount()
+
+        # 缺失账单分期的采购订单重新创建采购分期
+        self.recreate_purchase_order_invoice_split()
 
 
 class InventoryLine(models.Model):
