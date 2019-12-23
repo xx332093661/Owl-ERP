@@ -144,6 +144,9 @@
                 <xpath expr="//field[@name='categ_id']" position="after">
                     <field name="is_merge"/>
                 </xpath>
+                <xpath expr="//field[@name='default_code']" position="attributes">
+                    <attribute name="required">1</attribute>
+                </xpath>
                 <xpath expr="//page[@name='general_information']" position="after">
                     <page string="组合明细" name="merge_lines" attrs="{'invisible': [('is_merge', '!=', True)]}">
                         <field name="merge_ids">
