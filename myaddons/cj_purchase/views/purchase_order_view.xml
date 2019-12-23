@@ -201,7 +201,9 @@
                 <xpath expr="//field[@name='order_line']/tree/field[@name='price_subtotal']" position="after">
                     <field name="price_total" string="含税合计"/>
                 </xpath>
-
+                <xpath expr="//field[@name='order_line']/tree/field[@name='product_id']" position="attributes">
+                    <attribute name="options">{'no_create': 1, 'no_open': 1}</attribute>
+                </xpath>
                 <!--采购明细增加partner_id的上下文，以方便默认payment_term_id字段值-->
                 <xpath expr="//field[@name='order_line']" position="attributes">
                     <attribute name="context">{'partner_id': partner_id, 'company_id': company_id, 'default_payment_term_id': payment_term_id}</attribute>
