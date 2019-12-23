@@ -46,36 +46,105 @@
     <!--</data>-->
 
 
+    <!--成本组-->
     <data>
-        <record id="view_stock_inventory_valuation_move_tree" model="ir.ui.view">
-            <field name="name">stock.inventory.valuation.move.tree</field>
+        <record id="view_stock_inventory_valuation_move_cost_group_tree" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.move.cost.group.tree</field>
             <field name="model">stock.inventory.valuation.move</field>
             <field name="arch" type="xml">
                 <tree create="0" delete="0" edit="0">
-                    <field name="company_id" invisible="context.get('hide_company_id', False)"/>
-                    <field name="warehouse_id"/>
+                    <!--<field name="cost_group_id"/>-->
                     <field name="type"/>
                     <field name="type_id"/>
                     <field name="product_id"/>
                     <field name="date"/>
                     <field name="product_qty"/>
-                    <!--<field name="price_unit"/>-->
                     <field name="unit_cost"/>
-                    <field name="qty_available"/>
+                    <field name="qty_available" sum="合计"/>
                     <field name="stock_cost"/>
                     <field name="stock_value" sum="合计"/>
                     <!--<field name="move_id"/>-->
                 </tree>
             </field>
         </record>
-        <record id="view_stock_inventory_valuation_move_filter" model="ir.ui.view">
-            <field name="name">stock.inventory.valuation.move.filter</field>
+        <record id="view_stock_inventory_valuation_move_cost_group_filter" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.move.cost.group.filter</field>
             <field name="model">stock.inventory.valuation.move</field>
             <field name="arch" type="xml">
                 <search>
                     <group expand="0" string="Group By">
-                        <filter string="公司" name="company" domain="[]" context="{'group_by':'company_id'}"/>
-                        <filter string="产品" name="product" domain="[]" context="{'group_by':'product_id'}"/>
+                        <!--<filter string="成本组" name="group_cost_group_id" domain="[]" context="{'group_by':'cost_group_id'}"/>-->
+                        <filter string="产品" name="group_product_id" domain="[]" context="{'group_by':'product_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+
+    <!--公司-->
+    <data>
+        <record id="view_stock_inventory_valuation_move_company_tree" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.move.company.tree</field>
+            <field name="model">stock.inventory.valuation.move</field>
+            <field name="arch" type="xml">
+                <tree create="0" delete="0" edit="0">
+                    <field name="company_id" invisible="context.get('hide_company')"/>
+                    <field name="type"/>
+                    <field name="type_id"/>
+                    <field name="product_id"/>
+                    <field name="date"/>
+                    <field name="product_qty"/>
+                    <field name="unit_cost"/>
+                    <field name="qty_available" sum="合计"/>
+                    <field name="stock_cost"/>
+                    <field name="stock_value" sum="合计"/>
+                    <!--<field name="move_id"/>-->
+                </tree>
+            </field>
+        </record>
+        <record id="view_stock_inventory_valuation_move_company_filter" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.move.company.filter</field>
+            <field name="model">stock.inventory.valuation.move</field>
+            <field name="arch" type="xml">
+                <search>
+                    <group expand="0" string="Group By">
+                        <filter string="公司" name="group_company_id" domain="[]" context="{'group_by':'company_id'}"/>
+                        <filter string="产品" name="group_product_id" domain="[]" context="{'group_by':'product_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+
+    <!--仓库-->
+    <data>
+        <record id="view_stock_inventory_valuation_move_warehouse_tree" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.move.warehouse.tree</field>
+            <field name="model">stock.inventory.valuation.move</field>
+            <field name="arch" type="xml">
+                <tree create="0" delete="0" edit="0">
+                    <field name="warehouse_id" invisible="context.get('hide_warehouse')"/>
+                    <field name="type"/>
+                    <field name="type_id"/>
+                    <field name="product_id"/>
+                    <field name="date"/>
+                    <field name="product_qty"/>
+                    <field name="unit_cost"/>
+                    <field name="qty_available_new" sum="合计"/>
+                    <field name="stock_cost_new"/>
+                    <field name="stock_value_new" sum="合计"/>
+                    <!--<field name="move_id"/>-->
+                </tree>
+            </field>
+        </record>
+        <record id="view_stock_inventory_valuation_move_warehouse_filter" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.move.warehouse.filter</field>
+            <field name="model">stock.inventory.valuation.move</field>
+            <field name="arch" type="xml">
+                <search>
+                    <group expand="0" string="Group By">
+                        <filter string="仓库" name="group_warehouse_id" domain="[]" context="{'group_by':'warehouse_id'}"/>
+                        <filter string="产品" name="group_product_id" domain="[]" context="{'group_by':'product_id'}"/>
                     </group>
                 </search>
             </field>

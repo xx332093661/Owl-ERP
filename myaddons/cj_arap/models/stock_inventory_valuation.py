@@ -4,6 +4,7 @@ import logging
 from odoo import models, api, fields
 from odoo.exceptions import ValidationError
 from odoo.tools import float_is_zero, float_round, float_compare
+from odoo.addons import decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
@@ -13,6 +14,10 @@ class StockInventoryValuationMove(models.Model):
     _description = '存货估值移动'
 
     cost_group_id = fields.Many2one('account.cost.group', '成本组', index=1)
+
+    qty_available_new = fields.Float('在手数量', digits=dp.get_precision('Product Unit of Measure'))
+    stock_cost_new = fields.Float('库存单位成本', digits=dp.get_precision('Inventory valuation'))
+    stock_value_new = fields.Float('库存价值', digits=dp.get_precision('Inventory valuation'))    # 4位小数
 
     @api.one
     @api.depends('stock_cost')

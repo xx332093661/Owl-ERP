@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from psycopg2 import OperationalError
-
 from odoo import models, api, fields
 from odoo.osv import expression
 from odoo.tools.float_utils import float_compare, float_is_zero

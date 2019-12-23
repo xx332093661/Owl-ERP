@@ -7,6 +7,8 @@ import importlib
 import xlwt
 import xlrd
 import json
+import os
+import sys
 
 from odoo import models, fields, api, _
 from odoo.addons import decimal_precision as dp
@@ -664,17 +666,128 @@ class StockInventory(models.Model):
                     if not invoice_split_obj.search([('purchase_order_id', '=', order.id)]):
                         print(order.name)
 
-            # # OA审批通过，先款后货没有账单分期
-            # if order.state == 'oa_accept':
-            #     if 'first_payment' in payment_term_types:
-            #         if not invoice_split_obj.search([('purchase_order_id', '=', order.id)]):
-            #             print(order.name)
-            #
-            # if order.state in ['purchase', 'done']:
-            #     # 供应商发货或完成状态的采购订单，
-            #     if 'first_payment' in payment_term_types:
-            #         if not invoice_split_obj.search([('purchase_order_id', '=', order.id)]):
-            #             print(order.name)
+    # def adjust_no_default_code_purchase_order(self):
+    #     """调整因手动添加商品缺物料编码的采购订单"""
+    #     product_obj = self.env['product.product']
+    #     products = self.env['product.product']
+    #     order_line_obj = self.env['purchase.order.line']
+    #     purchase_orders = self.env['purchase.order']
+    #     out_purchase_orders = self.env['purchase.order']
+    #     invoice_line_obj = self.env['account.invoice.line']
+    #     quant_obj = self.env['stock.quant']
+    #
+    #     product_model_obj = self.env['product.supplier.model']
+    #     # 核对ID对应
+    #     file_name = os.path.join(sys.path[0], 'myaddons', 'cj_stock', 'static', 'template', '产品-手动添加无物料码.xls')
+    #     workbook = xlrd.open_workbook(file_name)
+    #     sheet = workbook.sheet_by_index(0)
+    #     for row_index in range(sheet.nrows):
+    #         print(row_index + 1)
+    #         if row_index < 1:
+    #             continue
+    #
+    #         line = sheet.row_values(row_index)
+    #         if line[4] == '否':  # 是否处理
+    #             continue
+    #
+    #         default_code = str(int(line[0])).strip()
+    #         product_name = line[1].strip()
+    #         product_id = int(line[2])
+    #         new_product_id = int(line[3])
+    #
+    #         new_product = product_obj.search([('default_code', '=', default_code)])
+    #         if new_product.id != new_product_id:
+    #             raise ValidationError('第%s行替换商品ID错误！' % (row_index + 1))
+    #
+    #         product = product_obj.search([('name', '=', product_name)])
+    #         if product.id != product_id:
+    #             raise ValidationError('第%s行商品ID错误！')
+    #
+    #         products |= product
+    #
+    #         order_lines = order_line_obj.search([('product_id', '=', product_id)])
+    #         if not order_lines:
+    #             product.product_tmpl_id.unlink()
+    #             continue
+    #
+    #         orders = order_lines.mapped('order_id')
+    #         vals = {'product_id': new_product_id}
+    #         # 修改商品ID
+    #         order_lines.write(vals)
+    #
+    #         # 修改供应商模式
+    #         product_model_obj.search([('product_id', '=', product_id)]).write(vals)
+    #
+    #         # 取消入库单
+    #         for order in orders:
+    #             order.picking_ids.mapped('move_lines').filtered(lambda x: x.product_id.id == product_id).write(vals)
+    #             order.picking_ids.mapped('move_line_ids').filtered(lambda x: x.product_id.id == product_id).write(vals)
+    #
+    #             if order.picking_ids.state == 'done':
+    #                 out_purchase_orders |= order
+    #
+    #             else:
+    #                 # order.picking_ids.mapped('move_lines').filtered(lambda x: x.product_id.id == product_id).write(vals)
+    #                 # order.picking_ids.mapped('move_line_ids').filtered(lambda x: x.product_id.id == product_id).write(vals)
+    #                 purchase_orders |= orders
+    #
+    #             # order.picking_ids.action_cancel()  # 取消对应的入库单
+    #
+    #
+    #
+    #         # # 重新生成入库单
+    #         # for order in orders:
+    #         #     order._create_picking()
+    #
+    #         # product.product_tmpl_id.unlink()
+    #
+    #     for order in purchase_orders:
+    #         order.picking_ids.action_cancel()  # 取消对应的入库单
+    #         order._create_picking()  # 重新生成入库单
+    #
+    #     # # 已出库的
+    #     # for order in out_purchase_orders:
+    #     #
+    #     #     pass
+
+    def adjust_no_default_code_purchase_order(self):
+        """调整因手动添加商品缺物料编码的采购订单"""
+        product_obj = self.env['product.product']
+
+        file_name = os.path.join(sys.path[0], 'myaddons', 'cj_stock', 'static', 'template', '产品-手动添加无物料码.xls')
+        workbook = xlrd.open_workbook(file_name)
+        sheet = workbook.sheet_by_index(0)
+        for row_index in range(sheet.nrows):
+            print(row_index + 1)
+            if row_index < 1:
+                continue
+
+            line = sheet.row_values(row_index)
+            if line[4] == '否':  # 是否处理
+                continue
+
+            product_id = int(line[2])
+            new_product_id = int(line[3])
+
+            self._cr.execute("""UPDATE purchase_order_line SET product_id = %s WHERE product_id = %s""" % (new_product_id, product_id))
+            self._cr.execute("""UPDATE stock_move SET product_id = %s WHERE product_id = %s""" % (new_product_id, product_id))
+            self._cr.execute("""UPDATE stock_move_line SET product_id = %s WHERE product_id = %s""" % (new_product_id, product_id))
+            self._cr.execute("""UPDATE account_invoice_line SET product_id = %s WHERE product_id = %s""" % (new_product_id, product_id))
+            self._cr.execute("""UPDATE product_supplier_model SET product_id = %s WHERE product_id = %s""" % (new_product_id, product_id))
+            self._cr.execute("""UPDATE stock_quant SET product_id = %s WHERE product_id = %s""" % (new_product_id, product_id))
+            self._cr.execute("""UPDATE stock_inventory_valuation_move SET product_id = %s WHERE product_id = %s""" % (new_product_id, product_id))
+            self._cr.execute("""UPDATE account_move_line SET product_id = %s WHERE product_id = %s""" % (new_product_id, product_id))
+
+            # account.move.line
+
+            # stock.inventory.valuation.move
+
+            product_obj.browse(product_id).unlink()
+
+
+
+
+
 
     def _cron_done_inventory(self):
         """临时接口"""
@@ -701,7 +814,10 @@ class StockInventory(models.Model):
         # self.check_message_platform_discount_amount()
 
         # 缺失账单分期的采购订单重新创建采购分期
-        self.recreate_purchase_order_invoice_split()
+        # self.recreate_purchase_order_invoice_split()
+
+        # 调整因手动添加商品缺物料编码的采购订单
+        self.adjust_no_default_code_purchase_order()
 
 
 class InventoryLine(models.Model):

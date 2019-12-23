@@ -23,13 +23,15 @@ class StockInventoryValuationWizard(models.TransientModel):
     _name = 'stock.inventory.valuation.wizard'
     _description = '存货估值向导'
 
-    stock_type = fields.Selection([('all', '成本核算组'), ('only', '当前公司')], '存货估值类型',
+    stock_type = fields.Selection([('all', '成本核算组'), ('only', '公司'), ('warehouse', '仓库')], '存货估值类型',
                                   required=1,
                                   default='all')
 
     cost_group_id = fields.Many2one('account.cost.group', '成本核算组')
 
     company_ids = fields.Many2many('res.company', string='公司')
+    warehouse_ids = fields.Many2many('stock.warehouse', string='仓库')
+
     date_from = fields.Date('开始日期', default=lambda self: (datetime.now() - relativedelta(months=1)).strftime(DATE_FORMAT))
     date_to = fields.Date('截止日期', default=lambda self: datetime.now().date())
 
@@ -75,7 +77,69 @@ class StockInventoryValuationWizard(models.TransientModel):
 
     @api.multi
     def button_ok(self):
-        domain = [('stock_type', '=', self.stock_type)]  # [('all', '成本核算组'), ('only', '当前公司')]
+        def get_view_id():
+            """计算关联的视图(tree, search)"""
+            if stock_type == 'all':
+                return self.env.ref('cj_arap.view_stock_inventory_valuation_move_cost_group_tree').id, self.env.ref('cj_arap.view_stock_inventory_valuation_move_cost_group_filter').id
+
+            if stock_type == 'only':
+                return self.env.ref('cj_arap.view_stock_inventory_valuation_move_company_tree').id, self.env.ref('cj_arap.view_stock_inventory_valuation_move_company_filter').id
+
+            return self.env.ref('cj_arap.view_stock_inventory_valuation_move_warehouse_tree').id, self.env.ref('cj_arap.view_stock_inventory_valuation_move_warehouse_filter').id
+
+        def get_context():
+            """计算上下文"""
+            # 显示所有细节，按商品分组
+            ctx = {}
+
+            # 公司如果有多个，按公司分组，只有一个公司，则隐藏公司字段
+            if stock_type == 'only':
+                if len(self.company_ids) > 1:
+                    ctx['search_default_group_company_id'] = True
+                else:
+                    ctx['hide_company'] = True
+
+            # 仓库如果有多个，按仓库分组，只有一个仓库，则隐藏仓库字段
+            if stock_type == 'warehouse':
+                if len(self.warehouse_ids) > 1:
+                    ctx['search_default_group_warehouse_id'] = True
+                else:
+                    ctx['hide_warehouse'] = True
+
+            if self.show_type == 'all':
+                ctx['search_default_group_product_id'] = True
+
+            return ctx
+
+
+
+
+        stock_type = self.stock_type  # [('all', '成本核算组'), ('only', '当前公司'), ('warehouse', '仓库')]
+        # 计算视图
+        tree_view_id, search_view_id = get_view_id()
+        views = [(tree_view_id, 'tree')]
+
+        # 计算上下文
+        context = get_context()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'view_mode': 'tree',
+            'name': '存货估值',
+            'res_model': 'stock.inventory.valuation.move',
+            'context': context,
+            'views': views,
+            'search_view_id': search_view_id,
+            'domain': []
+        }
+
+
+
+
+
+    @api.multi
+    def button_ok(self):
+        domain = [('stock_type', '=', self.stock_type)]  # [('all', '成本核算组'), ('only', '当前公司'), ('warehouse', '仓库')]
         context = {}
         if self.stock_type == 'all':
             domain.append(('cost_group_id', '=', self.cost_group_id.id))
