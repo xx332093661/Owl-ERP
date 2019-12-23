@@ -654,8 +654,8 @@ class StockInventory(models.Model):
             # 先款后货没有账单分期
             if 'first_payment' in payment_term_types:
                 if not invoice_split_obj.search([('purchase_order_id', '=', order.id)]):
-                    # order._generate_invoice_split()
-                    print(order.name)
+                    order._generate_invoice_split()
+                    # print(order.name)
 
             else:
                 # 入库状态
