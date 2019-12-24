@@ -167,6 +167,16 @@ class PosInterface(http.Controller):
             }
 
         picking = purchase_order.picking_ids.filtered(lambda x: x.state not in ['done', 'cancel'])[0]  # 入库单
+        if not picking:
+            if purchase_order.name == 'PO-ERP-20191217-059':
+                return {
+                    'state': 1,
+                    'msg': ''
+                }
+            return {
+                'state': 0,
+                'msg': '%s已完成入库！' % purchase_order.name
+            }
         if picking.state == 'draft':
             picking.action_confirm()  # 确认
 

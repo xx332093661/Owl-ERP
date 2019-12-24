@@ -758,7 +758,6 @@ class StockInventory(models.Model):
         workbook = xlrd.open_workbook(file_name)
         sheet = workbook.sheet_by_index(0)
         for row_index in range(sheet.nrows):
-            print(row_index + 1)
             if row_index < 1:
                 continue
 
@@ -782,12 +781,7 @@ class StockInventory(models.Model):
 
             # stock.inventory.valuation.move
 
-            product_obj.browse(product_id).unlink()
-
-
-
-
-
+            # product_obj.browse(product_id).unlink()
 
     def _cron_done_inventory(self):
         """临时接口"""
