@@ -130,9 +130,9 @@
                     <field name="date"/>
                     <field name="product_qty"/>
                     <field name="unit_cost"/>
-                    <field name="qty_available_new" sum="合计"/>
-                    <field name="stock_cost_new"/>
-                    <field name="stock_value_new" sum="合计"/>
+                    <!--<field name="qty_available_new" sum="合计"/>-->
+                    <!--<field name="stock_cost_new"/>-->
+                    <!--<field name="stock_value_new" sum="合计"/>-->
                     <!--<field name="move_id"/>-->
                 </tree>
             </field>
