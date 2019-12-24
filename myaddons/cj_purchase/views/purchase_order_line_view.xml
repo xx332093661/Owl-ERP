@@ -18,6 +18,7 @@
                     <field name="price_subtotal"/>
                     <field name="price_total"/>
                     <field name="company_id"/>
+                    <field name="state"/>
                 </tree>
             </field>
         </record>
