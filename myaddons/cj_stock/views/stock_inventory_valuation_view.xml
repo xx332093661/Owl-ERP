@@ -53,16 +53,16 @@
             <field name="model">stock.inventory.valuation.move</field>
             <field name="arch" type="xml">
                 <tree create="0" delete="0" edit="0">
-                    <!--<field name="cost_group_id"/>-->
-                    <field name="type"/>
-                    <field name="type_id"/>
+                    <field name="warehouse_id" invisible="context.get('hide_warehouse')"/>
+                    <field name="type" invisible="context.get('hide_product_qty')"/>
+                    <field name="type_id" invisible="context.get('hide_product_qty')"/>
                     <field name="product_id"/>
-                    <field name="date"/>
-                    <field name="product_qty"/>
-                    <field name="unit_cost"/>
+                    <field name="date" invisible="context.get('hide_product_qty')"/>
+                    <field name="product_qty" invisible="context.get('hide_product_qty')"/>
+                    <field name="unit_cost" invisible="context.get('hide_product_qty')"/>
                     <field name="qty_available" sum="合计"/>
-                    <field name="stock_cost"/>
-                    <field name="stock_value" sum="合计"/>
+                    <field name="stock_cost" invisible="context.get('hide_sum')"/>
+                    <field name="stock_value" sum="合计" invisible="context.get('hide_sum')"/>
                     <!--<field name="move_id"/>-->
                 </tree>
             </field>
@@ -89,15 +89,15 @@
             <field name="arch" type="xml">
                 <tree create="0" delete="0" edit="0">
                     <field name="company_id" invisible="context.get('hide_company')"/>
-                    <field name="type"/>
-                    <field name="type_id"/>
+                    <field name="type" invisible="context.get('hide_product_qty')"/>
+                    <field name="type_id" invisible="context.get('hide_product_qty')"/>
                     <field name="product_id"/>
-                    <field name="date"/>
-                    <field name="product_qty"/>
-                    <field name="unit_cost"/>
+                    <field name="date" invisible="context.get('hide_product_qty')"/>
+                    <field name="product_qty" invisible="context.get('hide_product_qty')"/>
+                    <field name="unit_cost" invisible="context.get('hide_product_qty')"/>
                     <field name="qty_available" sum="合计"/>
-                    <field name="stock_cost"/>
-                    <field name="stock_value" sum="合计"/>
+                    <field name="stock_cost" invisible="context.get('hide_sum')"/>
+                    <field name="stock_value" sum="合计" invisible="context.get('hide_sum')"/>
                     <!--<field name="move_id"/>-->
                 </tree>
             </field>
@@ -124,12 +124,12 @@
             <field name="arch" type="xml">
                 <tree create="0" delete="0" edit="0">
                     <field name="warehouse_id" invisible="context.get('hide_warehouse')"/>
-                    <field name="type"/>
-                    <field name="type_id"/>
+                    <field name="type" invisible="context.get('hide_product_qty')"/>
+                    <field name="type_id" invisible="context.get('hide_product_qty')"/>
                     <field name="product_id"/>
-                    <field name="date"/>
-                    <field name="product_qty"/>
-                    <field name="unit_cost"/>
+                    <field name="date" invisible="context.get('hide_product_qty')"/>
+                    <field name="product_qty" invisible="context.get('hide_product_qty')"/>
+                    <!--<field name="unit_cost" invisible="context.get('hide_product_qty')"/>-->
                     <!--<field name="qty_available_new" sum="合计"/>-->
                     <!--<field name="stock_cost_new"/>-->
                     <!--<field name="stock_value_new" sum="合计"/>-->
@@ -143,11 +143,21 @@
             <field name="arch" type="xml">
                 <search>
                     <group expand="0" string="Group By">
-                        <filter string="仓库" name="group_warehouse_id" domain="[]" context="{'group_by':'warehouse_id'}"/>
+                        <!--<filter string="仓库" name="group_warehouse_id" domain="[]" context="{'group_by':'warehouse_id'}"/>-->
                         <filter string="产品" name="group_product_id" domain="[]" context="{'group_by':'product_id'}"/>
                     </group>
                 </search>
             </field>
+        </record>
+    </data>
+
+    <data>
+        <record id="action_stock_inventory_valuation_move" model="ir.actions.act_window">
+            <field name="name">存货估值</field>
+            <field name="res_model">stock.inventory.valuation.move</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="search_view_id" ref="view_stock_inventory_valuation_move_cost_group_filter"/>
         </record>
     </data>
 

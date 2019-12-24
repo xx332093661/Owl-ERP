@@ -19,6 +19,37 @@ class StockInventoryValuationMove(models.Model):
     stock_cost_new = fields.Float('库存单位成本', digits=dp.get_precision('Inventory valuation'))
     stock_value_new = fields.Float('库存价值', digits=dp.get_precision('Inventory valuation'))    # 4位小数
 
+    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
+        """存货估值类型是仓库时，要动态计算在手数量"""
+        result = super(StockInventoryValuationMove, self).search_read(domain, fields, offset, limit, order)
+        if 'get_warehouse_value' in self._context:
+            warehouse = self.env['stock.warehouse'].browse(self._context['get_warehouse_value'])
+            if warehouse.company_id.type == 'store':
+                condition = [('stock_type', '=', 'only'), ('company_id', '=', warehouse.company_id.id)]
+            else:
+                condition = [('stock_type', '=', 'all'), ('warehouse_id', '=', warehouse.id)]
+            product_res = {}
+
+            for res in result:
+                product_id = res['product_id'][0]
+                if product_id not in product_res:
+                    product_res.setdefault(product_id, [])
+                    domain = [('product_id', '=', product_id)]
+                    domain += condition
+                    for index, mv in enumerate(self.search(domain, order='id asc')):
+                        if index == 0:
+                            product_res[product_id].append({'id': mv.id, 'qty_available': mv.product_qty})
+                        else:
+                            if mv.type == 'in':
+                                product_res[product_id].append({'id': mv.id, 'qty_available': product_res[product_id][-1]['qty_available'] + mv.product_qty})
+                            else:
+                                product_res[product_id].append({'id': mv.id, 'qty_available': product_res[product_id][-1]['qty_available'] - mv.product_qty})
+
+                r = list(filter(lambda x: x['id'] == res['id'], product_res[product_id]))[0]
+                res['qty_available_new'] = r['qty_available']
+
+        return result
+
     @api.one
     @api.depends('stock_cost')
     def _compute_stock_value(self):

@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-        <record id="view_stock_inventory_valuation_move_tree" model="ir.ui.view">
-            <field name="name">stock.inventory.valuation.move.tree</field>
+    <data>
+        <record id="view_stock_inventory_valuation_move_warehouse_tree" model="ir.ui.view">
+            <field name="name">stock.inventory.valuation.move.warehouse.tree</field>
             <field name="model">stock.inventory.valuation.move</field>
-            <field name="inherit_id" ref="cj_stock.view_stock_inventory_valuation_move_tree"/>
+            <field name="inherit_id" ref="cj_stock.view_stock_inventory_valuation_move_warehouse_tree"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='company_id']" position="before">
-                    <field name="cost_group_id" invisible="context.get('hide_cost_group_id', False)"/>
-
+                <xpath expr="//field[@name='product_qty']" position="after">
+                    <field name="qty_available_new" sum="合计"/>
+                    <!--<field name="stock_cost_new" invisible="context.get('hide_sum')"/>-->
+                    <!--<field name="stock_value_new" sum="合计" invisible="context.get('hide_sum')"/>-->
                 </xpath>
             </field>
         </record>
+    </data>
 </odoo>
