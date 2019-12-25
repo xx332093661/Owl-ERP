@@ -2614,10 +2614,10 @@ class ApiMessage(models.Model):
         return_id = False
         if content['returnCode']:
             sale_return = return_obj.search([('name', '=', content['returnCode']), ('sale_order_id', '=', order.id)])
-            if not sale_return:
-                raise MyValidationError('36', '退货单：%s对应的退货入库单没有找到！' % content['returnCode'])
-
-            return_id = sale_return.id
+            # if not sale_return:
+            #     raise MyValidationError('36', '退货单：%s对应的退货入库单没有找到！' % content['returnCode'])
+            if sale_return:
+                return_id = sale_return.id
 
         refund_time = datetime.now()
         try:
