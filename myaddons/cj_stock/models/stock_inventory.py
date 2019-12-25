@@ -854,6 +854,9 @@ class StockInventory(models.Model):
                     print(content['code'])
                     break
 
+    def check_message_not_stock_out(self):
+        """检查未出库"""
+
 
     def _cron_done_inventory(self):
         """临时接口"""
@@ -889,10 +892,12 @@ class StockInventory(models.Model):
         # self.check_stock_quant_reserved_quantity()
 
         # 修改全渠道订单的状态
-        self.modify_sale_order_status()
+        # self.modify_sale_order_status()
 
         # 检查全渠道订单的finalPrice是否小于0
         # self.check_message_sale_order_final_price_less_zero()
+
+        #
 
 
 class InventoryLine(models.Model):
