@@ -579,7 +579,7 @@ class StockPicking(models.Model):
         for line in self.move_line_ids:
             qty_done = line.qty_done  # 完成的数量
             product = line.product_id
-            order_lines = order_line_obj.search([('company_id', '=', company_id), ('product_id', '=', product.id), ('payment_term_id.code', '=', 'sale_after_payment')])
+            order_lines = order_line_obj.search([('company_id', '=', company_id), ('product_id', '=', product.id), ('payment_term_id.type', '=', 'sale_after_payment')])
             for order_line in order_lines:
                 qty_received = order_line.qty_received  # 接收的数量
                 qty_invoiced = order_line.qty_invoiced  # 开单的数量
@@ -813,7 +813,7 @@ class StockPicking(models.Model):
         for line in self.move_line_ids:
             qty_done = line.qty_done  # 完成的数量
             product = line.product_id
-            order_lines = order_line_obj.search([('company_id', '=', company_id), ('product_id', '=', product.id), ('payment_term_id.code', '=', 'joint')])
+            order_lines = order_line_obj.search([('company_id', '=', company_id), ('product_id', '=', product.id), ('payment_term_id.type', '=', 'joint')])
             for order_line in order_lines:
                 qty_received = order_line.qty_received  # 接收的数量
                 qty_invoiced = order_line.qty_invoiced  # 开单的数量
