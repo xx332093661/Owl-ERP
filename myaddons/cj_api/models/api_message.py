@@ -2063,7 +2063,7 @@ class ApiMessage(models.Model):
 
         # 销售退货(只有一次退货)
         if update_type == 'STOCK_01001':
-            raise MyValidationError('40', '不处理队列')
+            raise MyValidationError('40', '在WMS-ERP-RETURN-STOCKIN-QUEUE退货入库单中处理')
             # sale_order = sale_order_obj.search([('name', '=', order_name), ])
             # if not sale_order:  # 没有找到对应订单 TODO 直接入库?
             #     move_lines = []

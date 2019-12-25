@@ -819,8 +819,15 @@ class StockInventory(models.Model):
             if order.status != '已取消':
                 order.status = '已取消'
 
+        for order in self.env['sale.order'].search([('state', '=', 'done')]):
+            if order.status != '已完成':
+                order.status = '已完成'
+
         for order in self.env['sale.order'].search([]):
             if order.status == '已取消':
+                continue
+
+            if order.status == '已完成':
                 continue
 
             refund_amount = sum(order.refund_ids.mapped('refund_amount'))  # 退款金额
@@ -837,6 +844,16 @@ class StockInventory(models.Model):
                         order.status = '已退款'
                     else:
                         order.status = '部分退款'
+
+    def check_message_sale_order_final_price_less_zero(self):
+        """检查全渠道订单的finalPrice是否小于0"""
+        for message in self.env['api.message'].search([('message_name', '=', 'mustang-to-erp-order-push')]):
+            content = json.loads(message.content)
+            for item in content['items']:
+                if item['finalPrice'] < 0:
+                    print(content['code'])
+                    break
+
 
     def _cron_done_inventory(self):
         """临时接口"""
@@ -873,6 +890,9 @@ class StockInventory(models.Model):
 
         # 修改全渠道订单的状态
         self.modify_sale_order_status()
+
+        # 检查全渠道订单的finalPrice是否小于0
+        # self.check_message_sale_order_final_price_less_zero()
 
 
 class InventoryLine(models.Model):
