@@ -783,6 +783,37 @@ class StockInventory(models.Model):
 
             # product_obj.browse(product_id).unlink()
 
+    def check_stock_quant_reserved_quantity(self):
+        """检验stock.quant的reserved_quantity的值是不是因为
+        一次出库一个商品不购出库，而另一个商品的保留未清理
+        测试商品:10010000285
+        """
+        message_obj = self.env['api.message']
+        plan_qty = 0
+        count = 0
+        for message in message_obj.search([('message_name', '=', 'WMS-ERP-STOCKOUT-QUEUE'), ('error_no', '=', '19'), ('state', '=', 'error')]):
+            content = json.loads(message.content)
+            if content['warehouseNo'] != '51001':
+                continue
+
+            exist = False
+            for item in content['items']:
+                default_code = item['goodsCode']
+                if default_code == '10010000285':
+                    exist = True
+                    plan_qty += item['planQty']
+
+                if default_code == 'B110010000285':
+                    exist = True
+                    plan_qty += item['planQty'] * 1
+
+            if exist:
+                count += 1
+
+        print(plan_qty, count)
+
+
+
     def _cron_done_inventory(self):
         """临时接口"""
         # self.adjust_account_invoice()
@@ -811,7 +842,10 @@ class StockInventory(models.Model):
         # self.recreate_purchase_order_invoice_split()
 
         # 调整因手动添加商品缺物料编码的采购订单
-        self.adjust_no_default_code_purchase_order()
+        # self.adjust_no_default_code_purchase_order()
+
+        # 检验stock.quant的reserved_quantity的值
+        self.check_stock_quant_reserved_quantity()
 
 
 class InventoryLine(models.Model):
