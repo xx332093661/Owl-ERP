@@ -827,7 +827,7 @@ class StockInventory(models.Model):
             amount_total = order.amount_total
 
             if not float_is_zero(refund_amount, precision_rounding=0.001):
-                if order.channel.code == 'POS':
+                if order.channel_id.code == 'POS':
                     if float_compare(refund_amount, amount_total, precision_rounding=0.001) == 0:
                         order.status = '已取消'
                     else:

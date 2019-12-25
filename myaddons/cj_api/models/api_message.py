@@ -2669,7 +2669,7 @@ class ApiMessage(models.Model):
         # 更改订单状态(非POS订单状态是部分退款或已退款，POS订单，如果已全部退款，则为已取消，部分退款)
         refund_amount = sum(order.refund_ids.mapped('refund_amount'))  # 退款金额
         amount_total = order.amount_total
-        if order.channel.code == 'POS':
+        if order.channel_id.code == 'POS':
             if float_compare(refund_amount, amount_total, precision_rounding=0.001) == 0:
                 order.status = '已取消'
             else:
