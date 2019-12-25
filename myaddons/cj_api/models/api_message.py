@@ -1227,7 +1227,7 @@ class ApiMessage(models.Model):
                 'amount': payment['paidAmount'] / 100,
                 # 'payment_date': fields.Datetime.to_datetime(payment['paidTime'].replace('T', ' ')).strftime(DATE_FORMAT),
                 'payment_date': payment['paidTime'].split('T')[0],
-                'payment_channel': payment['paymentChannel'],   # 支付渠道(app,web,tms)
+                'payment_channel': payment.get('paymentChannel'),   # 支付渠道(app,web,tms)
                 'payment_way': payment['paymentWay'],   # 支付方式
                 'payment_code': payment['paymentCode'],  # 支付单号
                 'state': 'cancelled' if content['status'] == '已取消' else 'draft',
