@@ -44,7 +44,7 @@
                     <!--
                     <button name="action_unlock" type="object" string="Unlock" states="done" groups="sales_team.group_sale_manager"/>
                     -->
-                    <field name="state" widget="statusbar" statusbar_visible="draft,cancel,sale,done"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,cancel,sale,done" invisible="1"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -74,6 +74,7 @@
                             <!--<field name="channel_id" options="{'no_create_edit': True, 'no_create':True}"/>-->
                             <!--<field name="client_order_ref" string="渠道单号" attrs="{'readonly': [('state', '!=', 'draft')]}"/>-->
                             <!--<field name="cj_activity_id" options="{'no_create_edit': True, 'no_create':True}" string="营销活动"/>-->
+                            <field name="status" string="订单状态"/>
                         </group>
                         <group>
                             <field name="date_order"/>

@@ -812,7 +812,31 @@ class StockInventory(models.Model):
 
         print(plan_qty, count)
 
+    def modify_sale_order_status(self):
+        """修改全渠道订单的状态"""
+        # state字段是cancel，status值改为已取消
+        for order in self.env['sale.order'].search([('state', '=', 'cancel')]):
+            if order.status != '已取消':
+                order.status = '已取消'
 
+        for order in self.env['sale.order'].search([]):
+            if order.status == '已取消':
+                continue
+
+            refund_amount = sum(order.refund_ids.mapped('refund_amount'))  # 退款金额
+            amount_total = order.amount_total
+
+            if not float_is_zero(refund_amount, precision_rounding=0.001):
+                if order.channel.code == 'POS':
+                    if float_compare(refund_amount, amount_total, precision_rounding=0.001) == 0:
+                        order.status = '已取消'
+                    else:
+                        order.status = '部分退款'
+                else:
+                    if float_compare(refund_amount, amount_total, precision_rounding=0.001) == 0:
+                        order.status = '已退款'
+                    else:
+                        order.status = '部分退款'
 
     def _cron_done_inventory(self):
         """临时接口"""
@@ -845,7 +869,10 @@ class StockInventory(models.Model):
         # self.adjust_no_default_code_purchase_order()
 
         # 检验stock.quant的reserved_quantity的值
-        self.check_stock_quant_reserved_quantity()
+        # self.check_stock_quant_reserved_quantity()
+
+        # 修改全渠道订单的状态
+        self.modify_sale_order_status()
 
 
 class InventoryLine(models.Model):
