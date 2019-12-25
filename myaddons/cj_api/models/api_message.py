@@ -1206,6 +1206,8 @@ class ApiMessage(models.Model):
                 journal_code = 'ALI'
             elif payment_way == '美团支付':
                 journal_code = 'MT'
+            elif payment_way == '其他支付方式':
+                journal_code = 'QT'
             else:
                 raise MyValidationError('13', '未知的支付方式：%s' % payment_way)
 
@@ -1225,7 +1227,7 @@ class ApiMessage(models.Model):
                 'amount': payment['paidAmount'] / 100,
                 # 'payment_date': fields.Datetime.to_datetime(payment['paidTime'].replace('T', ' ')).strftime(DATE_FORMAT),
                 'payment_date': payment['paidTime'].split('T')[0],
-                'payment_channel': payment['paymentChannel'],   # 支付渠道(app,web,tms)
+                'payment_channel': payment.get('paymentChannel'),   # 支付渠道(app,web,tms)
                 'payment_way': payment['paymentWay'],   # 支付方式
                 'payment_code': payment['paymentCode'],  # 支付单号
                 'state': 'cancelled' if content['status'] == '已取消' else 'draft',
@@ -2751,7 +2753,7 @@ class ApiMessage(models.Model):
 
         # 状态是finished-已完成，取消订单尚未完成的stock.picking
         if order_state == 'finished':
-            if not order.picking_ids.filtered(lambda x: x.state == 'done'):
+            if not order.picking_ids or not order.picking_ids.filtered(lambda x: x.state == 'done'):
                 raise MyValidationError('16', '订单还未出库，不能完成！')
 
             # 去重处理(推送过来的订单状态可能重复)
