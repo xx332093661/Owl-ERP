@@ -8,8 +8,8 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='product_qty']" position="after">
                     <field name="qty_available_new" sum="合计"/>
-                    <!--<field name="stock_cost_new" invisible="context.get('hide_sum')"/>-->
-                    <!--<field name="stock_value_new" sum="合计" invisible="context.get('hide_sum')"/>-->
+                    <field name="stock_cost_new" invisible="context.get('hide_sum')"/>
+                    <field name="stock_value_new" sum="合计" invisible="context.get('hide_sum')"/>
                 </xpath>
             </field>
         </record>

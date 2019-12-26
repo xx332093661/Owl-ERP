@@ -185,3 +185,96 @@ class StockQuant(models.Model):
         if 'show_all_company_quant' in self._context:
             self = self.sudo()
         return super(StockQuant, self).read(fields=fields, load=load)
+
+    @api.model
+    def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
+        if 'compute_at_date' in self._context:
+            move_obj = self.env['stock.inventory.valuation.move']
+            warehouse_obj = self.env['stock.warehouse']
+            result = []
+            for warehouse_id in self._context['warehouse_ids']:
+                warehouse = warehouse_obj.browse(warehouse_id)
+                if warehouse.company_id.type == 'store':
+                    domain = [('company_id', '=', warehouse.company_id.id), ('stock_type', '=', 'only')]
+                else:
+                    domain = [('warehouse_id', '=', warehouse.id), ('stock_type', '=', 'all')]
+
+                domain += [('done_datetime', '<=', self._context['to_date'])]
+                if self._context['product_ids']:
+                    domain += [('product_id', 'in', self._context['product_ids'])]
+
+                product_ids = []
+                group_count = 0  # 计算分组数量
+                quantity = 0  # quantity字段汇总
+                for move in move_obj.search(domain, order='done_datetime desc'):
+                    product = move.product_id
+                    if product.id not in product_ids:
+                        product_ids.append(product.id)
+                        if move.qty_available > 0:
+                            group_count += 1
+                            quantity += move.qty_available
+
+                result.append({
+                    'location_id_count': group_count,
+                    'reserved_quantity': 0,
+                    'quantity': quantity,
+                    'location_id': (warehouse.lot_stock_id.id, warehouse.lot_stock_id.display_name),
+                    '__domain': [('location_id', '=', warehouse.lot_stock_id.id)],
+                    '__context': self._context
+                })
+            return result
+
+        return super(StockQuant, self).read_group(domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy)
+
+    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
+        """存货估值类型是仓库时，要动态计算在手数量"""
+        if 'compute_at_date' in self._context:
+            move_obj = self.env['stock.inventory.valuation.move']
+            warehouse_obj = self.env['stock.warehouse']
+            result = []
+            index = 1
+
+            warehouse_ids = []
+            if domain:
+                for dom in domain:
+                    if dom[0] == 'location_id':
+                        warehouse_ids = warehouse_obj.search([('lot_stock_id', '=', dom[2])]).ids
+
+            if not warehouse_ids:
+                warehouse_ids = self._context['warehouse_ids']
+
+            for warehouse_id in warehouse_ids:
+                warehouse = warehouse_obj.browse(warehouse_id)
+                if warehouse.company_id.type == 'store':
+                    domain = [('company_id', '=', warehouse.company_id.id), ('stock_type', '=', 'only')]
+                else:
+                    domain = [('warehouse_id', '=', warehouse.id), ('stock_type', '=', 'all')]
+
+                domain += [('done_datetime', '<=', self._context['to_date'])]
+                if self._context['product_ids']:
+                    domain += [('product_id', 'in', self._context['product_ids'])]
+
+                product_ids = []
+                for move in move_obj.search(domain, order='done_datetime desc'):
+                    product = move.product_id
+                    if product.id not in product_ids:
+                        product_ids.append(product.id)
+                        if move.qty_available > 0:
+                            result.append({
+                                'id': index,
+                                'company_id': (move.company_id.id, move.company_id.name),
+                                'location_id': (warehouse.lot_stock_id.id, warehouse.lot_stock_id.display_name),
+                                'lot_id': False,
+                                'owner_id': False,
+                                'package_id': False,
+                                'product_id': (product.id, product.partner_ref),
+                                'product_uom_id': (product.uom_id.id, product.uom_id.name),
+                                'quantity': move.qty_available,
+                                'reserved_quantity': 0
+                            })
+                            index += 1
+
+            return result
+        else:
+            return super(StockQuant, self).search_read(domain, fields, offset, limit, order)
+

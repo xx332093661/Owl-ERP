@@ -2,7 +2,6 @@
 import logging
 
 from odoo import models, api, fields
-from odoo.exceptions import ValidationError
 from odoo.tools import float_is_zero, float_round, float_compare
 from odoo.addons import decimal_precision as dp
 
@@ -29,6 +28,7 @@ class StockInventoryValuationMove(models.Model):
             else:
                 condition = [('stock_type', '=', 'all'), ('warehouse_id', '=', warehouse.id)]
             product_res = {}
+            precision = self.env['decimal.precision'].precision_get('Inventory valuation')  # 估值精度
 
             for res in result:
                 product_id = res['product_id'][0]
@@ -38,15 +38,27 @@ class StockInventoryValuationMove(models.Model):
                     domain += condition
                     for index, mv in enumerate(self.search(domain, order='id asc')):
                         if index == 0:
-                            product_res[product_id].append({'id': mv.id, 'qty_available': mv.product_qty})
+                            qty_available = mv.product_qty
                         else:
                             if mv.type == 'in':
-                                product_res[product_id].append({'id': mv.id, 'qty_available': product_res[product_id][-1]['qty_available'] + mv.product_qty})
+                                qty_available = product_res[product_id][-1]['qty_available'] + mv.product_qty
                             else:
-                                product_res[product_id].append({'id': mv.id, 'qty_available': product_res[product_id][-1]['qty_available'] - mv.product_qty})
+                                qty_available = product_res[product_id][-1]['qty_available'] - mv.product_qty
+
+                        product_res[product_id].append({
+                            'id': mv.id,
+                            'qty_available': qty_available,
+                            'stock_cost': mv.stock_cost,
+                            'stock_value': float_round(qty_available * mv.stock_cost, precision_digits=precision, rounding_method='HALF-UP')
+                        })
 
                 r = list(filter(lambda x: x['id'] == res['id'], product_res[product_id]))[0]
                 res['qty_available_new'] = r['qty_available']
+                res.update({
+                    'qty_available_new': r['qty_available'],
+                    'stock_cost_new': r['stock_cost'],
+                    'stock_value_new': r['stock_value'],
+                })
 
         return result
 

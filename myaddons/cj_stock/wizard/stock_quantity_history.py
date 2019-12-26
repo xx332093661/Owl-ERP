@@ -17,7 +17,7 @@ _logger = logging.getLogger(__name__)
 class StockQuantityHistory(models.TransientModel):
     _inherit = 'stock.quantity.history'
 
-    warehouse_ids = fields.Many2many('stock.warehouse', string='仓库')
+    warehouse_ids = fields.Many2many('stock.warehouse', string='仓库', domain=lambda self: [('company_id', 'child_of', [self.env.user.company_id.id])])
     product_ids = fields.Many2many('product.product', string='产品')
     product_file = fields.Binary('导入查询的商品')
 
@@ -56,44 +56,85 @@ class StockQuantityHistory(models.TransientModel):
                         _logger.error('删除导入的临时文件出错！')
                         _logger.error(traceback.format_exc())
 
-    @api.multi
-    def button_ok(self):
-        domain = [('stock_type', '=', self.stock_type)]  # [('all', '成本核算组'), ('only', '当前公司')]
+    # def open_table(self):
+    #     self.ensure_one()
+    #
+    #     self.env['stock.quant'].with_context(compute_at_date=self.compute_at_date, to_date=self.date)._merge_quants()
+    #     self.env['stock.quant']._unlink_zero_quants()
+    #     action = self.env.ref('stock.quantsact').read()[0]
+    #
+    #     domain = []
+    #     # context = {'search_default_internal_loc': 1}
+    #     context = {}
+    #     if self.product_ids:
+    #         domain.append(('product_id', 'in', self.product_ids.ids))
+    #
+    #     if self.compute_at_date == '1':
+    #         domain.append(('in_date', '<=', self.date))
+    #         name = '%s仓止于%s库存' % ('、'.join(self.warehouse_ids.mapped('name')), self.date)
+    #     else:
+    #         name = '%s仓当前库存' % ('、'.join(self.warehouse_ids.mapped('name')), )
+    #
+    #     if self.warehouse_ids:
+    #         domain.append(('location_id', 'in', self.warehouse_ids.mapped('lot_stock_id').ids))
+    #
+    #     if len(self.warehouse_ids) > 1:
+    #         context['group_by'] = ['location_id']
+    #
+    #     action['domain'] = domain
+    #
+    #     vals = {'view_mode': 'tree', 'context': context, 'views': [(False, 'tree')], 'name': name, 'display_name': name}
+    #     if domain:
+    #         vals['domain'] = domain
+    #
+    #     action.update(vals)
+    #
+    #     return action
 
     def open_table(self):
         self.ensure_one()
 
-        self.env['stock.quant'].with_context(compute_at_date=self.compute_at_date, to_date=self.date)._merge_quants()
-        self.env['stock.quant']._unlink_zero_quants()
         action = self.env.ref('stock.quantsact').read()[0]
 
-        domain = []
-        # context = {'search_default_internal_loc': 1}
-        context = {}
-        if self.product_ids:
-            domain.append(('product_id', 'in', self.product_ids.ids))
+        if self.compute_at_date:
+            context = {
+                'to_date': self.date,
+                'warehouse_ids': self.warehouse_ids.ids,
+                'product_ids': self.product_ids.ids,
+                'compute_at_date': True
+            }
+            if len(self.warehouse_ids) > 1:
+                context['search_default_locationgroup'] = 1
 
-        if self.compute_at_date == '1':
-            domain.append(('in_date', '<=', self.date))
             name = '%s仓止于%s库存' % ('、'.join(self.warehouse_ids.mapped('name')), self.date)
+            vals = {'view_mode': 'tree', 'context': context, 'views': [(False, 'tree')], 'name': name,
+                    'display_name': name, 'limit': 10000}
+            action.update(vals)
+            return action
         else:
-            name = '%s仓当前库存' % ('、'.join(self.warehouse_ids.mapped('name')), )
+            self.env['stock.quant']._merge_quants()
+            self.env['stock.quant']._unlink_zero_quants()
 
-        if self.warehouse_ids:
-            domain.append(('location_id', 'in', self.warehouse_ids.mapped('lot_stock_id').ids))
+            action = self.env.ref('stock.quantsact').read()[0]
+            domain = []
+            context = {}
+            if self.product_ids:
+                domain.append(('product_id', 'in', self.product_ids.ids))
 
-        if len(self.warehouse_ids) > 1:
-            context['group_by'] = ['location_id']
+            if self.warehouse_ids:
+                domain.append(('location_id', 'in', self.warehouse_ids.mapped('lot_stock_id').ids))
+            if len(self.warehouse_ids) > 1:
+                context['search_default_locationgroup'] = 1
 
-        action['domain'] = domain
+            name = '%s仓当前库存' % ('、'.join(self.warehouse_ids.mapped('name')),)
 
-        vals = {'view_mode': 'tree', 'context': context, 'views': [(False, 'tree')], 'name': name, 'display_name': name}
-        if domain:
-            vals['domain'] = domain
+            vals = {'view_mode': 'tree', 'context': context, 'views': [(False, 'tree')], 'name': name, 'display_name': name, 'limit': 10000}
+            if domain:
+                vals['domain'] = domain
 
-        action.update(vals)
+            action.update(vals)
 
-        return action
+            return action
 
 
 

@@ -20,17 +20,30 @@ class StockInventoryValuationWizard(models.TransientModel):
     _name = 'stock.inventory.valuation.wizard'
     _description = '存货估值向导'
 
+    def _get_cost_group_domain(self):
+        """"""
+        company_id = self.env.user.company_id.id
+        if company_id == 1:
+            return []
+
+        cost_group_obj = self.env['account.cost.group']
+        cost_group = cost_group_obj.search([('store_ids', 'in', company_id)])
+        if cost_group:
+            return [('id', '=', cost_group.id)]
+
+        return [('id', '=', -1)]
+
     stock_type = fields.Selection([('all', '成本核算组'), ('only', '公司'), ('warehouse', '仓库')], '存货估值类型',
                                   required=1,
                                   default='all')
 
-    cost_group_id = fields.Many2one('account.cost.group', '成本核算组')
+    cost_group_id = fields.Many2one('account.cost.group', '成本核算组', domain=_get_cost_group_domain)
 
     move_type_id = fields.Many2one('stock.inventory.valuation.move.type', '移库类型')
 
-    company_ids = fields.Many2many('res.company', string='公司')
+    company_ids = fields.Many2many('res.company', string='公司', domain=lambda self: [('id', 'child_of', [self.env.user.company_id.id])])
     warehouse_ids = fields.Many2many('stock.warehouse', string='仓库')
-    warehouse_id = fields.Many2one('stock.warehouse', '仓库')
+    warehouse_id = fields.Many2one('stock.warehouse', '仓库', domain=lambda self: [('company_id', 'child_of', [self.env.user.company_id.id])])
 
     date_from = fields.Date('开始日期')
     date_to = fields.Date('截止日期', default=lambda self: datetime.now().date())
