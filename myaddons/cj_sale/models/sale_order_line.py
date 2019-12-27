@@ -40,6 +40,8 @@ class SaleOrderLine(models.Model):
     apportion_platform_discount_amount = fields.Float('分推平台优惠')
     apportion_freight_amount = fields.Float('分摊运费')
 
+    channel_id = fields.Many2one(related='order_id.channel_id', readonly=1)
+
     @api.multi
     @api.depends('price_unit', 'tax_id')
     def _compute_untax_price_unit(self):

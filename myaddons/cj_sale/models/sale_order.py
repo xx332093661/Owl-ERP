@@ -77,6 +77,13 @@ class SaleOrder(models.Model):
     special_order_mark = fields.Selection([('normal', '普通订单'), ('compensate', '补发货订单'), ('gift', '赠品')], '订单类型', default='normal')
     parent_id = fields.Many2one('sale.order', '关联的销售订单')
     child_ids = fields.One2many('sale.order', 'parent_id', '补发订单')
+
+    # child_ids_gift = fields.One2many('sale.order', 'parent_id', '客情单', domain="[('special_order_mark', '=', 'gift')]")
+    # child_ids_compensate = fields.One2many('sale.order', 'parent_id', '补发单', domain="[('special_order_mark', '=', 'compensate')]")
+
+    child_ids_gift = fields.One2many('sale.order', compute='_compute_child', string="客情单")
+    child_ids_compensate = fields.One2many('sale.order', compute='_compute_child', string="补发单")
+
     reason = fields.Char('补发货原因')
 
     member_id = fields.Char('会员ID', help='对于全渠道订单，打不到会员，先把会员ID暂存起来，后通过计划任务去计算会员')
@@ -91,6 +98,9 @@ class SaleOrder(models.Model):
     approval_code = fields.Char('OA审批单号')
     recipient_type = fields.Selection([('LYCK', '领用出库'), ('EWFH', '额外发货')], '客情单类型')
     goods_type = fields.Selection([(1, '自营'), (2, '外采')], '商品类型')
+    refund_amount = fields.Float('退款金额', compute='_compute_return_amount')
+    refund_name = fields.Char('退款单号', compute='_compute_return_amount')
+    actual_amount = fields.Float('实收金额', compute='_compute_return_amount')
 
     @api.multi
     def button_confirm(self):
@@ -312,4 +322,77 @@ class SaleOrder(models.Model):
 
         # todo 大数量团购处理
         return super(SaleOrder, self).create(val)
+
+    @api.multi
+    def _compute_return_amount(self):
+        """计算退款相关"""
+        for order in self:
+            refund_amount = sum(order.refund_ids.mapped('refund_amount'))  # 退款金额
+            refund_name = ','.join(order.refund_ids.mapped('name'))  # 退款单号
+            actual_amount = order.amount_total - refund_amount
+
+            order.refund_amount = refund_amount
+            order.refund_name = refund_name
+            order.actual_amount = actual_amount
+
+    # child_ids_gift = fields.One2many('sale.order', 'parent_id', '客情单', domain="[('special_order_mark', '=', 'gift')]")
+    # child_ids_compensate = fields.One2many('sale.order', 'parent_id', '补发单', domain="[('special_order_mark', '=', 'compensate')]")
+
+    def _compute_child(self):
+        for order in self:
+            childs = order.child_ids
+            order.child_ids_gift = childs.filtered(lambda x: x.special_order_mark == 'gift')
+            order.child_ids_compensate = childs.filtered(lambda x: x.special_order_mark == 'compensate')
+
+    @api.multi
+    def action_view_purchase_order(self):
+        """打开采购订单视图"""
+        action = self.env.ref('purchase.purchase_rfq')
+        result = action.read()[0]
+
+        result['context'] = {}
+
+        if not self.order_ids or len(self.order_ids) > 1:
+            result['domain'] = "[('id','in',%s)]" % self.order_ids.ids
+        elif len(self.order_ids) == 1:
+            res = self.env.ref('purchase.purchase_order_form', False)
+            result['views'] = [(res and res.id or False, 'form')]
+            result['res_id'] = self.order_ids.id
+        return result
+
+    @api.multi
+    def action_view_gift(self):
+        """查看关联的客情单"""
+        action = self.env.ref('cj_sale.action_orders_gift')
+        result = action.read()[0]
+
+        child_ids_gift = self.child_ids_gift  # 客情单
+        if len(child_ids_gift) > 1:
+            result['domain'] = "[('id','in',%s)]" % child_ids_gift.ids
+
+        if len(child_ids_gift) == 1:
+            res = self.env.ref('cj_sale.view_order_form_gift', False)
+            result['views'] = [(res and res.id or False, 'form')]
+            result['res_id'] = child_ids_gift.id
+
+        return result
+
+    @api.multi
+    def action_view_compensate(self):
+        """查看关联的补发单"""
+        action = self.env.ref('cj_sale.action_orders_compensate')
+        result = action.read()[0]
+
+        child_ids_compensate = self.child_ids_compensate  # 客情单
+        if len(child_ids_compensate) > 1:
+            result['domain'] = "[('id','in',%s)]" % child_ids_compensate.ids
+
+        if len(child_ids_compensate) == 1:
+            res = self.env.ref('cj_sale.view_order_form_compensate', False)
+            result['views'] = [(res and res.id or False, 'form')]
+            result['res_id'] = child_ids_compensate.id
+
+        return result
+
+
 

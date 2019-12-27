@@ -62,6 +62,7 @@
                 <xpath expr="//filter[@name='expected_date']" position="replace">
                     <filter string="订单状态" name="group_state" domain="[]" context="{'group_by':'state'}"/>
                     <filter string="同步状态" name="group_send_pos_state" domain="[]" context="{'group_by':'send_pos_state'}"/>
+                    <filter string="支付条款" name="group_payment_term" domain="[]" context="{'group_by':'payment_term_id'}"/>
                 </xpath>
 
             </field>

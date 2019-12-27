@@ -57,6 +57,8 @@
         # 'wizard/valuation_wizard_view.xml',
         # 'wizard/confirm_empty_delivery_order_wizard_view.xml',
 
+        'wizard/stock_quantity_history.xml',
+
 
         'data/ir_cron.xml',
         'data/stock_inventory_valuation_move_type.xml',

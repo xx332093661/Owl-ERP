@@ -1206,6 +1206,8 @@ class ApiMessage(models.Model):
                 journal_code = 'ALI'
             elif payment_way == '美团支付':
                 journal_code = 'MT'
+            elif payment_way == '其他支付方式':
+                journal_code = 'QT'
             else:
                 raise MyValidationError('13', '未知的支付方式：%s' % payment_way)
 
@@ -1225,7 +1227,7 @@ class ApiMessage(models.Model):
                 'amount': payment['paidAmount'] / 100,
                 # 'payment_date': fields.Datetime.to_datetime(payment['paidTime'].replace('T', ' ')).strftime(DATE_FORMAT),
                 'payment_date': payment['paidTime'].split('T')[0],
-                'payment_channel': payment['paymentChannel'],   # 支付渠道(app,web,tms)
+                'payment_channel': payment.get('paymentChannel'),   # 支付渠道(app,web,tms)
                 'payment_way': payment['paymentWay'],   # 支付方式
                 'payment_code': payment['paymentCode'],  # 支付单号
                 'state': 'cancelled' if content['status'] == '已取消' else 'draft',
@@ -1265,13 +1267,14 @@ class ApiMessage(models.Model):
                 return 0
 
             # 最后一行
-            if line_index == len(items) - 1:
+            if final_price_more_zero_items[-1]['product_id'] == product_id:
                 return discount_amount - apportion_discount_amount_total
 
-            return float_round(
-                discount_amount / line_amount * final_price,
-                precision_digits=2,
-                rounding_method='HALF-UP')
+            return int(discount_amount / line_amount * final_price)
+            # return float_round(
+            #     discount_amount / line_amount * final_price,
+            #     precision_digits=2,
+            #     rounding_method='HALF-UP')
 
         def get_apportion_platform_discount_amount():
             """分推平台优惠"""
@@ -1279,13 +1282,14 @@ class ApiMessage(models.Model):
                 return 0
 
             # 最后一行
-            if line_index == len(items) - 1:
+            if final_price_more_zero_items[-1]['product_id'] == product_id:
                 return platform_discount_amount - apportion_platform_discount_amount_total
 
-            return float_round(
-                platform_discount_amount / line_amount * final_price,
-                precision_digits=2,
-                rounding_method='HALF-UP')
+            return int(platform_discount_amount / line_amount * final_price)
+            # return float_round(
+            #     platform_discount_amount / line_amount * final_price,
+            #     precision_digits=2,
+            #     rounding_method='HALF-UP')
 
         def get_apportion_freight_amount():
             """分摊运费"""
@@ -1293,13 +1297,14 @@ class ApiMessage(models.Model):
                 return 0
 
             # 最后一行
-            if line_index == len(items) - 1:
+            if final_price_more_zero_items[-1]['product_id'] == product_id:
                 return freight_amount - apportion_freight_amount_total
 
-            return float_round(
-                freight_amount / line_amount * final_price,
-                precision_digits=2,
-                rounding_method='HALF-UP')
+            return int(freight_amount / line_amount * final_price)
+            # return float_round(
+            #     freight_amount / line_amount * final_price,
+            #     precision_digits=2,
+            #     rounding_method='HALF-UP')
 
         order_obj = self.env['sale.order']
         order_line_obj = self.env['sale.order.line']
@@ -1337,10 +1342,10 @@ class ApiMessage(models.Model):
         if line_amount != payment_amount + platform_discount_amount + discount_amount:
             raise MyValidationError('50', '支付金额：%s不等于商品金额：%s' % (payment_amount / 100, line_amount / 100))
 
-        # 支付金额 = 订单金额 + 运费 - 平台优惠金额 - 订单优惠金额 - 商品优惠金额
-        if payment_amount != order_amount + freight_amount - platform_discount_amount - discount_amount - line_discount_amount:
-            raise MyValidationError('51', '支付金额：%s不等于订单金额：%s + 运费：%s - 平台优惠金额：%s - 订单优惠金额：%s - 商品优惠金额：%s' %
-                                    (payment_amount / 100, order_amount / 100, freight_amount / 100, platform_discount_amount / 100, discount_amount / 100, line_discount_amount / 100))
+        # # 支付金额 = 订单金额 + 运费 - 平台优惠金额 - 订单优惠金额 - 商品优惠金额
+        # if payment_amount != order_amount + freight_amount - platform_discount_amount - discount_amount - line_discount_amount:
+        #     raise MyValidationError('51', '支付金额：%s不等于订单金额：%s + 运费：%s - 平台优惠金额：%s - 订单优惠金额：%s - 商品优惠金额：%s' %
+        #                             (payment_amount / 100, order_amount / 100, freight_amount / 100, platform_discount_amount / 100, discount_amount / 100, line_discount_amount / 100))
 
         company_id = get_company()  # 计算公司
         warehouse_id = get_warehouse()  # 计算仓库(可能是临时仓库)
@@ -1392,6 +1397,16 @@ class ApiMessage(models.Model):
                     'discountCoupon': item['discountCoupon'],
                     'discountGrant': item['discountGrant'],
                 })
+
+        final_price_more_zero_items = []  # 最终售价大于0的项
+        for item in items:
+            if item['finalPrice'] > 0:
+                final_price_more_zero_items.append({
+                    'product_id': item['product_id'],
+                    'finalPrice': item['finalPrice']
+                })
+
+        final_price_more_zero_items.sort(key=lambda x: x['finalPrice'])  # 最终售价升序
 
         apportion_discount_amount_total = 0  # 累计分摊订单优惠
         apportion_freight_amount_total = 0  # 累计分摊运费
@@ -1448,9 +1463,14 @@ class ApiMessage(models.Model):
                 if picking.state != 'assigned':
                     picking.action_assign()
 
-                if any([move.state != 'assigned' for move in picking.move_lines]):
-                    # if picking.state != 'assigned':
-                    raise MyValidationError('19', '%s未完成出库！' % picking.name)
+                stock_moves = picking.move_lines.filtered(lambda x: x.state != 'assigned')
+                if stock_moves:
+                    picking.do_unreserve()  # 取消保留
+                    raise MyValidationError('19', '%s不能完成出库！' % ('、'.join(stock_moves.mapped('product_id').mapped('partner_ref'))))
+
+                # if any([move.state != 'assigned' for move in picking.move_lines]):
+                #     # if picking.state != 'assigned':
+                #     raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
                 for move in picking.move_lines:
                     move.quantity_done = move.product_uom_qty
@@ -1781,16 +1801,23 @@ class ApiMessage(models.Model):
         order.picking_ids.filtered(lambda x: x.state == 'draft').action_confirm()  # 确认草稿状态的stock.picking
 
         # 5、根据出库明细，修改订单对应的stock.picking明细的完成数量
-        picking = list(order.picking_ids.filtered(lambda x: x.state not in ['draft', 'cancel', 'done']))
-        assert len(picking) == 1, '订单对应的stock.picking状态错误！'
-        picking = picking[0]
+        # picking = list(order.picking_ids.filtered(lambda x: x.state not in ['draft', 'cancel', 'done']))
+        # assert len(picking) == 1, '订单对应的stock.picking状态错误！'
+        # picking = picking[0]
+        picking = order.picking_ids
 
         if picking.state != 'assigned':
             picking.action_assign()
 
-        if any([move.state != 'assigned' for move in picking.move_lines]):
-            # if picking.state != 'assigned':
-            raise MyValidationError('19', '%s未完成出库！' % picking.name)
+        stock_moves = picking.move_lines.filtered(lambda x: x.state != 'assigned')
+        if stock_moves:
+            picking.do_unreserve()  # 取消保留
+            raise MyValidationError('19', '%s不能完成出库！' % ('、'.join(stock_moves.mapped('product_id').mapped('partner_ref'))))
+
+        # if any([move.state != 'assigned' for move in picking.move_lines]):
+        #     # if picking.state != 'assigned':
+        #     raise MyValidationError('19', '%s未完成出库！' % picking.name)
+
 
         for line in delivery_lines:
             product_uom_qty = line['product_uom_qty']
@@ -2001,9 +2028,14 @@ class ApiMessage(models.Model):
             if picking.state != 'assigned':
                 picking.action_assign()
 
-            if any([move.state != 'assigned' for move in picking.move_lines]):
-            # if picking.state != 'assigned':
-                raise MyValidationError('19', '%s未完成出库！' % picking.name)
+            stock_moves = picking.move_lines.filtered(lambda x: x.state != 'assigned')
+            if stock_moves:
+                picking.do_unreserve()  # 取消保留
+                raise MyValidationError('19', '%s不能完成出库！' % ('、'.join(stock_moves.mapped('product_id').mapped('partner_ref'))))
+
+            # if any([move.state != 'assigned' for move in picking.move_lines]):
+            # # if picking.state != 'assigned':
+            #     raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
             for content in wait_out_lines:
                 product_id = content['product_id']
@@ -2031,7 +2063,7 @@ class ApiMessage(models.Model):
 
         # 销售退货(只有一次退货)
         if update_type == 'STOCK_01001':
-            raise MyValidationError('40', '不处理队列')
+            raise MyValidationError('40', '在WMS-ERP-RETURN-STOCKIN-QUEUE退货入库单中处理')
             # sale_order = sale_order_obj.search([('name', '=', order_name), ])
             # if not sale_order:  # 没有找到对应订单 TODO 直接入库?
             #     move_lines = []
@@ -2179,9 +2211,14 @@ class ApiMessage(models.Model):
             if picking.state != 'assigned':
                 picking.action_assign()
 
-            if any([move.state != 'assigned' for move in picking.move_lines]):
-            # if picking.state != 'assigned':
-                raise MyValidationError('19', '%s未完成出库！' % picking.name)
+            stock_moves = picking.move_lines.filtered(lambda x: x.state != 'assigned')
+            if stock_moves:
+                picking.do_unreserve()  # 取消保留
+                raise MyValidationError('19', '%s不能完成出库！' % ('、'.join(stock_moves.mapped('product_id').mapped('partner_ref'))))
+
+            # if any([move.state != 'assigned' for move in picking.move_lines]):
+            # # if picking.state != 'assigned':
+            #     raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
             for stock_move in picking.move_lines:
                 stock_move.quantity_done = stock_move.product_uom_qty
@@ -2286,9 +2323,14 @@ class ApiMessage(models.Model):
             if picking.state != 'assigned':
                 picking.action_assign()
 
-            if any([move.state != 'assigned' for move in picking.move_lines]):
-            # if picking.state != 'assigned':
-                raise MyValidationError('19', '%s未完成出库！' % picking.name)
+            stock_moves = picking.move_lines.filtered(lambda x: x.state != 'assigned')
+            if stock_moves:
+                picking.do_unreserve()  # 取消保留
+                raise MyValidationError('19', '%s不能完成出库！' % ('、'.join(stock_moves.mapped('product_id').mapped('partner_ref'))))
+
+            # if any([move.state != 'assigned' for move in picking.move_lines]):
+            # # if picking.state != 'assigned':
+            #     raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
             for stock_move in picking.move_lines:
                 stock_move.quantity_done = stock_move.product_uom_qty
@@ -2361,9 +2403,14 @@ class ApiMessage(models.Model):
             if picking.state != 'assigned':
                 picking.action_assign()
 
-            if any([move.state != 'assigned' for move in picking.move_lines]):
-            # if picking.state != 'assigned':
-                raise MyValidationError('19', '%s未完成出库！' % picking.name)
+            stock_moves = picking.move_lines.filtered(lambda x: x.state != 'assigned')
+            if stock_moves:
+                picking.do_unreserve()  # 取消保留
+                raise MyValidationError('19', '%s不能完成出库！' % ('、'.join(stock_moves.mapped('product_id').mapped('partner_ref'))))
+
+            # if any([move.state != 'assigned' for move in picking.move_lines]):
+            # # if picking.state != 'assigned':
+            #     raise MyValidationError('19', '%s未完成出库！' % picking.name)
 
             for stock_move in picking.move_lines:
                 stock_move.quantity_done = stock_move.product_uom_qty
@@ -2569,10 +2616,10 @@ class ApiMessage(models.Model):
         return_id = False
         if content['returnCode']:
             sale_return = return_obj.search([('name', '=', content['returnCode']), ('sale_order_id', '=', order.id)])
-            if not sale_return:
-                raise MyValidationError('36', '退货单：%s对应的退货入库单没有找到！' % content['returnCode'])
-
-            return_id = sale_return.id
+            # if not sale_return:
+            #     raise MyValidationError('36', '退货单：%s对应的退货入库单没有找到！' % content['returnCode'])
+            if sale_return:
+                return_id = sale_return.id
 
         refund_time = datetime.now()
         try:
@@ -2621,6 +2668,20 @@ class ApiMessage(models.Model):
         })
         payment_res.post()  # 记账
 
+        # 更改订单状态(非POS订单状态是部分退款或已退款，POS订单，如果已全部退款，则为已取消，部分退款)
+        refund_amount = sum(order.refund_ids.mapped('refund_amount'))  # 退款金额
+        amount_total = order.amount_total
+        if order.channel_id.code == 'POS':
+            if float_compare(refund_amount, amount_total, precision_rounding=0.001) == 0:
+                order.status = '已取消'
+            else:
+                order.status = '部分退款'
+        else:
+            if float_compare(refund_amount, amount_total, precision_rounding=0.001) == 0:
+                order.status = '已退款'
+            else:
+                order.status = '部分退款'
+
         # vals_list = []
         # for payment in order.payment_ids:
         #     journal_id = payment.journal_id.id
@@ -2666,7 +2727,12 @@ class ApiMessage(models.Model):
             raise MyValidationError('14', '订单编号：%s对应的订单不存在！' % order_code)
 
         # 中台状态
-        states = {'paid': '已支付', 'begin': '待发货', 'wait': '待派单', 'outbound': '已出库', 'cancelled': '已取消', 'finished': '已完成', 'returning': '退货申请中', 'some': '部分退货中', 'allreturning': '全部退货中', 'somereturn': '部分退货', 'allreturn': '全部退货', 'refunding': '退款中', 'somerefund': '部分退款', 'refunded': '已退款'}
+        states = {'paid': '已支付', 'begin': '待发货', 'wait': '待派单', 'outbound': '已出库', 'cancelled': '已取消', 'finished': '已完成', 'returning': '退货申请中',
+                  'some': '部分退货中',
+                  'allreturning': '全部退货中',
+                  'somereturn': '部分退货', 'allreturn': '全部退货', 'refunding': '退款中',
+                  'somerefund': '部分退款',
+                  'refunded': '已退款'}
 
         # 状态是cancelled-已取消，取消订单，取消订单关联的stock.picking和account.payment
         if order_state == 'cancelled':
@@ -2687,7 +2753,7 @@ class ApiMessage(models.Model):
 
         # 状态是finished-已完成，取消订单尚未完成的stock.picking
         if order_state == 'finished':
-            if not order.picking_ids.filtered(lambda x: x.state == 'done'):
+            if not order.picking_ids or not order.picking_ids.filtered(lambda x: x.state == 'done'):
                 raise MyValidationError('16', '订单还未出库，不能完成！')
 
             # 去重处理(推送过来的订单状态可能重复)

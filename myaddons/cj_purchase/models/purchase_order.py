@@ -504,8 +504,8 @@ class PurchaseOrder(models.Model):
                 '公司名称': self.company_id.name,
                 '编号': self.name,
                 '合同名称': contract_name,
-                '合同主要内容': contract_conent[:1983],
-                '提请审查重点': point[:1983],
+                '合同主要内容': contract_conent[:1976],
+                '提请审查重点': point[:1976],
                 '承办人': self.user_id.oa_code,
                 '单位名称': self.company_id.name,
                 '承办部门': self.company_id.name,
@@ -530,6 +530,7 @@ class PurchaseOrder(models.Model):
             raise ValidationError('只有确认或提交审批的单据才可以由管理员审批！')
 
         self.state = 'oa_accept'  # 审批通过
+        self._generate_invoice_split()  # 先款后货的生成账单分期
 
     @api.multi
     def _compute_can_push_pos(self):
@@ -599,11 +600,11 @@ class PurchaseOrder(models.Model):
 
     def _update_oa_approval_state(self, flow_id, refuse=False):
         """OA审批通过回调"""
-        apply = self.search([('flow_id', '=', flow_id)])
-        if apply.state != 'oa_sent':
+        order = self.search([('flow_id', '=', flow_id)])
+        if order.state != 'oa_sent':
             return
 
         if refuse:
-            apply.state = 'oa_refuse'  # 审批拒绝
+            order.state = 'oa_refuse'  # 审批拒绝
         else:
-            apply.state = 'oa_accept'  # 审批通过
+            order.state = 'oa_accept'  # 审批通过

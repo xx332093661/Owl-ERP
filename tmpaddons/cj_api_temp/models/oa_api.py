@@ -1,5 +1,19 @@
 # -*- coding: utf-8 -*-
 from odoo import models, api
+from datetime import datetime
+
+OA_STATUS =[
+    ('1', '未发出'),
+    ('2', '未知'),
+    ('3', '待处理'),
+    ('4', '处理中'),
+    ('5', '撤销'),
+    ('6', '回退'),
+    ('7', '取回'),
+    ('15', '被终止'),
+    ('0', '审批通过'),
+
+]
 
 
 class CjOaApi(models.Model):
@@ -47,6 +61,29 @@ class CjOaApi(models.Model):
                 return super(CjOaApi, self).oa_get_flow_state_by_id(flow_id)
 
         return 0
+
+    def oa_get_flow_state(self, flow_id=None):
+        time_now = datetime.now()
+        obj = self.search([('flow_id', '=', flow_id)])
+        callback = self.env['oa.approval.callback'].search([('model', '=', obj.model)]).callback
+        res = self.oa_get_flow_state_by_id(obj.flow_id)
+
+        if str(res) in ['0', '1', '2', '3', '4', '5', '6', '7', '15']:
+            obj.approval_text = dict(OA_STATUS)[str(res)]
+        else:
+            obj.approval_text = str(res)
+        if res == 0:
+            obj.approval_result = 'done'  # 更新审批状态，不再查询OA
+
+            getattr(self.env[obj.model], callback)(obj.flow_id)
+        elif res in [5, 15]:
+            obj.approval_result = 'refuse'
+
+            getattr(self.env[obj.model], callback)(obj.flow_id, refuse=True)
+        else:
+            if (time_now - obj.create_date).days > 10:
+                obj.approval_result = 'overdue'
+
 
 
 

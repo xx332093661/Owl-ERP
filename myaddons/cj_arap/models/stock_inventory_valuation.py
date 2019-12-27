@@ -2,8 +2,8 @@
 import logging
 
 from odoo import models, api, fields
-from odoo.exceptions import ValidationError
 from odoo.tools import float_is_zero, float_round, float_compare
+from odoo.addons import decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
@@ -13,6 +13,54 @@ class StockInventoryValuationMove(models.Model):
     _description = '存货估值移动'
 
     cost_group_id = fields.Many2one('account.cost.group', '成本组', index=1)
+
+    qty_available_new = fields.Float('在手数量', digits=dp.get_precision('Product Unit of Measure'))
+    stock_cost_new = fields.Float('库存单位成本', digits=dp.get_precision('Inventory valuation'))
+    stock_value_new = fields.Float('库存价值', digits=dp.get_precision('Inventory valuation'))    # 4位小数
+
+    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
+        """存货估值类型是仓库时，要动态计算在手数量"""
+        result = super(StockInventoryValuationMove, self).search_read(domain, fields, offset, limit, order)
+        if 'get_warehouse_value' in self._context:
+            warehouse = self.env['stock.warehouse'].browse(self._context['get_warehouse_value'])
+            if warehouse.company_id.type == 'store':
+                condition = [('stock_type', '=', 'only'), ('company_id', '=', warehouse.company_id.id)]
+            else:
+                condition = [('stock_type', '=', 'all'), ('warehouse_id', '=', warehouse.id)]
+            product_res = {}
+            precision = self.env['decimal.precision'].precision_get('Inventory valuation')  # 估值精度
+
+            for res in result:
+                product_id = res['product_id'][0]
+                if product_id not in product_res:
+                    product_res.setdefault(product_id, [])
+                    domain = [('product_id', '=', product_id)]
+                    domain += condition
+                    for index, mv in enumerate(self.search(domain, order='id asc')):
+                        if index == 0:
+                            qty_available = mv.product_qty
+                        else:
+                            if mv.type == 'in':
+                                qty_available = product_res[product_id][-1]['qty_available'] + mv.product_qty
+                            else:
+                                qty_available = product_res[product_id][-1]['qty_available'] - mv.product_qty
+
+                        product_res[product_id].append({
+                            'id': mv.id,
+                            'qty_available': qty_available,
+                            'stock_cost': mv.stock_cost,
+                            'stock_value': float_round(qty_available * mv.stock_cost, precision_digits=precision, rounding_method='HALF-UP')
+                        })
+
+                r = list(filter(lambda x: x['id'] == res['id'], product_res[product_id]))[0]
+                res['qty_available_new'] = r['qty_available']
+                res.update({
+                    'qty_available_new': r['qty_available'],
+                    'stock_cost_new': r['stock_cost'],
+                    'stock_value_new': r['stock_value'],
+                })
+
+        return result
 
     @api.one
     @api.depends('stock_cost')
