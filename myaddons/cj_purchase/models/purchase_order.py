@@ -608,3 +608,22 @@ class PurchaseOrder(models.Model):
             order.state = 'oa_refuse'  # 审批拒绝
         else:
             order.state = 'oa_accept'  # 审批通过
+
+    @api.model
+    def fields_get(self, allfields=None, attributes=None):
+        res = super(PurchaseOrder, self).fields_get(allfields, attributes)
+        # access_token(安全令牌)，partner_ref(供应商参考)，dest_address_id(直运地址)，currency_id(币种)，notes(条款和条件)，invoice_count(帐单总数)，invoice_ids(账单)，invoice_status(账单状态)
+        # date_planned(计划日期)，fiscal_position_id(替换规则)，incoterm_id(国际贸易术语)，picking_count(选择数)，picking_ids(入库)，default_location_dest_id_usage(目标库位类型)
+        # group_id(补货组)，is_shipped(出货)，send_pos_error(同步到POS错误信息)，invoice_split_ids(账单分期)，invoice_split_count(账单分期数量)，invoice_register_count(登记的发票的张数)
+        # transport_ids(物流单)，payment_time(付款时间)，deliver_time(发货时间)，logistics_time(物流时间)，arrival_time(预计到货时间)，order_return_ids（退货单），order_return_count(退货单数量)
+        # purchase_order_count(供应商采购订单数), explain(说明)，can_push_pos(是否可推送到POS)
+        for field in ['access_token', 'partner_ref', 'dest_address_id', 'currency_id', 'notes', 'invoice_count', 'invoice_ids', 'invoice_status',
+                      'date_planned', 'fiscal_position_id', 'incoterm_id', 'picking_count', 'picking_ids', 'default_location_dest_id_usage',
+                      'group_id', 'is_shipped', 'send_pos_error', 'invoice_split_ids', 'invoice_split_count', 'invoice_register_count',
+                      'transport_ids', 'payment_time', 'deliver_time', 'logistics_time', 'arrival_time', 'order_return_ids', 'order_return_count', 'purchase_order_count', 'explain',
+                      'can_push_pos']:
+            if res.get(field):
+                res[field]['searchable'] = False
+                res[field]['sortable'] = False
+
+        return res

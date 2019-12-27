@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="filter_button">
+        <button type="button" class="btn btn-primary o_button_filter" accesskey="q" t-if="widget.filter_wizard">
+            查询
+        </button>
+    </t>
+    <t t-extend="ListView.buttons">
+        <t t-jquery=".o_list_button_save" t-operation="after">
+           <t t-call="filter_button"/>
+        </t>
+    </t>
+
+    <t t-extend="DomainLeaf">
+        <t t-jquery="input.o_domain_leaf_value_input" t-operation="replace">
+            <!--取消默认值-->
+            <input class="o_domain_leaf_value_input o_input" type="text"/>
+        </t>
+    </t>
+</templates>
