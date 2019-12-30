@@ -16,7 +16,7 @@ from odoo.exceptions import ValidationError
 from .rabbit_mq_receive import RabbitMQReceiveThread
 from .rabbit_mq_send import RabbitMQSendThread
 from .rabbit_mq_receive import MQ_SEQUENCE
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, float_compare, float_is_zero, config, float_round
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT, float_compare, float_is_zero, config, float_round, DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 
 _logger = logging.getLogger(__name__)
 
@@ -107,6 +107,11 @@ class ApiMessageDump(models.Model):
         return super(ApiMessageDump, self)._name_search(name=name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
 
 
+# 每天1点执行一次失败次数大于0的message
+exec_attempts = {
+
+}
+
 class ApiMessage(models.Model):
     _name = 'api.message'
     _description = 'api消息'
@@ -191,6 +196,8 @@ class ApiMessage(models.Model):
         def group_key(x):
             return getattr(x, 'update_code', '')
 
+        global exec_attempts
+
         if not messages:
             # rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去处理RabbitMQ的数据，与开启
             # if rabbitmq_ip:
@@ -198,7 +205,17 @@ class ApiMessage(models.Model):
             #     if local_ip != rabbitmq_ip:
             #         return
 
-            messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', 3)], order='sequence asc, id asc', limit=3000)
+            # 每天0点执行一次失败次数大于0的message
+            attempts = 3
+            hour = datetime.now().hour
+            if hour == 0:
+                date = datetime.now().strftime(DATE_FORMAT)
+                if date not in exec_attempts:
+                    attempts = 20
+                    exec_attempts[date] = True
+
+            messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', attempts)], order='sequence asc, id asc', limit=3000)
+
         else:
             messages = self.search([('id', 'in', messages.ids)], order='sequence asc, id asc')
 

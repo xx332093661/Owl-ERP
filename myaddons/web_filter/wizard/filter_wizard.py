@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
+from odoo.osv import expression
 
 
 class FilterWizard(models.TransientModel):
@@ -12,14 +13,22 @@ class FilterWizard(models.TransientModel):
     domain = fields.Text('条件')
     save_condition = fields.Boolean('保存条件')
     name = fields.Char('查询名称')
-    is_share = fields.Boolean('共享')
+    is_share = fields.Boolean('共享', default=True)
 
     @api.model
     def default_get(self, fields_list):
-        return {
+        result = {
             'model_id': self._context['active_model'],
-            'save_condition': False
+            'save_condition': False,
+            'is_share': True
         }
+
+        domain = [('model', '=', self._context['active_model']), ('action_id', '=', self._context['action_id']), '|', ('user_id', '=', self.env.user.id), ('is_share', '=', True)]
+        res = self.env['user.filter'].search(domain, order='id desc', limit=1)
+        if res:
+            result['filter_id'] = res.id
+
+        return result
 
     @api.onchange('filter_id')
     def _onchange_filter_id(self):
@@ -40,6 +49,7 @@ class FilterWizard(models.TransientModel):
     def button_ok(self):
         """应用"""
         domain = self.domain or '[]'
+        print(domain)
         domain = eval(domain)
         if not domain:
             raise ValidationError('请输入查询条件！')
@@ -66,16 +76,25 @@ class FilterWizard(models.TransientModel):
         action = self.env['ir.actions.act_window'].browse(self._context['action_id'])
         action = action.read()[0]
 
-        dom = action.get('domain', '[]')
-        dom = eval(dom)
-        dom += domain
+        action_domain = action.get('domain', '[]')
+        action_domain = eval(action_domain)
+
+        res_domain = []
+        for dom in domain:
+            if dom == '&':
+                continue
+
+            res_domain.append(dom)
+
+            action_domain = expression.AND([action_domain, dom])
+        # action_domain += res_domain
 
         name = self.name
         if not name:
             name = '自定义搜索 %s' % action.get('name', '')
 
         action.update({
-            'domain': dom,
+            'domain': action_domain,
             'name': name,
             'display_name': name
         })
