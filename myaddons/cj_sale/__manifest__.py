@@ -32,6 +32,8 @@
         'data/decimal_precision.xml',
         # 'data/ir_cron.xml',
 
+        'wizard/sale_order_import_view.xml',
+
         'views/sale_channels.xml',
         'views/sale_activity.xml',
         'views/sale_order.xml',
@@ -48,6 +50,7 @@
 
 
         'wizard/sale_purchase_confirm_view.xml',
+
 
         'report/sale_report_views.xml',
 
