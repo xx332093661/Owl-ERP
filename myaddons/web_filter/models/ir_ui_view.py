@@ -107,7 +107,7 @@ def _fields_view_get(self, view_id=None, view_type='form', toolbar=False, submen
         result['view_id'] = root_view['id']
         result['field_parent'] = root_view['field_parent']
         result['base_model'] = root_view['model']
-        result['filter_wizard'] = root_view.get('filter_wizard', None)
+        result['filter_wizard'] = root_view.get('filter_wizard', None )
     else:
         # fallback on default views methods if no ir.ui.view could be found
         try:

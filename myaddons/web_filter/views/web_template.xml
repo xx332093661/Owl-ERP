@@ -3,6 +3,7 @@
 
         <template id="assets_backend" name="filter wizard assets" inherit_id="web.assets_backend">
             <xpath expr="." position="inside">
+                <link rel="stylesheet" type="text/scss" href="/web_filter/static/src/scss/domain_selector.scss"/>
                 <script type="text/javascript" src="/web_filter/static/src/js/abstract_view.js"/>
                 <script type="text/javascript" src="/web_filter/static/src/js/list_controller.js"/>
             </xpath>
