@@ -18,6 +18,10 @@
                 <xpath expr="//field[@name='amount_total']" position="attributes">
                     <attribute name="string">含税合计</attribute>
                 </xpath>
+
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="filter_wizard">1</attribute>
+                </xpath>
             </field>
         </record>
     </data>

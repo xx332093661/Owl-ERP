@@ -18,7 +18,7 @@ def read(self, fields=None, load='_classic_read'):
 
     # split fields into stored and computed fields
     stored, inherited, computed, cols = [], [], [], []
-    if self._table in ['res_users', 'res_company', 'res_partner']:
+    if self._table in ['res_users', 'res_company', 'res_partner', 'ir_model_fields']:
         self._cr.execute("""SELECT COLUMN_NAME FROM information_schema.columns WHERE table_schema='public' AND TABLE_NAME='%s'""" % self._table)  # 查询列
         cols = [col for (col,) in self._cr.fetchall()]
 
@@ -26,7 +26,7 @@ def read(self, fields=None, load='_classic_read'):
         field = self._fields.get(name)
         if field:
             if field.store:
-                if self._table in ['res_users', 'res_company', 'res_partner']:
+                if self._table in ['res_users', 'res_company', 'res_partner', 'ir_model_fields']:
                     if field.type in ['integer', 'char', 'float', 'text', 'many2one', 'selection', 'html', 'monetary', 'date', 'datetime', 'reference', 'boolean']:
                         if name in cols:
                             stored.append(name)

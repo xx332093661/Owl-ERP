@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+        <template id="assets_backend" name="filter wizard assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/web_filter/static/src/js/abstract_view.js"/>
+                <script type="text/javascript" src="/web_filter/static/src/js/list_controller.js"/>
+            </xpath>
+        </template>
+</odoo>
