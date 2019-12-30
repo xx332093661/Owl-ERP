@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!--增加type字段-->
+        <!--增加type,code字段-->
         <record id="view_payment_term_tree" model="ir.ui.view">
             <field name="name">account.payment.term.tree</field>
             <field name="model">account.payment.term</field>
@@ -9,6 +9,7 @@
             <field name="arch" type="xml">
 
                 <xpath expr="//field[@name='name']" position="after">
+                    <field name="code" required="0"/>
                     <field name="type" required="1"/>
                 </xpath>
             </field>
@@ -22,6 +23,7 @@
             <field name="arch" type="xml">
                 <!--增加type字段-->
                 <xpath expr="//field[@name='name']" position="after">
+                    <field name="code" />
                     <field name="type"/>
                     <field name="fee_rate" attrs="{'invisible': [('type', '!=', 'joint')], 'required': [('type', '=', 'joint')]}"/>
                 </xpath>

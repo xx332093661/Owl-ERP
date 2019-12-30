@@ -22,6 +22,7 @@ class AccountPaymentTerm(models.Model):
 
     type = fields.Selection(PAYMENT_TERM_TYPE, '结算类型', default='normal', required=1)
     fee_rate = fields.Float('扣率(%)', help='联营扣点')
+    code = fields.Char('付款方式编码',help='付款方式编码用于中台识别付款方式')
 
     @api.multi
     def write(self, vals):
