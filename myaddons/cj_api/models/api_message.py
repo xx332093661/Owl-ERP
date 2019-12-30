@@ -72,7 +72,9 @@ PROCESS_ERROR = {
     '48': '错误的盘点明细',
     '49': '盘点单号重复',
     '50': '支付金额不等于商品金额',
-    '51': '支付金额错误'
+    '51': '支付金额错误',
+    '52': '货未退完不能取消',
+    '53': '款未退完不能取消'
 }
 
 
@@ -2740,13 +2742,24 @@ class ApiMessage(models.Model):
             if order.state == 'cancel':
                 return
 
-            if order.picking_ids.filtered(lambda x: x.state == 'done'):
-                raise MyValidationError('15', '订单已出库，不能取消！')
+            # 是否全部退货
+            lines = list(filter(lambda x: x.qty_delivered > 0, order.order_line))
+            if lines:
+                raise MyValidationError('52', '%s货未退完，不能取消订单！' % ('、'.join([line.product_id.partner_ref for line in lines])))
+
+            # 是否全部退款
+            refund_amount = sum([line.refund_amount for line in order.refund_ids])
+            if float_compare(order.amount_total, refund_amount, precision_rounding=0.01) != 0:
+                raise MyValidationError('53', '订单金额：%s，退款金额：%s，款未退完，不能取消！' % (order.amount_total, refund_amount))
+
+            # if order.picking_ids.filtered(lambda x: x.state == 'done'):
+            #     raise MyValidationError('15', '订单已出库，不能取消！')
 
             # 将未完成的stock.picking取消
             order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
             # 订单取消
-            order.action_cancel()
+            if not order.picking_ids.filtered(lambda x: x.state == 'done'):
+                order.action_cancel()
             # 取消关联的收款(已收至款的走退款途径，草稿状态的取消)
             for payment in order.payment_ids.filtered(lambda x: x.state == 'draft'):
                 payment.cancel()
