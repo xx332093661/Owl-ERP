@@ -11,10 +11,10 @@
         </t>
     </t>
 
-    <t t-extend="DomainLeaf">
-        <t t-jquery="input.o_domain_leaf_value_input" t-operation="replace">
-            <!--取消默认值-->
-            <input class="o_domain_leaf_value_input o_input" type="text"/>
-        </t>
-    </t>
+    <!--<t t-extend="DomainLeaf">-->
+        <!--<t t-jquery="input.o_domain_leaf_value_input" t-operation="replace">-->
+            <!--&lt;!&ndash;取消默认值&ndash;&gt;-->
+            <!--<input class="o_domain_leaf_value_input o_input" type="text"/>-->
+        <!--</t>-->
+    <!--</t>-->
 </templates>

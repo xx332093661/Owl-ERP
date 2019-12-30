@@ -1,0 +1,15 @@
+.o_domain_node{
+  &.o_domain_leaf{
+    > .o_domain_leaf_edition{
+      > * {
+        flex-basis: 10%;
+        &:first-child {
+          flex-basis: 25%;
+        }
+        &:last-child {
+          flex-basis: 65%;
+        }
+      }
+    }
+  }
+}

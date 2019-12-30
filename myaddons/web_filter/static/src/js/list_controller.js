@@ -16,7 +16,6 @@ odoo.define('web_filter.ListController', function (require) {
             if (event) {
                 event.stopPropagation();
             }
-            console.log(this.activeActions);
             var action = {
                 name: '查询向导',
                 type: 'ir.actions.act_window',
@@ -27,10 +26,31 @@ odoo.define('web_filter.ListController', function (require) {
                 target: 'new',
                 context: {
                     'active_model': this.modelName,
-                    'action_id': this.action_id
+                    'action_id': this.action_id,
                 },
             };
             this.do_action(action);
         }
     });
+});
+
+odoo.define("web_filter.DomainSelector", function (require) {
+    var DomainSelector = require('web.DomainSelector');
+    DomainSelector.include({
+        // 清除默认domain
+        _onAddFirstButtonClick: function () {
+            this._addChild(this.options.default || [["id", "=", false]]);
+        },
+    });
+    // 清除默认domain
+    DomainSelector.prototype._onNodeAdditionAsk = function (e) {
+            var domain = this.options.default || [["id", "=", false]];
+            if (e.data.newBranch) {
+                domain = [this.operator === "&" ? "|" : "&"].concat(domain).concat(domain);
+            }
+            if (this._addChild(domain, e.data.child)) {
+                e.stopPropagation();
+            }
+    }
+
 });
