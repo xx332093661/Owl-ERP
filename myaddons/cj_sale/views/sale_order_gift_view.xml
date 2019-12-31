@@ -328,6 +328,7 @@
                 <field name="total_cost"/>
                 <field name="currency_id" invisible="1"/>
                 <field name="state" invisible="1"/>
+                <field name="recipient_type"/>
                 <field name="status" string="订单状态"/>
             </tree>
         </field>
