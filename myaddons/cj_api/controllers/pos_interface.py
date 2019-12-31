@@ -312,5 +312,111 @@ class PosInterface(http.Controller):
             'msg': ''
         }
 
+    @http.route('/pos/pos_stock_in', type='json', auth="none", methods=['POST'], csrf=False)
+    def pos_stock_in(self):
+        """ 信息科技省仓调拨入库
+        传入参数：
+        {
+            'data': {
+                'in_id': POS出库单ID
+                'in_order_name: POS出库单号
+                'move_lines': [{
+                    'goods_code': 物料编码
+                    'goods_name': 商品名称
+                    'product_qty': 入库数量
+                }]  出库明细
+            }
+        }
+        返回结果：{
+             'state': 1 处理状态(1-成功, 0-失败),
+             'msg': 错误信息
+        }
+        """
+        company_obj = request.env['res.company'].sudo()
+        warehouse_obj = request.env['stock.warehouse'].sudo()
+        picking_type_obj = request.env['stock.picking.type'].sudo()  # 作业类型
+        product_obj = request.env['product.product'].sudo()
+        picking_obj = request.env['stock.picking'].sudo()
+        location_obj = request.env['stock.location'].sudo()
+
+        try:
+            data = request.jsonrequest.get('data') or {}
+        except ValueError:
+            return {
+                'state': 0,
+                'msg': '处理数据出错，请传json格式字符串！'
+            }
+
+        _logger.info('省仓入库收到数据：%s', data)
+
+        store_code = '02014'  # 门店编号
+
+        company = company_obj.search([('code', '=', store_code)])
+        warehouse = warehouse_obj.search([('code', '=', '51005')])  # 川酒省仓
+        picking_type = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'incoming')])  # 作业类型(供应商)
+
+        move_lines = []
+        for line in data['move_lines']:
+            product = product_obj.search([('default_code', '=', line['goods_code'])])
+            if not product:
+                return {
+                    'state': 0,
+                    'msg': '物料编码：%s打不到对应商品！' % line['goods_code']
+                }
+            move_lines.append((0, 0, {
+                'name': product.partner_ref,
+                'product_uom': product.uom_id.id,
+                'product_id': product.id,
+                'product_uom_qty': line['product_qty'],
+                # 'quantity_done': abs(content['quantity']),
+                'store_stock_update_code': 'STOCK_03002',  # 门店库存变更类型(两步式调拨-入库)
+            }))
+
+        if not move_lines:
+            return {
+                'state': 0,
+                'msg': '没有入库明细！'
+            }
+        location_dest_id = picking_type.default_location_dest_id.id
+        picking = picking_obj.search([('origin', '=', data['in_order_name']), ('location_dest_id', '=', location_dest_id)])
+        if picking:
+            return {
+                'state': 0,
+                'msg': '入库单号：%s重复！' % data['in_order_name']
+            }
+
+        picking = picking_obj.create({
+            'location_id': location_obj.search([('usage', '=', 'supplier')], limit=1).id,  # 源库位(供应商库位)
+            'location_dest_id': location_dest_id,  # 目的库位(库存库位)
+            'picking_type_id': picking_type.id,  # 作业类型
+            'origin': data['in_order_name'],  # 关联单据
+            'company_id': company.id,
+            'move_lines': move_lines,
+            'note': '川酒省仓：两步式调拨-入库'
+        })
+        picking.action_confirm()
+        # if picking.state != 'assigned':
+        #     picking.action_assign()
+        #
+        # wait_moves = picking.move_lines.filtered(lambda x: x.state != 'assigned')
+        # if wait_moves:
+        #     self._cr.rollback()
+        #     msg = '部分商品：%s库存不足，不能出库！' % ('、'.join([m.product_id.partner_ref for m in wait_moves[:5]]))
+        #     _logger.info(msg)
+        #     return {
+        #         'state': 0,
+        #         'msg': msg
+        #     }
+
+        for stock_move in picking.move_lines:
+            stock_move.quantity_done = stock_move.product_uom_qty
+
+        picking.button_validate()  # 确认入库
+
+        return {
+            'state': 1,
+            'msg': ''
+        }
+
 
 
