@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 from lxml import etree
 from itertools import groupby
@@ -883,8 +883,24 @@ class StockInventory(models.Model):
 
     def check_sale_order_no_stock_out(self):
         """全渠道订单没有出库单"""
+        message_obj = self.env['api.message']
         for order in self.env['sale.order'].search([]):
-            pass
+            if order.state == 'done' and order.status != '已完成':
+                print(order.name)
+                continue
+
+            if order.state == 'cancel' and order.status != '已取消':
+                print(order.name)
+                continue
+
+            if order.status == '已支付':
+                message = message_obj.search([('message_name', '=', 'WMS-ERP-STOCKOUT-QUEUE'), ('content', 'ilike', order.name)])
+                if not message:
+                    print(order.name, ',', order.date_order + timedelta(hours=8))
+
+
+
+
 
 
     def modify_sale_order_gift_status(self):
@@ -944,7 +960,10 @@ class StockInventory(models.Model):
         # self.check_message_error()
 
         # 更新客情单的状态(status)
-        self.modify_sale_order_gift_status()
+        # self.modify_sale_order_gift_status()
+
+        #
+        self.check_sale_order_no_stock_out()
 
 
 class InventoryLine(models.Model):

@@ -13,6 +13,7 @@
                     <field name="refund_amount"/>
                     <field name="operator"/>
                     <field name="refund_type"/>
+                    <field name="remarks"/>
                 </tree>
             </field>
         </record>
