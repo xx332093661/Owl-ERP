@@ -2,6 +2,7 @@
 from odoo import fields, models, api
 from odoo.exceptions import ValidationError
 from odoo.osv import expression
+from odoo.tools.safe_eval import safe_eval
 
 
 class FilterWizard(models.TransientModel):
@@ -48,30 +49,40 @@ class FilterWizard(models.TransientModel):
     @api.multi
     def button_ok(self):
         """应用"""
-        domain = self.domain or '[]'
-        print(domain)
-        domain = eval(domain)
-        if not domain:
-            raise ValidationError('请输入查询条件！')
+        def save_condition():
+            if self.save_condition:
+                filter_obj = self.env['user.filter']
 
-        if self.save_condition:
-            filter_obj = self.env['user.filter']
+                if self.filter_id:
+                    if self.name == self.filter_id.name:
+                        self.filter_id.write({
+                            'domain': self.domain,
+                        })
+                    else:
+                        filter_obj.create({
+                            'action_id': self._context['action_id'],
+                            'user_id': self.env.user.id,
+                            'model': self.model_id,
+                            'name': self.name,
+                            'domain': self.domain,
+                            'is_share': self.is_share
+                        })
+                else:
+                    filter_obj.create({
+                        'action_id': self._context['action_id'],
+                        'user_id': self.env.user.id,
+                        'model': self.model_id,
+                        'name': self.name,
+                        'domain': self.domain,
+                        'is_share': self.is_share
+                    })
 
-            if self.filter_id:
-                self.filter_id.write({
-                    'name': self.name,
-                    'domain': self.domain,
-                    'is_share': self.is_share
-                })
-            else:
-                filter_obj.create({
-                    'action_id': self._context['action_id'],
-                    'user_id': self.env.user.id,
-                    'model': self.model_id,
-                    'name': self.name,
-                    'domain': self.domain,
-                    'is_share': self.is_share
-                })
+        try:
+            domain = safe_eval(self.domain)
+        except:
+            raise ValidationError('条件错误！')
+
+        save_condition()  # 保存条件
 
         action = self.env['ir.actions.act_window'].browse(self._context['action_id'])
         action = action.read()[0]
@@ -79,16 +90,33 @@ class FilterWizard(models.TransientModel):
         action_domain = action.get('domain', '[]')
         action_domain = eval(action_domain)
 
+        model_fields = self.env[self.model_id].fields_get()
         res_domain = []
         for dom in domain:
             if dom == '&':
                 continue
 
+            operator = dom[1]
+            val = dom[2]
+
+            # 在、不在
+            if operator in ['in', 'not in']:
+                if not val:
+                    continue
+
+            if isinstance(val, str) and not val:
+                continue
+
+            if isinstance(val, bool):
+                # 设置、未设置
+                if operator not in ['set', 'not set']:
+                    field = model_fields.get(dom[0])
+                    if field and field['type'] != 'boolean':
+                        continue
+
             res_domain.append(dom)
 
-            action_domain = expression.AND([action_domain, dom])
-        # action_domain += res_domain
-
+        action_domain += res_domain
         name = self.name
         if not name:
             name = '自定义搜索 %s' % action.get('name', '')
