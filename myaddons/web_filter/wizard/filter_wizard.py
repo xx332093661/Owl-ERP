@@ -90,21 +90,31 @@ class FilterWizard(models.TransientModel):
         action_domain = action.get('domain', '[]')
         action_domain = eval(action_domain)
 
+        model_fields = self.env[self.model_id].fields_get()
         res_domain = []
         for dom in domain:
             if dom == '&':
                 continue
+
+            operator = dom[1]
             val = dom[2]
+
+            # 在、不在
+            if operator in ['in', 'not in']:
+                if not val:
+                    continue
+
             if isinstance(val, str) and not val:
                 continue
 
+            if isinstance(val, bool):
+                # 设置、未设置
+                if operator not in ['set', 'not set']:
+                    field = model_fields.get(dom[0])
+                    if field and field['type'] != 'boolean':
+                        continue
+
             res_domain.append(dom)
-
-        model_fields = self.env[self.model_id].fields_get()
-
-        res_domain.sort(key=lambda x: x[0])  # 按字段名排序
-        for dom in res_domain:
-            field = model_fields[dom[0]]
 
         action_domain += res_domain
         name = self.name
