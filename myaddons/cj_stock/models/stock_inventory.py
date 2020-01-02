@@ -10,6 +10,8 @@ import json
 import os
 import sys
 import re
+import xlutils
+from xlutils import copy
 
 from odoo import models, fields, api, _
 from odoo.addons import decimal_precision as dp
@@ -898,10 +900,29 @@ class StockInventory(models.Model):
                 if not message:
                     print(order.name, ',', order.date_order + timedelta(hours=8))
 
+    def check_1231_inventory(self):
+        """检查12.31库存数据"""
+        product_obj = self.env['product.product']
+        file_name = os.path.join(sys.path[0], 'myaddons', 'cj_stock', 'static', 'template', '12.31库存数据.xlsx')
+        workbook = xlrd.open_workbook(file_name)
+        sheet = workbook.sheet_by_name('12月库存数据  (无烟)')
+        new_book = copy.copy(workbook)
+        new_sheet = new_book.get_sheet(11)
+        for row_index in range(sheet.nrows):
+            if row_index < 2:
+                continue
 
+            line = sheet.row_values(row_index)
+            barcode = str(line[1])  # 条形码
+            product = product_obj.search([('barcode', '=', barcode)])
+            if not product:
+                continue
+                # raise ValidationError('第%s行，条形码：%s没有找到对应商品！' % (row_index + 1, barcode))
 
+            new_sheet.write(row_index, 0, product.default_code)
 
-
+        file_name = file_name.replace('xlsx', 'xls')
+        new_book.save(file_name)
 
     def modify_sale_order_gift_status(self):
         """更新客情单的状态(status)"""
@@ -915,7 +936,6 @@ class StockInventory(models.Model):
             if all([line.product_uom_qty == line.qty_delivered for line in order.order_line]):
                 order.action_done()
                 order.status = '已完成'
-
 
     def _cron_done_inventory(self):
         """临时接口"""
@@ -962,8 +982,11 @@ class StockInventory(models.Model):
         # 更新客情单的状态(status)
         # self.modify_sale_order_gift_status()
 
-        #
-        self.check_sale_order_no_stock_out()
+        # 全渠道订单没有出库单
+        # self.check_sale_order_no_stock_out()
+
+        # 检查12.31库存数据
+        self.check_1231_inventory()
 
 
 class InventoryLine(models.Model):
