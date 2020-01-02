@@ -53,12 +53,10 @@ class SaleOrderImport(models.TransientModel):
             return [(6, 0, [tax.id])]
 
         def create_order():
-            date_order = xlrd.xldate.xldate_as_datetime(order_date, 0)
             val = {
                 'special_order_mark': 'gift',
-                'date_order': (date_order - timedelta(hours=8)).strftime(DATE_FORMAT),
+                'date_order': order_date,
                 'partner_id': partner_id,
-                'name': order_code,
                 'company_id': company_id,
                 'warehouse_id': warehouse_id,
                 'payment_term_id': self.env.ref('account.account_payment_term_immediate').id,  # 立即付款
@@ -86,22 +84,30 @@ class SaleOrderImport(models.TransientModel):
                     }
                     member = partner_obj.create(val)
                 return member.id
+            elif member_name:
+                member = partner_obj.search([('name', '=', member_name), ('member', '=', True)], limit=1)
+                if not member:
+                    raise ValidationError('会员：%s 未找到' % member_name)
+                return member.id
             else:
                 return pid
 
         def get_company():
             """计算公司"""
-            company = company_obj.search([('code', '=', store_code)])
-            if not company:
-                raise ValidationError('门店编码：%s对应公司没有找到！' % store_code)
-
-            return company.id
+            return self.env.user.company_id.id
 
         def get_warehouse():
+            warehouse_args = [('company_id', '=', company_id)]
+            if warehouse_name:
+                warehouse_args += [('name', '=', warehouse_name)]
 
-            warehouse = warehouse_obj.search([('company_id', '=', company_id)], limit=1)
+            warehouse = warehouse_obj.search(warehouse_args, limit=1)
+
             if not warehouse:
-                raise ValidationError('门店：%s 对应仓库未找到' % store_code)
+                if warehouse_name:
+                    raise ValidationError('%s 对应仓库未找到' % warehouse_name)
+                else:
+                    raise ValidationError('公司：%s 对应仓库未找到' % self.env.user.company_id.name)
 
             return warehouse.id
 
@@ -122,8 +128,8 @@ class SaleOrderImport(models.TransientModel):
         try:
             # 数据较验
             for line in lines:
-                product_qty = line[7]  # 数量
-                price = line[8]  # 价格
+                product_qty = line[6]  # 数量
+                price = line[7]  # 价格
 
                 assert is_numeric(product_qty), '数量%s必须是数字' % product_qty
                 assert is_numeric(price), '价格%s必须是数字' % price
@@ -131,19 +137,14 @@ class SaleOrderImport(models.TransientModel):
             order = None
 
             for index, line in enumerate(lines):
-                order_code = line[0]  # 订单编号
+                order_num = line[0]  # 订单序号
                 member_id = line[1]  # 会员ID
-                order_date = line[2]  # 订单日期
-                store_code = line[3]  # 门店编码
-                # warehouse_code = line[4]  # 仓库
-                product_code = line[5]  # 商品编码
-                # product_name = line[6]  # 商品名称
-                product_qty = line[7]  # 数量
-                price = line[8]  # 单价（含税）
-                tax_rate = line[9]  # 税率
-
-                if isinstance(order_code, float):
-                    order_code = str(int(order_code))
+                member_name = line[2]  # 会员姓名
+                warehouse_name = line[3]  # 出货仓库
+                product_code = line[4]  # 商品编码
+                # product_name = line[5]  # 商品名称
+                product_qty = line[6]  # 数量
+                price = line[7]  # 单价（含税）
 
                 if isinstance(product_code, float):
                     product_code = str(int(product_code))
@@ -151,12 +152,14 @@ class SaleOrderImport(models.TransientModel):
                 if isinstance(member_id, float):
                     member_id = str(int(member_id))
 
-                if isinstance(store_code, float):
-                    store_code = str(int(store_code))
+                if not price:
+                    price = 0   # 单价默认为0
 
-                if order_code:
+                order_date = datetime.now()
+
+                if order_num:
                     company_id = get_company()  # 计算公司
-                    warehouse_id = get_warehouse()  # 计算仓库(可能是临时仓库)
+                    warehouse_id = get_warehouse()  # 计算仓库
                     partner_id = get_partner()  # 计算客户
 
                     # 创建订单
@@ -178,7 +181,7 @@ class SaleOrderImport(models.TransientModel):
                     'product_uom': product.uom_id.id,
                     'payment_term_id': order.payment_term_id.id,
                     'warehouse_id': order.warehouse_id.id,
-                    'tax_id': get_taxs_id(),
+                    'tax_id': [(6, 0, [])],
                     'owner_id': order.company_id.id,
                 })
 
