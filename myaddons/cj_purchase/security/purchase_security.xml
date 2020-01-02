@@ -15,6 +15,12 @@
         </record>
 
 
+        <record id="group_manager_approval" model="res.groups">
+            <field name="name">直接审核管理员</field>
+            <field name="implied_ids" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+            <field name="category_id" ref="base.module_category_purchase_management"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
 
         <!--<record id="group_purchase_supplier" model="res.groups">-->
             <!--<field name="name">供应商</field>-->
