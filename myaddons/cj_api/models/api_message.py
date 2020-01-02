@@ -2923,7 +2923,7 @@ class ApiMessage(models.Model):
             diff_obj.create(diff_vals_list)
 
         # 确认盘点
-        inventory.action_validate()
+        # inventory.action_validate()
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
