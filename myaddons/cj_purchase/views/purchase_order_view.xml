@@ -81,7 +81,7 @@
                     <!--<button name="action_general_manager_confirm" states="finance_manager_confirm" string="审批" type="object" class="oe_highlight" groups="cj_purchase.group_purchase_general_manager"/>-->
                     <button name="button_approve" states="oa_accept" string="确认供应商发货" type="object" class="oe_highlight" groups="purchase.group_purchase_user"/>
 
-                    <button name="action_manager_approval" type="object" states="confirm,oa_sent" string="直接审批" class="oe_highlight" groups="base.group_system" invisible="context.get('default_is_tobacco') == False"/>
+                    <button name="action_manager_approval" type="object" states="confirm,oa_sent" string="直接审批" class="oe_highlight" groups="base.group_system" invisible="context.get('default_is_tobacco') == True"/>
                     <button name="action_commit_approval" type="object" states="confirm" string="提交OA审批" class="oe_highlight" invisible="context.get('default_is_tobacco') == True"/>
 
                     <button name="action_push_pos" type="object" string="推送POS" attrs="{'invisible': [('can_push_pos', '!=', True)]}"/>
