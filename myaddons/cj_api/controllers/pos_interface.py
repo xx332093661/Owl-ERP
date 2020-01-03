@@ -151,6 +151,7 @@ class PosInterface(http.Controller):
 
         try:
             data = request.jsonrequest.get('data') or {}
+            _logger.info('省仓入库收到数据：%s', data)
         except ValueError:
             return {
                 'state': 0,
@@ -235,6 +236,7 @@ class PosInterface(http.Controller):
 
         try:
             data = request.jsonrequest.get('data') or {}
+            _logger.info('省仓出库收到数据：%s', data)
         except ValueError:
             return {
                 'state': 0,
