@@ -167,7 +167,7 @@ class PosInterface(http.Controller):
                 'msg': '采购订单ID错误！'
             }
 
-        picking = purchase_order.picking_ids.filtered(lambda x: x.state not in ['done', 'cancel'])[0]  # 入库单
+        picking = purchase_order.picking_ids.filtered(lambda x: x.state not in ['done', 'cancel'])  # 入库单
         if not picking:
             if purchase_order.name == 'PO-ERP-20191217-059':
                 return {
