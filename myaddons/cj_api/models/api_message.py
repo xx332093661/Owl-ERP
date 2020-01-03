@@ -1363,7 +1363,7 @@ class ApiMessage(models.Model):
         payment_amount = sum([payment['paidAmount'] for payment in content['payments']])  # 支付的金额
 
         # 支付金额不等于商品金额
-        if line_amount != payment_amount + platform_discount_amount + discount_amount:
+        if line_amount + freight_amount != payment_amount + platform_discount_amount + discount_amount:
             raise MyValidationError('50', '支付金额：%s不等于商品金额：%s' % (payment_amount / 100, line_amount / 100))
 
         # # 支付金额 = 订单金额 + 运费 - 平台优惠金额 - 订单优惠金额 - 商品优惠金额

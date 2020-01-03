@@ -937,6 +937,15 @@ class StockInventory(models.Model):
                 order.action_done()
                 order.status = '已完成'
 
+    def check_api_message_freight_amount(self):
+        """检查运费"""
+        for message in self.env['api.message'].search([('message_name', '=', 'mustang-to-erp-order-push')]):
+            content = json.loads(message.content)
+            freight_amount = content.get('freightAmount', 0)  # 运费
+            if freight_amount > 0:
+                print(content['code'])
+
+
     def _cron_done_inventory(self):
         """临时接口"""
         # self.adjust_account_invoice()
@@ -986,7 +995,10 @@ class StockInventory(models.Model):
         # self.check_sale_order_no_stock_out()
 
         # 检查12.31库存数据
-        self.check_1231_inventory()
+        # self.check_1231_inventory()
+
+        # 检查运费
+        self.check_api_message_freight_amount()
 
 
 class InventoryLine(models.Model):
