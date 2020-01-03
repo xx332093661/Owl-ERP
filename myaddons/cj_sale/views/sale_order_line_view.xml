@@ -7,22 +7,20 @@
             <field name="model">sale.order.line</field>
             <field name="arch" type="xml">
                 <tree string="销售订单明细" create="0" delete="0" edit="0">
+                    <field name="company_id"/>
                     <field name="order_id"/>
+                    <field name="create_date" />
                     <field name="order_partner_id"/>
                     <field name="channel_id"/>
                     <field name="product_id"/>
                     <field name="product_qty"/>
-                    <field name="price_unit"/>
-                    <field name="tax_id" widget="many2many_tags"/>
-                    <field name="untax_price_unit"/>
-                    <field name="price_tax"/>
-                    <field name="unit_cost"/>
-                    <field name="gross_profit"/>
-                    <field name="price_subtotal"/>
-                    <field name="price_total"/>
-                    <field name="cost_price"/>
-                    <field name="write_off_amount"/>
-                    <field name="company_id"/>
+                    <field name="price_unit" string="销售单价" />
+                    <field name="price_total" string="销售合计"/>
+                    <field name="untax_price_unit" string="商品单价"/>
+                    <field name="unit_cost" string="不含税单位成本"/>
+                    <field name="total_cost" string="不含税总成本"/>
+                    <field name="price_tax" string="税金小计" />
+                    <field name="gross_profit" string="毛利"/>
                 </tree>
             </field>
         </record>
