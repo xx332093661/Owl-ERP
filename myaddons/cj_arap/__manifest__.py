@@ -59,6 +59,7 @@
         'views/stock_picking_view.xml',
 
         'wizard/stock_inventory_valuation_wizard_view.xml',
+        'wizard/stock_inventory_valuation_on_way_wizard_view.xml',
 
         'data/account_payment_term.xml',
         'data/ir_cron.xml',

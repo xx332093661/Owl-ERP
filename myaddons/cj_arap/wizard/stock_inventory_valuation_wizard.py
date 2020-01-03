@@ -171,6 +171,10 @@ class StockInventoryValuationWizard(models.TransientModel):
             if self.product_ids:
                 condition.append(('product_id', 'in', self.product_ids.ids))
 
+            # 在途
+            if self._context.get('on_way'):
+                condition.append(('move_id.state', 'in', ['assigned']))
+
             return condition
 
         def get_name():
