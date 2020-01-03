@@ -169,11 +169,11 @@ class PosInterface(http.Controller):
 
         picking = purchase_order.picking_ids.filtered(lambda x: x.state not in ['done', 'cancel'])  # 入库单
         if not picking:
-            if purchase_order.name == 'PO-ERP-20191217-059':  # PO-ERP-20191217-059被人手动完成了入库
-                return {
-                    'state': 1,
-                    'msg': ''
-                }
+            # if purchase_order.name == 'PO-ERP-20191217-059':  # PO-ERP-20191217-059被人手动完成了入库
+            #     return {
+            #         'state': 1,
+            #         'msg': ''
+            #     }
             return {
                 'state': 0,
                 'msg': '%s已完成入库！' % purchase_order.name
