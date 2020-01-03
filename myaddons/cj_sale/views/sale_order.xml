@@ -124,6 +124,7 @@
                                     <field name="child_ids_compensate" widget="many2many_tags" class="oe_inline"/>
                                     <button name="action_view_compensate" type="object" string="查看" class="oe_link"/>
                                 </div>
+                                <field name="state" string="状态" readonly="1" groups="base.group_no_one"/>
                             </group>
                         </group>
                         <notebook>

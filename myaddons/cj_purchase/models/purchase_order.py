@@ -164,7 +164,11 @@ class PurchaseOrder(models.Model):
         if any([line.product_uom_qty <= 0 for line in self.order_line]):
             raise ValidationError('采购数量必须大于0！')
 
-        self.state = 'confirm'
+        if self.is_tobacco:
+            self.state = 'oa_accept'  # 审批通过
+            self._generate_invoice_split()  # 先款后货的生成账单分期
+        else:
+            self.state = 'confirm'
 
     @api.multi
     def action_cancel(self):

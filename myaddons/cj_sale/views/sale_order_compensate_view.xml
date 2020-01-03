@@ -65,6 +65,7 @@
                                 <!--<field name="client_order_ref" string="渠道单号"/>-->
                                 <!--<field name="cj_activity_id" options="{'no_create_edit': True, 'no_create':True}"/>-->
                                 <field name="reason"/>
+                                <field name="state" string="状态" readonly="1" groups="base.group_no_one"/>
                             </group>
                             <group>
                                 <field name="date_order"/>

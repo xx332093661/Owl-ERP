@@ -112,6 +112,7 @@ exec_attempts = {
 
 }
 
+
 class ApiMessage(models.Model):
     _name = 'api.message'
     _description = 'api消息'
@@ -207,14 +208,17 @@ class ApiMessage(models.Model):
 
             # 每天0点执行一次失败次数大于0的message
             attempts = 3
+            limit = 3000
             hour = datetime.now().hour
+            print(hour, exec_attempts)
             if hour == 0:
                 date = datetime.now().strftime(DATE_FORMAT)
                 if date not in exec_attempts:
                     attempts = 20
+                    limit = 30000
                     exec_attempts[date] = True
 
-            messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', attempts)], order='sequence asc, id asc', limit=3000)
+            messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', attempts)], order='sequence asc, id asc', limit=limit)
 
         else:
             messages = self.search([('id', 'in', messages.ids)], order='sequence asc, id asc')
@@ -1160,8 +1164,9 @@ class ApiMessage(models.Model):
             consignee_state_id = self.get_country_state_id(consignee.get('provinceText', False))
             consignee_city_id = self.get_city_area_id(consignee.get('cityText'), consignee_state_id)
             consignee_district_id = self.get_city_area_id(consignee.get('districtText'), consignee_state_id, consignee_city_id)
+            date_order = content.get('saleTime', content['omsCreateTime']).replace('T', ' ')
             val = {
-                'date_order': (fields.Datetime.to_datetime(content['omsCreateTime'].replace('T', ' ')) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
+                'date_order': (fields.Datetime.to_datetime(date_order) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
                 'partner_id': partner_id,
                 'name': content['code'],
                 'company_id': company_id,
@@ -2923,7 +2928,7 @@ class ApiMessage(models.Model):
             diff_obj.create(diff_vals_list)
 
         # 确认盘点
-        inventory.action_validate()
+        # inventory.action_validate()
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 from lxml import etree
 from itertools import groupby
@@ -9,6 +9,7 @@ import xlrd
 import json
 import os
 import sys
+import re
 
 from odoo import models, fields, api, _
 from odoo.addons import decimal_precision as dp
@@ -857,6 +858,84 @@ class StockInventory(models.Model):
     def check_message_not_stock_out(self):
         """检查未出库"""
 
+    def check_message_error(self):
+        """检查api.message接口错误"""
+        message_obj = self.env['api.message']
+        product_obj = self.env['product.product']
+        warehouse_obj = self.env['stock.warehouse']
+        # WMS-ERP-STOCKOUT-QUEUE 未完成出库
+        default_codes = {}
+        for message in message_obj.search([('message_name', '=', 'WMS-ERP-STOCKOUT-QUEUE'), ('error_no', '=', '19')]):
+            content = json.loads(message.content)
+            warehouse_code = content['warehouseNo']
+            default_codes.setdefault(warehouse_code, [])
+
+            for default_code in re.findall(r'\[\d{5,}\]', message.error):
+                default_code = default_code[1:-1]
+                if default_code not in default_codes[warehouse_code]:
+                    default_codes[warehouse_code].append(default_code)
+
+        for warehouse_code in default_codes:
+            warehouse = warehouse_obj.search([('code', '=', warehouse_code)])
+            for default_code in default_codes[warehouse_code]:
+                product = product_obj.search([('default_code', '=', default_code)])
+                print(warehouse.display_name, product.partner_ref)
+
+    def check_sale_order_no_stock_out(self):
+        """全渠道订单没有出库单"""
+        message_obj = self.env['api.message']
+        for order in self.env['sale.order'].search([]):
+            if order.state == 'done' and order.status != '已完成':
+                print(order.name)
+                continue
+
+            if order.state == 'cancel' and order.status != '已取消':
+                print(order.name)
+                continue
+
+            if order.status == '已支付':
+                message = message_obj.search([('message_name', '=', 'WMS-ERP-STOCKOUT-QUEUE'), ('content', 'ilike', order.name)])
+                if not message:
+                    print(order.name, ',', order.date_order + timedelta(hours=8))
+
+    def check_1231_inventory(self):
+        """检查12.31库存数据"""
+        from xlutils import copy
+
+        product_obj = self.env['product.product']
+        file_name = os.path.join(sys.path[0], 'myaddons', 'cj_stock', 'static', 'template', '12.31库存数据.xlsx')
+        workbook = xlrd.open_workbook(file_name)
+        sheet = workbook.sheet_by_name('12月库存数据  (无烟)')
+        new_book = copy.copy(workbook)
+        new_sheet = new_book.get_sheet(11)
+        for row_index in range(sheet.nrows):
+            if row_index < 2:
+                continue
+
+            line = sheet.row_values(row_index)
+            barcode = str(line[1])  # 条形码
+            product = product_obj.search([('barcode', '=', barcode)])
+            if not product:
+                continue
+                # raise ValidationError('第%s行，条形码：%s没有找到对应商品！' % (row_index + 1, barcode))
+
+            new_sheet.write(row_index, 0, product.default_code)
+
+        file_name = file_name.replace('xlsx', 'xls')
+        new_book.save(file_name)
+
+    def modify_sale_order_gift_status(self):
+        """更新客情单的状态(status)"""
+        for order in self.env['sale.order'].search([('special_order_mark', '=', 'gift')]):
+            if order.state == 'done':
+                if order.status != '已完成':
+                    print(order.name)
+
+                continue
+
+            if all([line.product_uom_qty == line.qty_delivered for line in order.order_line]):
+                order.action_done()
+                order.status = '已完成'
 
     def _cron_done_inventory(self):
         """临时接口"""
@@ -897,7 +976,17 @@ class StockInventory(models.Model):
         # 检查全渠道订单的finalPrice是否小于0
         # self.check_message_sale_order_final_price_less_zero()
 
-        #
+        # 检查api.message接口错误
+        # self.check_message_error()
+
+        # 更新客情单的状态(status)
+        # self.modify_sale_order_gift_status()
+
+        # 全渠道订单没有出库单
+        # self.check_sale_order_no_stock_out()
+
+        # 检查12.31库存数据
+        self.check_1231_inventory()
 
 
 class InventoryLine(models.Model):
