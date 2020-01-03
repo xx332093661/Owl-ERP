@@ -8,7 +8,7 @@ import traceback
 
 from odoo import http
 from odoo.http import request
-from odoo.tools import float_compare
+from odoo.tools import float_compare, float_is_zero
 from ..models.rabbit_mq_receive import MQ_SEQUENCE
 
 _logger = logging.getLogger(__name__)
@@ -183,13 +183,23 @@ class PosInterface(http.Controller):
 
         exist_diff = False  # 存在差异(采购数量大于收货数量)
         for line in data['move_lines']:
+            if float_is_zero(line['product_qty'], precision_rounding=0.01):
+                continue
+
             product = product_obj.search([('default_code', '=', line['goods_code'])])
             if not product:
                 return {
                     'state': 0,
                     'msg': '物料编码：%s不能找到对应商品！' % line['goods_code']
                 }
-            stock_move = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))[0]
+
+            stock_move = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))
+            if not stock_move:
+                return {
+                    'state': 0,
+                    'msg': '商品：%s没有找到对应的调拨明细！' % product.partner_ref
+                }
+            stock_move = stock_move[0]
             stock_move.quantity_done = line['product_qty']
 
             if float_compare(stock_move.product_uom_qty, line['product_qty'], precision_digits=2) == 1:  # 采购数量大于收货数量
