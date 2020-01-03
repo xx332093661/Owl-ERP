@@ -10,8 +10,6 @@ import json
 import os
 import sys
 import re
-import xlutils
-from xlutils import copy
 
 from odoo import models, fields, api, _
 from odoo.addons import decimal_precision as dp
@@ -902,6 +900,8 @@ class StockInventory(models.Model):
 
     def check_1231_inventory(self):
         """检查12.31库存数据"""
+        from xlutils import copy
+
         product_obj = self.env['product.product']
         file_name = os.path.join(sys.path[0], 'myaddons', 'cj_stock', 'static', 'template', '12.31库存数据.xlsx')
         workbook = xlrd.open_workbook(file_name)
