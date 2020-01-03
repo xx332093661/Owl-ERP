@@ -1160,8 +1160,9 @@ class ApiMessage(models.Model):
             consignee_state_id = self.get_country_state_id(consignee.get('provinceText', False))
             consignee_city_id = self.get_city_area_id(consignee.get('cityText'), consignee_state_id)
             consignee_district_id = self.get_city_area_id(consignee.get('districtText'), consignee_state_id, consignee_city_id)
+            date_order = content.get('saleTime', content['omsCreateTime']).replace('T', ' ')
             val = {
-                'date_order': (fields.Datetime.to_datetime(content['omsCreateTime'].replace('T', ' ')) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
+                'date_order': (fields.Datetime.to_datetime(date_order) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
                 'partner_id': partner_id,
                 'name': content['code'],
                 'company_id': company_id,
