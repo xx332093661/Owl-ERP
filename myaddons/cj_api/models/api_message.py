@@ -112,6 +112,7 @@ exec_attempts = {
 
 }
 
+
 class ApiMessage(models.Model):
     _name = 'api.message'
     _description = 'api消息'
@@ -207,14 +208,17 @@ class ApiMessage(models.Model):
 
             # 每天0点执行一次失败次数大于0的message
             attempts = 3
+            limit = 3000
             hour = datetime.now().hour
+            print(hour, exec_attempts)
             if hour == 0:
                 date = datetime.now().strftime(DATE_FORMAT)
                 if date not in exec_attempts:
                     attempts = 20
+                    limit = 30000
                     exec_attempts[date] = True
 
-            messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', attempts)], order='sequence asc, id asc', limit=3000)
+            messages = self.search(['|', ('state', '=', 'draft'), '&', ('state', '=', 'error'), ('attempts', '<', attempts)], order='sequence asc, id asc', limit=limit)
 
         else:
             messages = self.search([('id', 'in', messages.ids)], order='sequence asc, id asc')
