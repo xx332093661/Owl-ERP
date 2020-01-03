@@ -420,9 +420,9 @@
                     <field name="amount_untaxed" string="不含税合计" sum="Total"/>
                     <field name="amount_total" sum="Total Tax Included" widget="monetary" string="含税合计"/>
                     <field name="refund_name"/>
-                    <field name="refund_amount"/>
-                    <field name="actual_amount"/>
-                    <field name="total_cost"/>
+                    <field name="refund_amount" sum="合计"/>
+                    <field name="actual_amount" sum="合计"/>
+                    <field name="total_cost" sum="合计"/>
                     <field name="currency_id" invisible="1"/>
                     <field name="state" invisible="1"/>
                     <field name="status" string="订单状态"/>
