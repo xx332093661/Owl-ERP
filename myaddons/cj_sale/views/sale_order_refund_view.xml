@@ -10,7 +10,7 @@
                     <field name="name"/>
                     <field name="return_id"/>
                     <field name="sale_order_id"/>
-                    <field name="refund_amount"/>
+                    <field name="refund_amount" sum="合计"/>
                     <field name="operator"/>
                     <field name="refund_type"/>
                     <field name="remarks"/>
