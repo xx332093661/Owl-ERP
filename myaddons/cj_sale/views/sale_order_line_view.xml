@@ -1,48 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!--销售订单搜索视图修改-->
+    <data>
+        <record id="view_sales_order_line_filter" model="ir.ui.view">
+            <field name="name">sale.order.line.select.inherit</field>
+            <field name="model">sale.order.line</field>
+            <field name="inherit_id" ref="sale.view_sales_order_line_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='to_invoice']" position="replace"/>
+                <xpath expr="//filter[@name='my_sales_order_lines']" position="replace"/>
+                <!--<xpath expr="//field[@name='order_partner_id']" position="replace">-->
+                    <!--<field name="partner_id"/>-->
+                <!--</xpath>-->
+                <xpath expr="//field[@name='salesman_id']" position="replace"/>
+                <xpath expr="//filter[@name='salesperson']" position="replace">
+                    <filter string="订单状态" name="group_status" domain="[]" context="{'group_by':'status'}"/>
+                    <filter string="订单日期" name="order_month" domain="[]" context="{'group_by':'order_date'}"/>
+                    <filter string="公司" name="group_company" domain="[]" context="{'group_by':'company_id'}"/>
+                </xpath>
+
+                <xpath expr="//field[@name='product_id']" position="after">
+                    <field name="order_date"/>
+                    <field name="company_id"/>
+                    <separator/>
+                    <filter string="全渠道订单" name="special_order_mark_normal" domain="[('order_id.special_order_mark', '=', 'normal')]"/>
+                    <filter string="客情单" name="special_order_mark_gift" domain="[('order_id.special_order_mark', '=', 'gift')]"/>
+                    <filter string="补发单" name="special_order_mark_compensate" domain="[('order_id.special_order_mark', '=', 'compensate')]"/>
+                    <filter string="跨公司调拨单" name="special_order_mark_across_move" domain="[('order_id.special_order_mark', '=', 'normal'),('order_id.channel_id.code', '=', 'across_move')]"/>
+                    <separator/>
+                    <filter string="天猫" name="channel_tmall" domain="['|', ('order_id.channel_id.parent_id.code', '=', 'tmall'), ('order_id.channel_id.code', '=', 'tmall')]"/>
+                    <filter string="淘宝" name="channel_taobao" domain="['|', ('order_id.channel_id.parent_id.code', '=', 'taobao'), ('order_id.channel_id.code', '=', 'taobao')]"/>
+                    <filter string="京东" name="channel_jd" domain="['|', ('order_id.channel_id.parent_id.code', '=', 'jd'), ('order_id.channel_id.code', '=', 'jd')]"/>
+                    <filter string="POS" name="channel_pos" domain="['|', ('order_id.channel_id.parent_id.code', '=', 'pos'), ('order_id.channel_id.code', '=', 'pos')]"/>
+                    <filter string="售酒机" name="channel_enomatic" domain="['|', ('order_id.channel_id.parent_id.code', '=', 'enomatic'), ('order_id.channel_id.code', '=', 'enomatic')]"/>
+                    <filter string="其他" name="channel_other" domain="['&amp;', ('order_id.channel_id.parent_id.code', 'not in', ['tmall', 'taobao', 'jd', 'pos', 'enomatic']), ('order_id.channel_id.code', 'not in', ['tmall', 'taobao', 'jd', 'pos', 'enomatic'])]"/>
+                    <separator/>
+                    <filter string="有退货" name="channel_enomatic" domain="[('order_id.return_ids', '!=', False)]"/>
+                    <filter string="有退款" name="channel_enomatic" domain="[('order_id.refund_ids', '!=', False)]"/>
+                    <separator/>
+                    <filter string="订单日期" name="order_date" date="order_date"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+
     <data>
 
         <record id="view_cj_sale_order_line_tree" model="ir.ui.view">
             <field name="name">view_cj_sale_order_line_tree</field>
             <field name="model">sale.order.line</field>
             <field name="arch" type="xml">
-                <tree string="销售订单明细" create="0" delete="0" edit="0">
-                    <field name="company_id"/>
+                <!--<tree string="销售订单明细" create="0" delete="0" edit="0">-->
+                <tree string="销售订单明细"
+                      decoration-muted="status=='已取消'"
+                      decoration-warning="status in ('已退款', '部分退款', '全部退货', '部分退货', '待发货')"
+                      decoration-success="status=='已完成' and state=='done'"
+                      create="0" delete="0" edit="0">
                     <field name="order_id"/>
-                    <field name="create_date" />
-                    <field name="order_partner_id"/>
+                    <field name="order_date" />
+                    <field name="order_partner_id" invisible="1"/>
                     <field name="channel_id"/>
                     <field name="product_id"/>
-                    <field name="product_qty"/>
-                    <field name="price_unit" string="销售单价" />
-                    <field name="price_total" string="销售合计"/>
-                    <field name="untax_price_unit" string="商品单价"/>
-                    <field name="unit_cost" string="不含税单位成本"/>
-                    <field name="total_cost" string="不含税总成本"/>
-                    <field name="price_tax" string="税金小计" />
-                    <field name="gross_profit" string="毛利"/>
+                    <field name="product_qty" string="订单数"/>
+                    <field name="return_qty" string="退货数" widget="float_null"/>
+                    <field name="qty_delivered" string="发货数" widget="float_null"/>
+                    <field name="price_unit" string="含税价"/>
+                    <field name="untax_price_unit" string="不含税价"/>
+                    <field name="price_tax" string="税金" sum="Total"/>
+                    <field name="price_subtotal" string="不含税小计" sum="Total"/>
+                    <field name="price_total" string="含税合计" sum="Total"/>
+                    <field name="refund_amount" string="退款" sum="Total" widget="float_null"/>
+                    <field name="actual_amount" string="实收" sum="Total"/>
+
+                    <field name="unit_cost" string="单位成本" widget="float_null"/>
+                    <field name="total_cost" string="总成本" sum="Total" widget="float_null"/>
+                    <field name="gross_profit" string="毛利" sum="Total" widget="float_null" invisible="1"/>
+                    <field name="company_id"/>
+                    <field name="status"/>
+                    <field name="state" invisible="1"/>
                 </tree>
             </field>
         </record>
 
-        <record id="view_cj_sale_order_line_search" model="ir.ui.view">
-            <field name="name">view_cj_sale_order_line_search</field>
-            <field name="model">sale.order.line</field>
-            <field name="arch" type="xml">
-                <search string="销售订单明细成本">
-                    <field name="order_id"/>
-                    <field name="company_id"/>
-                    <field name="order_partner_id"/>
-                    <field name="product_id"/>
-                </search>
-            </field>
-        </record>
+        <!--<record id="view_cj_sale_order_line_search" model="ir.ui.view">-->
+            <!--<field name="name">view_cj_sale_order_line_search</field>-->
+            <!--<field name="model">sale.order.line</field>-->
+            <!--<field name="arch" type="xml">-->
+                <!--<search string="销售订单明细成本">-->
+                    <!--<field name="order_id"/>-->
+                    <!--<field name="company_id"/>-->
+                    <!--<field name="order_partner_id"/>-->
+                    <!--<field name="product_id"/>-->
+                <!--</search>-->
+            <!--</field>-->
+        <!--</record>-->
 
         <record id="action_cj_sale_order_line" model="ir.actions.act_window">
             <field name="name">销售订单明细</field>
             <field name="res_model">sale.order.line</field>
             <field name="view_mode">tree</field>
             <field name="view_id" ref="view_cj_sale_order_line_tree"/>
+            <field name="context">{'search_default_special_order_mark_normal': 1}</field>
         </record>
 
         <menuitem name="销售订单明细" id="menu_action_cj_sale_order_line_search" action="action_cj_sale_order_line"

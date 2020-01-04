@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import fields, models, api
 from odoo.addons import decimal_precision as dp
+from odoo.tools import float_compare, float_round
 
 
 class SaleOrderLine(models.Model):
@@ -41,6 +42,42 @@ class SaleOrderLine(models.Model):
     apportion_freight_amount = fields.Float('分摊运费')
 
     channel_id = fields.Many2one(related='order_id.channel_id', readonly=1)
+    date_order = fields.Datetime('订单时间', related='order_id.date_order', store=1)
+    # status_order = fields.Char('订单状态', related='order_id.status', store=1)
+    order_date = fields.Date('订单日期', related='order_id.order_date', store=1)
+    status = fields.Char('订单状态', related='order_id.status', store=1)
+
+    refund_amount = fields.Float('退款金额', compute='_compute_return')
+    actual_amount = fields.Float('实收金额', compute='_compute_return')
+    return_qty = fields.Float('退货数', compute='_compute_return')
+
+    @api.multi
+    def _compute_return(self):
+        """计算退货退款"""
+        for line in self:
+            order = line.order_id
+            if order.return_ids:
+                return_qty = line.product_qty - line.qty_delivered
+                line.return_qty = return_qty
+
+                refund_amount = order.refund_amount  # 订单退款金额
+                if refund_amount > 0:
+                    refund_lines = {}
+                    for res in order.order_line:
+                        return_qty = res.product_qty - res.qty_delivered
+                        amount = float_round(res.price_unit * return_qty, precision_rounding=0.01, rounding_method='HALF-UP')
+                        amount = min(refund_amount, amount)
+                        refund_lines[res.id] = amount
+                        refund_amount -= amount
+                        if float_compare(refund_amount, 0, precision_rounding=0.01) <= 0:
+                            break
+                    amount = refund_lines.get(line.id, 0)  # 订单行退款金额
+                    line.refund_amount = amount
+                    line.actual_amount = line.price_total - amount
+                else:
+                    line.actual_amount = line.price_total
+            else:
+                line.actual_amount = line.price_total
 
     @api.multi
     @api.depends('price_unit', 'tax_id')

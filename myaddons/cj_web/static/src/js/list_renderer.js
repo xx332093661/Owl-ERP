@@ -28,3 +28,23 @@ odoo.define('cj_web.ListRenderer', function (require) {
     });
 
 });
+
+odoo.define('cj_web.widgets', function (require) {
+    "use strict";
+
+    var basic_fields = require('web.basic_fields');
+    var registry = require('web.field_registry');
+
+    var FieldFloatNull = basic_fields.FieldFloat.extend({
+        _renderReadonly: function () {
+            if (this.value) {
+                this.$el.text(this._formatValue(this.value));
+            }
+            else {
+                this.$el.text('');
+            }
+        }
+    });
+
+    registry.add('float_null', FieldFloatNull)
+});

@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from lxml import etree
+from datetime import timedelta
 
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 
 
 READONLY_STATES = {
@@ -101,6 +103,7 @@ class SaleOrder(models.Model):
     refund_amount = fields.Float('退款金额', compute='_compute_return_amount')
     refund_name = fields.Char('退款单号', compute='_compute_return_amount')
     actual_amount = fields.Float('实收金额', compute='_compute_return_amount')
+    order_date = fields.Date('订单日期', compute='_compute_order_date', store=1)
 
     @api.multi
     def button_confirm(self):
@@ -334,6 +337,13 @@ class SaleOrder(models.Model):
             order.refund_amount = refund_amount
             order.refund_name = refund_name
             order.actual_amount = actual_amount
+
+    @api.multi
+    @api.depends('date_order')
+    def _compute_order_date(self):
+        """计算订单日期"""
+        for order in self:
+            order.order_date = (order.date_order + timedelta(hours=8)).strftime(DATE_FORMAT)
 
     # child_ids_gift = fields.One2many('sale.order', 'parent_id', '客情单', domain="[('special_order_mark', '=', 'gift')]")
     # child_ids_compensate = fields.One2many('sale.order', 'parent_id', '补发单', domain="[('special_order_mark', '=', 'compensate')]")
