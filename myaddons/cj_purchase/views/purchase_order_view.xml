@@ -21,6 +21,8 @@
 
                 <xpath expr="//tree" position="attributes">
                     <attribute name="filter_wizard">1</attribute>
+                    <attribute name="decoration-warning">state=='oa_refuse'</attribute>
+                    <attribute name="decoration-success">state=='done'</attribute>
                 </xpath>
             </field>
         </record>
