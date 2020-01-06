@@ -85,6 +85,7 @@
                     <filter string="外部仓出库" name="message_stockout" domain="[('message_name', '=', 'WMS-ERP-STOCKOUT-QUEUE')]"/>
                     <filter string="门店库存变更" name="message_store_stock_update" domain="[('message_name', '=', 'mustang-to-erp-store-stock-update-record-push')]"/>
                     <filter string="全渠道订单状态" name="message_order_state" domain="[('message_name', '=', 'MUSTANG-ERP-ORDER-STATUS-PUSH')]"/>
+                    <filter string="客情单状态状态" name="message_order_state_kq" domain="[('message_name', '=', 'MUSTANG-ERP-CUSTOMER-RETENTION-STATUS-PUSH')]"/>
                     <!--<filter string="售后服务单" name="message_service" domain="[('message_name', '=', 'mustang-to-erp-service-list-push')]"/>-->
                     <filter string="退货入库单" name="message_service" domain="[('message_name', '=', 'WMS-ERP-RETURN-STOCKIN-QUEUE')]"/>
                     <filter string="退款单" name="message_service" domain="[('message_name', '=', 'MUSTANG-REFUND-ERP-QUEUE')]"/>

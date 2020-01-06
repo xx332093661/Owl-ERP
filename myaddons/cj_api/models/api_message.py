@@ -153,6 +153,7 @@ class ApiMessage(models.Model):
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-store-stock-push')  # 门店库存
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-order-push')   # 订单
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-ORDER-STATUS-PUSH')   # 订单状态
+        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-CUSTOMER-RETENTION-STATUS-PUSH')   # 客情单状态
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-logistics-push')   # 物流信息
         # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-service-list-push')   # 售后服务单
 
@@ -1860,7 +1861,8 @@ class ApiMessage(models.Model):
 
         # 客情单出库，将中台状态置为已完成，将订单状态置为已完成
         # 补发订单出库，将中台状态置为已完成，将订单状态置为已完成
-        if order.special_order_mark in ['gift', 'compensate']:
+        # if order.special_order_mark in ['gift', 'compensate']:
+        if order.special_order_mark in ['compensate']:
             if all([line.product_uom_qty == line.qty_delivered for line in order.order_line]):
                 order.action_done()
                 order.status = '已完成'
@@ -2800,6 +2802,65 @@ class ApiMessage(models.Model):
             order.action_done()
 
         order.status = states[order_state]
+
+    # 17、MUSTANG-ERP-CUSTOMER-RETENTION-STATUS-PUSH 客情单状态
+    def mustang_erp_customer_retention_status_push(self, content):  # MUSTANG-ERP-CUSTOMER-RETENTION-STATUS-PUSH
+        """客情单状态
+        只处理订单取消、订单完成
+        订单取消：取消订单和收款
+        订单完成：取消未完成的stock.picking
+        """
+        order_obj = self.env['sale.order'].sudo()
+
+        content = json.loads(content)
+
+        order_code = content['body']['orderCode']
+        order_state = content['body']['orderState']
+
+        # 1、验证订单
+        order = order_obj.search([('name', '=', order_code)], limit=1)
+        if not order:
+            raise MyValidationError('14', '订单编号：%s对应的订单不存在！' % order_code)
+
+        # 中台状态
+        states = {'paid': '已支付', 'begin': '待发货', 'wait': '待派单', 'outbound': '已出库', 'cancelled': '已取消', 'finished': '已完成', 'returning': '退货申请中',
+                  'some': '部分退货中',
+                  'allreturning': '全部退货中',
+                  'somereturn': '部分退货', 'allreturn': '全部退货', 'refunding': '退款中',
+                  'somerefund': '部分退款',
+                  'refunded': '已退款'}
+
+        # 状态是cancelled-已取消，取消订单，取消订单关联的stock.picking和account.payment
+        if order_state == 'cancelled':
+            # 去重处理(推送过来的订单状态可能重复)
+            if order.state == 'cancel':
+                return
+
+            if order.picking_ids.filtered(lambda x: x.state == 'done'):
+                raise MyValidationError('15', '订单已出库，不能取消！')
+
+            # 将未完成的stock.picking取消
+            order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
+            # 订单取消
+            if not order.picking_ids.filtered(lambda x: x.state == 'done'):
+                order.action_cancel()
+
+        # 状态是finished-已完成，取消订单尚未完成的stock.picking
+        if order_state == 'finished':
+            # 去重处理(推送过来的订单状态可能重复)
+            if order.state == 'done':
+                return
+
+            if not order.picking_ids or not order.picking_ids.filtered(lambda x: x.state == 'done'):
+                raise MyValidationError('16', '订单还未出库，不能完成！')
+
+            # 将未完成的stock.picking取消
+            order.picking_ids.filtered(lambda x: x.state != 'done').action_cancel()
+
+            order.action_done()
+
+        order.status = states[order_state]
+
 
     # 30、WMS-ERP-CHECK-STOCK-QUEUE 盘点单
     def deal_wms_erp_check_stock_queue(self, content):
