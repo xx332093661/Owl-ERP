@@ -20,7 +20,7 @@
                 <xpath expr="//field[@name='lot_id']" position="replace"/>
                 <xpath expr="//field[@name='owner_id']" position="replace"/>
 
-                <xpath expr="//filter[@name='internal_loc']" position="replace"/>
+                <!--<xpath expr="//filter[@name='internal_loc']" position="replace"/>-->
                 <xpath expr="//filter[@name='transit_loc']" position="replace"/>
                 <xpath expr="//filter[@name='negative']" position="replace"/>
                 <xpath expr="//filter[@name='positive']" position="replace"/>

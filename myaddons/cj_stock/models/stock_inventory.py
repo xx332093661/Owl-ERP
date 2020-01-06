@@ -956,7 +956,7 @@ class StockInventory(models.Model):
         # self.adjust_stock_across_move()
         # # self.adjust_stock_across_move1()
         # self.adjust_purchase_order_line_untax_price_unit()  # 采购订单行的未税单价的小数位数改为3位
-        # self.adjust_stock_inventory_valuation_move()
+        self.adjust_stock_inventory_valuation_move()
 
         # 检查全渠道订单的金额差异
         # self.check_api_message_sale_order_amount()
@@ -998,7 +998,7 @@ class StockInventory(models.Model):
         # self.check_1231_inventory()
 
         # 检查运费
-        self.check_api_message_freight_amount()
+        # self.check_api_message_freight_amount()
 
 
 class InventoryLine(models.Model):
