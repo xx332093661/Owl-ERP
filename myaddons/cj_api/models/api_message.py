@@ -153,7 +153,7 @@ class ApiMessage(models.Model):
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-store-stock-push')  # 门店库存
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-order-push')   # 订单
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-ORDER-STATUS-PUSH')   # 订单状态
-        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-CUSTOMER-RETENTION-STATUS-PUSH')   # 客情单状态
+        # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-CUSTOMER-RETENTION-STATUS-PUSH')   # 客情单状态
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-logistics-push')   # 物流信息
         # self.start_mq_thread_by_name('RabbitMQReceiveThread', 'mustang-to-erp-service-list-push')   # 售后服务单
 
