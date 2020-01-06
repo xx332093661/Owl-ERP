@@ -210,7 +210,6 @@ class ApiMessage(models.Model):
             attempts = 3
             limit = 3000
             hour = datetime.now().hour
-            print(hour, exec_attempts)
             if hour == 0:
                 date = datetime.now().strftime(DATE_FORMAT)
                 if date not in exec_attempts:

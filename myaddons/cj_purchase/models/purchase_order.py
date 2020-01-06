@@ -291,21 +291,21 @@ class PurchaseOrder(models.Model):
         self.purchase_order_count = len(self.search([('partner_id', '=', self.partner_id.id), ('state', 'in', ['purchase', 'done'])]))
         return res
 
-    @api.model
-    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-        """禁止采购总经理和财务修改单据"""
-        result = super(PurchaseOrder, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
-        if view_type == 'form':
-            if not self.env.user._is_admin():
-                if self.env.user.has_group('cj_purchase.group_purchase_general_manager') or self.env.user.has_group('account.group_account_invoice'):
-                    doc = etree.XML(result['arch'])
-                    node = doc.xpath("//form")[0]
-                    node.set('create', '0')
-                    node.set('delete', '0')
-                    node.set('edit', '0')
-
-                    result['arch'] = etree.tostring(doc, encoding='unicode')
-        return result
+    # @api.model
+    # def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+    #     """禁止采购总经理和财务修改单据"""
+    #     result = super(PurchaseOrder, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+    #     if view_type == 'form':
+    #         if not self.env.user._is_admin():
+    #             if self.env.user.has_group('cj_purchase.group_purchase_general_manager') or self.env.user.has_group('account.group_account_invoice'):
+    #                 doc = etree.XML(result['arch'])
+    #                 node = doc.xpath("//form")[0]
+    #                 node.set('create', '0')
+    #                 node.set('delete', '0')
+    #                 node.set('edit', '0')
+    #
+    #                 result['arch'] = etree.tostring(doc, encoding='unicode')
+    #     return result
 
     @api.model
     def default_get(self, fields_list):
