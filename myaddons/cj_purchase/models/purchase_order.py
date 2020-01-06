@@ -141,7 +141,7 @@ class PurchaseOrder(models.Model):
 
     explain = fields.Text('说明', compute='_cpt_explain')
 
-    contract_id = fields.Many2one('supplier.contract', '供应商合同', required=0, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('partner_id', '=', partner_id), ('valid', '=', True)]")
+    contract_id = fields.Many2one('supplier.contract', '供应商合同', required=0, readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('partner_id', '=', partner_id), ('valid', '=', True)]", ondelete='restrict')
     flow_id = fields.Char('OA审批流ID', track_visibility='onchange')
 
     can_push_pos = fields.Boolean('是否可推送到POS', compute='_compute_can_push_pos')
