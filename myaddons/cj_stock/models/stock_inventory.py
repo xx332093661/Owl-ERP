@@ -372,6 +372,21 @@ class StockInventory(models.Model):
 
     def adjust_stock_inventory_valuation_move(self):
         """调整存货估值"""
+        def adjust_warehouse():
+            """调整仓库值"""
+            for valuation_move in self.env['stock.inventory.valuation.move'].sudoO().search([]):
+                warehouse_id = valuation_move.warehouse_id.id  # 仓库
+                move = valuation_move.move_id
+                is_in = move._is_in()  # 是否是入库
+                if is_in:  # 入库
+                    location = move.location_dest_id
+                else:  # 出库
+                    location = move.location_id
+
+                warehouse = warehouse_obj.search([('lot_stock_id', '=', location.id)])
+                if warehouse_id != warehouse.id:
+                    valuation_move.warehouse_id = warehouse.id
+
         def get_qty_available():
             """计算在手数量"""
 
@@ -463,6 +478,8 @@ class StockInventory(models.Model):
         purchase_receipt_id = self.env.ref('cj_stock.purchase_receipt').id  # 采购入库
 
         precision = self.env['decimal.precision'].precision_get('Inventory valuation')  # 估值精度
+
+        adjust_warehouse()  # 调整仓库值
 
         res = []
         for move in valuation_obj.sudo().search([], order='id asc'):
@@ -1023,6 +1040,29 @@ class StockInventory(models.Model):
 
         print(list(set(picking_names)), move_ids)
 
+    def check_stock_inventory_valuation_move_warehouse(self):
+        """检查存货估值的仓库"""
+        warehouse_obj = self.env['stock.warehouse']
+
+        valuation_move_ids = []
+        move_ids = []
+        for valuation_move in self.env['stock.inventory.valuation.move'].search([]):
+            warehouse_id = valuation_move.warehouse_id.id  # 仓库
+            move = valuation_move.move_id
+
+            is_in = move._is_in()  # 是否是入库
+            if is_in:  # 入库
+                location = move.location_dest_id
+            else:  # 出库
+                location = move.location_id
+
+            warehouse = warehouse_obj.search([('lot_stock_id', '=', location.id)])
+            if warehouse_id != warehouse.id:
+                move_ids.append(move.id)
+                valuation_move_ids.append(valuation_move.id)
+
+        print(valuation_move_ids, move_ids)
+
     def _cron_done_inventory(self):
         """临时接口"""
         # self.adjust_account_invoice()
@@ -1035,10 +1075,13 @@ class StockInventory(models.Model):
         # self.adjust_purchase_order_line_untax_price_unit()  # 采购订单行的未税单价的小数位数改为3位
 
         # 查检stock_move的warehouse_id字段值与库位对应的仓库值不一样的记录
-        self.check_stock_move_warehouse()
+        # self.check_stock_move_warehouse()
 
         # 修改存货估值
-        # self.adjust_stock_inventory_valuation_move()
+        self.adjust_stock_inventory_valuation_move()
+
+        # 检查存货估值的仓库
+        self.check_stock_inventory_valuation_move_warehouse()
 
         # 检查全渠道订单的金额差异
         # self.check_api_message_sale_order_amount()
