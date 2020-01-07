@@ -945,6 +945,83 @@ class StockInventory(models.Model):
             if freight_amount > 0:
                 print(content['code'])
 
+    def check_0105_inventory(self):
+        """检查0105POS库存"""
+
+        from xlutils import copy
+
+        move_obj = self.env['stock.inventory.valuation.move']
+        product_obj = self.env['product.product']
+        warehouse_obj = self.env['stock.warehouse']
+
+        file_name = os.path.join(sys.path[0], 'myaddons', 'cj_stock', 'models', '商品库存(止于2020-01-05).xls')
+        workbook = xlrd.open_workbook(file_name)
+        sheet = workbook.sheet_by_name('Sheet 1 (2)')
+
+        new_book = copy.copy(workbook)
+        new_sheet = new_book.get_sheet(0)
+
+        for row_index in range(sheet.nrows):
+            if row_index < 1:
+                continue
+
+            line = sheet.row_values(row_index)
+            barcode = str(line[3])
+            product = product_obj.search([('barcode', '=', barcode)])
+            if not product:
+                continue
+
+            warehouse = warehouse_obj.search([('code', '=', line[0])])
+
+            domain = []
+            domain.append(('company_id', '=', warehouse.company_id.id))
+            domain.append(('warehouse_id', '=', warehouse.id))
+            domain.append(('stock_type', '=', 'only'))
+            domain.append(('date', '<=', '2020-1-5'))
+            domain.append(('product_id', '=', product.id))
+
+            move = move_obj.search(domain, order='id desc', limit=1)
+
+            qty_available = move and move.qty_available or 0
+
+            new_sheet.write(row_index, 7, qty_available)
+            new_sheet.write(row_index, 4, product.default_code)
+
+        new_book.save('E:\Owl-ERP\myaddons\cj_stock\models\商品库存(止于2020-01-05)0.xls')
+
+    def check_api_message_stock_update_not_process_types(self):
+        """门店库存变更未实现的处理的类型"""
+        types = []
+        for message in self.env['api.message'].search([('message_name', '=', 'mustang-to-erp-store-stock-update-record-push'), ('error_no', '=', '26')]):
+            content = json.loads(message.content)
+            if content['type'] not in types:
+                types.append(content['type'])
+
+        print(types)
+
+    def check_stock_move_warehouse(self):
+        """查检stock_move的warehouse_id字段值与库位对应的仓库值不一样的记录"""
+
+        warehouse_obj = self.env['stock.warehouse']
+
+        picking_names = []
+        move_ids = []
+        # warehouse_id为空的是盘点或两步式调拨出入库
+        for move in self.env['stock.move'].search([('warehouse_id', '!=', False)]):
+            is_in = move._is_in()  # 是否是入库
+            # 计算仓库
+            warehouse_id = move.warehouse_id.id
+            if is_in:  # 入库
+                location = move.location_dest_id
+            else:  # 出库
+                location = move.location_id
+
+            warehouse = warehouse_obj.search([('lot_stock_id', '=', location.id)])
+            if warehouse_id != warehouse.id:
+                move_ids.append(move.id)
+                picking_names.append(move.picking_id.name)
+
+        print(list(set(picking_names)), move_ids)
 
     def _cron_done_inventory(self):
         """临时接口"""
@@ -956,7 +1033,12 @@ class StockInventory(models.Model):
         # self.adjust_stock_across_move()
         # # self.adjust_stock_across_move1()
         # self.adjust_purchase_order_line_untax_price_unit()  # 采购订单行的未税单价的小数位数改为3位
-        self.adjust_stock_inventory_valuation_move()
+
+        # 查检stock_move的warehouse_id字段值与库位对应的仓库值不一样的记录
+        self.check_stock_move_warehouse()
+
+        # 修改存货估值
+        # self.adjust_stock_inventory_valuation_move()
 
         # 检查全渠道订单的金额差异
         # self.check_api_message_sale_order_amount()
@@ -999,6 +1081,14 @@ class StockInventory(models.Model):
 
         # 检查运费
         # self.check_api_message_freight_amount()
+
+        # 检查0105POS库存
+        # self.check_0105_inventory()
+
+        # 门店库存变更未实现的处理的类型
+        # self.check_api_message_stock_update_not_process_types()
+
+
 
 
 class InventoryLine(models.Model):

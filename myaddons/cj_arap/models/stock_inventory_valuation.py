@@ -478,16 +478,22 @@ class StockInventoryValuationMove(models.Model):
         is_in = move._is_in()  # 是否是入库
 
         # 计算仓库
-        warehouse_id = move.warehouse_id.id
+        # warehouse_id = move.warehouse_id.id
         if is_in:  # 入库
             location = move.location_dest_id
         else:  # 出库
             location = move.location_id
+        #
+        # if not warehouse_id:
+        #     warehouse = warehouse_obj.search([('lot_stock_id', '=', location.id)])
+        #     if warehouse:
+        #         warehouse_id = warehouse.id
 
-        if not warehouse_id:
-            warehouse = warehouse_obj.search([('lot_stock_id', '=', location.id)])
-            if warehouse:
-                warehouse_id = warehouse.id
+        warehouse = warehouse_obj.search([('lot_stock_id', '=', location.id)])
+        if warehouse:
+            warehouse_id = warehouse.id
+        else:
+            warehouse_id = False
 
         company_id = move.company_id.id
         product = move.product_id
