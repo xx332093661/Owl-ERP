@@ -51,6 +51,7 @@
         'views/stock_internal_move_view.xml',
         'views/sale_order_view.xml',
         'views/purchase_order_view.xml',
+        'views/stock_check_record_view.xml',
 
         'views/stock_template.xml',
 

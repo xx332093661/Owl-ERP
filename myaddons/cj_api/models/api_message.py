@@ -913,7 +913,36 @@ class ApiMessage(models.Model):
     # 8、mustang-to-erp-store-stock-push 门店库存
     def deal_mustang_to_erp_store_stock_push(self, content):
         """门店初始化库存"""
-        raise MyValidationError('40', '不处理门店库存！')
+        company_obj = self.env['res.company'].sudo()
+        warehouse_obj = self.env['stock.warehouse'].sudo()
+        product_obj = self.env['product.product'].sudo()
+        stock_check_record_obj = self.env['stock.check.record'].sudo()
+
+        _, body = self._deal_content(content)
+
+        for stock_info in body:
+            store_code = stock_info['storeCode']
+            update_time = stock_info['updateTime']
+            goods_code = stock_info['goodsCode']
+            quantity = stock_info['quantity']
+
+            company = company_obj.search([('code', '=', store_code)])
+            if not company:
+                raise MyValidationError('08', '门店编码：%s对应公司没有找到！' % store_code)
+
+            warehouse = warehouse_obj.search([('company_id', '=', company.id)], limit=1)
+            if not warehouse:
+                raise MyValidationError('11', '门店：%s 对应仓库未找到' % store_code)
+
+            product = product_obj.search([('default_code', '=', goods_code)])
+            if not product:
+                raise MyValidationError('09', '商品编码：%s未找到商品' % goods_code)
+
+            update_time = (datetime.strptime(update_time, DATETIME_FORMAT) - timedelta(hours=8)).strftime(
+                DATETIME_FORMAT)
+            # 实时库存差异
+            stock_check_record_obj.create_stock_check_record(update_time, product, warehouse, quantity, self.id)
+
 
         # inventory_obj = self.env['stock.inventory']
         # inventory_line_obj = self.env['stock.inventory.line']
@@ -970,8 +999,32 @@ class ApiMessage(models.Model):
     # 9、WMS-ERP-STOCK-QUEUE 外部仓库库存
     def deal_wms_erp_stock_queue(self, content):
         """外部仓库库存数据队列"""
-        raise MyValidationError('40', '不处理外部仓库库存变更！')
+        warehouse_obj = self.env['stock.warehouse'].sudo()
+        product_obj = self.env['product.product'].sudo()
+        stock_check_record_obj = self.env['stock.check.record'].sudo()
 
+        content = json.loads(content)
+        content = content if isinstance(content, list) else [content]
+        for con in content:
+            warehouse_no = con['warehouseNo']
+            create_time = con['createTime']
+            goods_code = con['goodsNo']
+            qty = con['totalNum']
+
+            warehouse = warehouse_obj.search([('code', '=', warehouse_no)])
+            if not warehouse:
+                raise MyValidationError('11', '仓库：%s 未找到！' % warehouse_no)
+
+            product = product_obj.search([('default_code', '=', goods_code)])
+            if not product:
+                raise MyValidationError('09', '商品编码：%s未找到商品' % goods_code)
+
+            create_time = (datetime.strptime(create_time, DATETIME_FORMAT) - timedelta(hours=8)).strftime(DATETIME_FORMAT)
+
+            # 实时库存差异
+            stock_check_record_obj.create_stock_check_record(create_time, product, warehouse, qty, self.id)
+
+        # raise MyValidationError('40', '不处理门店库存！')
         # warehouse_obj = self.env['stock.warehouse']
         # inventory_obj = self.env['stock.inventory']
         # inventory_line_obj = self.env['stock.inventory.line']

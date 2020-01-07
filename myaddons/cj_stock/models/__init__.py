@@ -21,3 +21,4 @@ from . import stock_across_move
 from . import material_requisition
 from . import stock_internal_move
 from . import purchase_order
+from . import stock_check_record

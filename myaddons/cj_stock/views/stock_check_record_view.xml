@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_stock_check_record_tree" model="ir.ui.view">
+        <field name="name">stock.check.record.tree</field>
+        <field name="model">stock.check.record</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="product_id"/>
+                <field name="check_time"/>
+                <field name="warehouse_id"/>
+                <field name="zt_qty"/>
+                <field name="erp_qty"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_stock_check_record_form" model="ir.ui.view">
+        <field name="name">stock.check.record.form</field>
+        <field name="model">stock.check.record</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group col="4">
+                        <field name="product_id"/>
+                        <field name="create_date" string="检查时间"/>
+                        <field name="warehouse_id"/>
+                        <field name="zt_qty"/>
+                        <field name="erp_qty"/>
+                        <field name="message_id"/>
+                    </group>
+                </sheet>
+               
+            </form>
+        </field>
+    </record>
+
+    <record id="view_stock_check_record_filter" model="ir.ui.view">
+        <field name="name">stock.check.record.filter</field>
+        <field name="model">stock.check.record</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="product_id"/>
+                <field name="warehouse_id"/>
+
+            </search>
+        </field>
+    </record>
+
+    <record id="action_stock_check_record" model="ir.actions.act_window">
+        <field name="name">实时库存差异表</field>
+        <field name="res_model">stock.check.record</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <menuitem
+            id="menu_action_stock_check_record"
+            name="实时库存差异表"
+            parent="stock.menu_warehouse_report"
+            groups="stock.group_stock_user"
+            action="action_stock_check_record"
+            sequence="99"/>
+
+</odoo>
