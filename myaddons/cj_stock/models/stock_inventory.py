@@ -374,7 +374,7 @@ class StockInventory(models.Model):
         """调整存货估值"""
         def adjust_warehouse():
             """调整仓库值"""
-            for valuation_move in self.env['stock.inventory.valuation.move'].sudoO().search([]):
+            for valuation_move in self.env['stock.inventory.valuation.move'].sudo().search([]):
                 warehouse_id = valuation_move.warehouse_id.id  # 仓库
                 move = valuation_move.move_id
                 is_in = move._is_in()  # 是否是入库
@@ -872,9 +872,6 @@ class StockInventory(models.Model):
                     print(content['code'])
                     break
 
-    def check_message_not_stock_out(self):
-        """检查未出库"""
-
     def check_message_error(self):
         """检查api.message接口错误"""
         message_obj = self.env['api.message']
@@ -1063,6 +1060,52 @@ class StockInventory(models.Model):
 
         print(valuation_move_ids, move_ids)
 
+    def pos_warehouse_in_out_summary(self):
+        """门店2019-12日进出汇总"""
+        from xlutils import copy
+
+        def key_sort(x):
+            return x.warehouse_id.id, x.product_id.id
+
+        def key_group(x):
+            return x.warehouse_id, x.product_id
+
+        file_name = 'E:\Owl-ERP\myaddons\cj_stock\models\出入库明细对照.xlsx'
+        row_index = 4
+        workbook = xlrd.open_workbook(file_name)
+        new_book = copy.copy(workbook)
+        new_sheet = new_book.get_sheet(0)
+
+        valuation_obj = self.env['stock.inventory.valuation.move']
+        valuation_moves = valuation_obj.search([('date', '>=', '2020-1-1'), ('date', '<=', '2020-1-6'), ('stock_type', '=', 'only')])
+        for (warehouse, product), mvs in groupby(sorted(valuation_moves, key=key_sort), key_group):
+            new_sheet.write(row_index, 0, product.name)
+            new_sheet.write(row_index, 1, product.default_code)
+            new_sheet.write(row_index, 2, product.barcode)
+            new_sheet.write(row_index, 3, warehouse.name)
+            new_sheet.write(row_index, 4, warehouse.code)
+
+            move_ids = [mv.id for mv in mvs]
+            for date, ms in groupby(sorted(valuation_obj.browse(move_ids), key=lambda x: x.date), lambda x: x.date):
+                ms = list(ms)
+                move_ins = list(filter(lambda x: x.type == 'in', ms))
+                move_outs = list(filter(lambda x: x.type == 'out', ms))
+                qty_in = sum([mv.product_qty for mv in move_ins])
+                qty_out = sum([mv.product_qty for mv in move_outs])
+
+                day = date.day
+                col_index = 7 + (day - 1) * 4
+                if qty_in > 0:
+                    new_sheet.write(row_index, col_index, qty_in)
+
+                if qty_out > 0:
+                    new_sheet.write(row_index, col_index + 1, qty_out)
+
+            row_index += 1
+
+
+        new_book.save('E:\Owl-ERP\myaddons\cj_stock\models\出入库明细对照.xls')
+
     def _cron_done_inventory(self):
         """临时接口"""
         # self.adjust_account_invoice()
@@ -1130,6 +1173,9 @@ class StockInventory(models.Model):
 
         # 门店库存变更未实现的处理的类型
         # self.check_api_message_stock_update_not_process_types()
+
+        # 门店2020-01进出汇总
+        # self.pos_warehouse_in_out_summary()
 
 
 
