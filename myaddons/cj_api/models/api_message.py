@@ -938,8 +938,10 @@ class ApiMessage(models.Model):
             if not product:
                 raise MyValidationError('09', '商品编码：%s未找到商品' % goods_code)
 
-            update_time = (datetime.strptime(update_time, DATETIME_FORMAT) - timedelta(hours=8)).strftime(
+            update_time = (datetime.fromtimestamp(update_time / 1000.0) - timedelta(hours=8)).strftime(
                 DATETIME_FORMAT)
+            # update_time = (datetime.strptime(update_time, DATETIME_FORMAT) - timedelta(hours=8)).strftime(
+            #     DATETIME_FORMAT)
             # 实时库存差异
             stock_check_record_obj.create_stock_check_record(update_time, product, warehouse, quantity, self.id)
 
