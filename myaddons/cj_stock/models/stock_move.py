@@ -263,7 +263,7 @@ class StockMove(models.Model):
                         if float_is_zero(available_quantity, precision_rounding=rounding):
                             available_quantity = get_available_quantity(
                                 move.product_id, location_id, lot_id=None, package_id=package_id, owner_id=owner_id,
-                                strict=False, company_id=self.company_id.id)
+                                strict=False, company_id=company_id)
                             # 在没有传递lot_id参数的情况下，计算的可用数量不等于0
                             if not float_is_zero(available_quantity, precision_rounding=rounding):
                                 pass_lot = False
