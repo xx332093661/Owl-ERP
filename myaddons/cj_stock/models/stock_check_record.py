@@ -20,10 +20,11 @@ class StockCheckRecord(models.Model):
     def create_stock_check_record(self, check_time, product, warehouse, zt_qty, message_id=None):
         """创建实时库存差异"""
         context = {
-            'lot_id': warehouse.lot_stock_id.id,
+            # 'lot_id': warehouse.lot_stock_id.id,
+            'location': warehouse.lot_stock_id.id,
             'to_date': check_time,
         }
-        res = product.with_context(**context)._product_available()
+        res = product.sudo().with_context(**context)._product_available()
 
         qty_available = res[product.id]['qty_available']
 
