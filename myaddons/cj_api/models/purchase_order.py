@@ -7,6 +7,7 @@ import requests
 import logging
 
 from odoo import models, api, fields
+from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
 
@@ -43,6 +44,12 @@ class PurchaseOrder(models.Model):
              'msg': 错误信息
         }
         """
+        rabbitmq_ip = config['rabbitmq_ip']  # 用哪个ip去连RabbitMQ
+        if rabbitmq_ip:
+            local_ip = config['local_ip']
+            if local_ip != rabbitmq_ip:
+                return
+
         ir_config = self.env['ir.config_parameter'].sudo()
         pos_interface_state = ir_config.get_param('pos_interface_state', default='off')  # POS接口状态
         if pos_interface_state != 'on':
