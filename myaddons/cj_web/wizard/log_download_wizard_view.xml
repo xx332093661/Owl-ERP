@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_log_download_wizard_form" model="ir.ui.view">
+            <field name="name">log.download.wizard form</field>
+            <field name="model">log.download.wizard</field>
+            <field name="arch" type="xml">
+                <form string="日志下载向导">
+                    <field name="line_ids">
+                        <tree editable="bottom">
+                            <field name="name"/>
+                            <!--<field name="is_download"/>-->
+                        </tree>
+                    </field>
+
+                    <footer>
+                        <button string='下载' name="button_download" type="object" class="btn-primary"/>
+                        <button string="取消" class="btn-secondary" special="cancel"/>
+                    </footer>
+               </form>
+            </field>
+        </record>
+
+        <record id="action_log_download_wizard" model="ir.actions.act_window">
+            <field name="name">日志下载</field>
+            <field name="res_model">log.download.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_action_log_download_wizard" name="日志下载"
+                  parent="base.menu_custom" sequence="100"
+                      action="action_log_download_wizard"/>
+
+    </data>
+</odoo>

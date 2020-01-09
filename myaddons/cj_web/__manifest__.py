@@ -26,6 +26,8 @@
         'views/web_template.xml',
         'views/app_clear_data_view.xml',
         'views/res_config_settings_views.xml',
+
+        'wizard/log_download_wizard_view.xml',
     ],
     'demo': [
     ],

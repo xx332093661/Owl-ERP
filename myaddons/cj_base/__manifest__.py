@@ -18,7 +18,7 @@
         'stock',
         'rowno_in_tree',
         'web_tree_export',
-        'cj_web',
+        # 'cj_web',
         'l10n_cj',
         'cj_api',
         'l10n_cn_city',

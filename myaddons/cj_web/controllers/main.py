@@ -5,11 +5,16 @@ import re
 import datetime
 import io
 from urllib.parse import quote
+import os
+import shutil
+import tempfile
+import werkzeug.wrappers
 
 import odoo
 from odoo import http
 import odoo.exceptions
-from odoo.http import request
+from odoo.tools import config, osutil
+from odoo.http import request, content_disposition
 from odoo.addons.web.controllers.main import Home, ensure_db
 
 
@@ -66,6 +71,37 @@ class CjHome(Home):
             login_template = 'web.login'
         response = request.render(login_template, values)
         response.headers['X-Frame-Options'] = 'DENY'
+        return response
+
+    @http.route('/web/log/download/<int:wizard_id>', type='http', auth="user", methods=['GET'], csrf=False)
+    def log_download(self, wizard_id, **_):
+        wizard = request.env['log.download.wizard'].browse(wizard_id)
+        # lines = wizard.line_ids.filtered(lambda x: x.is_download)
+
+        backup_format = 'zip'
+        name = 'log'
+        ts = datetime.datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
+        filename = "%s_%s.%s" % (name, ts, backup_format)
+        headers = [
+            ('Content-Type', 'application/octet-stream; charset=binary'),
+            ('Content-Disposition', content_disposition(filename)),
+        ]
+
+        logfile = config['logfile']  # 日志文件
+        dir_name = os.path.dirname(logfile)  # 日志目录
+
+        tmpdir = tempfile.mkdtemp()
+        for line in wizard.line_ids:
+            src = os.path.join(dir_name, line.name)
+            shutil.copyfile(src, os.path.join(tmpdir, line.name))
+
+        t = tempfile.TemporaryFile()
+        osutil.zip_dir(tmpdir, t, include_dir=False)
+        t.seek(0)
+
+        shutil.rmtree(tmpdir)
+
+        response = werkzeug.wrappers.Response(t, headers=headers, direct_passthrough=True)
         return response
 
 
