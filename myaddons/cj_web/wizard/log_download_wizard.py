@@ -24,7 +24,7 @@ class LogDownloadWizard(models.TransientModel):
         for file in os.listdir(dir_name):
             path = os.path.join(dir_name, file)
             if os.path.isfile(path):
-                result.append((0, 0, {'name': file, 'is_download': False}))
+                result.append((0, 0, {'name': file, 'name_copy': file}))
 
         return {
             'line_ids': result
@@ -33,10 +33,6 @@ class LogDownloadWizard(models.TransientModel):
     @api.multi
     def button_download(self):
         """下载"""
-        # lines = self.line_ids.filtered(lambda x: x.is_download)
-        # if not lines:
-        #     raise ValidationError('请选择要下载的文件！')
-
         if not self.line_ids:
             raise ValidationError('请选择要下载的文件！')
 
@@ -47,15 +43,15 @@ class LogDownloadWizard(models.TransientModel):
         }
 
 
-
-
-
 class LogDownloadWizardLine(models.TransientModel):
     _name = 'log.download.wizard.line'
     _description = '日志下载向导明细'
 
     name = fields.Char('文件名', required=1)
+    name_copy = fields.Char('文件名', readonly=1)
     wizard_id = fields.Many2one('log.download.wizard', '向导')
-    # is_download = fields.Boolean('是否下载')
 
-
+    @api.model
+    def create(self, vals):
+        vals['name_copy'] = vals['name']
+        return super(LogDownloadWizardLine, self).create(vals)

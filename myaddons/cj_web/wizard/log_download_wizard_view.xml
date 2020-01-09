@@ -6,10 +6,10 @@
             <field name="model">log.download.wizard</field>
             <field name="arch" type="xml">
                 <form string="日志下载向导">
-                    <field name="line_ids">
+                    <field name="line_ids" create="0">
                         <tree editable="bottom">
-                            <field name="name"/>
-                            <!--<field name="is_download"/>-->
+                            <field name="name" invisible="1"/>
+                            <field name="name_copy"/>
                         </tree>
                     </field>
 
