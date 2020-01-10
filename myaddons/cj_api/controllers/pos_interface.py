@@ -430,5 +430,8 @@ class PosInterface(http.Controller):
             'msg': ''
         }
 
+    def pos_purchase_return(self):
+        """采购退货出库"""
+
 
 
