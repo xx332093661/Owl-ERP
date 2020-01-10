@@ -1,5 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+    <record id="view_stock_check_goods_tree" model="ir.ui.view">
+        <field name="name">stock.check.goods.tree</field>
+        <field name="model">stock.check.goods</field>
+        <field name="arch" type="xml">
+            <tree decoration-info="state == 'draft'" decoration-danger="state == 'diff'" decoration-success="state == 'done'">
+                <field name="product_id"/>
+                <field name="message_id"/>
+                <!--<field name="warehouse_id"/>-->
+                <field name="check_date"/>
+                <field name="check_time"/>
+
+                <field name="zt_qty"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_stock_check_goods_form" model="ir.ui.view">
+        <field name="name">stock.check.goods.form</field>
+        <field name="model">stock.check.goods</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done" readonly="1"/>
+                </header>
+                <sheet>
+                    <group col="4">
+                        <field name="product_id"/>
+                        <field name="message_id"/>
+                        <field name="warehouse_id"/>
+                        <field name="check_time"/>
+                        <field name="check_date"/>
+                        <field name="zt_qty"/>
+                        <field name="check_record_id"/>
+                    </group>
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+
+    <record id="view_stock_check_goods_filter" model="ir.ui.view">
+        <field name="name">stock.check.goods.filter</field>
+        <field name="model">stock.check.goods</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="product_id"/>
+                <field name="warehouse_id"/>
+                <field name="check_date"/>
+
+            </search>
+        </field>
+    </record>
+
+    <record id="action_stock_check_goods" model="ir.actions.act_window">
+        <field name="name">商品库存检查</field>
+        <field name="res_model">stock.check.goods</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <menuitem
+            id="menu_action_stock_check_goods"
+            name="商品库存检查"
+            parent="stock.menu_warehouse_report"
+            groups="stock.group_stock_user"
+            action="action_stock_check_goods"
+            sequence="90"/>
+
+
     <record id="view_stock_check_record_tree" model="ir.ui.view">
         <field name="name">stock.check.record.tree</field>
         <field name="model">stock.check.record</field>
@@ -26,7 +97,7 @@
                         <field name="warehouse_id"/>
                         <field name="zt_qty"/>
                         <field name="erp_qty"/>
-                        <field name="message_id"/>
+                        <!--<field name="message_id"/>-->
                     </group>
                 </sheet>
                
