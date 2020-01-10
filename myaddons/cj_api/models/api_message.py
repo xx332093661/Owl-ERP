@@ -916,7 +916,7 @@ class ApiMessage(models.Model):
         company_obj = self.env['res.company'].sudo()
         warehouse_obj = self.env['stock.warehouse'].sudo()
         product_obj = self.env['product.product'].sudo()
-        stock_check_record_obj = self.env['stock.check.record'].sudo()
+        stock_check_goods_obj = self.env['stock.check.goods'].sudo()
 
         _, body = self._deal_content(content)
 
@@ -942,8 +942,9 @@ class ApiMessage(models.Model):
                 DATETIME_FORMAT)
             # update_time = (datetime.strptime(update_time, DATETIME_FORMAT) - timedelta(hours=8)).strftime(
             #     DATETIME_FORMAT)
-            # 实时库存差异
-            stock_check_record_obj.create_stock_check_record(update_time, product, warehouse, quantity, self.id)
+
+            # 添加到商品库存检查
+            stock_check_goods_obj.create_stock_check_goods(update_time, product, warehouse, quantity, self.id)
 
 
         # inventory_obj = self.env['stock.inventory']
@@ -1003,7 +1004,7 @@ class ApiMessage(models.Model):
         """外部仓库库存数据队列"""
         warehouse_obj = self.env['stock.warehouse'].sudo()
         product_obj = self.env['product.product'].sudo()
-        stock_check_record_obj = self.env['stock.check.record'].sudo()
+        stock_check_goods_obj = self.env['stock.check.goods'].sudo()
 
         content = json.loads(content)
         content = content if isinstance(content, list) else [content]
@@ -1023,8 +1024,8 @@ class ApiMessage(models.Model):
 
             create_time = (datetime.strptime(create_time, DATETIME_FORMAT) - timedelta(hours=8)).strftime(DATETIME_FORMAT)
 
-            # 实时库存差异
-            stock_check_record_obj.create_stock_check_record(create_time, product, warehouse, qty, self.id)
+            # 添加到商品库存检查
+            stock_check_goods_obj.create_stock_check_goods(create_time, product, warehouse, qty, self.id)
 
         # raise MyValidationError('40', '不处理门店库存！')
         # warehouse_obj = self.env['stock.warehouse']

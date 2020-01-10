@@ -28,5 +28,20 @@
             <field name="numbercall">-1</field>
             <field eval="False" name="doall" />
         </record>
+
+        <!-- 库存检查（每天）-->
+        <record forcecreate="True" id="ir_cron_check_stock_qty" model="ir.cron">
+            <field name="name">库存检查（每天）</field>
+            <field name="model_id" ref="model_stock_check_record"/>
+            <field name="state">code</field>
+            <field name="code">model.check_stock_qty_cron()</field>
+            <field eval="True" name="active" />
+            <field name="user_id" ref="base.user_root" />
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall">2020-01-01 16:00:00</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall" />
+        </record>
     </data>
 </odoo>
