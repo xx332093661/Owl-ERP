@@ -151,7 +151,6 @@ class PosInterface(http.Controller):
 
         try:
             data = request.jsonrequest.get('data') or {}
-            _logger.info('省仓入库收到数据：%s', data)
         except ValueError:
             return {
                 'state': 0,
@@ -181,11 +180,24 @@ class PosInterface(http.Controller):
         if picking.state == 'draft':
             picking.action_confirm()  # 确认
 
-        exist_diff = False  # 存在差异(采购数量大于收货数量)
+        # 汇总传过来的move_lines
+        move_lines = []
         for line in data['move_lines']:
             if float_is_zero(line['product_qty'], precision_rounding=0.01):
                 continue
 
+            move = list(filter(lambda x: x['goods_code'] == line['goods_code'], move_lines))
+            if move:
+                move[0]['product_qty'] += line['product_qty']
+            else:
+                move.append({
+                    'goods_code': line['goods_code'],
+                    'goods_name': line['goods_name'],
+                    'product_qty': line['product_qty'],
+                })
+
+        exist_diff = False  # 存在差异(采购数量大于收货数量)
+        for line in move_lines:
             product = product_obj.search([('default_code', '=', line['goods_code'])])
             if not product:
                 return {
@@ -193,17 +205,52 @@ class PosInterface(http.Controller):
                     'msg': '物料编码：%s不能找到对应商品！' % line['goods_code']
                 }
 
-            stock_move = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))
-            if not stock_move:
+            stock_moves = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))
+            if not stock_moves:
                 return {
                     'state': 0,
                     'msg': '商品：%s没有找到对应的调拨明细！' % product.partner_ref
                 }
-            stock_move = stock_move[0]
-            stock_move.quantity_done = line['product_qty']
 
-            if float_compare(stock_move.product_uom_qty, line['product_qty'], precision_digits=2) == 1:  # 采购数量大于收货数量
-                exist_diff = True
+            product_qty = line['product_qty']
+            for index, stock_move in enumerate(stock_moves):
+                if index < len(stock_moves) - 1:
+                    quantity_done = min(stock_move.product_uom_qty, product_qty)
+                else:
+                    quantity_done = product_qty  # TODO 可能收多货
+
+                stock_move.quantity_done = quantity_done
+                if float_compare(stock_move.product_uom_qty, quantity_done, precision_digits=2) == 1:  # 采购数量大于收货数量
+                    exist_diff = True
+
+                product_qty -= quantity_done
+                if float_compare(product_qty, 0, precision_rounding=0.01) <= 0:
+                    break
+
+        # exist_diff = False  # 存在差异(采购数量大于收货数量)
+        # for line in data['move_lines']:
+        #     if float_is_zero(line['product_qty'], precision_rounding=0.01):
+        #         continue
+        #
+        #     product = product_obj.search([('default_code', '=', line['goods_code'])])
+        #     if not product:
+        #         return {
+        #             'state': 0,
+        #             'msg': '物料编码：%s不能找到对应商品！' % line['goods_code']
+        #         }
+        #
+        #     stock_move = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))
+        #     if not stock_move:
+        #         return {
+        #             'state': 0,
+        #             'msg': '商品：%s没有找到对应的调拨明细！' % product.partner_ref
+        #         }
+        #     stock_move = stock_move[0]
+        #     stock_move.quantity_done = line['product_qty']
+        #
+        #     if float_compare(stock_move.product_uom_qty, line['product_qty'], precision_digits=2) == 1:  # 采购数量大于收货数量
+        #         exist_diff = True
+
         if exist_diff:
             stock_backorder = stock_backorder_obj.create({
                 'pick_ids': [(6, 0, picking.ids)]
@@ -246,7 +293,6 @@ class PosInterface(http.Controller):
 
         try:
             data = request.jsonrequest.get('data') or {}
-            _logger.info('省仓出库收到数据：%s', data)
         except ValueError:
             return {
                 'state': 0,
