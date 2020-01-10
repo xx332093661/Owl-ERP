@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from itertools import groupby
 from operator import itemgetter
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from odoo import models, api, fields
 from odoo.tools.float_utils import float_compare, float_is_zero
@@ -66,8 +66,9 @@ class StockMove(models.Model):
     def _compute_done_date(self):
         """根据state的值来计算done_date值"""
         if self.state == 'done':
-            self.done_date = datetime.now().strftime('%Y-%m-%d')
-            self.done_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            now = fields.Datetime.now()
+            self.done_date = (now + timedelta(hours=8)).date()
+            self.done_datetime = now
 
     @api.one
     @api.depends('state', 'product_id', 'product_qty', 'location_id')
