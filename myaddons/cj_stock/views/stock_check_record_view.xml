@@ -6,8 +6,8 @@
         <field name="arch" type="xml">
             <tree decoration-info="state == 'draft'" decoration-danger="state == 'diff'" decoration-success="state == 'done'">
                 <field name="product_id"/>
-                <field name="message_id"/>
-                <!--<field name="warehouse_id"/>-->
+                <!--<field name="message_id"/>-->
+                <field name="warehouse_id"/>
                 <field name="check_date"/>
                 <field name="check_time"/>
 
