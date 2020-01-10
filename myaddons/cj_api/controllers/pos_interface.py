@@ -190,7 +190,7 @@ class PosInterface(http.Controller):
             if move:
                 move[0]['product_qty'] += line['product_qty']
             else:
-                move.append({
+                move_lines.append({
                     'goods_code': line['goods_code'],
                     'goods_name': line['goods_name'],
                     'product_qty': line['product_qty'],
