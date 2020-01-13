@@ -211,7 +211,7 @@ class ApiMessage(models.Model):
             attempts = 3
             limit = 3000
             hour = datetime.now().hour
-            if hour == 0:
+            if hour == 16:
                 date = datetime.now().strftime(DATE_FORMAT)
                 if date not in exec_attempts:
                     attempts = 20
