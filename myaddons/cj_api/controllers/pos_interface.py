@@ -476,6 +476,28 @@ class PosInterface(http.Controller):
             'msg': ''
         }
 
+    @http.route('/pos/across_stock_out', type='json', auth="none", methods=['POST'], csrf=False)
+    def across_stock_out(self):
+        """跨公司调拨销售订单出库
+        传入参数：
+        {
+            'data': {
+                'out_id': POS出库单ID
+                'out_order_name: POS出库单号
+                'move_lines': [{
+                    'goods_code': 物料编码
+                    'goods_name': 商品名称
+                    'product_qty': 出库数量
+                }]  出库明细
+            }
+        }
+        返回结果：{
+             'state': 1 处理状态(1-成功, 0-失败),
+             'msg': 错误信息
+        }
+        """
+
+
     def pos_purchase_return(self):
         """采购退货出库"""
 

@@ -61,10 +61,13 @@ class SaleOrder(models.Model):
         headers = {"Content-Type": "application/json"}
 
         warehouse = self.warehouse_id
+        warehouse_code = warehouse.code
+        if warehouse_code == '51005':
+            warehouse_code = 'X001'
         partner = self.partner_id
         payload = {
             'data': [{
-                'warehouse_code': warehouse.code,  # 出货仓库代码
+                'warehouse_code': warehouse_code,  # 出货仓库代码
                 'warehouse_name': warehouse.name,  # 出货仓库名称
                 'order_name': self.name,  # 销售单号
                 'order_id': self.id,  # 销售单ID
