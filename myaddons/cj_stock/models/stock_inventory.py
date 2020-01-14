@@ -1091,7 +1091,7 @@ class StockInventory(models.Model):
         new_sheet = new_book.get_sheet(0)
 
         valuation_obj = self.env['stock.inventory.valuation.move']
-        valuation_moves = valuation_obj.search([('date', '>=', '2020-1-1'), ('date', '<=', '2020-1-9'), ('stock_type', '=', 'only')])
+        valuation_moves = valuation_obj.search([('date', '>=', '2020-1-1'), ('date', '<=', '2020-1-12'), ('stock_type', '=', 'only')])
         for (warehouse, product), mvs in groupby(sorted(valuation_moves, key=key_sort), key_group):
             new_sheet.write(row_index, 0, product.name)
             new_sheet.write(row_index, 1, product.default_code)
@@ -1189,10 +1189,10 @@ class StockInventory(models.Model):
         # self.check_api_message_stock_update_not_process_types()
 
         # 修改stock.move的完成日期
-        self.adjust_stock_move_date_done()
+        # self.adjust_stock_move_date_done()
 
         # 门店2020-01进出汇总
-        # self.pos_warehouse_in_out_summary()
+        self.pos_warehouse_in_out_summary()
 
 
 
