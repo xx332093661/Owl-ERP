@@ -25,12 +25,14 @@ class StockCheckGoods(models.Model):
     def create_stock_check_goods(self, check_time, product, warehouse, zt_qty, message_id=None):
         """创建实时库存差异"""
 
-        check_date = (datetime.strptime(check_time, DATETIME_FORMAT) + timedelta(hours=8)).strftime(DATE_FORMAT)
+        check_time = datetime.strptime(check_time, DATETIME_FORMAT)
+
+        check_date = (check_time + timedelta(hours=8)).strftime(DATE_FORMAT)
 
         check_goods = self.search([('product_id', '=', product.id),
                                    ('warehouse_id', '=', warehouse.id),
-                                   ('check_date', '=', check_date),
-                                   ('check_time', '<=', check_time)], limit=1)
+                                   ('check_date', '=', check_date)], limit=1)
+
         if not check_goods:
             self.create({
                 'product_id': product.id,
@@ -41,12 +43,13 @@ class StockCheckGoods(models.Model):
                 'zt_qty': zt_qty,
             })
         else:
-            self.write({
-                'message_id': message_id,
-                'check_time': check_time,
-                'zt_qty': zt_qty,
-                'state': 'draft'
-            })
+            if check_goods.check_time <= check_time:
+                check_goods.write({
+                    'message_id': message_id,
+                    'check_time': check_time,
+                    'zt_qty': zt_qty,
+                    'state': 'draft'
+                })
 
 
 class StockCheckRecord(models.Model):
