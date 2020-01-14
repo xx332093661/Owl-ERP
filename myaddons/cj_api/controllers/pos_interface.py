@@ -482,8 +482,8 @@ class PosInterface(http.Controller):
         传入参数：
         {
             'data': {
-                'out_id': POS出库单ID
-                'out_order_name: POS出库单号
+                'order_id': ERP系统销售订单号
+                'order_name': 销售订单名称
                 'move_lines': [{
                     'goods_code': 物料编码
                     'goods_name': 商品名称
@@ -496,6 +496,103 @@ class PosInterface(http.Controller):
              'msg': 错误信息
         }
         """
+        ir_config = request.env['ir.config_parameter'].sudo()
+        pos_interface_state = ir_config.get_param('pos_interface_state', default='off')  # POS接口状态
+        if pos_interface_state == 'off':
+            return {
+                'state': 0,
+                'msg': 'POS接口关闭'
+            }
+
+        sale_order_obj = request.env['sale.order'].sudo()
+        product_obj = request.env['product.product'].sudo()
+        stock_backorder_obj = request.env['stock.backorder.confirmation'].sudo()
+
+        try:
+            data = request.jsonrequest.get('data') or {}
+        except ValueError:
+            return {
+                'state': 0,
+                'msg': '处理数据出错，请传json格式字符串！'
+            }
+
+        _logger.info('POS跨公司调拨销售订单出库收到数据：%s', data)
+
+        sale_order = sale_order_obj.search([('id', '=', int(data['order_id']))])
+        if not sale_order:
+            return {
+                'state': 0,
+                'msg': '销售订单ID错误！'
+            }
+
+        picking = sale_order.picking_ids.filtered(lambda x: x.state not in ['done', 'cancel'])  # 入库单
+        if not picking:
+            return {
+                'state': 0,
+                'msg': '%s已完成出库！' % sale_order.name
+            }
+
+        if picking.state == 'draft':
+            picking.action_confirm()  # 确认
+
+        # 汇总传过来的move_lines
+        move_lines = []
+        for line in data['move_lines']:
+            if float_is_zero(line['product_qty'], precision_rounding=0.01):
+                continue
+
+            move = list(filter(lambda x: x['goods_code'] == line['goods_code'], move_lines))
+            if move:
+                move[0]['product_qty'] += line['product_qty']
+            else:
+                move_lines.append({
+                    'goods_code': line['goods_code'],
+                    'goods_name': line['goods_name'],
+                    'product_qty': line['product_qty'],
+                })
+
+        exist_diff = False  # 存在差异(出库数量小于于收货数量)
+        for line in move_lines:
+            product = product_obj.search([('default_code', '=', line['goods_code'])])
+            if not product:
+                return {
+                    'state': 0,
+                    'msg': '物料编码：%s不能找到对应商品！' % line['goods_code']
+                }
+
+            stock_moves = list(filter(lambda x: x.product_id.id == product.id, picking.move_lines))
+            if not stock_moves:
+                return {
+                    'state': 0,
+                    'msg': '商品：%s没有找到对应的调拨明细！' % product.partner_ref
+                }
+
+            product_qty = line['product_qty']
+            for index, stock_move in enumerate(stock_moves):
+                quantity_done = min(stock_move.product_uom_qty, product_qty)
+                stock_move.quantity_done = quantity_done
+                if float_compare(stock_move.product_uom_qty, quantity_done, precision_digits=2) == 1:  # 采购数量大于收货数量
+                    exist_diff = True
+
+                product_qty -= quantity_done
+                if float_compare(product_qty, 0, precision_rounding=0.01) <= 0:
+                    break
+
+            if product_qty > 0:
+                order_lines = sale_order.order_line.filtered(lambda x: x.product_id.id == product.id)
+                return {
+                    'state': 0,
+                    'msg': '商品：%s，订单数量：%s，已出库：%s，本次出库：%s，出库数量大于未出库数量！' % (product.partner_ref, sum(order_lines.mapped('product_uom_qty')), sum(order_lines.mapped('qty_delivered')), line['product_qty'])
+                }
+
+        if exist_diff:
+            stock_backorder = stock_backorder_obj.create({
+                'pick_ids': [(6, 0, picking.ids)]
+            })
+            stock_backorder.process()  # 确认入库
+        else:
+            picking.action_done()  # 确认入库
+
 
 
     def pos_purchase_return(self):
