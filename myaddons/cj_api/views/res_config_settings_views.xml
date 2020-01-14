@@ -101,6 +101,10 @@
                                             <label string="采购订单调用地址" for="pos_purchase_call_url" class="col-lg-3 o_light_label"/>
                                             <field name="pos_purchase_call_url"/>
                                         </div>
+                                        <div class="row">
+                                            <label string="销售订单调用地址" for="pos_sale_call_url" class="col-lg-3 o_light_label"/>
+                                            <field name="pos_sale_call_url"/>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

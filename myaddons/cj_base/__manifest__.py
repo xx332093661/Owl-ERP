@@ -20,7 +20,7 @@
         'web_tree_export',
         # 'cj_web',
         'l10n_cj',
-        'cj_api',
+        # 'cj_api',
         'l10n_cn_city',
         'ees_sticky_table_header',
         'web_backend_theme'
