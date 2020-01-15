@@ -51,6 +51,13 @@ class StockCheckGoods(models.Model):
                     'state': 'draft'
                 })
 
+        self.clear_old_data()
+
+    def clear_old_data(self):
+        """清理老数据"""
+        old_date = datetime.now() - timedelta(days=365)
+        self.search([('check_date', '<', old_date)]).unlink()
+
 
 class StockCheckRecord(models.Model):
     _name = 'stock.check.record'
@@ -80,6 +87,8 @@ class StockCheckRecord(models.Model):
             else:
                 cg.state = 'done'
 
+        self.clear_old_data()
+
     @api.model
     def create_stock_check_record(self, check_date, product, warehouse, zt_qty):
         """创建实时库存差异"""
@@ -103,3 +112,8 @@ class StockCheckRecord(models.Model):
                 'erp_qty': qty_available
             })
             return res.id
+
+    def clear_old_data(self):
+        """清理老数据"""
+        old_date = datetime.now() - timedelta(days=365)
+        self.search([('check_time', '<', old_date)]).unlink()
