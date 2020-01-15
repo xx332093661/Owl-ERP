@@ -64,7 +64,6 @@ class PurchaseOrder(models.Model):
                 apply_amount += sum(apply.invoice_register_id.line_ids.filtered(lambda x: x.purchase_order_id.id == order.id).mapped('invoice_amount'))
 
             order.apply_amount = apply_amount
-            print(order.name, apply_amount)
 
     def _compute_invoice(self):
         for order in self:
