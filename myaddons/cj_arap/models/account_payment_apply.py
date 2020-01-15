@@ -5,7 +5,7 @@ import traceback
 
 from odoo import fields, models, api
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_compare
 from .account_payment_term import PAYMENT_TERM_TYPE
 
 _logger = logging.getLogger(__name__)
@@ -63,7 +63,7 @@ class AccountPaymentApply(models.Model):
                                           required=0,
                                           domain="[('partner_id', '=', partner_id), ('state', '=', 'manager_confirm'), ('payment_apply_id', '=', False), ('company_id', '=', company_id)]")
 
-    amount = fields.Float('申请付款金额', track_visibility='onchange', readonly=1)
+    amount = fields.Float('申请付款金额', track_visibility='onchange', required=1, readonly=1, states=STATES)
 
     pay_type = fields.Selection(PAYMENT_TYPE, '支付方式', default='bank', track_visibility='onchange', required=1, readonly=1, states=STATES)
     pay_name = fields.Char('收款账户名', track_visibility='onchange', readonly=1, states=STATES)
@@ -83,18 +83,34 @@ class AccountPaymentApply(models.Model):
     # invoice_ids = fields.Many2many('account.invoice', compute='_compute_purchase_invoice', string='关联的账单')
     # flow_id = fields.Char('OA审批流ID', track_visibility='onchange')
 
-    @api.constrains('purchase_order_id')
-    def _check_purchase(self):
-        for res in self:
-            if self.search([('purchase_order_id', '=', res.purchase_order_id.id), ('state', '!=', 'oa_refuse'), ('id', '!=', res.id)]):
-                raise ValidationError('采购订单：%s已经有付款申请！' % (res.purchase_order_id.name))
+    # @api.constrains('purchase_order_id')
+    # def _check_purchase(self):
+    #     for res in self:
+    #         if self.search([('purchase_order_id', '=', res.purchase_order_id.id), ('state', '!=', 'oa_refuse'), ('id', '!=', res.id)]):
+    #             raise ValidationError('采购订单：%s已经有付款申请！' % (res.purchase_order_id.name))
+
+    @api.constrains('amount', 'purchase_order_id', 'invoice_register_id')
+    def _check_amount(self):
+        for apply in self:
+            if float_compare(apply.amount, 0, precision_rounding=0.001) <= 0:
+                raise ValidationError('申请金额必须大于0！')
+
+            if apply.purchase_order_id:
+                order = apply.purchase_order_id
+                apply_amount = order.apply_amount - apply.amount  # 已申请金额
+                wait_amount = order.amount_total - apply_amount
+                if float_compare(apply.amount, wait_amount, precision_rounding=0.001) == 1:
+                    raise ValidationError('采购订单%s订单总额：%s，已申请金额：%s，本次申请金额：%s大于未申请金额：%s！' % (order.name, order.amount_total, apply_amount, apply.amount, wait_amount))
+
+            if apply.invoice_register_id:
+                pass
 
     @api.onchange('purchase_order_id', 'invoice_register_id')
     def _onchange_purchase_invoice_register(self):
         """采购订单或发票登记变更"""
         if self.purchase_order_id:
             self.invoice_register_id = False
-            self.amount = self.purchase_order_id.amount_total
+            self.amount = self.purchase_order_id.amount_total - self.purchase_order_id.apply_amount
 
         elif self.invoice_register_id:
             self.purchase_order_id = False
@@ -295,11 +311,12 @@ class AccountPaymentApply(models.Model):
         apply_date = fields.Date.context_today(self.with_context(tz='Asia/Shanghai'))
         vals['name'] = self.env['ir.sequence'].with_context(ir_sequence_date=apply_date).next_by_code(sequence_code)
 
-        # 计算申请金额
-        if vals.get('purchase_order_id'):
-            vals['amount'] = self.env['purchase.order'].browse(vals['purchase_order_id']).amount_total
-        else:
-            vals['amount'] = self.env['account.invoice.register'].browse(vals['invoice_register_id']).amount
+        # # 计算申请金额
+        # if vals.get('purchase_order_id'):
+        #     order = self.env['purchase.order'].browse(vals['purchase_order_id'])
+        #     vals['amount'] = order.amount_total - order.apply_amount
+        # else:
+        #     vals['amount'] = self.env['account.invoice.register'].browse(vals['invoice_register_id']).amount
 
         return super(AccountPaymentApply, self).create(vals)
 

@@ -67,6 +67,19 @@ class AccountInvoiceRegister(models.Model):
 
     line_ids = fields.One2many('account.invoice.register.line', 'register_id', '开票明细', required=1, readonly=1, states=READONLY_STATES)
 
+    # apply_amount = fields.Float('已申请付款金额', compute='_compute_apply_amount')
+    #
+    # @api.multi
+    # def _compute_apply_amount(self):
+    #     """计算已申请付款金额"""
+    #     apply_obj = self.env['account.payment.apply']
+    #     for order in self:
+    #         apply_amount = sum(order.apply_ids.filtered(lambda x: x.state != 'oa_refuse').mapped('amount'))
+    #         for apply in apply_obj.search([('purchase_order_id', '=', False), ('invoice_register_id', '!=', False), ('state', '!=', 'oa_refuse')]):
+    #             apply_amount += sum(apply.invoice_register_id.line_ids.filtered(lambda x: x.purchase_order_id.id == order.id).mapped('invoice_amount'))
+    #
+    #         order.apply_amount = apply_amount
+
     @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):
         """合作伙伴改变，计算line_ids"""

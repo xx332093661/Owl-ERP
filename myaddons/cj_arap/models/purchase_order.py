@@ -27,6 +27,44 @@ class PurchaseOrder(models.Model):
 
     invoice_register_count = fields.Integer('登记的发票的张数', compute='_compute_invoice')
 
+    apply_ids = fields.One2many('account.payment.apply', 'purchase_order_id', '付款申请', help='直接选择采购订单进行付款申请')
+    apply_count = fields.Integer('付款申请单数量', compute='_compute_apply_count')
+    apply_amount = fields.Float('已申请付款金额', compute='_compute_apply_amount')
+
+    invoice_amount = fields.Float('开票金额', help='发票登记的金额')
+
+    @api.model
+    def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
+        """ 付款申请选择采购订单，根据未申请金额过虑"""
+        res = super(PurchaseOrder, self)._name_search(name=name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
+        if 'payment_apply' in self._context:
+            ids = [r[0] for r in res]
+            result = []
+            for order in self.browse(ids):
+                if float_compare(order.amount_total, order.apply_amount, precision_rounding=0.001) == 1:
+                    result.append((order.id, order.name))
+
+            return result
+
+        return res
+
+    @api.multi
+    def _compute_apply_count(self):
+        """计算付款申请单数量"""
+        for order in self:
+            order.apply_count = len(order.apply_ids)
+
+    @api.multi
+    def _compute_apply_amount(self):
+        """计算已申请付款金额"""
+        apply_obj = self.env['account.payment.apply']
+        for order in self:
+            apply_amount = sum(order.apply_ids.filtered(lambda x: x.state != 'oa_refuse').mapped('amount'))
+            for apply in apply_obj.search([('purchase_order_id', '=', False), ('invoice_register_id', '!=', False), ('state', '!=', 'oa_refuse')]):
+                apply_amount += sum(apply.invoice_register_id.line_ids.filtered(lambda x: x.purchase_order_id.id == order.id).mapped('invoice_amount'))
+
+            order.apply_amount = apply_amount
+
     def _compute_invoice(self):
         for order in self:
             order.invoice_split_count = len(order.invoice_split_ids)  # 账单分期数量

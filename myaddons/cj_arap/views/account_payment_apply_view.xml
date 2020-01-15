@@ -67,7 +67,7 @@
                                <field name="pay_account" attrs="{'required': [('pay_type', '=', 'bank')], 'invisible': [('pay_type', '!=', 'bank')]}"/>
                            </group>
                            <group>
-                               <field name="purchase_order_id" options="{'no_create': 1}"/>
+                               <field name="purchase_order_id" options="{'no_create': 1}" context="{'payment_apply': 1}"/>
                                <field name="invoice_register_id"
                                       context="{'default_type': 'in_invoice'}"
                                       options="{'no_create': 1}"/>
