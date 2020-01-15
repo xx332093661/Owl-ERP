@@ -57,7 +57,6 @@ class PurchaseOrder(models.Model):
     @api.multi
     def _compute_apply_amount(self):
         """计算已申请付款金额"""
-        print('0' * 100)
         apply_obj = self.env['account.payment.apply']
         for order in self:
             apply_amount = sum(order.apply_ids.filtered(lambda x: x.state != 'oa_refuse' and x.id).mapped('amount'))
