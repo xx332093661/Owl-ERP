@@ -110,6 +110,7 @@ class AccountPaymentApply(models.Model):
         """采购订单或发票登记变更"""
         if self.purchase_order_id:
             self.invoice_register_id = False
+            # print(self.purchase_order_id.name, self.purchase_order_id.amount_total, self.purchase_order_id.apply_amount)
             self.amount = self.purchase_order_id.amount_total - self.purchase_order_id.apply_amount
 
         elif self.invoice_register_id:

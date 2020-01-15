@@ -57,13 +57,15 @@ class PurchaseOrder(models.Model):
     @api.multi
     def _compute_apply_amount(self):
         """计算已申请付款金额"""
+        print('0' * 100)
         apply_obj = self.env['account.payment.apply']
         for order in self:
-            apply_amount = sum(order.apply_ids.filtered(lambda x: x.state != 'oa_refuse').mapped('amount'))
-            for apply in apply_obj.search([('purchase_order_id', '=', False), ('invoice_register_id', '!=', False), ('state', '!=', 'oa_refuse')]):
+            apply_amount = sum(order.apply_ids.filtered(lambda x: x.state != 'oa_refuse' and x.id).mapped('amount'))
+            for apply in apply_obj.search([('purchase_order_id', '=', False), ('invoice_register_id', '!=', False), ('state', '!=', 'oa_refuse'), ('id', '!=', False)]):
                 apply_amount += sum(apply.invoice_register_id.line_ids.filtered(lambda x: x.purchase_order_id.id == order.id).mapped('invoice_amount'))
 
             order.apply_amount = apply_amount
+            print(order.name, apply_amount)
 
     def _compute_invoice(self):
         for order in self:
