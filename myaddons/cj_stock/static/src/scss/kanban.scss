@@ -1,9 +1,9 @@
 .o_kanban_view.o_stock_kanban.o_kanban_ungrouped .o_kanban_record{
     max-width: 280px;
 }
-.o_kanban_view.o_stock_kanban.o_kanban_dashboard .o_kanban_record .o_kanban_card_content{
-    min-height: 50px;
-}
+//.o_kanban_view.o_stock_kanban.o_kanban_dashboard .o_kanban_record .o_kanban_card_content{
+//    min-height: 50px;
+//}
 
 .o_kanban_view.o_stock_kanban .o_kanban_group:not(.o_column_folded){
     width: 300px;
