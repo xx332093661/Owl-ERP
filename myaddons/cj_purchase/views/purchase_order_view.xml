@@ -74,7 +74,7 @@
                 <xpath expr="//button[@id='bid_confirm']" position="after">
                     <button name="action_cancel" type="object" states="draft,confirm,oa_refuse" string="取消" groups="purchase.group_purchase_user"/><!--取消订单-->
                     <button name="action_draft" type="object" states="confirm" string="设为草稿" groups="purchase.group_purchase_user"/>
-                    <button name="action_draft" type="object" states="cancel,general_manager_refuse" class="oe_highlight" string="设为草稿" groups="purchase.group_purchase_user"/>
+                    <button name="action_draft" type="object" states="cancel,oa_refuse" class="oe_highlight" string="设为草稿" groups="purchase.group_purchase_user"/>
 
                     <button name="action_confirm" type="object" class="oe_highlight" states="draft" string="确认" groups="purchase.group_purchase_user"/><!--采购专员确认-->
                     <!--<button name="action_manager_confirm" type="object" states="oa_accept" string="采购经理审核" class="oe_highlight" groups="purchase.group_purchase_manager"/>-->

@@ -568,10 +568,10 @@ class PosInterface(http.Controller):
                 }
 
             product_qty = line['product_qty']
-            for index, stock_move in enumerate(stock_moves):
+            for stock_move in stock_moves:
                 quantity_done = min(stock_move.product_uom_qty, product_qty)
                 stock_move.quantity_done = quantity_done
-                if float_compare(stock_move.product_uom_qty, quantity_done, precision_digits=2) == 1:  # 采购数量大于收货数量
+                if float_compare(stock_move.product_uom_qty, quantity_done, precision_digits=2) == 1:  # 订单数量大于收货数量
                     exist_diff = True
 
                 product_qty -= quantity_done
@@ -593,7 +593,49 @@ class PosInterface(http.Controller):
         else:
             picking.action_done()  # 确认入库
 
+    @http.route('/pos/stock_out_write_off', type='json', auth="none", methods=['POST'], csrf=False)
+    def stock_out_write_off(self):
+        """省仓出库冲销：跨店调拨出库冲销、销售出库冲销
+        传入参数：
+        {
+            'data': {
+                'category_name': 冲销原单据收发类别
+                'category_name': 冲销原单据销售订单号
+                'out_order_name: POS出库单号
+                'move_lines': [{
+                    'goods_code': 物料编码
+                    'goods_name': 商品名称
+                    'product_qty': 冲销数量
+                }]  冲销明细
+            }
+        }
+        返回结果：{
+             'state': 1 处理状态(1-成功, 0-失败),
+             'msg': 错误信息
+        }
+        """
 
+    @http.route('/pos/stock_in_write_off', type='json', auth="none", methods=['POST'], csrf=False)
+    def stock_in_write_off(self):
+        """省仓入库冲销：跨店调拨入库冲销、采购入库冲销
+        传入参数：
+        {
+            'data': {
+                'category_name': 冲销原单据收发类别
+                'category_name': 冲销原单据采购订单号
+                'out_order_name: POS出库单号
+                'move_lines': [{
+                    'goods_code': 物料编码
+                    'goods_name': 商品名称
+                    'product_qty': 冲销数量
+                }]  冲销明细
+            }
+        }
+        返回结果：{
+             'state': 1 处理状态(1-成功, 0-失败),
+             'msg': 错误信息
+        }
+        """
 
     def pos_purchase_return(self):
         """采购退货出库"""

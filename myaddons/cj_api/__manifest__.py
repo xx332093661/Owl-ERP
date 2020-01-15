@@ -10,7 +10,7 @@
     'category': 'CJ',
     'version': '0.1',
     'license': 'Other proprietary',
-    'depends': ['sale', 'cj_stock'],
+    'depends': ['sale'],
 
     'data': [
         'data/res_config_setting.xml',

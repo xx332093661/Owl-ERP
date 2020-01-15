@@ -176,7 +176,7 @@ class CjOaApi(models.Model):
                 obj.approval_result = 'done'  # 更新审批状态，不再查询OA
 
                 getattr(self.env[obj.model], callback)(obj.flow_id)
-            elif res in [5, 15]:
+            elif res in [15]:
                 obj.approval_result = 'refuse'
 
                 getattr(self.env[obj.model], callback)(obj.flow_id, refuse=True)

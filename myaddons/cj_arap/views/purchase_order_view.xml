@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <record id="view_purchase_order_tree" model="ir.ui.view">
+            <field name="name">view_purchase_order_tree</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="cj_purchase.purchase_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_total']" position="after">
+                    <field name="apply_amount" string="申请金额"/>
+             </xpath>
+            </field>
+        </record>
+    </data>
+    <data>
         <!--
         1、增加查看账单分期按钮、登记的发票按钮、预付款单按钮
         2、删除创建账单按钮
@@ -22,6 +34,9 @@
                     <button type="object" name="action_view_account_invoice_register" class="oe_stat_button" icon="fa-truck" attrs="{'invisible':[('state','!=','purchase')]}">
                         <field name="invoice_register_count" widget="statinfo" string="登记的发票"/>
                     </button>
+                    <!--<button type="object" name="action_view_account_invoice_register" class="oe_stat_button" icon="fa-truck" attrs="{'invisible':[('apply_count','=',0)]}">-->
+                        <!--<field name="apply_count" widget="statinfo" string="付款申请"/>-->
+                    <!--</button>-->
                     <!--<button type="object" name="action_view_account_prepayment"-->
                             <!--class="oe_stat_button" icon="fa-truck" attrs="{'invisible':[('state','!=','purchase')]}">-->
                         <!--<field name="account_prepayment_count" widget="statinfo" string="预付款单"/>-->
