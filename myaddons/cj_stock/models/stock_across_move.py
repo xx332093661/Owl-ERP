@@ -196,7 +196,6 @@ class StockAcrossMove(models.Model):
     # @api.multi
     # @api.depends('sale_order_id.picking_ids', 'sale_order_id.picking_ids.state', 'purchase_order_id.picking_ids', 'purchase_order_id.picking_ids.state')
     # def _compute_move_state(self):
-    #     print('0' * 200)
     #     for res in self:
     #         if res.sale_order_id.sudo().picking_ids and res.purchase_order_id.sudo().picking_ids and all([picking.state in ['done', 'cancel'] for picking in res.sale_order_id.sudo().picking_ids]) and all([picking.state in ['done', 'cancel'] for picking in res.purchase_order_id.sudo().picking_ids]):
     #             # res.with_context(cron_update=1).move_state = 'done'
@@ -208,7 +207,6 @@ class StockAcrossMove(models.Model):
     #
     # @api.onchange('move_state')
     # def _onchange_move_state(self):
-    #     print('1' * 200)
     #     if self.move_state == 'done':
     #         self.with_context(cron_update=1).write({
     #             'state': 'done'
