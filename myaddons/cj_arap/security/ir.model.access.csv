@@ -101,6 +101,8 @@ account_account_payment_purchase_self, account.payment purchase_self,account.mod
 access_account_invoice_register_purchase_self,account_invoice_register purchase_self,model_account_invoice_register,cj_purchase.group_purchase_self,1,1,1,1
 access_account_invoice_register_line_purchase_self,account_invoice_register_line purchase_self,model_account_invoice_register_line,cj_purchase.group_purchase_self,1,1,1,1
 
+account_account_invoice_register_product, account_invoice_register_product all,model_account_invoice_register_product,base.group_user,1,1,1,1
+
 
 
 

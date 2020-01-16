@@ -1085,13 +1085,13 @@ class StockInventory(models.Model):
             return x.warehouse_id, x.product_id
 
         file_name = 'E:\Owl-ERP\myaddons\cj_stock\models\出入库明细对照.xlsx'
-        row_index = 4
+        row_index = 3
         workbook = xlrd.open_workbook(file_name)
         new_book = copy.copy(workbook)
         new_sheet = new_book.get_sheet(0)
 
         valuation_obj = self.env['stock.inventory.valuation.move']
-        valuation_moves = valuation_obj.search([('date', '>=', '2020-1-1'), ('date', '<=', '2020-1-14'), ('stock_type', '=', 'only')])
+        valuation_moves = valuation_obj.search([('date', '>=', '2020-1-1'), ('date', '<=', '2020-1-15'), ('stock_type', '=', 'only')])
         for (warehouse, product), mvs in groupby(sorted(valuation_moves, key=key_sort), key_group):
             new_sheet.write(row_index, 0, product.name)
             new_sheet.write(row_index, 1, product.default_code)

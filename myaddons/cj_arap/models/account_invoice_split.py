@@ -150,5 +150,21 @@ class AccountInvoiceSplit(models.Model):
             #
             # invoice.invoice_split_ids += new_lines
 
+    @api.model
+    def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
+        result = super(AccountInvoiceSplit, self)._name_search(name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
+        if 'no_paid_more_than_zero' in self._context:
+            ids = [r[0] for r in result]
+
+            iis = []
+            for res in self.browse(ids):
+                if float_compare(res.amount - res.paid_amount - res.wait_amount, 0, precision_rounding=0.001) == 1:
+                    iis.append(res.id)
+
+            domain = [('id', 'in', iis)]
+            return super(AccountInvoiceSplit, self)._name_search(name, args=domain, operator=operator, limit=limit, name_get_uid=name_get_uid)
+
+        return result
+
 
 

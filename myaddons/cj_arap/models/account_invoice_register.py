@@ -66,6 +66,7 @@ class AccountInvoiceRegister(models.Model):
                                                 readonly=1, states=READONLY_STATES)
 
     line_ids = fields.One2many('account.invoice.register.line', 'register_id', '开票明细', required=1, readonly=1, states=READONLY_STATES)
+    product_ids = fields.One2many('account.invoice.register.product', 'register_id', '开票商品', readonly=1)
 
     # apply_amount = fields.Float('已申请付款金额', compute='_compute_apply_amount')
     #
@@ -116,6 +117,28 @@ class AccountInvoiceRegister(models.Model):
             line_ids.insert(0, (5, 0))
             self.line_ids = line_ids
 
+            # 计算开票商品
+            products = []
+            for line in self.line_ids:
+                invoice = line.invoice_split_id.invoice_id
+                if invoice.payment_term_id.type not in ['sale_after_payment', 'joint']:
+                    continue
+
+                for invoice_line in invoice.invoice_line_ids:
+                    product_id = invoice_line.product_id.id
+                    res = list(filter(lambda x: x['product_id'] == product_id, products))
+                    if res:
+                        res[0]['quantity'] += invoice_line.quantity
+                    else:
+                        products.append({
+                            'product_id': product_id,
+                            'quantity': invoice_line.quantity
+                        })
+
+            product_ids = [(0, 0, product)for product in products]
+            product_ids.insert(0, (5, 0))
+            self.product_ids = product_ids
+
     @api.onchange('customer_invoice_apply_id')
     def _onchange_customer_invoice_apply_id(self):
         """客户发票审请，计算"""
@@ -138,6 +161,33 @@ class AccountInvoiceRegister(models.Model):
     @api.onchange('line_ids', 'line_ids.invoice_amount')
     def _onchange_line_ids(self):
         self.amount = sum(self.line_ids.mapped('invoice_amount'))
+
+    # @api.onchange('line_ids')
+    # def _onchange_line_ids1(self):
+    #     """计算开票商品"""
+    #     if not self.line_ids:
+    #         self.product_ids = [(5, 0)]
+    #     else:
+    #         products = []
+    #         for line in self.line_ids:
+    #             invoice = line.invoice_split_id.invoice_id
+    #             if invoice.payment_term_id.type not in ['sale_after_payment', 'joint']:
+    #                 continue
+    #
+    #             for invoice_line in invoice.invoice_line_ids:
+    #                 product_id = invoice_line.product_id.id
+    #                 res = list(filter(lambda x: x['product_id'] == product_id, products))
+    #                 if res:
+    #                     res[0]['quantity'] += invoice_line.quantity
+    #                 else:
+    #                     products.append({
+    #                         'product_id': product_id,
+    #                         'quantity': invoice_line.quantity
+    #                     })
+    #
+    #         product_ids = [(0, 0, product)for product in products]
+    #         product_ids.insert(0, (5, 0))
+    #         self.product_ids = product_ids
 
     @api.multi
     def action_confirm(self):
@@ -219,6 +269,29 @@ class AccountInvoiceRegister(models.Model):
             invoice_ids = invoice_split_ids.mapped('invoice_id').ids
             res.invoice_ids = invoice_ids
 
+    def _compute_product_ids(self):
+        """创建或修改时，计算关联的开票商品"""
+        products = []
+        for line in self.line_ids:
+            invoice = line.invoice_split_id.invoice_id
+            if invoice.payment_term_id.type not in ['sale_after_payment', 'joint']:
+                continue
+
+            for invoice_line in invoice.invoice_line_ids:
+                product_id = invoice_line.product_id.id
+                res = list(filter(lambda x: x['product_id'] == product_id, products))
+                if res:
+                    res[0]['quantity'] += invoice_line.quantity
+                else:
+                    products.append({
+                        'product_id': product_id,
+                        'quantity': invoice_line.quantity
+                    })
+
+        product_ids = [(0, 0, product) for product in products]
+        product_ids.insert(0, (5, 0))
+        self.product_ids = product_ids
+
     @api.multi
     def unlink(self):
         if self.filtered(lambda x: x.state != 'draft'):
@@ -236,6 +309,14 @@ class AccountInvoiceRegister(models.Model):
         #             })
 
         return super(AccountInvoiceRegister, self).unlink()
+
+    @api.multi
+    def write(self, vals):
+        res = super(AccountInvoiceRegister, self).write(vals)
+        if 'line_ids' in vals:
+            self._compute_product_ids()  # 计算关联的开票商品
+
+        return res
 
     @api.model
     def create(self, vals):
@@ -255,11 +336,12 @@ class AccountInvoiceRegister(models.Model):
         #         })
 
         res.amount = sum(res.line_ids.mapped('invoice_amount'))
+        res._compute_product_ids()  # 计算关联的开票商品
+
         if res.customer_invoice_apply_id:
             res.customer_invoice_apply_id.state = 'register'  # 修改客户发票申请状态
 
         return res
-
 
     # @api.onchange('partner_id', 'company_id')
     # def _onchange_partner_id(self):
@@ -304,8 +386,6 @@ class AccountInvoiceRegister(models.Model):
         for register in self:
             register.has_payment_apply = len(register.payment_apply_ids) != 0
 
-
-
     @api.multi
     def _compute_payment_apply(self):
         apply_obj = self.env['account.payment.apply']
@@ -325,10 +405,6 @@ class AccountInvoiceRegister(models.Model):
             return [('id', 'in', ids)]
         # 无效
         return [('id', 'not in', ids)]
-
-
-
-
 
 
 class AccountInvoiceRegisterLine(models.Model):
@@ -366,8 +442,13 @@ class AccountInvoiceRegisterLine(models.Model):
                 raise ValidationError('账单分期：%s的开票金额不能大于：%s' % (res.invoice_split_id.name, wait_amount))
 
 
+class AccountInvoiceRegisterProduct(models.Model):
+    _name = 'account.invoice.register.product'
+    _description = '发票登记商品'
 
-
+    register_id = fields.Many2one('account.invoice.register', '发票登记', ondelete='cascade')
+    product_id = fields.Many2one('product.product', '商品')
+    quantity = fields.Float('开票数量')
 
 
 

@@ -200,3 +200,20 @@ class PurchaseOrder(models.Model):
             self.invoice_split_ids.sudo().unlink()
 
         return super(PurchaseOrder, self).button_cancel()
+
+
+# class PurchaseOrderLine(models.Model):
+#     _inherit = 'purchase.order.line'
+#
+#     register_count = fields.Float('开票数量', compute='_compute_register_count', help='发票登记的数量')
+#
+#     @api.multi
+#     def _compute_register_count(self):
+#         """计算发票登记的数量，仅限于销售后付款和联营商品"""
+#         register_obj = self.env['account.invoice.register'].sudo()
+#
+#         for line in self:
+#             if line.payment_term_id.type not in ['sale_after_payment', 'joint']:
+#                 continue
+
+
