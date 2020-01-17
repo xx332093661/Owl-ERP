@@ -74,7 +74,8 @@ PROCESS_ERROR = {
     '50': '支付金额不等于商品金额',
     '51': '支付金额错误',
     '52': '货未退完不能取消',
-    '53': '款未退完不能取消'
+    '53': '款未退完不能取消',
+    '54': '订单未出库，不能退货',
 }
 
 
@@ -2618,6 +2619,9 @@ class ApiMessage(models.Model):
         if order:
             # 创建入库单
             return_vals = []
+            if not order.picking_ids.filtered(lambda x: x.state == 'done'):
+                raise MyValidationError('54', '订单未出库，不能退货！')
+
             picking = sorted(order.picking_ids.filtered(lambda x: x.state == 'done'), key=lambda x: x.id)[0]  # TODO 针对销售订单的第一张出库单来退货？
             for item in content['items']:
                 product = self.get_product(item['code'])
