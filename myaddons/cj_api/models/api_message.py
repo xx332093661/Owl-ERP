@@ -76,6 +76,7 @@ PROCESS_ERROR = {
     '52': '货未退完不能取消',
     '53': '款未退完不能取消',
     '54': '订单未出库，不能退货',
+    '55': '退款金额为0，不处理'
 }
 
 
@@ -2679,6 +2680,8 @@ class ApiMessage(models.Model):
         payment_obj = self.env['account.payment']
 
         content = json.loads(content)
+        if content['refundPrice'] == 0:
+            raise MyValidationError('55', '退款金额为0，不处理')
 
         if content['refundState'] != 'success':
             raise ValidationError('退款不成功，不处理！')
