@@ -1,33 +1,17 @@
-[![Build Status](http://runbot.odoo.com/runbot/badge/flat/1/master.svg)](http://runbot.odoo.com/runbot)
-[![Tech Doc](http://img.shields.io/badge/master-docs-875A7B.svg?style=flat&colorA=8F8F8F)](http://www.odoo.com/documentation/master)
-[![Help](http://img.shields.io/badge/master-help-875A7B.svg?style=flat&colorA=8F8F8F)](https://www.odoo.com/forum/help-1)
-[![Nightly Builds](http://img.shields.io/badge/master-nightly-875A7B.svg?style=flat&colorA=8F8F8F)](http://nightly.odoo.com/)
+# 川酒信息科技ERP项目
+- 系统代号：owl
+- 项目管理工具：https://redmine.chuanjiujituan.com/projects/owl
 
-Odoo
-----
+## 项目说明
+Owl项目是以**Odoo 12 社区版**为基础，自主研发包括采购、销售、库存、应收应付、接口等五大应用模块，各模块在应用运行时被加载运行。
 
-Odoo is a suite of web based open source business apps.
+自研模块说明如下：
 
-The main Odoo Apps include an <a href="https://www.odoo.com/page/crm">Open Source CRM</a>,
-<a href="https://www.odoo.com/page/website-builder">Website Builder</a>,
-<a href="https://www.odoo.com/page/e-commerce">eCommerce</a>,
-<a href="https://www.odoo.com/page/warehouse">Warehouse Management</a>,
-<a href="https://www.odoo.com/page/project-management">Project Management</a>,
-<a href="https://www.odoo.com/page/accounting">Billing &amp; Accounting</a>,
-<a href="https://www.odoo.com/page/point-of-sale">Point of Sale</a>,
-<a href="https://www.odoo.com/page/employees">Human Resources</a>,
-<a href="https://www.odoo.com/page/lead-automation">Marketing</a>,
-<a href="https://www.odoo.com/page/manufacturing">Manufacturing</a>,
-<a href="https://www.odoo.com/page/purchase">Purchase Management</a>,
-<a href="https://www.odoo.com/#apps">...</a>
-
-Odoo Apps can be used as stand-alone applications, but they also integrate seamlessly so you get
-a full-featured <a href="https://www.odoo.com">Open Source ERP</a> when you install several Apps.
-
-
-Getting started with Odoo
--------------------------
-For a standard installation please follow the <a href="https://www.odoo.com/documentation/master/setup/install.html">Setup instructions</a>
-from the documentation.
-
-Then follow <a href="https://www.odoo.com/documentation/master/tutorials.html">the developer tutorials</a>
+|模块名称  |目录标识       |详细说明  |
+|---      |---          |---      |
+|销售管理  |cj_purchase   |销售相关模块、视图、报表、基础数据初始化等，主要实现：全渠道订单、销售成本核算、团购单、客户管理、销售业务报表等功能 |
+|采购管理  |cj_sale       |采购相关模块、视图、报表、基础数据初始化等，主要实现：采购申请、采购订单等业务流程对接。 |
+|库存管理  |Cj_stock      |仓库相关模块，包括入库、出库、库存估值等，主要功实现：采购入库单、出库单、盘存处理等业务业务逻辑。 |
+|应收应付管理 |Cj_money    |应收应付模块、视图、报表等。主要实现：结算单、应收款、应付款、收付款登记、报表等 |
+|业务接口  |Cj_api        |与NC、OA、中台等对接的模块。主要实现：与NC实现凭证对接；与OA实现业务流程创建及状态对接，与中台实现业务订单、供应商、客户、商品等数据对接。基础信息模块	Cj_base	设计odoo原有底层相关修改。|
+|川酒界面模块 |Cj_web      |川酒业务前端展示优化 |
