@@ -169,13 +169,12 @@ class PurchaseOrderReturn(models.Model):
         if self.state != 'confirm':
             raise ValidationError('只有确认的单据才能审核！')
 
-        # 创建出库单
-        self._create_return_picking()
         if self.type == 'refund':  # 退款
-            # 先款后货，创建收款单
-            pass
+            self.with_context(purchase_return_stock_out=1, purchase=1)._create_return_picking()  # 创建出库单(采购退货出库单)
+            # TODO 先款后货，创建收款单
         else:  # 补货
-            self._create_replenishment_picking()
+            self.with_context(purchase_exchange_stock_out=1, purchase=1)._create_return_picking()  # 创建出库单(采购换货出库单)
+            self.with_context(purchase_exchange_stock_in=1, purchase=1)._create_replenishment_picking()  # 采购换货入库单
 
         self.state = 'done'
 

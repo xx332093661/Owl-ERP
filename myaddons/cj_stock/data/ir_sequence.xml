@@ -91,4 +91,89 @@
             <field eval="False" name="company_id"/>
         </record>
     </data>
+
+    <data noupdate="1">
+        <!--
+        单据编码 = 单据类型 + 发起系统标识 + 时间戳到日 + 4位流水号（超过四位可进位）
+
+        调拨入库单（100）
+        调拨出库单（101）
+        调拨退货入库单（102）
+        调拨退货出库单（103）
+
+        采购入库单（104）
+        销售出库单（105）
+        采购换货入库单（106）
+        采购换货出库单（107）
+        销售退货入库单（108）
+        采购退货出库单（109）
+        -->
+        <!--采购入库单（104）-->
+        <record id="sequence_purchase_normal_stock_in_code" model="ir.sequence">
+            <field name="name">采购入库单</field>
+            <field name="code">purchase.normal.stock.in.code</field>
+            <field name="prefix">104ERP%(year)s%(month)s%(day)s</field>
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field eval="True" name="use_date_range"/>
+            <field eval="False" name="company_id"/>
+            <field name="padding">4</field>
+        </record>
+        <!--销售出库单（105）-->
+        <record id="sequence_sale_normal_stock_out_code" model="ir.sequence">
+            <field name="name">销售出库单</field>
+            <field name="code">sale.normal.stock.out.code</field>
+            <field name="prefix">105ERP%(year)s%(month)s%(day)s</field>
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field eval="True" name="use_date_range"/>
+            <field eval="False" name="company_id"/>
+            <field name="padding">4</field>
+        </record>
+        <!--采购换货出库单（107）-->
+        <record id="sequence_purchase_exchange_stock_out_code" model="ir.sequence">
+            <field name="name">采购换货出库单</field>
+            <field name="code">purchase.exchange.stock.out.code</field>
+            <field name="prefix">107ERP%(year)s%(month)s%(day)s</field>
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field eval="True" name="use_date_range"/>
+            <field eval="False" name="company_id"/>
+            <field name="padding">4</field>
+        </record>
+        <!--采购换货入库单（106）-->
+        <record id="sequence_purchase_exchange_stock_in_code" model="ir.sequence">
+            <field name="name">采购换货入库单</field>
+            <field name="code">purchase.exchange.stock.in.code</field>
+            <field name="prefix">106ERP%(year)s%(month)s%(day)s</field>
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field eval="True" name="use_date_range"/>
+            <field eval="False" name="company_id"/>
+            <field name="padding">4</field>
+        </record>
+        <!--销售退货入库单（108）-->
+        <record id="sequence_sale_return_stock_in_code" model="ir.sequence">
+            <field name="name">销售退货入库单</field>
+            <field name="code">sale.return.stock.in.code</field>
+            <field name="prefix">108ERP%(year)s%(month)s%(day)s</field>
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field eval="True" name="use_date_range"/>
+            <field eval="False" name="company_id"/>
+            <field name="padding">4</field>
+        </record>
+        <!--采购退货出库单（109）-->
+        <record id="sequence_sale_return_stock_out_code" model="ir.sequence">
+            <field name="name">采购退货出库单</field>
+            <field name="code">purchase.return.stock.out.code</field>
+            <field name="prefix">109ERP%(year)s%(month)s%(day)s</field>
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field eval="True" name="use_date_range"/>
+            <field eval="False" name="company_id"/>
+            <field name="padding">4</field>
+        </record>
+
+    </data>
 </odoo>

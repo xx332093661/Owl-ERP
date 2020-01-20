@@ -4,6 +4,42 @@ from lxml import etree
 from odoo import fields, models, api
 from odoo.exceptions import UserError
 from odoo.tools import float_is_zero, float_compare
+from odoo.addons.stock.models.stock_picking import Picking
+
+
+origin_create = Picking.create
+
+@api.model
+def create(self, vals):
+    """stock.picking的name字段值格式中台统一
+    采购入库单(purchase.normal.stock.in.code)
+    采购退货出库单(purchase.return.stock.out.code)
+    采购换货出库单(purchase.exchange.stock.out.code)
+    采购换货入库单(purchase.exchange.stock.in.code)
+
+    销售出库单(sale.normal.stock.out.code)
+    销售退货入库单(sale.return.stock.in.code)
+    """
+    sequence_obj = self.env['ir.sequence']
+
+    res = origin_create(self, vals)
+    ctx = self._context
+    if 'purchase' in ctx:
+        if 'purchase_return_stock_out' in ctx:  # 采购退货出库单
+            res.name = sequence_obj.next_by_code('purchase.return.stock.out.code')
+        elif 'purchase_exchange_stock_out' in ctx:  # 采购换货出库单
+            res.name = sequence_obj.next_by_code('purchase.exchange.stock.out.code')
+        elif 'purchase_exchange_stock_in' in ctx:  # 采购换货入库单
+            res.name = sequence_obj.next_by_code('purchase.exchange.stock.in.code')
+        else: # 采购入库单
+            res.name = sequence_obj.next_by_code('purchase.normal.stock.in.code')
+    else:
+        pass
+
+    return res
+
+
+Picking.create = create
 
 
 class StockPicking(models.Model):
@@ -200,6 +236,9 @@ class StockPicking(models.Model):
             return
 
         across_move.generate_across_move_diff()
+
+
+
 
 
 

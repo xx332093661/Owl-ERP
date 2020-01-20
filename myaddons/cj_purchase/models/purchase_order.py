@@ -346,7 +346,7 @@ class PurchaseOrder(models.Model):
 
     @api.multi
     def _create_picking(self):
-        StockPicking = self.env['stock.picking']
+        StockPicking = self.env['stock.picking'].with_context(purchase=1)
         for order in self:
             if any([ptype in ['product', 'consu'] for ptype in order.order_line.mapped('product_id.type')]):
                 pickings = order.picking_ids.filtered(lambda x: x.state not in ('done', 'cancel'))
