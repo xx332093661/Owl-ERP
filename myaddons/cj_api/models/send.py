@@ -143,19 +143,44 @@ class CjSend(models.Model):
 
             return picking_obj.search([('backorder_id', '=', False), ('sync_state', '=', 'draft'), ('state', 'not in', ['draft', 'cancel'])], order='date_done asc', limit=50)
 
+        def get_type(pk):
+            """计算出入库类型"""
+            picking_type = pk.picking_type_id
+            picking_type_code = picking_type.code
+            warehouse = picking_type.warehouse_id
+            company = warehouse.company_id
+            ttype = 'store' if company.type == 'store' else 'warehouse'
+            warehouse_code = warehouse.code
+
+            out_type = ''
+            out_number = ''
+            in_type = ''
+            in_number = ''
+            if picking_type_code == 'incoming':  # 收货
+                in_type = ttype
+                in_number = warehouse_code
+            elif picking_type_code == 'outgoing':  # 发货
+                out_type = ttype
+                out_number = warehouse_code
+            else:  # 内部调拨
+                pass
+
+            return out_type, out_number, in_type, in_number
+
         def get_message(pk):
+            out_type, out_number, in_type, in_number = get_type(pk)
             return {
                 'body': {
                     'receiptNumber': pk.name,  # 出入库单编号
                     'initiateSystem': 'ERP',  # 发起系统
                     'receiptTime': (datetime.now() + timedelta(hours=8)).strftime(DATETIME_FORMAT),  # 单据发起时间
-                    'applyNumber': '',  # 关联调拨申请单号
+                    'applyNumber': '',  # 关联调拨申请单号 TODO
                     'receiptState': 'doing',  # 单据状态
-                    'receiptType': '',  # 单据类型
-                    'outType': '',  # 出库仓类型：仓库（warehouse） / 门店（store）
-                    'outNumber': '',  # 出库仓唯一标识
-                    'inType': '', # 入库仓类型：仓库（warehouse） / 门店（store）
-                    'inNumber': '', # 入库仓唯一标识
+                    'receiptType': pk.name[:3],  # 单据类型：调拨入库单（100），调拨出库单（101），调拨退货入库单（102），调拨退货出库单（103），采购入库单（104），销售出库单（105），采购换货入库单（106），采购换货出库单（107），销售退货入库单（108），采购退货出库单（109）
+                    'outType': out_type,  # 出库仓类型：仓库（warehouse） / 门店（store）
+                    'outNumber': out_number,  # 出库仓唯一标识
+                    'inType': in_type, # 入库仓类型：仓库（warehouse） / 门店（store）
+                    'inNumber': in_number, # 入库仓唯一标识
                     'remark': '', # 备注
                     'goods': [{
                         'goodCode': ml.product_id.default_code,  # 商品唯一编码
