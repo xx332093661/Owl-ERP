@@ -218,6 +218,8 @@ class CjSend(models.Model):
                     body=json.dumps(message),
                     properties=pika.BasicProperties(
                         delivery_mode=2,  # 消息持久化
+                        content_type='text/plain',
+                        content_encoding='UTF-8'
                     ))
                 _logger.info('发送出库入单到中台，单号：%s，数据：%s', res.name, json.dumps(message))
                 res.sync_state = 'done'
