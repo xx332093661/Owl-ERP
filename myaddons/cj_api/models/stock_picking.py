@@ -1,9 +1,22 @@
 # -*- coding: utf-8 -*-
-from odoo import models, api
+from odoo import models, api, fields
+from odoo.exceptions import ValidationError
 
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
+
+    sync_state = fields.Selection([('draft', '草稿'), ('no_need', '不需要'), ('done', '完成')], '同步中台状态', default='no_need')
+
+    @api.multi
+    def do_push_mustang(self):
+        """同步到中台"""
+        if self.backorder_id:
+            raise ValidationError('此单为后续单据，不需要同步到中台！')
+        if self.state in []:
+            raise ValidationError('草稿状态或取消状态的单据不能同步！')
+
+        self.env['cj.send']._cron_push_picking_mustang(self)
 
     # @api.one
     # def action_done(self):

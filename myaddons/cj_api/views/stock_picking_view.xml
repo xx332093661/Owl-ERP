@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_picking_form_inherit" model="ir.ui.view">
+            <field name="name">view_picking_form inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <!--增加手动同步按钮按钮-->
+                <xpath expr="//button[@name='do_print_picking']" position="after">
+                    <button name="do_push_mustang" string="同步到中台" groups="base.group_system" type="object" attrs="{'invisible': [('state', 'in', ['draft', 'cancel'])]}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
