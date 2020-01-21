@@ -4,6 +4,7 @@ import traceback
 import logging
 import json
 import pytz
+import time
 # import socket
 
 from odoo import models, api
@@ -123,6 +124,7 @@ class CjSend(models.Model):
         outNumber           String      出库仓唯一标识
         inType              String      入库仓类型：仓库（warehouse） / 门店（store）
         inNumber            String      入库仓唯一标识
+        deliveryMethod      String      配送方式：配送（delivery）/ 自提（selfPick）
         remark              String      备注
         goods               String      单据关联的商品记录
         ||goodCode          String      商品唯一编码
@@ -181,6 +183,7 @@ class CjSend(models.Model):
                     'outNumber': out_number,  # 出库仓唯一标识
                     'inType': in_type, # 入库仓类型：仓库（warehouse） / 门店（store）
                     'inNumber': in_number, # 入库仓唯一标识
+                    'deliveryMethod': 'delivery',  # 配送方式：配送（delivery）/ 自提（selfPick）TODO
                     'remark': '',  # 备注
                     'goods': [{
                         'goodCode': ml.product_id.default_code,  # 商品唯一编码
@@ -189,7 +192,7 @@ class CjSend(models.Model):
                         'defectiveNumber': 0, # 次品数量
                     }for ml in pk.move_lines], # 单据关联的商品记录
                 },
-                'version': ''
+                'version': str(int(time.time() * 1000))
             }
 
         config_parameter_obj = self.env['ir.config_parameter']
