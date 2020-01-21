@@ -174,14 +174,14 @@ class CjSend(models.Model):
                     'receiptNumber': pk.name,  # 出入库单编号
                     'initiateSystem': 'ERP',  # 发起系统
                     'receiptTime': (datetime.now() + timedelta(hours=8)).strftime(DATETIME_FORMAT),  # 单据发起时间
-                    'applyNumber': '',  # 关联调拨申请单号 TODO
+                    'applyNumber': '',  # 关联调拨申请单号
                     'receiptState': 'doing',  # 单据状态
                     'receiptType': pk.name[:3],  # 单据类型：调拨入库单（100），调拨出库单（101），调拨退货入库单（102），调拨退货出库单（103），采购入库单（104），销售出库单（105），采购换货入库单（106），采购换货出库单（107），销售退货入库单（108），采购退货出库单（109）
                     'outType': out_type,  # 出库仓类型：仓库（warehouse） / 门店（store）
                     'outNumber': out_number,  # 出库仓唯一标识
                     'inType': in_type, # 入库仓类型：仓库（warehouse） / 门店（store）
                     'inNumber': in_number, # 入库仓唯一标识
-                    'remark': '', # 备注
+                    'remark': '',  # 备注
                     'goods': [{
                         'goodCode': ml.product_id.default_code,  # 商品唯一编码
                         'goodName': ml.product_id.name,  # 商品名称
