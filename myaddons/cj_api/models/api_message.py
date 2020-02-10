@@ -3110,7 +3110,7 @@ class ApiMessage(models.Model):
         location_obj = self.env['stock.location']
         warehouse_obj = self.env['stock.warehouse']
 
-        content = json.loads(content)
+        content = json.loads(content)['body']
         receipt_types = {
             '100': '调拨入库单',
             '101': '调拨出库单',
