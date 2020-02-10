@@ -78,6 +78,12 @@ PROCESS_ERROR = {
     '54': '订单未出库，不能退货',
     '55': '退款金额为0，不处理',
     '56': '不处理的出入库单单据类型',
+    '57': '出入库单据已取消',
+    '58': '出入库单没有后续的出入库单',
+    '59': '采购或销售的出入库数量不应存在次品',
+    '60': '未打到出入库单对应的商品明细',
+    '61': '出库数量大于订单数量'
+
 }
 
 
@@ -3134,36 +3140,59 @@ class ApiMessage(models.Model):
         if content['remark']:
             note += '：' + content['remark']
 
-        move_lines = []
+        # 汇总商品
+        move_products = []
         for item in content['goods']:
-            product = self.get_product(item['goodCode'])
-            perfect_number = item.get('perfectNumber')  # 正品数量
-            defective_number = item.get('defectiveNumber')  # 次品数量
-            if perfect_number > 0:
-                product_uom_qty = perfect_number
-                is_zp = True
-            else:
-                product_uom_qty = defective_number
-                is_zp = False
+            perfect_number = item['perfectNumber']  # 正品数量
+            defective_number = item['defectiveNumber']  # 次品数量
+            if float_is_zero(perfect_number, precision_rounding=0.01) and float_is_zero(defective_number, precision_rounding=0.01):
+                continue
 
+            if perfect_number:
+                move_product = list(filter(lambda x: x['goodCode'] == item['goodCode'] and x['is_zp'], move_products))
+                if move_product:
+                    move_product = move_product[0]
+                    move_product['product_uom_qty'] += perfect_number
+                else:
+                    move_products.append({
+                        'goodCode': item['goodCode'],
+                        'product_uom_qty': perfect_number,
+                        'is_zp': True,
+                    })
+
+            if defective_number:
+                move_product = list(filter(lambda x: x['goodCode'] == item['goodCode'] and x['is_zp'] == False, move_products))
+                if move_product:
+                    move_product = move_product[0]
+                    move_product['product_uom_qty'] += defective_number
+                else:
+                    move_products.append({
+                        'goodCode': item['goodCode'],
+                        'product_uom_qty': defective_number,
+                        'is_zp': False,
+                    })
+
+        move_lines = []
+        for item in move_products:
+            product = self.get_product(item['goodCode'])
             move_lines.append((0, 0, {
                 'name': product.partner_ref,
                 'product_uom': product.uom_id.id,
                 'product_id': product.id,
-                'product_uom_qty': product_uom_qty,
-                'is_zp': is_zp,
+                'product_uom_qty': item['product_uom_qty'],
+                'is_zp': item['is_zp'],
                 # 'quantity_done': item['actualQty'],
                 'store_stock_update_code': store_stock_update_code,  # 门店库存变更类型
             }))
 
-        picking = picking_obj.create({
+        picking_obj.create({
             'location_id': get_location_id(),  # 源库位
             'location_dest_id': get_location_dest_id(),  # 目的库位
             'picking_type_id': picking_type.id,  # 作业类型
             # 'origin': '',  # 关联单据
             'company_id': warehouse.company_id.id,
             'name': content['receiptNumber'],  # 出入库单编号
-            'scheduled_date': (datetime.strptime(content['receiptTime '], DATETIME_FORMAT) - timedelta(hours=8)).strftime(DATETIME_FORMAT),  # 单据发起时间
+            'scheduled_date': (datetime.strptime(content['receiptTime'], DATETIME_FORMAT) - timedelta(hours=8)).strftime(DATETIME_FORMAT),  # 单据发起时间
 
             'receipt_type': receipt_type,  # 单据类型
             'delivery_method': content['deliveryMethod'],  # 配送方式
@@ -3176,7 +3205,135 @@ class ApiMessage(models.Model):
 
     # 41、MUSTANG-ERP-ALLOCATE-ACTUALINOUT-QUEUE 中台推送出库执行结果给ERP
     def deal_mustang_erp_allocate_actualinout_queue(self, content):
-        """中台推送出库执行结果给ERP"""
+        """中台推送出库执行结果给ERP
+        inOutTime：出入库时间废弃不用
+        """
+        def get_picking():
+            pk = picking_obj.search([('name', '=', receipt_number)])
+            if not pk:
+                raise MyValidationError('35', '单据号：%s未打到对应的出入库单据！' % receipt_number)
+
+            if pk.state == 'cancel':
+                raise MyValidationError('57', '出入库单：%s已取消！' % receipt_number)
+
+            if pk.state == 'done':
+                receipt_numbers = [receipt_number]
+                while pk:
+                    picking1 = picking_obj.search([('backorder_id', '=', pk.id)])
+                    if not picking1:
+                        raise MyValidationError('58', '出入库单：%s没有后续的出入库单！' % ('-->'.join(receipt_numbers)))
+
+                    if picking1.state == 'cancel':
+                        raise MyValidationError('57', '出入库单：%s的后续出入库单：%s已取消！' % ('-->'.join(receipt_numbers), picking1.name))
+
+                    if picking1.state == 'done':
+                        pk = picking1
+                        receipt_numbers.append(pk.name)
+                        continue
+
+                    return picking1
+
+            return pk
+
+        picking_obj = self.env['stock.picking']
+        stock_backorder_obj = self.env['stock.backorder.confirmation']
+
+        content = json.loads(content)['body']
+
+        receipt_number = content['receiptNumber']  # 单据号
+
+        # 获取出入库单据
+        picking = get_picking()
+        if picking.state == 'draft':
+            picking.action_confirm()
+
+        receipt_type = picking.receipt_type  # 单据类型
+        # receipt_types = {
+        #     '100': '调拨入库单',
+        #     '101': '调拨出库单',
+        #     '102': '调拨退货入库单',
+        #     '103': '调拨退货出库单',
+        #     '105': '销售出库单',
+        #     '106': '采购换货入库单',
+        #     '107': '采购换货出库单',
+        #     '108': '销售退货入库单',
+        #     '109': '采购退货出库单',
+        # }
+
+        # 汇总传过来的move_lines
+        move_products = []
+        for item in content['goods']:
+            perfect_number = item['perfectNumber']  # 正品数量
+            defective_number = item['defectiveNumber']  # 次品数量
+            if float_is_zero(perfect_number, precision_rounding=0.01) and float_is_zero(defective_number, precision_rounding=0.01):
+                continue
+
+            if receipt_type in ['105', '106', '107', '108', '109'] and not float_is_zero(defective_number, precision_rounding=0.01):
+                raise MyValidationError('59', '采购或销售的出入库数量不应存在次品')
+
+            if perfect_number:
+                move_product = list(filter(lambda x: x['goodCode'] == item['goodCode'] and x['is_zp'], move_products))
+                if move_product:
+                    move_product = move_product[0]
+                    move_product['product_uom_qty'] += perfect_number
+                else:
+                    move_products.append({
+                        'goodCode': item['goodCode'],
+                        'product_uom_qty': perfect_number,
+                        'is_zp': True,
+                    })
+
+            if defective_number:
+                move_product = list(filter(lambda x: x['goodCode'] == item['goodCode'] and x['is_zp'] == False, move_products))
+                if move_product:
+                    move_product = move_product[0]
+                    move_product['product_uom_qty'] += defective_number
+                else:
+                    move_products.append({
+                        'goodCode': item['goodCode'],
+                        'product_uom_qty': defective_number,
+                        'is_zp': False,
+                    })
+
+        exist_diff = False  # 存在差异(出入库数量小于于发货或收货数量)
+        for line in move_products:
+            product = self.get_product(line['goodCode'])
+
+            product_uom_qty = line['product_uom_qty']  # 本次发货数量
+            if picking.sale_id:
+                order_lines = picking.sale_id.order_line.filtered(lambda x: x.product_id.id == product.id)
+                order_qty = sum(order_lines.mapped('product_uom_qty'))  # 订单数量
+                qty_delivered = sum(order_lines.mapped('qty_delivered'))  # 发货数量
+                if float_compare(product_uom_qty, order_qty - qty_delivered, precision_rounding=0.01) == 1:
+                    raise MyValidationError('61', '订单数量：%s，已出库：%s，本次出库：%s，出库数量大于订单数量！' % (order_qty, qty_delivered, product_uom_qty))
+
+
+            stock_moves = list(filter(lambda x: x.product_id.id == product.id and x.is_zp == line['is_zp'], picking.move_lines))
+            if not stock_moves:
+                raise MyValidationError('60', '商品：%s，是否是正品：%s未打到出入库单对应的商品明细' % (product.partner_ref, line['is_zp']))
+
+            for index, stock_move in enumerate(stock_moves):
+                if index < len(stock_moves) - 1:
+                    quantity_done = min(stock_move.product_uom_qty, product_uom_qty)
+                else:
+                    quantity_done = product_uom_qty
+
+                stock_move.quantity_done = quantity_done
+                if float_compare(stock_move.product_uom_qty, quantity_done, precision_digits=2) == 1:  # 订单数量大于收货数量
+                    exist_diff = True
+
+                product_uom_qty -= quantity_done
+                if float_compare(product_uom_qty, 0, precision_rounding=0.01) <= 0:
+                    break
+
+        if exist_diff:
+            stock_backorder = stock_backorder_obj.create({
+                'pick_ids': [(6, 0, picking.ids)]
+            })
+            stock_backorder.process()  # 确认入库
+        else:
+            picking.action_done()  # 确认入库
+
 
 
     def get_country_id(self, country_name):

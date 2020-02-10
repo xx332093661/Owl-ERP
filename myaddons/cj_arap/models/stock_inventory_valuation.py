@@ -464,7 +464,7 @@ class StockInventoryValuationMove(models.Model):
             if store_stock_update_code == 'STOCK_internal_out':
                 return stock_cost
 
-        return 0
+        return stock_cost
 
     def move2valuation(self, moves):
         """生成存货估值明细表"""
