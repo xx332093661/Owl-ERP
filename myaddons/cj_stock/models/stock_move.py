@@ -35,6 +35,7 @@ class StockMove(models.Model):
 
     # 门店库存变更
     store_stock_update_code = fields.Char('门店库存变更类型')
+    is_zp = fields.Boolean('是否是正品', default=True)
 
     @api.multi
     def _compute_inventory(self):

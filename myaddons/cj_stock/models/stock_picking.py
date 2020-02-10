@@ -25,14 +25,35 @@ def create(self, vals):
     res = origin_create(self, vals)
     ctx = self._context
     if 'purchase' in ctx:
+        vals = {
+            'delivery_method': '',  # 配送方式
+            'initiate_system': 'ERP',  # 发起系统
+            'receipt_state': 'doing',  # 单据状态
+            'apply_number': '',  # 调拨申请单编号
+            'sync_state': 'draft',  # 同步状态
+        }
         if 'purchase_return_stock_out' in ctx:  # 采购退货出库单
-            res.name = sequence_obj.next_by_code('purchase.return.stock.out.code')
+            vals.update({
+                'name': sequence_obj.next_by_code('purchase.return.stock.out.code'),  # 单据号
+                'receipt_type': '109',  # 单据类型
+            })
         elif 'purchase_exchange_stock_out' in ctx:  # 采购换货出库单
-            res.name = sequence_obj.next_by_code('purchase.exchange.stock.out.code')
+            vals.update({
+                'name': sequence_obj.next_by_code('purchase.exchange.stock.out.code'),  # 单据号
+                'receipt_type': '107',  # 单据类型
+            })
         elif 'purchase_exchange_stock_in' in ctx:  # 采购换货入库单
-            res.name = sequence_obj.next_by_code('purchase.exchange.stock.in.code')
+            vals.update({
+                'name': sequence_obj.next_by_code('purchase.exchange.stock.in.code'),  # 单据号
+                'receipt_type': '106',  # 单据类型
+            })
         else: # 采购入库单
-            res.name = sequence_obj.next_by_code('purchase.normal.stock.in.code')
+            vals.update({
+                'name': sequence_obj.next_by_code('purchase.normal.stock.in.code'),  # 单据号
+                'receipt_type': '104',  # 单据类型
+            })
+
+        res.write(vals)
     else:
         pass
 
@@ -57,6 +78,21 @@ class StockPicking(models.Model):
     delivery_id = fields.Many2one('delivery.order', string='物流单')
     material_requisition_id = fields.Many2one('stock.material.requisition', '领料单')
     internal_move_id = fields.Many2one('stock.internal.move', '内部调拨单')
+
+    receipt_type = fields.Selection([('100', '调拨入库单'),
+                                    ('101', '调拨出库单'),
+                                    ('102', '调拨退货入库单'),
+                                    ('103', '调拨退货出库单'),
+                                    ('104', '采购入库单'),
+                                    ('105', '销售出库单'),
+                                    ('106', '采购换货入库单'),
+                                    ('107', '采购换货出库单'),
+                                    ('108', '销售退货入库单'),
+                                    ('109', '采购退货出库单'), ], '单据类型', track_visibility='onchange')
+    delivery_method = fields.Selection([('delivery', '配送'), ('self_pick', '自提')], '配送方式', track_visibility='onchange')
+    initiate_system = fields.Char('发起系统', track_visibility='onchange')
+    receipt_state = fields.Selection([('doing', '执行中')], '单据状态', track_visibility='onchange')
+    apply_number = fields.Char('调拨申请单编号', track_visibility='onchange')
 
     # @api.one
     # def _compute_deliveries(self):

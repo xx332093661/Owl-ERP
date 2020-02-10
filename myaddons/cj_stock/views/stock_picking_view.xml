@@ -36,7 +36,20 @@
                 <!--删除取消按钮-->
                 <xpath expr="//button[@name='action_cancel']" position="replace"/>
 
-
+                <xpath expr="//page[@name='extra']" position="inside">
+                    <separator string="Delivery Information"/>
+                    <group string="对接信息">
+                        <group>
+                            <field name="receipt_type"/>
+                            <field name="initiate_system"/>
+                            <field name="apply_number"/>
+                        </group>
+                        <group>
+                            <field name="delivery_method"/>
+                            <field name="receipt_state"/>
+                        </group>
+                    </group>
+                </xpath>
                 <!--在其他信息标签页前加收货人信息标签页、物流信息标签页-->
                 <!--<xpath expr="//page[@name='extra']" position="before">-->
                     <!--<page string="收货人信息" name="consignee">-->

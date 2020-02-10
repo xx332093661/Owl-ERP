@@ -6,6 +6,8 @@ import json
 import pytz
 import time
 # import socket
+from pika.exceptions import AMQPConnectionError
+import uuid
 
 from odoo import models, api
 from datetime import datetime, timedelta
@@ -108,6 +110,11 @@ class CjSend(models.Model):
 
         return result
 
+    # def _publish_mq_message(self, connect, message):
+    #     """"""
+    #     name = uuid.uuid1().hex
+    #     self._cr.execute('SAVEPOINT "%s"' % name)
+
     @api.model
     def _cron_push_picking_mustang(self, picking=None):
         """ERP推送出入库单到中台
@@ -143,7 +150,7 @@ class CjSend(models.Model):
             if picking:
                 return picking
 
-            return picking_obj.search([('backorder_id', '=', False), ('sync_state', '=', 'draft'), ('state', 'not in', ['draft', 'cancel'])], order='date_done asc', limit=50)
+            return picking_obj.search([('backorder_id', '=', False), ('sync_state', '=', 'draft'), ('sync_state', 'in', ['draft'])], order='date_done asc', limit=50)
 
         def get_type(pk):
             """计算出入库类型"""
@@ -209,8 +216,9 @@ class CjSend(models.Model):
 
         credentials = pika.PlainCredentials(username, password)
         parameter = pika.ConnectionParameters(host=host, port=port, credentials=credentials)
-        connection = pika.BlockingConnection(parameter)
+        connection = None
         try:
+            connection = pika.BlockingConnection(parameter)
             channel = connection.channel()
             channel.queue_declare(queue=queue_name, exclusive=True, durable=True, passive=True)  # durable队列持久化
             for res in get_picking():
@@ -227,11 +235,17 @@ class CjSend(models.Model):
                 _logger.info('发送出库入单到中台，单号：%s，数据：%s', res.name, json.dumps(message))
                 res.sync_state = 'done'
                 self._cr.commit()
+        except AMQPConnectionError:
+            _logger.error('发送出入库单到中台连接MQ服务器错误')
+            _logger.error(traceback.format_exc())
+            if picking:
+                raise UserError('连接MQ服务器发生错误！')
         except:
             _logger.error('发送出入库单到中台发生错误')
             _logger.error(traceback.format_exc())
             if picking:
                 raise UserError('发送到中台发生错误！')
         finally:
-            connection.close()
+            if isinstance(connection, pika.BlockingConnection):
+                connection.close()
 

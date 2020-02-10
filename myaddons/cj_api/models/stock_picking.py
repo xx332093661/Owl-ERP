@@ -6,7 +6,7 @@ from odoo.exceptions import ValidationError
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    sync_state = fields.Selection([('draft', '草稿'), ('no_need', '不需要'), ('done', '完成')], '同步中台状态', default='no_need')
+    sync_state = fields.Selection([('draft', '草稿'), ('no_need', '不需要'), ('done', '完成')], '同步中台状态', default='no_need', track_visibility='onchange')
 
     @api.multi
     def do_push_mustang(self):

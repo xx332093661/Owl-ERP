@@ -76,7 +76,8 @@ PROCESS_ERROR = {
     '52': '货未退完不能取消',
     '53': '款未退完不能取消',
     '54': '订单未出库，不能退货',
-    '55': '退款金额为0，不处理'
+    '55': '退款金额为0，不处理',
+    '56': '不处理的出入库单单据类型',
 }
 
 
@@ -168,6 +169,8 @@ class ApiMessage(models.Model):
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-REFUND-ERP-QUEUE')   # 退款单数据
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-RECIPIENT-QUEUE')   # 客情单
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-CHECK-STOCK-QUEUE')  # 盘点数据
+
+        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-ALLOCATE-RECEIPT-QUEUE')  # 中台往ERP推送出入库单
 
         # self.start_mq_thread_by_name('RabbitMQSendThread', 'rabbit_mq_send_thread')
 
@@ -2924,7 +2927,6 @@ class ApiMessage(models.Model):
 
         order.status = states[order_state]
 
-
     # 30、WMS-ERP-CHECK-STOCK-QUEUE 盘点单
     def deal_wms_erp_check_stock_queue(self, content):
         """盘点单
@@ -3052,6 +3054,123 @@ class ApiMessage(models.Model):
 
         # 确认盘点
         # inventory.action_validate()
+
+    # 40、MUSTANG-ERP-ALLOCATE-RECEIPT-QUEUE 中台往ERP推送出入库单
+    def deal_mustang_erp_allocate_receipt_queue(self, content):
+        """中台往ERP推送出入库单"""
+        def get_store_stock_update_code():
+            if receipt_type == '100':  # 调拨入库单
+                return  'STOCK_03002'  # 两步式调拨-入库
+            if receipt_type == '101':  # 调拨出库单
+                return 'STOCK_03001'  # 两步式调拨-出库
+            if receipt_type == '102':  # 调拨退货入库单
+                return 'STOCK_03006'  # 两步式调拨-出库冲销
+            if receipt_type == '103':  # 调拨退货出库单
+                return 'STOCK_03007'  # 两步式调拨-入库冲销
+            # if receipt_type == '104':  # 采购入库单
+            #     return ''
+
+        def get_warehouse():
+            if receipt_type in ['100', '102']: # 调拨入库单(100)、调拨退货入库单（102）
+                warehouse_code = content['inNumber']
+            else:
+                warehouse_code = content['outNumber']
+
+            wh = warehouse_obj.search([('code', '=', warehouse_code)])
+            if not wh:
+                raise MyValidationError('11', '仓库编码：%s未找到对应仓库' % warehouse_code)
+
+            return wh
+
+        def get_picking_type():
+            if receipt_type in ['100', '102']:  # 调拨入库单(100)、调拨退货入库单（102）
+                pt = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'incoming')])  # 作业类型
+            else:  # 调拨出库单(101)、调拨退货出库单(103)
+                pt = picking_type_obj.search([('warehouse_id', '=', warehouse.id), ('code', '=', 'outgoing')])  # 作业类型
+
+            return pt
+
+        def get_location_id():
+            """源库位"""
+            if receipt_type in ['100', '102']:  # 调拨入库单(100)、调拨退货入库单（102）
+                return location_obj.search([('usage', '=', 'supplier')], limit=1).id,  # 供应商库位
+            else:  # 调拨出库单(101)、调拨退货出库单(103)
+                return lot_stock_id  # 库存库位
+
+        def get_location_dest_id():
+            """目标库位"""
+            if receipt_type in ['100', '102']:  # 调拨入库单(100)、调拨退货入库单（102）
+                return lot_stock_id  # 库存库位
+            else:  # 调拨出库单(101)、调拨退货出库单(103)
+                return location_obj.search([('usage', '=', 'customer')], limit=1).id,  # 客户库位
+
+        picking_obj = self.env['stock.picking']
+        picking_type_obj = self.env['stock.picking.type']  # 作业类型
+        location_obj = self.env['stock.location']
+        warehouse_obj = self.env['stock.warehouse']
+
+        content = json.loads(content)
+        receipt_types = {
+            '100': '调拨入库单',
+            '101': '调拨出库单',
+            '102': '调拨退货入库单',
+            '103': '调拨退货出库单',
+            '105': '销售出库单',
+            '106': '采购换货入库单',
+            '107': '采购换货出库单',
+            '108': '销售退货入库单',
+            '109': '采购退货出库单',
+        }
+        receipt_type = content['receiptType']  # 单据类型
+        if receipt_type in ['104', '105', '106', '107', '108', '109']:  # 采购入库单(104)、销售出库单(105)、采购换货入库单（106）、采购换货出库单(107)、销售退货入库单(108)、采购退货出库单(109)
+            raise MyValidationError('56', '不处理的出入库单单据类型：%s' % receipt_types[receipt_type])
+
+        store_stock_update_code = get_store_stock_update_code()  # 门店库存变更类型
+        warehouse = get_warehouse()  # 仓库
+        picking_type = get_picking_type()  # 作业类型
+        lot_stock_id = warehouse.lot_stock_id.id  # 仓库库存库位
+        note = '中台往ERP推送出入库单'
+        if content['remark']:
+            note += '：' + content['remark']
+
+        move_lines = []
+        for item in content['goods']:
+            product = self.get_product(item['goodCode'])
+            perfect_number = item.get('perfectNumber')  # 正品数量
+            defective_number = item.get('defectiveNumber')  # 次品数量
+            if perfect_number > 0:
+                product_uom_qty = perfect_number
+                is_zp = True
+            else:
+                product_uom_qty = defective_number
+                is_zp = False
+
+            move_lines.append((0, 0, {
+                'name': product.partner_ref,
+                'product_uom': product.uom_id.id,
+                'product_id': product.id,
+                'product_uom_qty': product_uom_qty,
+                'is_zp': is_zp,
+                # 'quantity_done': item['actualQty'],
+                'store_stock_update_code': store_stock_update_code,  # 门店库存变更类型
+            }))
+
+        picking = picking_obj.create({
+            'location_id': get_location_id(),  # 源库位
+            'location_dest_id': get_location_dest_id(),  # 目的库位
+            'picking_type_id': picking_type.id,  # 作业类型
+            # 'origin': '',  # 关联单据
+            'company_id': warehouse.company_id.id,
+            'name': content['receiptNumber'],  # 出入库单编号
+
+            'receipt_type': receipt_type,  # 单据类型
+            'delivery_method': content['deliveryMethod'],  # 配送方式
+            'initiate_system': content['initiateSystem'],  # 发起系统
+            'receipt_state': content['receiptState'],  # 单据状态
+            'apply_number': content['applyNumber'],  # 调拨申请单编号
+            'move_lines': move_lines,
+            'note': note
+        })
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
