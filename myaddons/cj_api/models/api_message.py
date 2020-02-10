@@ -171,6 +171,7 @@ class ApiMessage(models.Model):
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'WMS-ERP-CHECK-STOCK-QUEUE')  # 盘点数据
 
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-ALLOCATE-RECEIPT-QUEUE')  # 中台往ERP推送出入库单
+        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-ALLOCATE-ACTUALINOUT-QUEUE')  # 中台推送出库执行结果给ERP
 
         # self.start_mq_thread_by_name('RabbitMQSendThread', 'rabbit_mq_send_thread')
 
@@ -3162,6 +3163,7 @@ class ApiMessage(models.Model):
             # 'origin': '',  # 关联单据
             'company_id': warehouse.company_id.id,
             'name': content['receiptNumber'],  # 出入库单编号
+            'scheduled_date': (datetime.strptime(content['receiptTime '], DATETIME_FORMAT) - timedelta(hours=8)).strftime(DATETIME_FORMAT),  # 单据发起时间
 
             'receipt_type': receipt_type,  # 单据类型
             'delivery_method': content['deliveryMethod'],  # 配送方式
@@ -3171,6 +3173,11 @@ class ApiMessage(models.Model):
             'move_lines': move_lines,
             'note': note
         })
+
+    # 41、MUSTANG-ERP-ALLOCATE-ACTUALINOUT-QUEUE 中台推送出库执行结果给ERP
+    def deal_mustang_erp_allocate_actualinout_queue(self, content):
+        """中台推送出库执行结果给ERP"""
+
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
