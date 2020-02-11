@@ -37,7 +37,6 @@
                 <xpath expr="//button[@name='action_cancel']" position="replace"/>
 
                 <xpath expr="//page[@name='extra']" position="inside">
-                    <separator string="Delivery Information"/>
                     <group string="对接信息">
                         <group>
                             <field name="receipt_type"/>

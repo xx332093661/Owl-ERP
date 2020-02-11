@@ -173,9 +173,13 @@ class PurchaseOrder(models.Model):
     @api.multi
     def action_cancel(self):
         """取消订单"""
-        if self.state not in ['draft', 'confirm', 'oa_refuse']:
-            raise ValidationError('只有草稿、确认、OA拒绝的单据才能取消！')
+        # TODO 测试修改此处，待恢复
+        # if self.state not in ['draft', 'confirm', 'oa_refuse']:
+        #     raise ValidationError('只有草稿、确认、OA拒绝的单据才能取消！')
 
+        # TODO 测试修改此处，待删除
+        if self.state not in ['draft', 'confirm', 'oa_refuse', 'purchase', 'done']:
+            raise ValidationError('只有草稿、确认、OA拒绝的单据才能取消！')
         # for inv in self.invoice_ids:
         #     if inv and inv.state not in ('cancel', 'draft', 'general_manager_refuse'):
         #         raise UserError('不能取消这个采购单，你必须首先取消相关的供应商账单。')
