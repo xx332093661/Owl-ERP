@@ -178,6 +178,8 @@ class ApiMessage(models.Model):
 
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-ALLOCATE-RECEIPT-QUEUE')  # 中台往ERP推送出入库单
         self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-ALLOCATE-ACTUALINOUT-QUEUE')  # 中台推送出库执行结果给ERP
+        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-ALLOCATECANCEL-QUEUE')  # 中台推送出入库取消事件给EPR
+        self.start_mq_thread_by_name('RabbitMQReceiveThread', 'MUSTANG-ERP-ALLOCATE-CANCELRESULT-QUEUE')  # 中台推送流程取消结果给ERP
 
         # self.start_mq_thread_by_name('RabbitMQSendThread', 'rabbit_mq_send_thread')
 
@@ -3334,7 +3336,13 @@ class ApiMessage(models.Model):
         else:
             picking.action_done()  # 确认入库
 
+    # 42、MUSTANG-ERP-ALLOCATECANCEL-QUEUE 中台推送出入库取消事件给EPR
+    def deal_mustang_erp_allocatecancel_queue(self, content):
+        """中台推送出入库取消事件给EPR"""
 
+    # 43、MUSTANG-ERP-ALLOCATE-CANCELRESULT-QUEUE 中台推送流程取消结果给ERP
+    def deal_mustang_erp_allocate_cancelresult_queue(self, content):
+        """中台推送流程取消结果给ERP"""
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
