@@ -82,7 +82,8 @@ PROCESS_ERROR = {
     '58': '出入库单没有后续的出入库单',
     '59': '采购或销售的出入库数量不应存在次品',
     '60': '未打到出入库单对应的商品明细',
-    '61': '出库数量大于订单数量'
+    '61': '出库数量大于订单数量',
+    '62': '出入库取消申请已存在'
 
 }
 
@@ -3339,6 +3340,25 @@ class ApiMessage(models.Model):
     # 42、MUSTANG-ERP-ALLOCATECANCEL-QUEUE 中台推送出入库取消事件给EPR
     def deal_mustang_erp_allocatecancel_queue(self, content):
         """中台推送出入库取消事件给EPR"""
+
+        apply_obj = self.env['stock.picking.cancel.apply']  # 出入库取消申请单
+
+        content = json.loads(content)['body']
+        cancel_number = content['cancelNumber']  # 出入库取消单编号
+        receipt_number = content['receiptNumber']  # 出入库单编号
+
+        apply = apply_obj.search([('cancel_number', '=', cancel_number), ('receipt_number',  '=', receipt_number)])
+        if apply:
+            raise MyValidationError('62', '出入库取消单编号：%s、出入库单编号：%s对应的出入库取消申请已存在！' % (cancel_number, receipt_number))
+
+        apply_obj.create({
+            'cancel_number': cancel_number,
+            'receipt_number': receipt_number,
+            'cancel_time': (datetime.strptime(content['cancelTime'], DATETIME_FORMAT) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
+            'state': content['cancelResult'],
+            'remark': content['remark'],
+        })
+
 
     # 43、MUSTANG-ERP-ALLOCATE-CANCELRESULT-QUEUE 中台推送流程取消结果给ERP
     def deal_mustang_erp_allocate_cancelresult_queue(self, content):
