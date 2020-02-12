@@ -52,7 +52,7 @@ PROCESS_ERROR = {
     '28': '商品没有成本',
     '29': '公司没有成本核算分组',
     '30': '公司编码找不到对应的公司',
-    '31': '物流公司编号对应的物流公司没有打到',
+    '31': '物流公司编号对应的物流公司没有找到',
     '32': '未能计算出快递费',
     '33': '公司不一致',
     '34': '供应商组没找到',
@@ -83,7 +83,8 @@ PROCESS_ERROR = {
     '59': '采购或销售的出入库数量不应存在次品',
     '60': '未打到出入库单对应的商品明细',
     '61': '出库数量大于订单数量',
-    '62': '出入库取消申请已存在'
+    '62': '出入库取消申请已存在',
+    '63': '出入库取消申请不存在'
 
 }
 
@@ -3363,6 +3364,32 @@ class ApiMessage(models.Model):
     # 43、MUSTANG-ERP-ALLOCATE-CANCELRESULT-QUEUE 中台推送流程取消结果给ERP
     def deal_mustang_erp_allocate_cancelresult_queue(self, content):
         """中台推送流程取消结果给ERP"""
+        apply_obj = self.env['stock.picking.cancel.apply']  # 出入库取消申请单
+        picking_obj = self.env['stock.picking']
+
+        content = json.loads(content)['body']
+        cancel_number = content['cancelNumber']  # 出入库取消单编号
+        state = content['cancelResult']
+
+        apply = apply_obj.search([('cancel_number', '=', cancel_number)])
+        if not apply:
+            raise MyValidationError('63', '取消单编号：%s对应的出入库取消申请不存在' % cancel_number)
+
+        receipt_number = apply.receipt_number
+        picking = picking_obj.search([('name', '=', receipt_number)])
+        if not picking:
+            raise MyValidationError('35', '出入库单编号：%s对应的出库单不存在' % receipt_number)
+
+        if state == 'refuse':
+            # 已取消
+            if picking.state == 'cancel':
+                pass
+
+            receipt_number = apply.receipt_number
+            picking_obj.search([('name', '=', receipt_number)])
+
+
+
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
