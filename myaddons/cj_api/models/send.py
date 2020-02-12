@@ -291,7 +291,7 @@ class CjSend(models.Model):
         if not all([username, password, host, port]):
             raise ValidationError('MQ服务器配置不正确！')
 
-        queue_name = 'ERP-MUSTANG-ALLOCATEECANCEL-QUEUE'  # 队列名称
+        queue_name = 'ERP-MUSTANG-ALLOCATEE-CANCEL-QUEUE'  # 队列名称
 
         credentials = pika.PlainCredentials(username, password)
         parameter = pika.ConnectionParameters(host=host, port=port, credentials=credentials)
