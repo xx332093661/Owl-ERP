@@ -185,7 +185,13 @@ class PurchaseOrder(models.Model):
         #     if inv and inv.state not in ('cancel', 'draft', 'general_manager_refuse'):
         #         raise UserError('不能取消这个采购单，你必须首先取消相关的供应商账单。')
 
-        self.state = 'canceling'  # 点击取消按钮，将状态置为取消中，待中台传回取消结果，做进一步动作
+        if not self.picking_ids:
+            return super(PurchaseOrder, self).button_cancel()
+        else:
+            if self.picking_ids.filtered(lambda x: x.state == 'done'):
+                raise ValidationError('不能取消已部分收货的订单！')
+
+            self.state = 'canceling'  # 点击取消按钮，将状态置为取消中，待中台传回取消结果，做进一步动作
         # return super(PurchaseOrder, self).button_cancel()
 
     @api.multi
