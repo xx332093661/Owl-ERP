@@ -37,6 +37,7 @@ class SaleOrder(models.Model):
         ('sale', '销售订单'),
         ('done', '完成'),
         ('cancel', '取消'),
+        ('canceling', '取消中'),
         # ('purchase', '采购中')
     ], string='状态', readonly=True, copy=False, index=True, track_visibility='onchange', track_sequence=3, default='draft')
     channel_id = fields.Many2one(comodel_name='sale.channels', string='销售渠道', readonly=1, states=READONLY_STATES, track_visibility='onchange', domain="[('code', '!=', 'across_move')]")

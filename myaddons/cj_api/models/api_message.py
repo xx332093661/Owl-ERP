@@ -3360,7 +3360,6 @@ class ApiMessage(models.Model):
             'remark': content['remark'],
         })
 
-
     # 43、MUSTANG-ERP-ALLOCATE-CANCELRESULT-QUEUE 中台推送流程取消结果给ERP
     def deal_mustang_erp_allocate_cancelresult_queue(self, content):
         """中台推送流程取消结果给ERP"""

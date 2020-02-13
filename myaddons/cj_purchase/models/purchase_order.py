@@ -29,6 +29,7 @@ STATES = [
     # ('general_manager_refuse', '总经理拒绝'),
     ('purchase', '供应商发货'),
     ('done', '完成'),
+    ('canceling', '取消中'),
     ('cancel', '取消'),
 ]
 
@@ -172,7 +173,7 @@ class PurchaseOrder(models.Model):
 
     @api.multi
     def action_cancel(self):
-        """取消订单"""
+        """取消订单 点击取消按钮，将状态置为取消中，待中台传回取消结果，做进一步动作"""
         # TODO 测试修改此处，待恢复
         # if self.state not in ['draft', 'confirm', 'oa_refuse']:
         #     raise ValidationError('只有草稿、确认、OA拒绝的单据才能取消！')
@@ -184,7 +185,8 @@ class PurchaseOrder(models.Model):
         #     if inv and inv.state not in ('cancel', 'draft', 'general_manager_refuse'):
         #         raise UserError('不能取消这个采购单，你必须首先取消相关的供应商账单。')
 
-        return super(PurchaseOrder, self).button_cancel()
+        self.state = 'canceling'  # 点击取消按钮，将状态置为取消中，待中台传回取消结果，做进一步动作
+        # return super(PurchaseOrder, self).button_cancel()
 
     @api.multi
     def action_draft(self):

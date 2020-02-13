@@ -19,7 +19,8 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='date_approve']" position="after">
                     <field name="send_pos_error" attrs="{'invisible': [('send_pos_state', '!=', 'error')]}"/>
-                    <field name="send_pos_state" invisible="0"/>
+                    <field name="send_pos_state" invisible="0" readonly="1"/>
+                    <field name="cancel_sync_state" invisible="0" readonly="1"/>
                 </xpath>
             </field>
         </record>

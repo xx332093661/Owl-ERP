@@ -8,6 +8,7 @@ import logging
 
 from odoo import models, api, fields
 from odoo.tools import config
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -18,6 +19,9 @@ class PurchaseOrder(models.Model):
 
     send_pos_state = fields.Selection([('draft', '草稿'), ('done', '完成'), ('error', '错误')], '同步POS状态', default='draft')
     send_pos_error = fields.Text('同步到POS错误信息')
+
+    cancel_sync_state = fields.Selection([('draft', '草稿'), ('done', '完成')], '取消同步中台状态',
+                                         default='draft', track_visibility='onchange', help='订单取消后同步到中台状态')
 
     @api.model
     def push_data_to_pos(self):
@@ -145,6 +149,17 @@ class PurchaseOrder(models.Model):
         #         'send_pos_state': 'error',
         #         'send_pos_error': result['msg']
         #     })
+
+    @api.multi
+    def do_cancel_push_mustang(self):
+        """取消同步到中台"""
+        if self.state != 'canceling':
+            raise ValidationError('非取消状态的单据不能同步取消到中台！')
+
+        if self.cancel_sync_state != 'draft':
+            raise ValidationError('已同步到中台！')
+
+        self.env['cj.send']._cron_push_cancel_purchase_order_mustang(self)  # ERP推送入库取消申请到中台
 
 
 
