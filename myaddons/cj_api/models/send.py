@@ -110,11 +110,6 @@ class CjSend(models.Model):
 
         return result
 
-    # def _publish_mq_message(self, connect, message):
-    #     """"""
-    #     name = uuid.uuid1().hex
-    #     self._cr.execute('SAVEPOINT "%s"' % name)
-
     @api.model
     def _cron_push_picking_mustang(self, picking=None):
         """ERP推送出入库单到中台
@@ -320,6 +315,79 @@ class CjSend(models.Model):
         finally:
             if isinstance(connection, pika.BlockingConnection):
                 connection.close()
+
+    @api.model
+    def cron_push_cancel_sale_order_mustang(self, order=None):
+        """ERP推送出库取消申请到中台"""
+        def get_order():
+            if order:
+                return order
+
+            return sale_order_obj.search([('state', '=', 'canceling'), ('cancel_sync_state', '=', 'draft')])
+
+        def get_picking_name(po):
+            return po.picking_ids.filtered(lambda x: not x.backorder_id).name
+
+        def get_message(po):
+            return {
+                'body': {
+                    'cancelNumber': po.name,  # 出入库取消单编号：由单据发起方负责生成
+                    'receiptNumber': get_picking_name(po),  # 出入库单编号
+                    'cancelTime': (datetime.now() + timedelta(hours=8)).strftime(DATETIME_FORMAT),  # 取消发起时间
+                    'cancelResult': '',  # 取消结果 ERP 发起，此字段为空
+                    'remark': '',  # 备注
+                },
+                'version': str(int(time.time() * 1000))
+            }
+
+        config_parameter_obj = self.env['ir.config_parameter']
+        sale_order_obj = self.env['sale.order']
+
+        username = config_parameter_obj.get_param('cj_rabbit_mq_username_id', default='')
+        password = config_parameter_obj.get_param('cj_rabbit_mq_password_id', default='')
+        host = config_parameter_obj.get_param('cj_rabbit_mq_ip_id', default='')
+        port = config_parameter_obj.get_param('cj_rabbit_mq_port_id', default='')
+        if not all([username, password, host, port]):
+            raise ValidationError('MQ服务器配置不正确！')
+
+        queue_name = 'ERP-MUSTANG-ALLOCATE-CANCEL-QUEUE'  # 队列名称
+
+        credentials = pika.PlainCredentials(username, password)
+        parameter = pika.ConnectionParameters(host=host, port=port, credentials=credentials)
+        connection = None
+
+        try:
+            connection = pika.BlockingConnection(parameter)
+            channel = connection.channel()
+            channel.queue_declare(queue=queue_name, exclusive=True, durable=True, passive=True)  # durable队列持久化
+            for res in get_order():
+                message = get_message(res)
+                channel.basic_publish(
+                    exchange='',
+                    routing_key=queue_name,
+                    body=json.dumps(message),
+                    properties=pika.BasicProperties(
+                        delivery_mode=2,  # 消息持久化
+                        content_type='text/plain',
+                        content_encoding='UTF-8'
+                    ))
+                _logger.info('ERP推送出库取消申请到中台，单号：%s，数据：%s', res.name, json.dumps(message))
+                res.cancel_sync_state = 'done'
+                self._cr.commit()
+        except AMQPConnectionError:
+            _logger.error('ERP推送出库取消申请到中台连接MQ服务器错误')
+            _logger.error(traceback.format_exc())
+            if order:
+                raise UserError('连接MQ服务器发生错误！')
+        except:
+            _logger.error('ERP推送出库取消申请到中台发生错误')
+            _logger.error(traceback.format_exc())
+            if order:
+                raise UserError('发送到中台发生错误！')
+        finally:
+            if isinstance(connection, pika.BlockingConnection):
+                connection.close()
+
 
     # @api.model
     # def _cron_push_cancel_purchase_order_mustang(self, picking=None):

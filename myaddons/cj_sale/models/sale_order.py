@@ -160,11 +160,31 @@ class SaleOrder(models.Model):
         self.state = 'draft'
         self.purchase_apply_id.unlink()  # 删除关联的采购申请
 
+    # @api.multi
+    # def button_cancel(self):
+    #     """取消订单"""
+    #     self.action_cancel()
+    #     self.purchase_apply_id.unlink()  # 删除关联的采购申请
+
     @api.multi
     def button_cancel(self):
-        """取消订单"""
-        self.action_cancel()
-        self.purchase_apply_id.unlink()  # 删除关联的采购申请
+        """取消订单 点击取消按钮，将状态置为取消中，待中台传回取消结果，做进一步动作"""
+        # TODO 测试修改此处，待恢复
+        # if self.state not in ['draft', 'confirm', 'general_manager_refuse']:
+        #     raise ValidationError('只有草稿、确认、总经理拒绝的单据才能取消！')
+
+        # TODO 测试修改此处，待删除
+        if self.state not in ['draft', 'confirm', 'general_manager_refuse', 'sale', 'done']:
+            raise ValidationError('只有草稿、确认、OA拒绝的单据才能取消！')
+
+        if not self.picking_ids:
+            self.action_cancel()
+            self.purchase_apply_id.unlink()  # 删除关联的采购申请
+        else:
+            if self.picking_ids.filtered(lambda x: x.state == 'done'):
+                raise ValidationError('不能取消已部分出货的订单！')
+
+            self.state = 'canceling'  # 点击取消按钮，将状态置为取消中，待中台传回取消结果，做进一步动作
 
     @api.multi
     def button_sale_manager_confirm(self):

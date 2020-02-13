@@ -19,6 +19,8 @@
                     <!--<button name="action_confirm1" string="确认并提交OA审批" type="object" states="draft" confirm="确认提交OA审批吗？" class="btn-primary"/>-->
 
                     <button name="button_cancel" string="取消" states="draft,confirm" type="object" groups="sales_team.group_sale_salesman"/>
+                    <button name="do_cancel_push_mustang" string="取消同步到中台" groups="base.group_system" type="object" attrs="{'invisible': ['|', ('state', '!=', 'canceling'), ('cancel_sync_state', '!=', 'draft')]}"/>
+
                     <button name="button_draft" string="设为草稿" states="confirm" type="object" groups="sales_team.group_sale_salesman"/>
                     <button name="button_draft" string="设为草稿" states="cancel,general_manager_refuse" class="oe_highlight" type="object" groups="sales_team.group_sale_salesman"/>
                     <button name="button_confirm" string="确认" states="draft" type="object" class="oe_highlight" groups="sales_team.group_sale_salesman"/> <!--销专员确认-->
@@ -277,6 +279,11 @@
                                     <field groups="base.group_no_one" name="origin" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                                 </group>
                                 <group name="utm_link" groups="base.group_no_one"/>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="cancel_sync_state" readonly="1"/>
+                                </group>
                             </group>
                         </page>
                     </notebook>

@@ -13,4 +13,4 @@ from . import purchase_order
 from . import main_data_api
 from . import picking_cancel_apply
 # from . import stock_across_move
-# from . import sale_order
+from . import sale_order
