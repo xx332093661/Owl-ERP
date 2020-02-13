@@ -84,7 +84,10 @@ PROCESS_ERROR = {
     '60': '未打到出入库单对应的商品明细',
     '61': '出库数量大于订单数量',
     '62': '出入库取消申请已存在',
-    '63': '出入库取消申请不存在'
+    '63': '出入库取消申请不存在',
+    '64': '单据的发起系统为ERP',
+    '65': '不能重复取消单据',
+    '66': '单据已出库或入库',
 
 }
 
@@ -3341,24 +3344,26 @@ class ApiMessage(models.Model):
     # 42、MUSTANG-ERP-ALLOCATE-CANCEL-QUEUE 中台推送出入库取消事件给EPR
     def deal_mustang_erp_allocate_cancel_queue(self, content):
         """中台推送出入库取消事件给EPR"""
-
-        apply_obj = self.env['stock.picking.cancel.apply']  # 出入库取消申请单
-
+        picking_obj = self.env['stock.picking']
         content = json.loads(content)['body']
-        cancel_number = content['cancelNumber']  # 出入库取消单编号
+        # cancel_number = content['cancelNumber']  # 出入库取消单编号
         receipt_number = content['receiptNumber']  # 出入库单编号
 
-        apply = apply_obj.search([('cancel_number', '=', cancel_number), ('receipt_number',  '=', receipt_number)])
-        if apply:
-            raise MyValidationError('62', '出入库取消单编号：%s、出入库单编号：%s对应的出入库取消申请已存在！' % (cancel_number, receipt_number))
+        picking = picking_obj.search([('name', '=', receipt_number)])
+        if not picking:
+            raise MyValidationError('35', '单据号：%s未打到对应的出入库单据！' % receipt_number)
 
-        apply_obj.create({
-            'cancel_number': cancel_number,
-            'receipt_number': receipt_number,
-            'cancel_time': (datetime.strptime(content['cancelTime'], DATETIME_FORMAT) - timedelta(hours=8)).strftime(DATETIME_FORMAT),
-            'state': content['cancelResult'],
-            'remark': content['remark'],
-        })
+        if picking.initiate_system == 'ERP':
+            raise MyValidationError('64', '单据的发起系统为ERP，不能通过此接口取消出入库')
+
+        if picking.state == 'cancel':
+            raise MyValidationError('65', '单据已取消，不能重复取消单据')
+
+        if picking.state == 'done':
+            raise MyValidationError('', '单据已出库或入库，不能取消！')
+
+        picking.do_unreserve()  # 取消保留
+        picking.action_cancel()  # 取消出入库单
 
     # 43、MUSTANG-ERP-ALLOCATE-CANCELRESULT-QUEUE 中台推送流程取消结果给ERP
     def deal_mustang_erp_allocate_cancelresult_queue(self, content):

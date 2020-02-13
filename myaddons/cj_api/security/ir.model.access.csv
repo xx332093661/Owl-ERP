@@ -6,4 +6,3 @@ access_cj_oa_api_all,cj_oa_api all,model_cj_oa_api,,1,1,1,0
 access_cj_oa_api_system,cj_oa_api system,model_cj_oa_api,base.group_system,1,1,1,1
 access_api_full_config_system,api_full_config system,model_api_full_config,base.group_system,1,1,1,1
 access_api_message_dump_system,api_message_dump system,model_api_message_dump,base.group_system,1,1,1,1
-access_stock_picking_cancel_apply_system,stock_picking_cancel_apply system,model_stock_picking_cancel_apply,base.group_system,1,1,1,1
