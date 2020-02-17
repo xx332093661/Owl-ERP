@@ -148,6 +148,8 @@ class PurchaseOrder(models.Model):
     can_push_pos = fields.Boolean('是否可推送到POS', compute='_compute_can_push_pos')
     is_tobacco = fields.Boolean('是烟草采购订单', default=False)
 
+    old_state = fields.Char('原状态')
+
     @api.model
     def create(self, vals):
         vals['name'] = self.env['ir.sequence'].next_by_code('purchase.order.code')
@@ -191,6 +193,7 @@ class PurchaseOrder(models.Model):
             if self.picking_ids.filtered(lambda x: x.state == 'done'):
                 raise ValidationError('不能取消已部分收货的订单！')
 
+            self.old_state = self.state  # 把当前状态保留下来
             self.state = 'canceling'  # 点击取消按钮，将状态置为取消中，待中台传回取消结果，做进一步动作
         # return super(PurchaseOrder, self).button_cancel()
 

@@ -106,6 +106,8 @@ class SaleOrder(models.Model):
     actual_amount = fields.Float('实收金额', compute='_compute_return_amount')
     order_date = fields.Date('订单日期', compute='_compute_order_date', store=1)
 
+    old_state = fields.Char('原状态')
+
     @api.multi
     def button_confirm(self):
         """销售专员确认团购单"""
@@ -184,6 +186,7 @@ class SaleOrder(models.Model):
             if self.picking_ids.filtered(lambda x: x.state == 'done'):
                 raise ValidationError('不能取消已部分出货的订单！')
 
+            self.old_state = self.state  # 把当前状态保留下来
             self.state = 'canceling'  # 点击取消按钮，将状态置为取消中，待中台传回取消结果，做进一步动作
 
     @api.multi

@@ -88,6 +88,8 @@ PROCESS_ERROR = {
     '64': '单据的发起系统为ERP',
     '65': '不能重复取消单据',
     '66': '单据已出库或入库',
+    '67': '订单状态非取消中',
+    '68': '没有找到对应的采购或销售订单'
 
 }
 
@@ -3360,7 +3362,7 @@ class ApiMessage(models.Model):
             raise MyValidationError('65', '单据已取消，不能重复取消单据')
 
         if picking.state == 'done':
-            raise MyValidationError('', '单据已出库或入库，不能取消！')
+            raise MyValidationError('66', '单据已出库或入库，不能取消！')
 
         picking.do_unreserve()  # 取消保留
         picking.action_cancel()  # 取消出入库单
@@ -3368,32 +3370,38 @@ class ApiMessage(models.Model):
     # 43、MUSTANG-ERP-ALLOCATE-CANCELRESULT-QUEUE 中台推送流程取消结果给ERP
     def deal_mustang_erp_allocate_cancelresult_queue(self, content):
         """中台推送流程取消结果给ERP"""
-        apply_obj = self.env['stock.picking.cancel.apply']  # 出入库取消申请单
-        picking_obj = self.env['stock.picking']
+        sale_order_obj = self.env['sale.order']
+        purchase_order_obj = self.env['purchase.order']
 
         content = json.loads(content)['body']
         cancel_number = content['cancelNumber']  # 出入库取消单编号
         state = content['cancelResult']
 
-        apply = apply_obj.search([('cancel_number', '=', cancel_number)])
-        if not apply:
-            raise MyValidationError('63', '取消单编号：%s对应的出入库取消申请不存在' % cancel_number)
+        order = sale_order_obj.search([('name', '=', cancel_number)])
+        if order:
+            if state == 'refuse':
+                order.state = order.old_state  # 还原状态
+                return
 
-        receipt_number = apply.receipt_number
-        picking = picking_obj.search([('name', '=', receipt_number)])
-        if not picking:
-            raise MyValidationError('35', '出入库单编号：%s对应的出库单不存在' % receipt_number)
+            if order.state != 'canceling':
+                raise MyValidationError('67', '订单：%s状态：%s，不能取消！' % (cancel_number, order.state))
 
-        if state == 'refuse':
-            # 已取消
-            if picking.state == 'cancel':
-                pass
+            order.action_cancel()
+            order.purchase_apply_id.unlink()  # 删除关联的采购申请
+            return
 
-            receipt_number = apply.receipt_number
-            picking_obj.search([('name', '=', receipt_number)])
+        order = purchase_order_obj.search([('name', '=', cancel_number)])
+        if order:
+            if state == 'refuse':
+                order.state = order.old_state  # 还原状态
+                return
 
+            if order.state != 'canceling':
+                raise MyValidationError('67', '订单：%s状态：%s，不能取消！' % (cancel_number, order.state))
+            order.button_cancel()
+            return
 
-
+        raise MyValidationError('68', '出入库取消单编号：%s没有找到对应的采购或销售订单' % cancel_number)
 
     def get_country_id(self, country_name):
         country_obj = self.env['res.country']
