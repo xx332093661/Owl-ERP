@@ -317,7 +317,7 @@ class CjSend(models.Model):
                 connection.close()
 
     @api.model
-    def cron_push_cancel_sale_order_mustang(self, order=None):
+    def _cron_push_cancel_sale_order_mustang(self, order=None):
         """ERP推送出库取消申请到中台"""
         def get_order():
             if order:

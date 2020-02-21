@@ -112,7 +112,7 @@ class SaleOrder(models.Model):
         if self.cancel_sync_state != 'draft':
             raise ValidationError('已同步到中台！')
 
-        self.env['cj.send'].cron_push_cancel_sale_order_mustang(self)  # ERP推送入库取消申请到中台
+        self.env['cj.send']._cron_push_cancel_sale_order_mustang(self)  # ERP推送入库取消申请到中台
 
 
 
