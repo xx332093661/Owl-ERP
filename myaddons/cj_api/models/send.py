@@ -200,6 +200,10 @@ class CjSend(models.Model):
         config_parameter_obj = self.env['ir.config_parameter']
         picking_obj = self.env['stock.picking']
 
+        pickings = get_picking()
+        if not picking:
+            return
+
         username = config_parameter_obj.get_param('cj_rabbit_mq_username_id', default='')
         password = config_parameter_obj.get_param('cj_rabbit_mq_password_id', default='')
         host = config_parameter_obj.get_param('cj_rabbit_mq_ip_id', default='')
@@ -212,11 +216,12 @@ class CjSend(models.Model):
         credentials = pika.PlainCredentials(username, password)
         parameter = pika.ConnectionParameters(host=host, port=port, credentials=credentials)
         connection = None
+
         try:
             connection = pika.BlockingConnection(parameter)
             channel = connection.channel()
             channel.queue_declare(queue=queue_name, exclusive=True, durable=True, passive=True)  # durable队列持久化
-            for res in get_picking():
+            for res in pickings:
                 message = get_message(res)
                 channel.basic_publish(
                     exchange='',
@@ -271,6 +276,10 @@ class CjSend(models.Model):
         config_parameter_obj = self.env['ir.config_parameter']
         purchase_order_obj = self.env['purchase.order']
 
+        orders = get_order()
+        if not orders:
+            return
+
         username = config_parameter_obj.get_param('cj_rabbit_mq_username_id', default='')
         password = config_parameter_obj.get_param('cj_rabbit_mq_password_id', default='')
         host = config_parameter_obj.get_param('cj_rabbit_mq_ip_id', default='')
@@ -288,7 +297,7 @@ class CjSend(models.Model):
             connection = pika.BlockingConnection(parameter)
             channel = connection.channel()
             channel.queue_declare(queue=queue_name, exclusive=True, durable=True, passive=True)  # durable队列持久化
-            for res in get_order():
+            for res in orders:
                 message = get_message(res)
                 channel.basic_publish(
                     exchange='',
@@ -343,6 +352,10 @@ class CjSend(models.Model):
         config_parameter_obj = self.env['ir.config_parameter']
         sale_order_obj = self.env['sale.order']
 
+        orders = get_order()
+        if not orders:
+            return
+
         username = config_parameter_obj.get_param('cj_rabbit_mq_username_id', default='')
         password = config_parameter_obj.get_param('cj_rabbit_mq_password_id', default='')
         host = config_parameter_obj.get_param('cj_rabbit_mq_ip_id', default='')
@@ -360,7 +373,7 @@ class CjSend(models.Model):
             connection = pika.BlockingConnection(parameter)
             channel = connection.channel()
             channel.queue_declare(queue=queue_name, exclusive=True, durable=True, passive=True)  # durable队列持久化
-            for res in get_order():
+            for res in orders:
                 message = get_message(res)
                 channel.basic_publish(
                     exchange='',
