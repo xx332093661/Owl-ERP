@@ -89,7 +89,7 @@ class StockPicking(models.Model):
                                     ('107', '采购换货出库单'),
                                     ('108', '销售退货入库单'),
                                     ('109', '采购退货出库单'), ], '单据类型', track_visibility='onchange')
-    delivery_method = fields.Selection([('delivery', '配送'), ('self_pick', '自提')], '配送方式', track_visibility='onchange')
+    delivery_method = fields.Selection([('delivery', '配送'), ('selfPick', '自提')], '配送方式', track_visibility='onchange')
     initiate_system = fields.Char('发起系统', track_visibility='onchange')
     receipt_state = fields.Selection([('doing', '执行中')], '单据状态', track_visibility='onchange')
     apply_number = fields.Char('调拨申请单编号', track_visibility='onchange')
@@ -97,7 +97,7 @@ class StockPicking(models.Model):
     # @api.one
     # def _compute_deliveries(self):
     #     """从销售订单计算关联的物流单"""
-    #     if self.sale_id:
+    #     if self.sale_id:P
     #         self.delivery_ids = self.sale_id.delivery_ids.ids
 
     # @api.multi
