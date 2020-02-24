@@ -3377,7 +3377,7 @@ class ApiMessage(models.Model):
         cancel_number = content['cancelNumber']  # 出入库取消单编号
         state = content['cancelResult']
 
-        order = sale_order_obj.search([('name', '=', cancel_number)])
+        order = sale_order_obj.search([('cancel_number', '=', cancel_number)])
         if order:
             if state == 'refuse':
                 order.state = order.old_state  # 还原状态
@@ -3390,7 +3390,7 @@ class ApiMessage(models.Model):
             order.purchase_apply_id.unlink()  # 删除关联的采购申请
             return
 
-        order = purchase_order_obj.search([('name', '=', cancel_number)])
+        order = purchase_order_obj.search([('cancel_number', '=', cancel_number)])
         if order:
             if state == 'refuse':
                 order.state = order.old_state  # 还原状态
