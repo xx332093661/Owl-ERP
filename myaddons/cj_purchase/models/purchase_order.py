@@ -198,6 +198,7 @@ class PurchaseOrder(models.Model):
                 'old_state': self.state,
                 'cancel_number': self.env['ir.sequence'].next_by_code('purchase.sale.cancel.number.code'),
                 'state': 'canceling',
+                'cancel_sync_state': 'draft',
             })
             # self.old_state = self.state  # 把当前状态保留下来
             # self.cancel_number = 'purchase.sale.cancel.number.code'  # 取消单号

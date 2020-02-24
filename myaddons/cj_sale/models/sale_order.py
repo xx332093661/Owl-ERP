@@ -191,6 +191,7 @@ class SaleOrder(models.Model):
                 'old_state': self.state,
                 'cancel_number': self.env['ir.sequence'].next_by_code('purchase.sale.cancel.number.code'),
                 'state': 'canceling',
+                'cancel_sync_state': 'draft',
             })
             # self.old_state = self.state  # 把当前状态保留下来
             # self.state = 'canceling'  # 点击取消按钮，将状态置为取消中，待中台传回取消结果，做进一步动作
