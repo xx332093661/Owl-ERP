@@ -17,6 +17,7 @@
         'data/cron.xml',
         'data/uom_data.xml',
         'data/api_full_config.xml',
+        'data/ir_sequence.xml',
 
         'security/api_security.xml',
         'security/ir.model.access.csv',

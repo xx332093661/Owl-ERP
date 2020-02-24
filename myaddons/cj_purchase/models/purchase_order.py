@@ -149,6 +149,7 @@ class PurchaseOrder(models.Model):
     is_tobacco = fields.Boolean('是烟草采购订单', default=False)
 
     old_state = fields.Char('原状态')
+    cancel_number = fields.Char('取消单号')
 
     @api.model
     def create(self, vals):
@@ -193,8 +194,14 @@ class PurchaseOrder(models.Model):
             if self.picking_ids.filtered(lambda x: x.state == 'done'):
                 raise ValidationError('不能取消已部分收货的订单！')
 
-            self.old_state = self.state  # 把当前状态保留下来
-            self.state = 'canceling'  # 点击取消按钮，将状态置为取消中，待中台传回取消结果，做进一步动作
+            self.write({
+                'old_state': self.state,
+                'cancel_number': self.env['ir.sequence'].next_by_code('purchase.sale.cancel.number.code'),
+                'state': 'canceling',
+            })
+            # self.old_state = self.state  # 把当前状态保留下来
+            # self.cancel_number = 'purchase.sale.cancel.number.code'  # 取消单号
+            # self.state = 'canceling'  # 点击取消按钮，将状态置为取消中，待中台传回取消结果，做进一步动作
         # return super(PurchaseOrder, self).button_cancel()
 
     @api.multi

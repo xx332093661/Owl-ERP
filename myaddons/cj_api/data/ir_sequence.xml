@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data noupdate="1">
+        <!--
+        单据编码 = 单据类型 + 发起系统标识 + 时间戳到日 + 4位流水号（超过四位可进位）
+
+        调拨入库单（100）
+        调拨出库单（101）
+        调拨退货入库单（102）
+        调拨退货出库单（103）
+
+        采购入库单（104）
+        销售出库单（105）
+        采购换货入库单（106）
+        采购换货出库单（107）
+        销售退货入库单（108）
+        采购退货出库单（109）
+        -->
+        <!--采购入库单（104）-->
+        <record id="sequence_purchase_sale_cancel_number_code" model="ir.sequence">
+            <field name="name">出入库取消申请单据号</field>
+            <field name="code">purchase.sale.cancel.number.code</field>
+            <field name="prefix">200ERP%(year)s%(month)s%(day)s</field>
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field eval="True" name="use_date_range"/>
+            <field eval="False" name="company_id"/>
+            <field name="padding">4</field>
+        </record>
+
+    </data>
+</odoo>

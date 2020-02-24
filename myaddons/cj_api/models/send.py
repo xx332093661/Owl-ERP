@@ -264,7 +264,7 @@ class CjSend(models.Model):
         def get_message(po):
             return {
                 'body': {
-                    'cancelNumber': po.name,  # 出入库取消单编号：由单据发起方负责生成
+                    'cancelNumber': po.cancel_number,  # 出入库取消单编号：由单据发起方负责生成
                     'receiptNumber': get_picking_name(po),  # 出入库单编号
                     'cancelTime': (datetime.now() + timedelta(hours=8)).strftime(DATETIME_FORMAT),  # 取消发起时间
                     'cancelResult': '',  # 取消结果 ERP 发起，此字段为空
@@ -340,7 +340,7 @@ class CjSend(models.Model):
         def get_message(po):
             return {
                 'body': {
-                    'cancelNumber': po.name,  # 出入库取消单编号：由单据发起方负责生成
+                    'cancelNumber': po.cancel_number,  # 出入库取消单编号：由单据发起方负责生成
                     'receiptNumber': get_picking_name(po),  # 出入库单编号
                     'cancelTime': (datetime.now() + timedelta(hours=8)).strftime(DATETIME_FORMAT),  # 取消发起时间
                     'cancelResult': '',  # 取消结果 ERP 发起，此字段为空
