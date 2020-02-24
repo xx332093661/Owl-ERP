@@ -201,7 +201,7 @@ class CjSend(models.Model):
         picking_obj = self.env['stock.picking']
 
         pickings = get_picking()
-        if not picking:
+        if not pickings:
             return
 
         username = config_parameter_obj.get_param('cj_rabbit_mq_username_id', default='')
