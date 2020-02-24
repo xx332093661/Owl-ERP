@@ -3256,6 +3256,9 @@ class ApiMessage(models.Model):
         if picking.state == 'draft':
             picking.action_confirm()
 
+        if picking.state != 'assigned':
+            picking.action_assign()
+
         receipt_type = picking.receipt_type  # 单据类型
         # receipt_types = {
         #     '100': '调拨入库单',
@@ -3278,6 +3281,7 @@ class ApiMessage(models.Model):
                 continue
 
             if receipt_type in ['105', '106', '107', '108', '109'] and not float_is_zero(defective_number, precision_rounding=0.01):
+                picking.do_unreserve()  # 取消保留
                 raise MyValidationError('59', '采购或销售的出入库数量不应存在次品')
 
             if perfect_number:
@@ -3314,11 +3318,13 @@ class ApiMessage(models.Model):
                 order_qty = sum(order_lines.mapped('product_uom_qty'))  # 订单数量
                 qty_delivered = sum(order_lines.mapped('qty_delivered'))  # 发货数量
                 if float_compare(product_uom_qty, order_qty - qty_delivered, precision_rounding=0.01) == 1:
+                    picking.do_unreserve()  # 取消保留
                     raise MyValidationError('61', '订单数量：%s，已出库：%s，本次出库：%s，出库数量大于订单数量！' % (order_qty, qty_delivered, product_uom_qty))
 
 
             stock_moves = list(filter(lambda x: x.product_id.id == product.id and x.is_zp == line['is_zp'], picking.move_lines))
             if not stock_moves:
+                picking.do_unreserve()  # 取消保留
                 raise MyValidationError('60', '商品：%s，是否是正品：%s未打到出入库单对应的商品明细' % (product.partner_ref, line['is_zp']))
 
             for index, stock_move in enumerate(stock_moves):
