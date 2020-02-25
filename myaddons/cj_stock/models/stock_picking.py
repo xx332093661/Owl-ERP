@@ -57,6 +57,36 @@ def create(self, vals):
     else:
         pass
 
+    # 后续出入库单
+    if res.backorder_id:
+        if res.initiate_system == 'ERP':
+            vals = {
+                'sync_state': 'draft',  # 同步状态
+            }
+        else:
+            vals = {
+                'sync_state': 'no_need',  # 同步状态
+            }
+
+        if res.receipt_type == '109':  # 采购退货出库单
+            vals.update({
+                'name': sequence_obj.next_by_code('purchase.return.stock.out.code'),  # 单据号
+            })
+        elif res.receipt_type == '107':  # 采购换货出库单
+            vals.update({
+                'name': sequence_obj.next_by_code('purchase.exchange.stock.out.code'),  # 单据号
+            })
+        elif res.receipt_type == '106':  # 采购换货入库单
+            vals.update({
+                'name': sequence_obj.next_by_code('purchase.exchange.stock.in.code'),  # 单据号
+            })
+        elif res.receipt_type == '104': # 采购入库单
+            vals.update({
+                'name': sequence_obj.next_by_code('purchase.normal.stock.in.code'),  # 单据号
+            })
+
+        res.write(vals)
+
     return res
 
 

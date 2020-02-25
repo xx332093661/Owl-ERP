@@ -89,7 +89,8 @@ PROCESS_ERROR = {
     '65': '不能重复取消单据',
     '66': '单据已出库或入库',
     '67': '订单状态非取消中',
-    '68': '没有找到对应的采购或销售订单'
+    '68': '没有找到对应的采购或销售订单',
+    '69': '出入库单已存在'
 
 }
 
@@ -3126,6 +3127,10 @@ class ApiMessage(models.Model):
         warehouse_obj = self.env['stock.warehouse']
 
         content = json.loads(content)['body']
+
+        if picking_obj.search([('name', '=', content['receiptNumber'])]):
+            raise MyValidationError('69', '出入库单：%s已存在！' % content['receiptNumber'])
+
         receipt_types = {
             '100': '调拨入库单',
             '101': '调拨出库单',
@@ -3342,10 +3347,14 @@ class ApiMessage(models.Model):
                     break
 
         if exist_diff:
-            stock_backorder = stock_backorder_obj.create({
-                'pick_ids': [(6, 0, picking.ids)]
-            })
-            stock_backorder.process()  # 确认入库
+            # 单据来源为ERP，创建后续出入库单
+            if picking.initiate_system == 'ERP':
+                stock_backorder = stock_backorder_obj.create({
+                    'pick_ids': [(6, 0, picking.ids)]
+                })
+                stock_backorder.process()  # 确认入库
+            else:
+                picking.action_done()  # 确认入库
         else:
             picking.action_done()  # 确认入库
 

@@ -145,7 +145,8 @@ class CjSend(models.Model):
             if picking:
                 return picking
 
-            return picking_obj.search([('backorder_id', '=', False), ('initiate_system', '=', 'ERP'), ('state', 'not in', ['draft', 'cancel']), ('sync_state', 'in', ['draft'])], order='id asc')
+            return picking_obj.search([('initiate_system', '=', 'ERP'), ('state', 'not in', ['draft', 'cancel']), ('sync_state', 'in', ['draft'])], order='id asc')
+            # return picking_obj.search([('backorder_id', '=', False), ('initiate_system', '=', 'ERP'), ('state', 'not in', ['draft', 'cancel']), ('sync_state', 'in', ['draft'])], order='id asc')
 
         def get_type(pk):
             """计算出入库类型"""

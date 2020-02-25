@@ -50,9 +50,6 @@ class StockPicking(models.Model):
             if picking.initiate_system != 'ERP':
                 continue
 
-            if picking.backorder_id:
-                continue
-
             if picking.state not in ['draft', 'cancel'] and picking.sync_state == 'draft':
                 picking.can_sync = True
 
