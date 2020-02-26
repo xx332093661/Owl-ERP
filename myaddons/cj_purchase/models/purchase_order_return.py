@@ -245,7 +245,7 @@ class PurchaseOrderReturn(models.Model):
                 'partner_id': order.dest_address_id.id,
                 'move_dest_ids': [(4, x) for x in order_line.move_dest_ids.ids],
                 'state': 'draft',
-                # 'purchase_line_id': order_line.id,
+                'purchase_line_id': order_line.id,
                 'company_id': order.company_id.id,
                 'price_unit': price_unit,
                 'picking_type_id': order.picking_type_id.id,
