@@ -26,7 +26,7 @@ class PurchaseOrderReturnWizard(models.TransientModel):
             'line_ids': [(0, 0, {
                 'product_id': line['product_id'],
                 'product_qty': line['qty_received'] - line['qty_returned']
-            }) for line in can_return_lines]
+            }) for line in can_return_lines if line['qty_received'] - line['qty_returned'] > 0]
         }
 
     @api.multi

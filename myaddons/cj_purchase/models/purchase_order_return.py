@@ -60,19 +60,34 @@ class PurchaseOrderReturn(models.Model):
 
             order = self.purchase_order_id
             received_lines = []  # 已收货的商品
-            for line in order.order_line.filtered(lambda x: x.qty_received > 0):
+            # 已收货的商品
+            for move_line in order.picking_ids.filtered(lambda x: x.picking_type_id.code == 'incoming' and x.state == 'done').mapped('move_lines'):
+                res = list(filter(lambda x: x['product_id'] == move_line.product_id.id, received_lines))
+                if not res:
+                    received_lines.append({
+                        'product_id': move_line.product_id.id,
+                        'qty_received': move_line.quantity_done,  # 已收货数量
+                        'qty_returned': 0,  # 已退数量
+                        'order_qty': 0
+                    })
+                else:
+                    res[0]['qty_received'] += move_line.quantity_done
+
+            # 订单数量
+            for line in order.order_line:
                 res = list(filter(lambda x: x['product_id'] == line.product_id.id, received_lines))
                 if not res:
                     received_lines.append({
                         'product_id': line.product_id.id,
-                        'qty_received': line.qty_received,  # 已收货数量
+                        'qty_received': 0,  # 已收货数量
                         'qty_returned': 0,  # 已退数量
                         'order_qty': line.product_qty,  # 订单数量
                     })
                 else:
-                    res[0]['qty_received'] += line.qty_received
+                    # res[0]['qty_received'] += line.qty_received
                     res[0]['order_qty'] += line.product_qty
 
+            # 已退货数量
             for line in self.search([('purchase_order_id', '=', order.id), ('state', '!=', 'cancel')]).mapped('line_ids'):
                 res = list(filter(lambda x: x['product_id'] == line.product_id.id, received_lines))
                 if not res:
@@ -112,17 +127,18 @@ class PurchaseOrderReturn(models.Model):
 
         # 验证退货明细
         received_lines = []  # 已收货的商品
-        for line in self.purchase_order_id.order_line.filtered(lambda x: x.qty_received > 0):
-            res = list(filter(lambda x: x['product_id'] == line.product_id.id, received_lines))
+        # 已收货的商品
+        for move_line in self.purchase_order_id.picking_ids.filtered(lambda x: x.picking_type_id.code == 'incoming' and x.state == 'done').mapped('move_lines'):
+            res = list(filter(lambda x: x['product_id'] == move_line.product_id.id, received_lines))
             if not res:
                 received_lines.append({
-                    'product_id': line.product_id.id,
-                    'qty_received': line.qty_received,  # 已收货数量
+                    'product_id': move_line.product_id.id,
+                    'qty_received': move_line.quantity_done,  # 已收货数量
                     'qty_returned': 0,  # 已退数量
                 })
             else:
-                res[0]['qty_received'] += line.qty_received
-
+                res[0]['qty_received'] += move_line.quantity_done
+        # 已退数量
         for line in self.search([('purchase_order_id', '=', self.purchase_order_id.id), ('state', '!=', 'cancel'), ('id', '!=', self.id)]).mapped('line_ids'):
             res = list(filter(lambda x: x['product_id'] == line.product_id.id, received_lines))
             if not res:
