@@ -54,8 +54,38 @@ def create(self, vals):
             })
 
         res.write(vals)
-    else:
-        pass
+
+    # 销售订单，只处理团购订单与跨公司调拨销售订单，订单类型都是普通订单，团购单的团购标记为团购，跨公司调拨销售订单的渠道为跨公司调拨
+    # 团购订单
+    if 'group_flag' in ctx and ctx['group_flag'] == 'group':
+        vals = {
+            'delivery_method': '',  # 配送方式
+            'initiate_system': 'ERP',  # 发起系统
+            'receipt_state': 'doing',  # 单据状态
+            'apply_number': '',  # 调拨申请单编号
+            'sync_state': 'draft',  # 同步状态
+            'name': sequence_obj.next_by_code('sale.normal.stock.out.code'),  # 单据号
+            'receipt_type': '105',  # 单据类型（销售出库单）
+        }
+        res.write(vals)
+
+    # group_flag = getattr(res, 'group_flag', False)  # 团购标记
+    # special_order_mark = getattr(res, 'special_order_mark', False)  # 订单类型
+    # channel = getattr(res, 'channel_id', False)  # 渠道
+    # if special_order_mark == 'normal':
+    #     if group_flag == 'group' or (channel and channel.code == 'across_move'):
+    #         vals = {
+    #             'delivery_method': '',  # 配送方式
+    #             'initiate_system': 'ERP',  # 发起系统
+    #             'receipt_state': 'doing',  # 单据状态
+    #             'apply_number': '',  # 调拨申请单编号
+    #             'sync_state': 'draft',  # 同步状态
+    #             'name': sequence_obj.next_by_code('sale.normal.stock.out.code'),  # 单据号
+    #             'receipt_type': '105',  # 单据类型（销售出库单）
+    #         }
+    #         res.write(vals)
+
+
 
     # 后续出入库单
     if res.backorder_id:
@@ -83,6 +113,10 @@ def create(self, vals):
         elif res.receipt_type == '104': # 采购入库单
             vals.update({
                 'name': sequence_obj.next_by_code('purchase.normal.stock.in.code'),  # 单据号
+            })
+        elif res.receipt_type == '105':  # 销售出库单
+            vals.update({
+                'name': sequence_obj.next_by_code('sale.normal.stock.out.code'),  # 单据号
             })
 
         res.write(vals)

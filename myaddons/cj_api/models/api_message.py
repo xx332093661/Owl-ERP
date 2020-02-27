@@ -3264,6 +3264,11 @@ class ApiMessage(models.Model):
         if picking.state != 'assigned':
             picking.action_assign()
 
+        stock_moves = picking.move_lines.filtered(lambda x: x.state != 'assigned')
+        if stock_moves:
+            picking.do_unreserve()  # 取消保留
+            raise MyValidationError('19', '%s不能完成出库！' % ('、'.join(stock_moves.mapped('product_id').mapped('partner_ref'))))
+
         receipt_type = picking.receipt_type  # 单据类型
         # receipt_types = {
         #     '100': '调拨入库单',
