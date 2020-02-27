@@ -155,7 +155,7 @@ class StockAcrossMove(models.Model):
                 'tax_id': [(6, 0, tax.ids)]
             })for line in self.line_ids]
         })
-        sale_order.action_confirm()  # 确认销售订单
+        sale_order.with_context(channel='across_move').action_confirm()  # 确认销售订单
         # 创建采购订单
         tax = tax_obj.sudo().search([('company_id', '=', company_in_id), ('type_tax_use', '=', 'purchase'), ('amount', '=', 13)])
         purchase_order = self.env['purchase.order'].sudo().create({
