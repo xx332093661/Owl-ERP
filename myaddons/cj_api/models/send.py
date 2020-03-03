@@ -172,21 +172,125 @@ class CjSend(models.Model):
 
             return out_type, out_number, in_type, in_number
 
+        def get_delivery_method(pk):
+            """计算配送方式
+            入库都配送，
+            """
+            picking_type_code = pk.picking_type_id.code
+            if picking_type_code == 'incoming':
+                return 'delivery'
+
+            # 采购退货
+            if pk.order_return_id:
+                return delivery_methods[pk.order_return_id.delivery_method]
+
+            # 销售出库
+            if pk.sale_id:
+                # 团购
+                if pk.sale_id.group_flag == 'group':
+                    return delivery_methods[pk.sale_id.delivery_method]
+
+                # 跨公司调拨
+                if pk.sale_id.channel_id.code == 'across_move':
+                    return 'delivery'
+
+            return 'selfPick'
+
+        def get_consignee(pk):
+            """计算配送信息"""
+            picking_type_code = pk.picking_type_id.code
+            if picking_type_code == 'incoming':
+                return {
+                    'companyName': '',  # 收货单位名称
+                    'name': '',  # 收货人姓名
+                    'phone': '',  # 收货人手机号
+                    'province': '',  # 省
+                    'city': '',  # 市
+                    'area': '',  # 县
+                    'address': ''  # 收货人详细地址
+                }
+
+            # 采购退货
+            if pk.order_return_id:
+                order_return = pk.order_return_id  # 退货单
+                return {
+                    'companyName': order_return.partner_id.name,  # 收货单位名称
+                    'name': order_return.consignee_name,  # 收货人姓名
+                    'phone': order_return.consignee_mobile,  # 收货人手机号
+                    'province': order_return.consignee_state_id.name,  # 省
+                    'city': order_return.consignee_city_id.name,  # 市
+                    'area': order_return.consignee_district_id.name,  # 县
+                    'address': order_return.address  # 收货人详细地址
+                }
+
+            # 销售出库
+            if pk.sale_id:
+                # 团购
+                if pk.sale_id.group_flag == 'group':
+                    order = pk.sale_id  # 团购单
+                    return {
+                        'companyName': order.partner_id.name,  # 收货单位名称
+                        'name': order.consignee_name,  # 收货人姓名
+                        'phone': order.consignee_mobile,  # 收货人手机号
+                        'province': order.consignee_state_id.name,  # 省
+                        'city': order.consignee_city_id.name,  # 市
+                        'area': order.consignee_district_id.name,  # 县
+                        'address': order.address  # 收货人详细地址
+                    }
+
+                # 跨公司调拨
+                if pk.sale_id.channel_id.code == 'across_move':
+                    account_move = account_move_obj.search([('sale_order_id', '=', pk.sale_id.id)])  # 跨公司调拨单
+                    warehouse_in = account_move.warehouse_in_id  # 调入仓库
+                    company = warehouse_in.company_id
+                    if company.type == 'store':
+                        return {
+                            'companyName': company.name,  # 收货单位名称
+                            'name': '',  # 收货人姓名
+                            'phone': '',  # 收货人手机号
+                            'province': company.state_id.name or '',  # 省
+                            'city': company.city or '',  # 市
+                            'area': company.street2 or '',  # 县
+                            'address': company.street or ''  # 收货人详细地址
+                        }
+                    else:
+                        return {
+                            'companyName': company.name,  # 收货单位名称
+                            'name': warehouse_in.charge_person or warehouse_in.contact or '',  # 收货人姓名
+                            'phone': warehouse_in.charge_phone or warehouse_in.contact_phone or '',  # 收货人手机号
+                            'province': warehouse_in.state_id.name or '',  # 省
+                            'city': warehouse_in.city_id.name or '',  # 市
+                            'area': warehouse_in.area_id.name or '',  # 县
+                            'address': warehouse_in.street or ''  # 收货人详细地址
+                        }
+
+            return {
+                'companyName': '',  # 收货单位名称
+                'name': '',  # 收货人姓名
+                'phone': '',  # 收货人手机号
+                'province': '',  # 省
+                'city': '',  # 市
+                'area': '',  # 县
+                'address': ''  # 收货人详细地址
+            }
+
         def get_message(pk):
             out_type, out_number, in_type, in_number = get_type(pk)
+            delivery_method = get_delivery_method(pk)
             return {
                 'body': {
                     'receiptNumber': pk.name,  # 出入库单编号
                     'initiateSystem': 'ERP',  # 发起系统
                     'receiptTime': (datetime.now() + timedelta(hours=8)).strftime(DATETIME_FORMAT),  # 单据发起时间
-                    'applyNumber': '',  # 关联调拨申请单号 TODO
+                    'applyNumber': '',  # 关联调拨申请单号
                     'receiptState': 'doing',  # 单据状态
                     'receiptType': pk.name[:3],  # 单据类型：调拨入库单（100），调拨出库单（101），调拨退货入库单（102），调拨退货出库单（103），采购入库单（104），销售出库单（105），采购换货入库单（106），采购换货出库单（107），销售退货入库单（108），采购退货出库单（109）
                     'outType': out_type,  # 出库仓类型：仓库（warehouse） / 门店（store）
                     'outNumber': out_number,  # 出库仓唯一标识
                     'inType': in_type, # 入库仓类型：仓库（warehouse） / 门店（store）
                     'inNumber': in_number, # 入库仓唯一标识
-                    'deliveryMethod': 'delivery',  # 配送方式：配送（delivery）/ 自提（selfPick）TODO
+                    'deliveryMethod': delivery_method,  # 配送方式：配送（delivery）/ 自提（selfPick）
+                    'externalConsignee': get_consignee(pk), # 外部收货人信息
                     'remark': '',  # 备注
                     'goods': [{
                         'goodCode': ml.product_id.default_code,  # 商品唯一编码
@@ -198,8 +302,11 @@ class CjSend(models.Model):
                 'version': str(int(time.time() * 1000))
             }
 
+
+
         config_parameter_obj = self.env['ir.config_parameter']
         picking_obj = self.env['stock.picking']
+        account_move_obj = self.env['stock.across.move']  # 跨公司调拨
 
         pickings = get_picking()
         if not pickings:
@@ -213,6 +320,12 @@ class CjSend(models.Model):
             raise ValidationError('MQ服务器配置不正确！')
 
         queue_name = 'ERP-MUSTANG-ALLOCATE-RECEIPT-QUEUE'  # 队列名称
+
+        # 配送方式
+        delivery_methods = {
+            'delivery': 'delivery',  # 配送
+            'self_pick': 'selfPick', # 自提
+        }
 
         credentials = pika.PlainCredentials(username, password)
         parameter = pika.ConnectionParameters(host=host, port=port, credentials=credentials)
