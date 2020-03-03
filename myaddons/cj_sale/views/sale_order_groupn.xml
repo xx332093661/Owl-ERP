@@ -254,11 +254,11 @@
                                 <group>
                                     <field name="consignee_name" attrs="{'required': [('delivery_method', '=', 'delivery')]}"/>
                                     <field name="consignee_state_id" attrs="{'required': [('delivery_method', '=', 'delivery')]}" options="{'no_open': 1, 'no_create': 1}" domain="[('country_id.code', '=', 'CN')]"/>
-                                    <field name="consignee_district_id" attrs="{'required': [('delivery_method', '=', 'delivery')]}" options="{'no_open': 1, 'no_create': 1}" domain="[('state_id', '=', consignee_state_id), '|', ('parent_id', '=', consignee_city_id), ('parent_id', '=', False)]"/>
+                                    <field name="consignee_district_id" attrs="{'required': [('delivery_method', '=', 'delivery')]}" options="{'no_open': 1, 'no_create': 0}" domain="[('state_id', '=', consignee_state_id), '|', ('parent_id', '=', consignee_city_id), ('parent_id', '=', False)]"/>
                                 </group>
                                 <group>
                                     <field name="consignee_mobile" attrs="{'required': [('delivery_method', '=', 'delivery')]}"/>
-                                    <field name="consignee_city_id" attrs="{'required': [('delivery_method', '=', 'delivery')]}" options="{'no_open': 1, 'no_create': 1}" domain="[('state_id', '=', consignee_state_id)]"/>
+                                    <field name="consignee_city_id" attrs="{'required': [('delivery_method', '=', 'delivery')]}" options="{'no_open': 1, 'no_create': 0}" domain="[('state_id', '=', consignee_state_id)]"/>
                                 </group>
                                 <field name="address" attrs="{'required': [('delivery_method', '=', 'delivery')]}" placeholder="详细地址"/>
                             </group>
