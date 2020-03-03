@@ -302,8 +302,6 @@ class CjSend(models.Model):
                 'version': str(int(time.time() * 1000))
             }
 
-
-
         config_parameter_obj = self.env['ir.config_parameter']
         picking_obj = self.env['stock.picking']
         account_move_obj = self.env['stock.across.move']  # 跨公司调拨
