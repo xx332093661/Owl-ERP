@@ -27,6 +27,7 @@
         'data/purchase_data.xml',
         'data/oa_approval_callback.xml',
         'data/ir_sequence.xml',
+        'data/mail_message_subtype.xml',
 
         'wizard/import_product_cost_wizard_view.xml',
         'wizard/purchase_apply_import_view.xml',
