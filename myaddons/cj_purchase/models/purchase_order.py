@@ -3,15 +3,14 @@ from lxml import etree
 from datetime import timedelta, datetime
 import json
 import requests
+import logging
+import traceback
 
 from odoo import fields, models, api
 from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT, float_is_zero
 from odoo.addons.cj_arap.models.account_payment_term import PAYMENT_TERM_TYPE
-
-import logging
-import traceback
 
 _logger = logging.getLogger(__name__)
 
@@ -332,6 +331,12 @@ class PurchaseOrder(models.Model):
         self.ensure_one()
         action = self.env.ref('cj_purchase.action_purchase_order_return').read()[0]
         action['domain'] = [('purchase_order_id', '=', self.id)]
+        context = action.get('context', '{}')
+        context = json.loads(context)
+        context.update({
+            'default_partner_id': self.partner_id.id
+        })
+        action['context'] = context
         return action
 
     @api.multi

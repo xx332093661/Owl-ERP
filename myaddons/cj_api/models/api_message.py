@@ -763,15 +763,16 @@ class ApiMessage(models.Model):
                 'name': wh['name'],
                 'warehouse_type': str(wh['warehouseType']),
                 'company_id': company.id,
-                'contact': wh['contact'],
-                'contact_phone': wh['contactPhone'],
-                'charge_person': wh['chargePerson'],
-                'charge_phone': wh['chargePhone'],
+                'contact': wh['contact'],  # 仓库联系人
+                'contact_phone': wh['contactPhone'],  # 仓库联系人电话
+                'charge_person': wh['chargePerson'],  # 仓库负责人
+                'charge_phone': wh['chargePhone'],  # 仓库负责人电话
                 'status': wh['status'],  # [('0', '启用'), ('1', '停用')]
                 'state_id': state_id,
                 'city_id': city_id,
                 'area_id': area_id,
-                'active': True
+                'active': True,
+                'street': wh['address'],  # 仓库地址
             }
 
             warehouse = warehouse_obj.search([('cj_id', '=', wh['id'])], limit=1)

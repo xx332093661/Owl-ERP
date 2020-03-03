@@ -12,6 +12,7 @@ class Warehouse(models.Model):
     user_id = fields.Many2one('res.users', '仓库管理员')
     manager_id = fields.Many2one('res.users', '仓库经理')
     code = fields.Char('Short Name', required=True, size=50, help="Short name used to identify your warehouse")
+    street = fields.Char('仓库地址')
 
     @api.model
     def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):

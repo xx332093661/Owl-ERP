@@ -29,8 +29,8 @@ class PurchaseOrderReturn(models.Model):
     name = fields.Char('单号', default='NEW', readonly=1, track_visibility='onchange')
     partner_id = fields.Many2one('res.partner', track_visibility='onchange', string='供应商', required=1, readonly=1, states=READONLY_STATES, domain="[('supplier', '=', True)]")
     purchase_order_id = fields.Many2one('purchase.order', '采购订单', readonly=1, states=READONLY_STATES, track_visibility='onchange', required=1, domain="[('partner_id', '=', partner_id)]")
-    company_id = fields.Many2one('res.company', track_visibility='onchange', string='公司', readonly=0)
-    warehouse_id = fields.Many2one('stock.warehouse', '退货仓库', readonly=0, track_visibility='onchange')
+    company_id = fields.Many2one('res.company', track_visibility='onchange', string='公司', readonly=1, states=READONLY_STATES)
+    warehouse_id = fields.Many2one('stock.warehouse', '退货仓库', readonly=1, states=READONLY_STATES, track_visibility='onchange')
     type = fields.Selection([('refund', '退款'), ('replenishment', '补货')], '结算方式', readonly=1, states=READONLY_STATES, track_visibility='onchange', required=1)
 
     state = fields.Selection(STATES, '状态', default='draft', track_visibility='onchange')
@@ -42,6 +42,17 @@ class PurchaseOrderReturn(models.Model):
 
     replenishment_picking_ids = fields.One2many('stock.picking', 'order_replenishment_id', '补货单', help='结算方式为补货，采购经理审核后，同时创建补货的分拣')
     replenishment_picking_count = fields.Integer('补货单数量', compute='_compute_picking_count')
+
+    # 配送信息
+    delivery_method = fields.Selection([('delivery', '配送'), ('self_pick', '自提')], '配送方式', required=1, readonly=1, states=READONLY_STATES)
+    consignee_name = fields.Char('收货人姓名', readonly=1, states=READONLY_STATES)
+    consignee_mobile = fields.Char('收货人手机号', readonly=1, states=READONLY_STATES)
+    consignee_state_id = fields.Many2one('res.country.state', '省', domain="[('country_id.code', '=', 'CN')]", readonly=1, states=READONLY_STATES)
+    consignee_city_id = fields.Many2one('res.city', '市', domain="[('state_id', '=', consignee_state_id)]", readonly=1, states=READONLY_STATES)
+    consignee_district_id = fields.Many2one('res.city', '区(县)', domain="[('state_id', '=', consignee_state_id), '|', ('parent_id', '=', consignee_city_id), ('parent_id', '=', False)]", readonly=1, states=READONLY_STATES)
+    address = fields.Char('详细地址', readonly=1, states=READONLY_STATES)
+
+    # invisible_state = fields.Integer('', help='控制是否根据consignee_state_id的onchange事件修改consignee_state_id和consignee_district_id字段的值', copy=False, default=1)
 
     @api.one
     def _compute_picking_count(self):
@@ -94,11 +105,11 @@ class PurchaseOrderReturn(models.Model):
                     received_lines.append({
                         'product_id': line.product_id.id,
                         'qty_received': 0,
-                        'qty_returned': line.product_qty,  # 已退数量
+                        'qty_returned': line.return_qty,  # 已退数量
                         'order_qty': 0
                     })
                 else:
-                    res[0]['qty_returned'] += line.product_qty
+                    res[0]['qty_returned'] += line.return_qty
 
             # 可退货的商品
             can_return_lines = list(filter(lambda x: x['qty_received'] - x['qty_returned'] > 0, received_lines))
@@ -115,6 +126,81 @@ class PurchaseOrderReturn(models.Model):
             self.company_id = False
             self.warehouse_id = False
             self.line_ids = False
+
+    @api.onchange('partner_id', 'delivery_method')
+    def _onchange_delivery_method(self):
+        """配送方式改变，计算默认的配送信息"""
+        if self.delivery_method != 'delivery' or not self.partner_id:
+            return {
+                'value': {
+                    'consignee_name': False,
+                    'consignee_mobile': False,
+                    'consignee_state_id': False,
+                    'consignee_city_id': False,
+                    'consignee_district_id': False,
+                    'address': False,
+                }
+            }
+
+        res = self.search([('partner_id', '=', self.partner_id.id), ('delivery_method', '=', 'delivery')], order='id desc', limit=1)
+        if not res:
+            city_obj = self.env['res.city']
+
+            partner = self.partner_id
+            state = partner.state_id  # 省
+            city = partner.city_id  # 市
+            district = partner.street2  # 区/县
+            consignee_name = False
+            consignee_mobile = False
+            if partner.child_ids:
+                consignee = partner.child_ids[0]
+                consignee_name = consignee.name
+                consignee_mobile = consignee.phone
+
+            consignee_district_id = False
+            if district and state:
+                districts = city_obj.search([('name', '=', district), ('state_id', '=', state.id)])
+                if len(districts) == 1:
+                    consignee_district_id = districts.id
+                elif len(districts) > 1:
+                    if city:
+                        districts = city_obj.search(
+                            [('name', '=', district), ('state_id', '=', state.id), ('parent_id', '=', city.id)])
+                        consignee_district_id = districts.id
+                    else:
+                        consignee_district_id = districts[0].id
+
+            street = partner.street
+            address = '%s%s%s%s' % (state and state.name or '', city and city.name or '', district or '', street or '')
+            return {
+                'value': {
+                    'consignee_name': consignee_name,
+                    'consignee_mobile': consignee_mobile,
+                    'consignee_state_id': state.id,
+                    'consignee_city_id': city.id,
+                    'consignee_district_id': consignee_district_id,
+                    'address': address,
+                }
+            }
+
+        return {
+            'value': {
+                'consignee_name': res.consignee_name,
+                'consignee_mobile': res.consignee_mobile,
+                'consignee_state_id': res.consignee_state_id.id,
+                'consignee_city_id': res.consignee_city_id.id,
+                'consignee_district_id': res.consignee_district_id.id,
+                'address': res.address,
+            }
+        }
+
+    # @api.onchange('consignee_state_id')
+    # def _onchange_consignee_state_id(self):
+    #     if self.invisible_state != 1:
+    #         self.consignee_city_id = False
+    #         self.consignee_district_id = False
+    #
+    #     self.invisible_state = 2
 
     @api.multi
     def action_confirm(self):

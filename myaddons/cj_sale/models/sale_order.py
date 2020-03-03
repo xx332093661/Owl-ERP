@@ -71,12 +71,6 @@ class SaleOrder(models.Model):
     self_remark = fields.Char('客服备注')
     product_amount = fields.Float('商品总金额')
     total_amount = fields.Float('订单总金额')
-    consignee_name = fields.Char('收货人名字')
-    consignee_mobile = fields.Char('收货人电话')
-    address = fields.Char('收货人地址')
-    consignee_state_id = fields.Many2one('res.country.state', '省')
-    consignee_city_id = fields.Many2one('res.city', '市')
-    consignee_district_id = fields.Many2one('res.city', '区(县)')
     special_order_mark = fields.Selection([('normal', '普通订单'), ('compensate', '补发货订单'), ('gift', '赠品')], '订单类型', default='normal')
     parent_id = fields.Many2one('sale.order', '关联的销售订单')
     child_ids = fields.One2many('sale.order', 'parent_id', '补发订单')
@@ -108,6 +102,81 @@ class SaleOrder(models.Model):
 
     old_state = fields.Char('原状态')
     cancel_number = fields.Char('取消单号')
+
+    delivery_method = fields.Selection([('delivery', '配送'), ('self_pick', '自提')], '配送方式', readonly=1, states=READONLY_STATES)
+    consignee_name = fields.Char('收货人名字')
+    consignee_mobile = fields.Char('收货人电话')
+    consignee_state_id = fields.Many2one('res.country.state', '省')
+    consignee_city_id = fields.Many2one('res.city', '市')
+    consignee_district_id = fields.Many2one('res.city', '区(县)')
+    address = fields.Char('收货人地址')
+
+    @api.onchange('partner_id', 'delivery_method')
+    def _onchange_delivery_method(self):
+        """配送方式改变，计算默认的配送信息"""
+        if self.delivery_method != 'delivery' or not self.partner_id:
+            return {
+                'value': {
+                    'consignee_name': False,
+                    'consignee_mobile': False,
+                    'consignee_state_id': False,
+                    'consignee_city_id': False,
+                    'consignee_district_id': False,
+                    'address': False,
+                }
+            }
+
+        res = self.search([('partner_id', '=', self.partner_id.id), ('delivery_method', '=', 'delivery')], order='id desc', limit=1)
+        if not res:
+            city_obj = self.env['res.city']
+
+            partner = self.partner_id
+            state = partner.state_id  # 省
+            city = partner.city_id  # 市
+            district = partner.street2  # 区/县
+            consignee_name = False
+            consignee_mobile = False
+            if partner.child_ids:
+                consignee = partner.child_ids[0]
+                consignee_name = consignee.name
+                consignee_mobile = consignee.phone
+
+            consignee_district_id = False
+            if district and state:
+                districts = city_obj.search([('name', '=', district), ('state_id', '=', state.id)])
+                if len(districts) == 1:
+                    consignee_district_id = districts.id
+                elif len(districts) > 1:
+                    if city:
+                        districts = city_obj.search(
+                            [('name', '=', district), ('state_id', '=', state.id), ('parent_id', '=', city.id)])
+                        consignee_district_id = districts.id
+                    else:
+                        consignee_district_id = districts[0].id
+
+            street = partner.street
+            address = '%s%s%s%s' % (state and state.name or '', city and city.name or '', district or '', street or '')
+            return {
+                'value': {
+                    'consignee_name': consignee_name,
+                    'consignee_mobile': consignee_mobile,
+                    'consignee_state_id': state.id,
+                    'consignee_city_id': city.id,
+                    'consignee_district_id': consignee_district_id,
+                    'address': address,
+                }
+            }
+
+        return {
+            'value': {
+                'consignee_name': res.consignee_name,
+                'consignee_mobile': res.consignee_mobile,
+                'consignee_state_id': res.consignee_state_id.id,
+                'consignee_city_id': res.consignee_city_id.id,
+                'consignee_district_id': res.consignee_district_id.id,
+                'address': res.address,
+            }
+        }
 
     @api.multi
     def button_confirm(self):

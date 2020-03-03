@@ -7,10 +7,39 @@
             <field name="model">stock.warehouse</field>
             <field name="inherit_id" ref="stock.view_warehouse_tree"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='partner_id']" position="after">
+                <xpath expr="//field[@name='partner_id']" position="replace">
+                    <field name="company_id"/>
                     <field name="code"/>
                 </xpath>
             </field>
         </record>
+
+    <!--联系人-->
+    <record id="view_warehouse" model="ir.ui.view">
+        <field name="name">view_warehouse</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="warehouse_type"/>
+                <field name="state_id" options="{'no_open': 1, 'no_create': 1}" domain="[('country_id.code', '=', 'CN')]"/>
+                <field name="city_id" options="{'no_open': 1, 'no_create': 1}" domain="[('state_id', '=', state_id)]"/>
+                <field name="area_id" options="{'no_open': 1, 'no_create': 1}" domain="[('state_id', '=', state_id), '|', ('parent_id', '=', city_id), ('parent_id', '=', False)]"/>
+                <field name="status"/>
+            </xpath>
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="cj_id" readonly="1"/>
+                <field name="contact"/>
+                <field name="contact_phone"/>
+                <field name="charge_person"/>
+                <field name="charge_phone"/>
+                <field name="street"/>
+            </xpath>
+
+        </field>
+    </record>
     </data>
 </odoo>

@@ -9,11 +9,25 @@
                     <group>
                         <field name="partner_id" options="{'no_open': 1}"/>
                         <field name="warehouse_id" options="{'no_open': 1}"/>
+                        <field name="delivery_method"/>
                     </group>
                     <group>
                         <field name="purchase_order_id" options="{'no_open': 1}"/>
                         <field name="type"/>
+                        <field name="invisible_state" invisible="1"/>
                     </group>
+                </group>
+                <group string="配送信息" attrs="{'invisible': [('delivery_method', '!=', 'delivery')]}">
+                    <group>
+                        <field name="consignee_name" attrs="{'required': [('delivery_method', '=', 'delivery')]}"/>
+                        <field name="consignee_state_id" attrs="{'required': [('delivery_method', '=', 'delivery')]}" options="{'no_open': 1, 'no_create': 1}" domain="[('country_id.code', '=', 'CN')]"/>
+                        <field name="consignee_district_id" attrs="{'required': [('delivery_method', '=', 'delivery')]}" options="{'no_open': 1, 'no_create': 1}" domain="[('state_id', '=', consignee_state_id), '|', ('parent_id', '=', consignee_city_id), ('parent_id', '=', False)]"/>
+                    </group>
+                    <group>
+                        <field name="consignee_mobile" attrs="{'required': [('delivery_method', '=', 'delivery')]}"/>
+                        <field name="consignee_city_id" attrs="{'required': [('delivery_method', '=', 'delivery')]}" options="{'no_open': 1, 'no_create': 1}" domain="[('state_id', '=', consignee_state_id)]"/>
+                    </group>
+                    <field name="address" attrs="{'required': [('delivery_method', '=', 'delivery')]}" placeholder="详细地址"/>
                 </group>
                 <group string="退货明细">
                     <field name="line_ids" nolabel="1">

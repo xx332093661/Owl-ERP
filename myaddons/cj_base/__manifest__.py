@@ -38,7 +38,7 @@
         'views/res_partner.xml',
         'views/product_view.xml',
         'views/company_view.xml',
-        'views/warehouse_view.xml',
+        # 'views/warehouse_view.xml',
         'views/ir_property_view.xml',
         'views/ir_module_module_view.xml',
         'views/mail_templates.xml',
