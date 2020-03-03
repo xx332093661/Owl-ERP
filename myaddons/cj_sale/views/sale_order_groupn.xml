@@ -171,6 +171,7 @@
                                     <field name="product_id"
                                            attrs="{'readonly': [('product_updatable', '=', False)], 'required': [('display_type', '=', False)]}"
                                            force_save="1"
+                                           options="{'no_create': 1, 'no_open': 1}"
                                            context="{'partner_id': parent.partner_id,
                                            'quantity': product_uom_qty,
                                             'pricelist': parent.pricelist_id,
@@ -196,6 +197,7 @@
                                     <field name="analytic_tag_ids" groups="analytic.group_analytic_tags" widget="many2many_tags" invisible="1"/>
                                     <field name="price_unit" attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}"/>
                                     <field name="tax_id" widget="many2many_tags" options="{'no_create': True}"
+                                           required="1"
                                            domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]"
                                            attrs="{'readonly': [('qty_invoiced', '&gt;', 0)]}" invisible="0"/>
                                     <field name="discount" groups="sale.group_discount_per_so_line" invisible="1"/>
