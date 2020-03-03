@@ -3,6 +3,7 @@ import pytz
 from datetime import timedelta, datetime
 from odoo import fields, models, api
 from odoo.exceptions import UserError, ValidationError
+from dateutil.relativedelta import relativedelta
 
 
 READONLY_STATES = {
@@ -105,3 +106,26 @@ class SupplierContract(models.Model):
     def get_contract_by_partner(self, partner_id):
         """根据partner_id获取有效合同"""
         return self.search([('valid', '=', True), ('partner_id', '=', partner_id)], order='date_from', limit=1)
+
+    @api.model
+    def contract_notice(self):
+        """合同到期提醒"""
+        time_now = datetime.now()
+
+        day1 = (time_now + relativedelta(months=3)).date()
+        day2 = (time_now + relativedelta(months=3, days=-1)).date()
+        day3 = (time_now + relativedelta(months=3, days=-2)).date()
+
+        contracts = self.search([('date_to', 'in', [day1, day2, day3])])
+
+        for contract in contracts:
+            self.message_post(
+                body='合同：%s 3个月后即将到期' % contract.name,  # 内容
+                subject='合同即将到期',  # 主题
+                add_sign=False,
+                model=self._name,
+                res_id=contract.id,
+                subtype_id=self.env.ref('cj_purchase.mms_contract_notice').id,
+                partner_ids=[(6, 0, [contract.create_uid.partner_id.id])],  # 收件人
+            )
+

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="mms_contract_notice" model="mail.message.subtype">
+            <field name="name">合同即将到期</field>
+            <field name="res_model">supplier.contract</field>
+        </record>
+
+    </data>
+
+</odoo>
