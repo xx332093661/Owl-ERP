@@ -200,15 +200,16 @@ class CjSend(models.Model):
             """计算配送信息"""
             picking_type_code = pk.picking_type_id.code
             if picking_type_code == 'incoming':
-                return {
-                    'companyName': None,  # 收货单位名称
-                    'name': None,  # 收货人姓名
-                    'phone': None,  # 收货人手机号
-                    'province': None,  # 省
-                    'city': None,  # 市
-                    'area': None,  # 县
-                    'address': None  # 收货人详细地址
-                }
+                return None
+                # return {
+                #     'companyName': None,  # 收货单位名称
+                #     'name': None,  # 收货人姓名
+                #     'phone': None,  # 收货人手机号
+                #     'province': None,  # 省
+                #     'city': None,  # 市
+                #     'area': None,  # 县
+                #     'address': None  # 收货人详细地址
+                # }
 
             # 采购退货
             if pk.order_return_id:
@@ -264,15 +265,16 @@ class CjSend(models.Model):
                             'address': warehouse_in.street or None  # 收货人详细地址
                         }
 
-            return {
-                'companyName': None,  # 收货单位名称
-                'name': None,  # 收货人姓名
-                'phone': None,  # 收货人手机号
-                'province': None,  # 省
-                'city': None,  # 市
-                'area': None,  # 县
-                'address': None  # 收货人详细地址
-            }
+            return None
+            # return {
+            #     'companyName': None,  # 收货单位名称
+            #     'name': None,  # 收货人姓名
+            #     'phone': None,  # 收货人手机号
+            #     'province': None,  # 省
+            #     'city': None,  # 市
+            #     'area': None,  # 县
+            #     'address': None  # 收货人详细地址
+            # }
 
         def get_message(pk):
             out_type, out_number, in_type, in_number = get_type(pk)
