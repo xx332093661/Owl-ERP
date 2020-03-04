@@ -201,13 +201,13 @@ class CjSend(models.Model):
             picking_type_code = pk.picking_type_id.code
             if picking_type_code == 'incoming':
                 return {
-                    'companyName': '',  # 收货单位名称
-                    'name': '',  # 收货人姓名
-                    'phone': '',  # 收货人手机号
-                    'province': '',  # 省
-                    'city': '',  # 市
-                    'area': '',  # 县
-                    'address': ''  # 收货人详细地址
+                    'companyName': None,  # 收货单位名称
+                    'name': None,  # 收货人姓名
+                    'phone': None,  # 收货人手机号
+                    'province': None,  # 省
+                    'city': None,  # 市
+                    'area': None,  # 县
+                    'address': None  # 收货人详细地址
                 }
 
             # 采购退货
@@ -246,32 +246,32 @@ class CjSend(models.Model):
                     if company.type == 'store':
                         return {
                             'companyName': company.name,  # 收货单位名称
-                            'name': '',  # 收货人姓名
-                            'phone': '',  # 收货人手机号
-                            'province': company.state_id.name or '',  # 省
-                            'city': company.city or '',  # 市
-                            'area': company.street2 or '',  # 县
-                            'address': company.street or ''  # 收货人详细地址
+                            'name': None,  # 收货人姓名
+                            'phone': None,  # 收货人手机号
+                            'province': company.state_id.name or None,  # 省
+                            'city': company.city or None,  # 市
+                            'area': company.street2 or None,  # 县
+                            'address': company.street or None  # 收货人详细地址
                         }
                     else:
                         return {
                             'companyName': company.name,  # 收货单位名称
-                            'name': warehouse_in.charge_person or warehouse_in.contact or '',  # 收货人姓名
-                            'phone': warehouse_in.charge_phone or warehouse_in.contact_phone or '',  # 收货人手机号
-                            'province': warehouse_in.state_id.name or '',  # 省
-                            'city': warehouse_in.city_id.name or '',  # 市
-                            'area': warehouse_in.area_id.name or '',  # 县
-                            'address': warehouse_in.street or ''  # 收货人详细地址
+                            'name': warehouse_in.charge_person or warehouse_in.contact or None,  # 收货人姓名
+                            'phone': warehouse_in.charge_phone or warehouse_in.contact_phone or None,  # 收货人手机号
+                            'province': warehouse_in.state_id.name or None,  # 省
+                            'city': warehouse_in.city_id.name or None,  # 市
+                            'area': warehouse_in.area_id.name or None,  # 县
+                            'address': warehouse_in.street or None  # 收货人详细地址
                         }
 
             return {
-                'companyName': '',  # 收货单位名称
-                'name': '',  # 收货人姓名
-                'phone': '',  # 收货人手机号
-                'province': '',  # 省
-                'city': '',  # 市
-                'area': '',  # 县
-                'address': ''  # 收货人详细地址
+                'companyName': None,  # 收货单位名称
+                'name': None,  # 收货人姓名
+                'phone': None,  # 收货人手机号
+                'province': None,  # 省
+                'city': None,  # 市
+                'area': None,  # 县
+                'address': None  # 收货人详细地址
             }
 
         def get_message(pk):
