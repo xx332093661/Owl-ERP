@@ -149,12 +149,18 @@ class CjSend(models.Model):
             # return picking_obj.search([('backorder_id', '=', False), ('initiate_system', '=', 'ERP'), ('state', 'not in', ['draft', 'cancel']), ('sync_state', 'in', ['draft'])], order='id asc')
 
         def get_type(pk):
-            """计算出入库类型"""
+            """计算出入库类型
+            川酒省仓(51005)对应的in_type和out_type值特定为store
+            """
             picking_type = pk.picking_type_id
             picking_type_code = picking_type.code
             warehouse = picking_type.warehouse_id
             company = warehouse.company_id
-            ttype = 'store' if company.type == 'store' else 'warehouse'
+
+            if picking_type.warehouse_id.code == '51005':
+                ttype = 'store'
+            else:
+                ttype = 'store' if company.type == 'store' else 'warehouse'
             warehouse_code = warehouse.code
 
             out_type = ''
