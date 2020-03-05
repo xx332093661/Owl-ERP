@@ -235,6 +235,9 @@ class CjSend(models.Model):
                 # 团购
                 if pk.sale_id.group_flag == 'group':
                     order = pk.sale_id  # 团购单
+                    if order.delivery_method == 'self_pick':
+                        return None
+
                     return {
                         'companyName': order.partner_id.name,  # 收货单位名称
                         'name': order.consignee_name or None,  # 收货人姓名
