@@ -237,12 +237,12 @@ class CjSend(models.Model):
                     order = pk.sale_id  # 团购单
                     return {
                         'companyName': order.partner_id.name,  # 收货单位名称
-                        'name': order.consignee_name,  # 收货人姓名
-                        'phone': order.consignee_mobile,  # 收货人手机号
-                        'province': order.consignee_state_id.name,  # 省
-                        'city': order.consignee_city_id.name,  # 市
-                        'area': order.consignee_district_id.name,  # 县
-                        'address': order.address  # 收货人详细地址
+                        'name': order.consignee_name or None,  # 收货人姓名
+                        'phone': order.consignee_mobile or None,  # 收货人手机号
+                        'province': order.consignee_state_id.name or None,  # 省
+                        'city': order.consignee_city_id.name or None,  # 市
+                        'area': order.consignee_district_id.name or None,  # 县
+                        'address': order.address or None  # 收货人详细地址
                     }
 
                 # 跨公司调拨
