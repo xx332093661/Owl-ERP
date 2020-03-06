@@ -44,7 +44,7 @@ class PurchaseOrderReturn(models.Model):
     replenishment_picking_count = fields.Integer('补货单数量', compute='_compute_picking_count')
 
     # 配送信息
-    delivery_method = fields.Selection([('delivery', '配送'), ('self_pick', '自提')], '配送方式', required=1, readonly=1, states=READONLY_STATES)
+    delivery_method = fields.Selection([('delivery', '配送'), ('self_pick', '自提')], '配送方式', required=0, readonly=1, states=READONLY_STATES)
     consignee_name = fields.Char('收货人姓名', readonly=1, states=READONLY_STATES)
     consignee_mobile = fields.Char('收货人手机号', readonly=1, states=READONLY_STATES)
     consignee_state_id = fields.Many2one('res.country.state', '省', domain="[('country_id.code', '=', 'CN')]", readonly=1, states=READONLY_STATES)
